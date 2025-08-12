@@ -1,0 +1,71 @@
+[
+  {
+    "id": "t_1754920647353",
+    "subject": "محل تجاري في موقع نابض",
+    "pageUrl": "http://localhost:3000/property/104",
+    "propertyId": 104,
+    "target": "admin",
+    "createdAt": "2025-08-11T13:57:27.353Z",
+    "messages": [
+      {
+        "id": "m_1754920647353",
+        "from": "user",
+        "text": "بدء محادثة",
+        "at": "2025-08-11T13:57:27.353Z"
+      }
+    ]
+  },
+  {
+    "id": "t_1754920644747",
+    "subject": "محل تجاري في موقع نابض",
+    "pageUrl": "http://localhost:3000/property/104",
+    "propertyId": 104,
+    "target": "owner",
+    "createdAt": "2025-08-11T13:57:24.747Z",
+    "messages": [
+      {
+        "id": "m_1754920644747",
+        "from": "user",
+        "text": "بدء محادثة",
+        "at": "2025-08-11T13:57:24.747Z"
+      },
+      {
+        "id": "m_1754920653072",
+        "from": "user",
+        "text": "...",
+        "at": "2025-08-11T13:57:33.072Z"
+      }
+    ]
+  },
+  {
+    "id": "t_1754863608014",
+    "subject": "شقة فاخرة بإطلالة مدينة",
+    "pageUrl": "http://localhost:3000/property/101",
+    "propertyId": 101,
+    "target": "owner",
+    "createdAt": "2025-08-10T22:06:48.014Z",
+    "messages": [
+      {
+        "id": "m_1754863608014",
+        "from": "user",
+        "text": "بدء محادثة",
+        "at": "2025-08-10T22:06:48.014Z"
+      }
+    ]
+  },
+  {
+    "id": "t_1754863476353",
+    "subject": "دردشة مع الإدارة",
+    "pageUrl": "http://localhost:3000/",
+    "target": "admin",
+    "createdAt": "2025-08-10T22:04:36.353Z",
+    "messages": [
+      {
+        "id": "m_1754863476353",
+        "from": "user",
+        "text": "بدء محادثة",
+        "at": "2025-08-10T22:04:36.353Z"
+      }
+    ]
+  }
+]

@@ -1,0 +1,26 @@
+
+{
+  "brand.name": "Ain Oman",
+  "nav.home": "Accueil",
+  "nav.search": "Recherche",
+  "nav.properties": "Biens",
+  "nav.auctions": "Enchères",
+  "nav.companies": "Agences",
+  "nav.more": "Plus",
+  "cta.login": "Connexion",
+  "homepage.hero_title": "Votre plateforme immobilière intelligente au Sultanat & GCC",
+  "homepage.hero_sub": "Recherchez, achetez, louez ou gérez — avec intégrations publiques et IA.",
+  "homepage.search_placeholder": "Ville, quartier, type de bien...",
+  "homepage.search_button": "Rechercher",
+  "homepage.featured": "Biens en vedette",
+  "homepage.view_all": "Tout voir",
+  "card.price_from": "À partir de",
+  "card.beds": "Ch",
+  "card.baths": "Sdb",
+  "card.area": "m²",
+  "footer.tagline": "Plateforme pour achat, vente, location et gestion.",
+  "currency.OMR": "OMR",
+  "currency.AED": "AED",
+  "currency.SAR": "SAR",
+  "currency.USD": "€"
+}

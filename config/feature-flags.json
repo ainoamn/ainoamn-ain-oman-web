@@ -1,0 +1,16 @@
+{
+  "components": {
+    "header": {
+      "enabled": true
+    },
+    "footer": {
+      "enabled": true
+    },
+    "searchBar": {
+      "enabled": true
+    },
+    "filters": {
+      "enabled": true
+    }
+  }
+}

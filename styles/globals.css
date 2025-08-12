@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Theme Tokens (سهل تغييره لاحقًا من لوحة الإدارة) ===== */
+:root {
+  --brand-600: #0d9488; /* Teal 600 - اللون الرئيسي للهيدر والفوتر */
+  --brand-700: #0f766e; /* Teal 700 */
+  --brand-800: #115e59; /* Teal 800 */
+  --vanilla:   #FAF9F6; /* خلفية الصفحات */
+}
+
+/* الوضع الداكن: نخفف الاعتماد على الخلفية المزخرفة */
+.dark {
+  --brand-600: #0d9488;
+  --brand-700: #138079;
+  --brand-800: #0f5f5a;
+}
+
+/* ===== قواعد جاهزة للاستخدام ===== */
+.brand-bg    { background-color: var(--brand-600) !important; }
+.brand-bg-700{ background-color: var(--brand-700) !important; }
+.brand-text  { color: #fff !important; }
+.page-vanilla{ background-color: var(--vanilla) !important; }
+
+/* زخرفة إسلامية خفيفة فوق خلفية #FAF9F6 */
+/* استخدمنا SVG بسيط بلون تركوازي خفيف، يمكن تغييره لاحقًا من لوحة الإدارة */
+.vanilla-pattern {
+  background-color: var(--vanilla);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath fill='%230d9488' fill-opacity='0.06' d='M14 0l2 4 4 2-4 2-2 4-2-4-4-2 4-2 2-4zM0 14l4-2 2-4 2 4 4 2-4 2-2 4-2-4-4-2zM14 28l2-4 4-2-4-2-2-4-2 4-4 2 4 2 2 4zM28 14l-4 2-2 4-2-4-4-2 4-2 2-4 2 4 4 2z'/%3E%3C/svg%3E");
+  background-size: 28px 28px;
+  background-attachment: fixed;
+}
+.dark .vanilla-pattern { background-image: none; } /* نوقف الزخرفة في الداكن */
+
+/* لتلوين كل البطاقات/الأقسام/الأزرار بنفس لون الهيدر بشكل تلقائي داخل نطاق معيّن */
+.brandify :where(.card, .section, .box, .panel, .widget, .btn, button) {
+  background-color: var(--brand-600) !important;
+  color: #fff !important;
+  border-color: var(--brand-700) !important;
+}
+.brandify :where(.btn, button) {
+  transition: all .2s ease;
+}
+.brandify :where(.btn:hover, button:hover) {
+  background-color: var(--brand-700) !important;
+  box-shadow: 0 0 0 6px color-mix(in oklab, var(--brand-600) 20%, transparent);
+}
+
+/* إن كانت لديك بطاقات Tailwind حالية (shadow, rounded) */
+.card { border-radius: 0.9rem; }
+
+
+/* === Updates: تدرّج العلامة + أدوات إضافية === */
+:root{
+  /* تدرّجات إضافية اختيارية */
+  --brand-50:#e6fffb;
+  --brand-100:#bff8f2;
+  --brand-200:#99efe8;
+  --brand-300:#73e6de;
+  --brand-400:#4cd9d1;
+  --brand-500:#26ccc3;
+}
+
+/* خلفية متدرجة للـ Header/Footer مع بقاء الخلفية الصلبة كـ fallback */
+.brand-bg{ 
+  background-color: var(--brand-600) !important;
+  background-image: linear-gradient(90deg, var(--brand-700), var(--brand-600));
+}
+
+/* زر أساسي داخل نطاق معيّن */
+.brand-scope .btn-primary{
+  background: var(--brand-700);
+  color:#fff;
+  border-radius: 0.8rem;
+  padding: .65rem 1.1rem;
+}
+.brand-scope .btn-primary:hover{ background: var(--brand-800); }
+
+/* إلغاء الزخرفة في مناطق معيّنة */
+.vanilla-none{ background-image: none !important; }
+
+/* تحسينات صغيرة على الروابط الداكنة والفاتحة */
+a{ transition: color .15s ease, background-color .15s ease, opacity .15s ease; }
+.dark .card{ background-color: #0f172a; }

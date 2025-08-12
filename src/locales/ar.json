@@ -1,0 +1,48 @@
+{
+  "brand.name": "عين عُمان",
+  "nav.home": "الرئيسية",
+  "nav.search": "البحث",
+  "nav.properties": "العقارات",
+  "nav.auctions": "المزادات",
+  "nav.companies": "الشركات",
+  "nav.more": "المزيد",
+  "cta.login": "دخول",
+  "homepage.hero_title": "منصتك العقارية الذكية في عُمان والخليج",
+  "homepage.hero_sub": "ابحث، اشتر، استأجر، أو أدِر عقاراتك بسهولة — مع تكاملات حكومية وذكاء اصطناعي.",
+  "homepage.search_placeholder": "ابحث عن مدينة، حي، نوع عقار...",
+  "homepage.search_button": "ابحث الآن",
+  "homepage.featured": "عقارات مميزة",
+  "homepage.view_all": "عرض الكل",
+  "card.price_from": "ابتداءً من",
+  "card.beds": "غرف",
+  "card.baths": "حمامات",
+  "card.area": "م²",
+  "footer.tagline": "منصة عقارية ذكية للبيع والشراء والتأجير والإدارة.",
+  "currency.OMR": "ر.ع",
+  "currency.AED": "د.إ",
+  "currency.SAR": "ر.س",
+  "currency.USD": "$",
+  "search": {
+    "propertyType": "نوع العقار",
+    "purpose": "الغرض",
+    "rentalType": "نوع الإيجار",
+    "province": "المحافظة",
+    "state": "الولاية",
+    "village": "القرية",
+    "keyword": "كلمة مفتاحية..."
+  },
+  "sections": {
+    "featuredProperties": "عقارات مميزة",
+    "topRatedProperties": "العقارات الأعلى تقييماً",
+    "topCompanies": "الشركات الأعلى تقييماً",
+    "partners": "شركاؤنا",
+    "badges": "أصحاب الشارات",
+    "stats": {
+      "properties": "عقار متاح",
+      "landlords": "مؤجر",
+      "companies": "شركة",
+      "auctions": "مزاد نشط"
+    },
+    "recommendations": "قد يعجبك"
+  }
+}

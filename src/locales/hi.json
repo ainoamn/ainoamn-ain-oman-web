@@ -1,0 +1,26 @@
+
+{
+  "brand.name": "Ain Oman",
+  "nav.home": "होम",
+  "nav.search": "खोज",
+  "nav.properties": "प्रॉपर्टीज़",
+  "nav.auctions": "नीलामी",
+  "nav.companies": "कंपनियाँ",
+  "nav.more": "और",
+  "cta.login": "लॉगिन",
+  "homepage.hero_title": "ओमान और जीसीसी के लिए स्मार्ट रियल एस्टेट प्लेटफ़ॉर्म",
+  "homepage.hero_sub": "खोजें, खरीदें, किराए पर लें या प्रबंधन करें — सरकारी इंटीग्रेशन और एआई के साथ।",
+  "homepage.search_placeholder": "शहर, क्षेत्र, प्रकार...",
+  "homepage.search_button": "अभी खोजें",
+  "homepage.featured": "फीचर्ड प्रॉपर्टीज़",
+  "homepage.view_all": "सभी देखें",
+  "card.price_from": "से",
+  "card.beds": "बेड",
+  "card.baths": "बाथ",
+  "card.area": "मी²",
+  "footer.tagline": "खरीद, बिक्री, किराया और प्रबंधन के लिए स्मार्ट प्लेटफ़ॉर्म।",
+  "currency.OMR": "OMR",
+  "currency.AED": "AED",
+  "currency.SAR": "SAR",
+  "currency.USD": "$"
+}

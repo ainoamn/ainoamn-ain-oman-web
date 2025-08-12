@@ -1,0 +1,48 @@
+{
+  "brand.name": "Ain Oman",
+  "nav.home": "Home",
+  "nav.search": "Search",
+  "nav.properties": "Properties",
+  "nav.auctions": "Auctions",
+  "nav.companies": "Companies",
+  "nav.more": "More",
+  "cta.login": "Login",
+  "homepage.hero_title": "Your smart real-estate platform in Oman & GCC",
+  "homepage.hero_sub": "Search, buy, rent, or manage properties — with gov integrations & AI.",
+  "homepage.search_placeholder": "Search city, district, property type...",
+  "homepage.search_button": "Search now",
+  "homepage.featured": "Featured Properties",
+  "homepage.view_all": "View all",
+  "card.price_from": "From",
+  "card.beds": "Beds",
+  "card.baths": "Baths",
+  "card.area": "sqm",
+  "footer.tagline": "A smart platform for buying, selling, renting, and management.",
+  "currency.OMR": "OMR",
+  "currency.AED": "AED",
+  "currency.SAR": "SAR",
+  "currency.USD": "$",
+  "search": {
+    "propertyType": "Property Type",
+    "purpose": "Purpose",
+    "rentalType": "Rental Type",
+    "province": "Province",
+    "state": "State",
+    "village": "Village",
+    "keyword": "Keyword..."
+  },
+  "sections": {
+    "featuredProperties": "Featured Properties",
+    "topRatedProperties": "Top Rated Properties",
+    "topCompanies": "Top Rated Companies",
+    "partners": "Our Partners",
+    "badges": "Badge Holders",
+    "stats": {
+      "properties": "Available Properties",
+      "landlords": "Landlords",
+      "companies": "Companies",
+      "auctions": "Active Auctions"
+    },
+    "recommendations": "You May Like"
+  }
+}

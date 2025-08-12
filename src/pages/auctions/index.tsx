@@ -1,0 +1,416 @@
+// src/pages/auctions/index.tsx — merged with subscription guard + manage + sell button
+import Head from "next/head";
+import Link from "next/link";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import dynamic from "next/dynamic";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+
+// ---- i18n fallback ----
+let useI18n: any;
+try { useI18n = require("@/lib/i18n").useI18n; } catch {
+  useI18n = () => ({
+    t: (k: string) => ({
+      "auctions.title": "المزايدات العقارية",
+      "auctions.subtitle": "اكتشف أفضل الفرص العقارية بالمزايدة.",
+      "auctions.search": "ابحث عن عقار أو موقع...",
+      "auctions.filter.all": "جميع العقارات",
+      "auctions.filter.villas": "فيلات",
+      "auctions.filter.apartments": "شقق",
+      "auctions.filter.lands": "أراضي",
+      "auctions.section.active": "المزايدات النشطة",
+      "auctions.section.featured": "عقارات مميزة",
+      "auctions.section.map": "مواقع المزايدات النشطة",
+      "auctions.cta.reset": "إعادة تعيين البحث",
+      "common.loading.properties": "جاري تحميل العقارات...",
+      "common.view.details": "عرض التفاصيل",
+      "common.bid": "قدّم مزايدة",
+      "common.location": "الموقع",
+      "common.remaining": "الوقت المتبقي",
+      "common.initial_price": "السعر الابتدائي",
+      "common.current_bid": "المزايدة الحالية",
+      "subs.required": "هذه الميزة تتطلب اشتراكًا نشطًا وصلاحية مناسبة",
+      "subs.view.paywall": "أنت بحاجة إلى باقة مزادات لعرض المحتوى بالكامل",
+      "subs.upgrade": "عرض الباقات",
+      "subs.sell.cta": "بيع عبر المزاد",
+      "dashboard.manage": "إدارة المزادات",
+    } as Record<string, string>)[k] || k,
+    lang: "ar",
+    dir: "rtl",
+  });
+}
+
+let useTheme: any;
+try { useTheme = require("@/context/ThemeContext").useTheme; } catch { useTheme = () => ({ theme: "light" }); }
+
+const LoadScript = dynamic(() => import("@react-google-maps/api").then(m => m.LoadScript), { ssr: false });
+const GoogleMap = dynamic(() => import("@react-google-maps/api").then(m => m.GoogleMap), { ssr: false });
+const Marker = dynamic(() => import("@react-google-maps/api").then(m => m.Marker), { ssr: false });
+
+const darkMapStyle: any[] = [
+  { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+  { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+  { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#263c3f" }] },
+  { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#6b9a76" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#212a37" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#746855" }] },
+  { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#1f2835" }] },
+  { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#f3d19c" }] },
+  { featureType: "transit", elementType: "geometry", stylers: [{ color: "#2f3948" }] },
+  { featureType: "transit.station", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] },
+  { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }] },
+];
+
+// ---- Auth/Subscription (lightweight, replace with real auth later) ----
+type Role = "guest" | "member" | "admin" | "owner";
+type Feature = "VIEW_AUCTIONS" | "CREATE_AUCTION";
+
+type Session = { role: Role; plan: "free" | "pro" | "enterprise" | null; features: Feature[] };
+function getSession(): Session {
+  try {
+    const raw = typeof window !== "undefined" ? localStorage.getItem("ain_auth") : null;
+    if (raw) return JSON.parse(raw) as Session;
+  } catch {}
+  return { role: "guest", plan: null, features: [] };
+}
+function hasFeature(f: Feature, s: Session) { return s.features?.includes(f); }
+
+function SubscriptionBanner({ needFeature }: { needFeature?: Feature }) {
+  const { t, dir } = useI18n();
+  const s = getSession();
+  const allowed = needFeature ? hasFeature(needFeature, s) : !!s.plan;
+  if (allowed) return null;
+  return (
+    <div dir={dir} className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-4 mb-6 flex items-center justify-between">
+      <div className="text-sm">{t("subs.view.paywall")} — {t("subs.required")}</div>
+      <Link href="/subscriptions" className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm">
+        {t("subs.upgrade")}
+      </Link>
+    </div>
+  );
+}
+
+type Auction = {
+  id: string;
+  title: string;
+  description: string;
+  location: string;
+  price: number;
+  currentBid: number;
+  area: number;
+  bedrooms: number;
+  bathrooms: number;
+  endTime: number;
+  image: string;
+  features: string[];
+  auctionType: string;
+  coords: { lat: number; lng: number };
+};
+
+export default function AuctionsPage() {
+  const { t, dir } = useI18n();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  const session = getSession();
+  const canCreate = hasFeature("CREATE_AUCTION", session);
+  const isManager = session.role === "admin" || session.role === "owner";
+
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<"all" | "villas" | "apartments" | "lands">("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeAuctions, setActiveAuctions] = useState<Auction[]>([]);
+  const [featured, setFeatured] = useState<any[]>([]);
+
+  const [mapInstance, setMapInstance] = useState<any>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState(false);
+  const defaultCenter = { lat: 23.5880, lng: 58.3829 };
+
+  const images = [
+    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1470&q=80",
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1470&q=80",
+    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1475&q=80",
+    "https://images.unsplash.com/photo-1605146769289-440113cc3d00?auto=format&fit=crop&w=1470&q=80",
+    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1453&q=80",
+    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1470&q=80",
+  ];
+
+  useEffect(() => {
+    const now = Date.now();
+    const mock: Auction[] = [
+      { id: "auction1", title: "فيلا فاخرة في حي السفارات", description: "فيلا فاخرة بمساحة 450 م² مع مسبح وحديقة.", location: "مسقط، الخوض", price: 250000, currentBid: 225000, area: 450, bedrooms: 5, bathrooms: 4, endTime: now + 48*3600*1000, image: images[0], features: ["مسبح","حديقة","مواقف"], auctionType: "مزاد علني", coords: { lat: 23.6005, lng: 58.1606 } },
+      { id: "auction2", title: "شقة راقية بإطلالة بحرية", description: "شقة 180 م² بإطلالة مباشرة على البحر.", location: "مسقط، شاطئ القرم", price: 120000, currentBid: 98000, area: 180, bedrooms: 3, bathrooms: 2, endTime: now + 24*3600*1000, image: images[1], features: ["إطلالة بحرية","صالة رياضية"], auctionType: "مزاد إلكتروني", coords: { lat: 23.6139, lng: 58.5334 } },
+      { id: "auction3", title: "أرض سكنية مميزة", description: "أرض 800 م² على شارع رئيسي.", location: "بركاء", price: 90000, currentBid: 72000, area: 800, bedrooms: 0, bathrooms: 0, endTime: now + 72*3600*1000, image: images[2], features: ["موقع مميز","قريبة من الخدمات"], auctionType: "مزاد علني", coords: { lat: 23.6800, lng: 57.9000 } },
+      { id: "auction4", title: "شقة دوبلكس فاخرة", description: "دوبلكس 220 م² بإطلالة بانورامية.", location: "مسقط، مدينة السلطان قابوس", price: 160000, currentBid: 130000, area: 220, bedrooms: 4, bathrooms: 3, endTime: now + 36*3600*1000, image: images[3], features: ["دوبلكس","مواقف مغلقة"], auctionType: "مزاد إلكتروني", coords: { lat: 23.5950, lng: 58.4200 } },
+    ];
+    const feat = [
+      { id: "featured1", title: "قصر فخم", description: "قصر بمساحة 1200 م² وحدائق خاصة.", location: "نزوى", price: 950000, area: 1200, bedrooms: 8, bathrooms: 6, image: images[4], features: ["قصر","حدائق","ملاعب"], featured: true },
+      { id: "featured2", title: "بيت شاطئي", description: "بيت شاطئي 680 م² بإطلالة مباشرة.", location: "صور", price: 450000, area: 680, bedrooms: 6, bathrooms: 5, image: images[5], features: ["شاطئ خاص","ديكور فاخر"], featured: true },
+    ];
+    setActiveAuctions(mock);
+    setFeatured(feat);
+    setLoading(false);
+  }, []);
+
+  const filtered = useMemo(() => {
+    const s = searchTerm.trim().toLowerCase();
+    return activeAuctions.filter(p => {
+      const matches = !s || p.title.toLowerCase().includes(s) || p.location.toLowerCase().includes(s);
+      if (filter === "all") return matches;
+      if (filter === "villas") return p.bedrooms >= 4 && matches;
+      if (filter === "apartments") return p.bedrooms >= 1 && p.bedrooms <= 3 && matches;
+      if (filter === "lands") return p.bedrooms === 0 && matches;
+      return matches;
+    });
+  }, [activeAuctions, filter, searchTerm]);
+
+  const formatPrice = (n: number) => new Intl.NumberFormat("ar-OM").format(n) + " ر.ع";
+  const mapContainerStyle = { width: "100%", height: "500px", borderRadius: "12px" } as const;
+
+  const onMapLoad = useCallback((map: any) => {
+    setMapInstance(map);
+    setMapLoaded(true);
+  }, []);
+  const onMapUnmount = useCallback(() => setMapInstance(null), []);
+
+  useEffect(() => {
+    if (!mapLoaded || !mapInstance || filtered.length === 0 || !(window as any).google) return;
+    try {
+      const bounds = new (window as any).google.maps.LatLngBounds();
+      filtered.forEach(p => bounds.extend(p.coords));
+      mapInstance.fitBounds(bounds);
+    } catch (e) {
+      console.error(e);
+      setMapError(true);
+    }
+  }, [filtered, mapLoaded, mapInstance]);
+
+  const hasMapsKey = !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  return (
+    <main dir={dir} className={isDark ? "bg-gray-900 min-h-screen flex flex-col" : "bg-gray-50 min-h-screen flex flex-col"}>
+      <Head><title>{t("auctions.title")} | Ain Oman</title></Head>
+      <Header />
+
+      <div className="flex-1">
+        <div className="container mx-auto px-4 py-8">
+          {/* Paywall if user lacks a plan at all (optional) */}
+          <SubscriptionBanner />
+
+          {/* Top actions (Manage, Sell) */}
+          <div className="mb-4 flex gap-3 justify-end">
+            {isManager && (
+              <Link href="/dashboard/auctions" className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm">
+                {t("dashboard.manage")}
+              </Link>
+            )}
+            {canCreate ? (
+              <Link href="/auctions/sell" className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm">
+                {t("subs.sell.cta")}
+              </Link>
+            ) : (
+              <Link href="/subscriptions" className="px-3 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm">
+                {t("subs.sell.cta")} — {t("subs.upgrade")}
+              </Link>
+            )}
+          </div>
+
+          {/* Hero Search */}
+          <div className="mb-12 rounded-2xl p-8 text-center text-white brand-bg">
+            <h1 className="text-3xl sm:text-4xl font-bold mb-4">{t("auctions.title")}</h1>
+            <p className="text-lg opacity-90 mb-6">{t("auctions.subtitle")}</p>
+            <div className="flex flex-col md:flex-row gap-3 justify-center">
+              <input
+                type="text"
+                placeholder={t("auctions.search")}
+                className="w-full md:w-2/3 p-4 rounded-full text-gray-800 focus:outline-none shadow-lg"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <select
+                className="p-4 rounded-full bg-white text-gray-800 focus:outline-none shadow-lg"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as any)}
+              >
+                <option value="all">{t("auctions.filter.all")}</option>
+                <option value="villas">{t("auctions.filter.villas")}</option>
+                <option value="apartments">{t("auctions.filter.apartments")}</option>
+                <option value="lands">{t("auctions.filter.lands")}</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Loading */}
+          {loading ? (
+            <div className={`min-h-[200px] flex items-center justify-center ${isDark ? "text-white" : "text-gray-800"}`}>
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-500 mx-auto mb-6"></div>
+                <p className="text-xl">{t("common.loading.properties")}</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Active Auctions */}
+              <section className="mb-12">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-800"}`}>{t("auctions.section.active")}</h2>
+                  <button
+                    className={`px-3 py-2 rounded-lg ${isDark ? "bg-gray-700 text-white" : "bg-white text-gray-700"} border`}
+                    onClick={() => { setFilter("all"); setSearchTerm(""); }}
+                  >
+                    {t("auctions.cta.reset")}
+                  </button>
+                </div>
+
+                {filtered.length === 0 ? (
+                  <div className={`text-center py-12 rounded-xl ${isDark ? "bg-gray-800 text-gray-300" : "bg-white text-gray-600"} shadow-lg`}>
+                    لا توجد عقارات تطابق بحثك
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {filtered.map((p) => {
+                      const diff = p.endTime - Date.now();
+                      const days = Math.max(0, Math.floor(diff / 86400000));
+                      const hours = Math.max(0, Math.floor((diff % 86400000) / 3600000));
+                      const minutes = Math.max(0, Math.floor((diff % 3600000) / 60000));
+                      return (
+                        <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl transition hover:scale-[1.02] ${isDark ? "bg-gray-800" : "bg-white"}`}>
+                          <div className="relative">
+                            <img src={p.image} alt={p.title} className="w-full h-56 object-cover" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                            <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                              {p.auctionType}
+                            </div>
+                            <div className="absolute bottom-4 left-4 right-4">
+                              <div className={`p-3 rounded-lg backdrop-blur-sm ${isDark ? "bg-black/30 text-white" : "bg-white/90 text-gray-800"}`}>
+                                <div className="flex justify-between items-center">
+                                  <div className="font-medium">{t("common.remaining")}</div>
+                                  <div className="flex gap-3 text-sm">
+                                    <span className="text-center"><b>{days}</b> يوم</span>
+                                    <span className="text-center"><b>{hours}</b> ساعة</span>
+                                    <span className="text-center"><b>{minutes}</b> دقيقة</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="p-6">
+                            <div className="flex justify-between items-start mb-3">
+                              <div>
+                                <h3 className={`text-lg font-bold mb-1 ${isDark ? "text-white" : "text-gray-800"}`}>{p.title}</h3>
+                                <div className="text-sm text-gray-500">{p.location}</div>
+                              </div>
+                            </div>
+                            <div className={`p-4 rounded-lg mb-4 ${isDark ? "bg-gray-700" : "bg-gray-100"}`}>
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <div className="text-xs text-gray-500">{t("common.initial_price")}</div>
+                                  <div className={isDark ? "text-blue-300 font-semibold" : "text-blue-600 font-semibold"}>{formatPrice(p.price)}</div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-gray-500">{t("common.current_bid")}</div>
+                                  <div className={isDark ? "text-green-300 font-semibold" : "text-green-600 font-semibold"}>{formatPrice(p.currentBid)}</div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex gap-3">
+                              <Link href={`/auctions/${p.id}`} className={`flex-1 py-3 rounded-lg font-medium text-center ${isDark ? "bg-teal-600 hover:bg-teal-700 text-white" : "bg-teal-500 hover:bg-teal-600 text-white"}`}>
+                                {t("common.view.details")}
+                              </Link>
+                              <Link href={`/auctions/${p.id}`} className={`py-3 px-4 rounded-lg font-medium text-center ${isDark ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}`}>
+                                {t("common.bid")}
+                              </Link>
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+
+              {/* Featured */}
+              <section className="mb-12">
+                <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>{t("auctions.section.featured")}</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {featured.map((p) => (
+                    <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl ${isDark ? "bg-gray-800" : "bg-white"}`}>
+                      <div className="flex flex-col md:flex-row">
+                        <div className="md:w-1/2">
+                          <img src={p.image} alt={p.title} className="w-full h-64 object-cover" />
+                        </div>
+                        <div className="md:w-1/2 p-6">
+                          <span className="px-2 py-1 bg-yellow-500 text-white text-xs rounded mb-2 inline-block">مميز</span>
+                          <h3 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-gray-800"}`}>{p.title}</h3>
+                          <div className="text-sm text-gray-500 mb-3">{p.location}</div>
+                          <div className="mb-3">{p.features?.slice(0,3).map((f: string, i: number) => (
+                            <span key={i} className={`inline-block ms-1 mb-1 px-3 py-1 rounded-full text-xs ${isDark ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"}`}>{f}</span>
+                          ))}</div>
+                          <div className={isDark ? "text-teal-400 font-bold mb-4" : "text-teal-600 font-bold mb-4"}>{formatPrice(p.price)}</div>
+                          <div className="flex gap-3">
+                            <Link href={`/auctions/${p.id}`} className={`flex-1 py-3 rounded-lg font-medium text-center ${isDark ? "bg-teal-600 hover:bg-teal-700 text-white" : "bg-teal-500 hover:bg-teal-600 text-white"}`}>{t("common.view.details")}</Link>
+                            <Link href={`/auctions/${p.id}`} className={`py-3 px-4 rounded-lg font-medium text-center ${isDark ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}`}>تواصل</Link>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+
+              {/* Map */}
+              <section className="mb-12">
+                <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>{t("auctions.section.map")}</h2>
+                <div className="rounded-xl overflow-hidden shadow-xl">
+                  {!hasMapsKey ? (
+                    <div className={`p-12 text-center ${isDark ? "bg-gray-800 text-gray-200" : "bg-white text-gray-600"}`}>
+                      لم يتم ضبط مفتاح Google Maps (NEXT_PUBLIC_GOOGLE_MAPS_API_KEY)
+                    </div>
+                  ) : mapError ? (
+                    <div className={`p-12 text-center ${isDark ? "bg-gray-800 text-red-400" : "bg-white text-red-600"}`}>
+                      تعذّر تحميل خرائط Google
+                    </div>
+                  ) : (
+                    <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string} onError={() => setMapError(true)} onLoad={() => setMapLoaded(true)}>
+                      <GoogleMap
+                        mapContainerStyle={mapContainerStyle}
+                        center={defaultCenter}
+                        zoom={8}
+                        onLoad={onMapLoad}
+                        onUnmount={onMapUnmount}
+                        options={{
+                          styles: isDark ? (darkMapStyle as any) : [],
+                          streetViewControl: false,
+                          mapTypeControl: false,
+                          fullscreenControl: false,
+                        }}
+                      >
+                        {filtered.map((p) => (
+                          <Marker
+                            key={p.id}
+                            position={p.coords}
+                            title={p.title}
+                            onClick={() => { if (mapInstance) { mapInstance.setCenter(p.coords); mapInstance.setZoom(14); } }}
+                          />
+                        ))}
+                      </GoogleMap>
+                    </LoadScript>
+                  )}
+                </div>
+              </section>
+            </>
+          )}
+        </div>
+      </div>
+
+      <Footer />
+    </main>
+  );
+}

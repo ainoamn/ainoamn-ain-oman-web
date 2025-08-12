@@ -1,0 +1,26 @@
+
+{
+  "brand.name": "عین عمان",
+  "nav.home": "ہوم",
+  "nav.search": "تلاش",
+  "nav.properties": "جائدادیں",
+  "nav.auctions": "نیلامی",
+  "nav.companies": "کمپنیاں",
+  "nav.more": "مزید",
+  "cta.login": "لاگ اِن",
+  "homepage.hero_title": "عمان اور خلیج کے لیے اسمارٹ رئیل اسٹیٹ پلیٹ فارم",
+  "homepage.hero_sub": "تلاش، خرید، کرایہ یا مینجمنٹ — سرکاری انضمام اور اے آئی کے ساتھ۔",
+  "homepage.search_placeholder": "شہر، علاقہ، پراپرٹی قسم...",
+  "homepage.search_button": "اب تلاش کریں",
+  "homepage.featured": "نمایاں جائدادیں",
+  "homepage.view_all": "سب دیکھیں",
+  "card.price_from": "سے",
+  "card.beds": "بیڈ",
+  "card.baths": "باتھ",
+  "card.area": "م²",
+  "footer.tagline": "خرید و فروخت، کرایہ اور مینجمنٹ کے لیے اسمارٹ پلیٹ فارم۔",
+  "currency.OMR": "OMR",
+  "currency.AED": "AED",
+  "currency.SAR": "SAR",
+  "currency.USD": "$"
+}

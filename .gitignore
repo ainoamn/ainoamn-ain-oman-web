@@ -1,0 +1,16 @@
+# Dependencies & builds
+node_modules/
+.next/
+out/
+dist/
+coverage/
+
+# Environment & local DB
+.env
+.env.local
+prisma/dev.db
+
+# OS / logs
+.DS_Store
+Thumbs.db
+*.log

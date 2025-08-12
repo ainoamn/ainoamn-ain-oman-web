@@ -1,0 +1,42 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/*
+  ملاحظة مهمة:
+  نبدأ بنموذجين فقط كبداية آمنة:
+  1) SerialCounter: للأرقام المتسلسلة لكل نوع معاملة.
+  2) AuditLog: سجل تدقيق بسيط لأي حدث مهم.
+
+  لاحقًا نمدد السكيمة (Users, Properties, Auctions, Contracts, Invoices, Payments, Tasks ...)
+  لكن كبداية هذا يعطيك أساس صلب ويشغّل الأرقام المتسلسلة فورًا.
+*/
+
+model SerialCounter {
+  id        Int      @id @default(autoincrement())
+  entity    String   // مثال: "PROPERTY", "AUCTION", "CONTRACT", "INVOICE", "PAYMENT", "TASK", "TICKET"
+  year      Int      // نستخدم السنة للفصل (مثال 2025)
+  counter   Int      @default(0) // آخر رقم مُستخدم
+  updatedAt DateTime @updatedAt
+
+  @@unique([entity, year]) // يمنع التكرار لنفس النوع والسنة
+}
+
+model AuditLog {
+  id            Int      @id @default(autoincrement())
+  eventType     String   // CREATE, UPDATE, DELETE, LOGIN...
+  actorId       String?  // من قام بالحدث (إن وجد)
+  resource      String?  // نوع المورد (مثال: PROPERTY)
+  resourceId    String?  // معرف المورد
+  ip            String?  // عنوان IP
+  userAgent     String?  // المتصفح/العميل
+  details       String?  // JSON/نص
+  createdAt     DateTime @default(now())
+}
