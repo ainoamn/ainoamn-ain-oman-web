@@ -4,10 +4,8 @@
 # 1) مسار مشروعك المحلي (مكان العمل)
 $LocalPath = "C:\dev\ain-oman-web"
 
-# 2) Google Drive — قلت إن المسار الصحيح هو: G:\My Drive\dev
-#    إذًا قاعدة الدرايف:
+# 2) Google Drive — قاعدتك كما ذكرت: G:\My Drive\dev
 $DriveBase = "G:\My Drive\dev"
-#    ومجلد المشروع تحته:
 $DriveProjectRelative = "ain-oman-web"
 $DriveFullPath = Join-Path $DriveBase $DriveProjectRelative
 
@@ -24,9 +22,5 @@ $LogDir = Join-Path $LocalPath "tools\sync\logs"
 New-Item -ItemType Directory -Force $LogDir | Out-Null
 
 # ========= أدوات مساعدة =========
-function Test-Git() {
-  return [bool](Get-Command git -ErrorAction SilentlyContinue)
-}
-function Ensure-Dir($p) {
-  if (-not (Test-Path $p)) { New-Item -ItemType Directory -Force $p | Out-Null }
-}
+function Test-Git() { return [bool](Get-Command git -ErrorAction SilentlyContinue) }
+function Ensure-Dir($p) { if (-not (Test-Path $p)) { New-Item -ItemType Directory -Force $p | Out-Null } }

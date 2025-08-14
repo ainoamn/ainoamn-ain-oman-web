@@ -29,10 +29,7 @@ if (-not $SkipGit) {
       git clone $GitRemote $LocalPath
     } elseif (Test-Path (Join-Path $LocalPath ".git")) {
       Push-Location $LocalPath
-      try {
-        Write-Host "⬇️ git pull origin $GitBranch ..."
-        git pull origin $GitBranch
-      } finally { Pop-Location }
+      try { Write-Host "⬇️ git pull origin $GitBranch ..."; git pull origin $GitBranch } finally { Pop-Location }
     } else {
       Write-Host "ℹ️ المجلد موجود لكن ليس مستودع Git — تم تخطّي Git." -ForegroundColor Gray
     }
@@ -43,9 +40,6 @@ if (-not $SkipGit) {
 if (-not $SkipDrive) {
   if (-not (Test-Path $DriveBase)) {
     Write-Host "⚠️ لم يتم العثور على قاعدة Google Drive: $DriveBase" -ForegroundColor DarkYellow
-    Write-Host "   تأكد أن تطبيق Google Drive يعمل وأن المسار صحيح." -ForegroundColor DarkYellow
-  } elseif (-not (Test-Path $DriveFullPath)) {
-    Write-Host "ℹ️ مجلد المشروع غير موجود في Drive بعد: $DriveFullPath" -ForegroundColor Gray
   } else {
     Ensure-Dir $LocalPath
 
@@ -56,29 +50,36 @@ if (-not $SkipDrive) {
     $logPull = Join-Path $LogDir "pull-drive-$timestamp.log"
 
     $rcArgs = @(
-      $DriveFullPath,
-      $LocalPath,
-      "/MIR",
-      "/COPY:DAT",
-      "/DCOPY:T",
-      "/FFT",
-      "/J",
-      "/R:2",
-      "/W:2",
-      "/NFL",
-      "/NDL",
-      "/NP",
-      "/LOG:$logPull"
+      $DriveFullPath, $LocalPath,
+      "/MIR", "/COPY:DAT", "/DCOPY:T", "/FFT", "/J",
+      "/R:2", "/W:2", "/NFL", "/NDL", "/NP", "/LOG:$logPull"
     ) + $xd + $xf
 
-    Write-Host "⬅️  مزامنة من Drive إلى المحلي..."
-    & robocopy @rcArgs
-    $rc = $LASTEXITCODE
-    if ($rc -le 7) {
-      Write-Host "✅ تم السحب من Drive (robocopy=$rc). السجل: $logPull" -ForegroundColor Green
+    $didMirror = $false
+    if (Test-Path $DriveFullPath) {
+      Write-Host "⬅️  مزامنة من Drive إلى المحلي (robocopy) ..."
+      & robocopy @rcArgs
+      $rc = $LASTEXITCODE
+      if ($rc -le 7) { Write-Host "✅ تم السحب من Drive (robocopy=$rc). السجل: $logPull" -ForegroundColor Green; $didMirror = $true }
+      else { Write-Host "⚠️ فشلت المزامنة (robocopy=$rc). السجل: $logPull" -ForegroundColor DarkYellow }
     } else {
-      Write-Host "❌ فشل السحب من Drive (robocopy=$rc). السجل: $logPull" -ForegroundColor Red
-      Write-Host "🧩 افتح السجل لمعرفة السبب." -ForegroundColor Yellow
+      Write-Host "ℹ️ مجلد المشروع غير موجود في Drive بعد: $DriveFullPath" -ForegroundColor Gray
+    }
+
+    if (-not $didMirror) {
+      # خطة بديلة: ابحث عن أحدث ZIP وفكّه
+      $latestZip = Get-ChildItem $DriveFullPath -Filter "*.zip" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+      if ($latestZip) {
+        Write-Host "🧩 العثور على أرشيف: $($latestZip.Name) — سيتم فكّه إلى $LocalPath" -ForegroundColor Yellow
+        try {
+          Expand-Archive -Path $latestZip.FullName -DestinationPath $LocalPath -Force
+          Write-Host "✅ تم استخراج الأرشيف بنجاح." -ForegroundColor Green
+        } catch {
+          Write-Host "❌ فشل استخراج الأرشيف: $($_.Exception.Message)" -ForegroundColor Red
+        }
+      } else {
+        Write-Host "ℹ️ لا توجد نسخة ZIP في Drive لاستخدامها كخطة بديلة." -ForegroundColor Gray
+      }
     }
   }
 }
