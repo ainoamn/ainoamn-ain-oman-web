@@ -1,0 +1,37 @@
+[
+  {
+    "id": "chat_owner",
+    "label": "دردشة مع المالك",
+    "visible": true,
+    "order": 1,
+    "action": "chat_owner"
+  },
+  {
+    "id": "chat_admin",
+    "label": "تواصل مع الإدارة",
+    "visible": true,
+    "order": 2,
+    "action": "chat_admin"
+  },
+  {
+    "id": "book_visit",
+    "label": "طلب معاينة",
+    "visible": true,
+    "order": 3,
+    "action": "book_visit"
+  },
+  {
+    "id": "negotiate",
+    "label": "مناقشة السعر",
+    "visible": true,
+    "order": 4,
+    "action": "negotiate"
+  },
+  {
+    "id": "book_unit",
+    "label": "حجز العقار",
+    "visible": true,
+    "order": 5,
+    "action": "book_unit"
+  }
+]

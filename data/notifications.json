@@ -1,0 +1,98 @@
+[
+  {
+    "id": "1755173865269",
+    "createdAt": "2025-08-14T12:17:45.269Z",
+    "read": false,
+    "type": "reservation_status_changed",
+    "target": "tenant",
+    "message": "تمت الموافقة على حجزك.",
+    "data": {
+      "reservationId": "1755173808895",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "1755173863964",
+    "createdAt": "2025-08-14T12:17:43.964Z",
+    "read": false,
+    "type": "reservation_status_changed",
+    "target": "tenant",
+    "message": "تم رفض طلب الحجز.",
+    "data": {
+      "reservationId": "1755173808895",
+      "status": "rejected"
+    }
+  },
+  {
+    "id": "1755173863226",
+    "createdAt": "2025-08-14T12:17:43.226Z",
+    "read": false,
+    "type": "reservation_status_changed",
+    "target": "tenant",
+    "message": "تمت الموافقة على حجزك.",
+    "data": {
+      "reservationId": "1755173808895",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "1755173863034",
+    "createdAt": "2025-08-14T12:17:43.034Z",
+    "read": false,
+    "type": "reservation_status_changed",
+    "target": "tenant",
+    "message": "تمت الموافقة على حجزك.",
+    "data": {
+      "reservationId": "1755173808895",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "1755173862823",
+    "createdAt": "2025-08-14T12:17:42.823Z",
+    "read": false,
+    "type": "reservation_status_changed",
+    "target": "tenant",
+    "message": "تمت الموافقة على حجزك.",
+    "data": {
+      "reservationId": "1755173808895",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "1755173861217",
+    "createdAt": "2025-08-14T12:17:41.217Z",
+    "read": false,
+    "type": "reservation_status_changed",
+    "target": "tenant",
+    "message": "تمت الموافقة على حجزك.",
+    "data": {
+      "reservationId": "1755173808895",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "1755173809778",
+    "createdAt": "2025-08-14T12:16:49.778Z",
+    "read": false,
+    "type": "reservation_created",
+    "target": "admin",
+    "message": "طلب حجز جديد على عقار 101.",
+    "data": {
+      "reservationId": "1755173808895",
+      "invoiceId": "1755173809238"
+    }
+  },
+  {
+    "id": "1755173809242",
+    "createdAt": "2025-08-14T12:16:49.242Z",
+    "read": false,
+    "type": "invoice_issued",
+    "target": "tenant",
+    "message": "تم إصدار فاتورة رقم AO-INV-3809238 لحجزك.",
+    "data": {
+      "invoiceId": "1755173809238",
+      "reservationId": "1755173808895"
+    }
+  }
+]

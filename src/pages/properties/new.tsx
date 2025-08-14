@@ -1,3 +1,4 @@
+// src/pages/properties/new.tsx
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -305,6 +306,9 @@ export default function NewPropertyPage(){
     return true;
   };
 
+  // ✅ حالة اختيارية للاحتفاظ بالرقم المرجعي المحجوز (غير مرئية في الواجهة)
+  const [referenceNo, setReferenceNo] = useState<string | null>(null);
+
   const submit = async () => {
     if (!validate()) return;
     setSending(true);
@@ -319,6 +323,21 @@ export default function NewPropertyPage(){
           priceOMR: Number(u.priceOMR || 0),
           images: (u.images?.length ? awaitAll(u.images.map(f=>watermarkFile(f))) : imgs)
         }));
+
+      // ✅ 1) حجز رقم مرجعي من نظام السيريال قبل إنشاء الإعلان
+      let refNo: string | null = null;
+      try {
+        const seqRes = await fetch("/api/seq/next", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ entity: "PROPERTY" })
+        });
+        if (seqRes.ok) {
+          const js = await seqRes.json();
+          refNo = js?.referenceNo ?? js?.ref ?? js?.seq ?? null;
+          if (refNo) setReferenceNo(refNo);
+        }
+      } catch {}
 
       const payload = {
         title: { ...title },
@@ -347,7 +366,9 @@ export default function NewPropertyPage(){
         lat: points[0]?.lat, lng: points[0]?.lng,
         ownerTarget: otpVerified ? "alt_contact" : "owner",
         altContact: otpVerified ? { name: altContactName, phone: altContactPhone } : undefined,
-        units: (category==="multi" || buildingForm==="multi") ? unitsClean : undefined
+        units: (category==="multi" || buildingForm==="multi") ? unitsClean : undefined,
+        // ✅ 2) تمرير الرقم المرجعي إلى الـ API (إن تم حجزه)
+        referenceNo: refNo || undefined
       };
 
       // حفظ محلي للتجربة حتى لو تعطل API
@@ -365,6 +386,7 @@ export default function NewPropertyPage(){
 
       // محاولة إرسال للـ API — لو فشل سنرجع للقائمة
       let okId: string | null = null;
+      let returnedRef: string | null = null; // في حال كان الخادم هو من يُولّد الرقم
       try{
         const r = await fetch("/api/properties", {
           method: "POST",
@@ -373,17 +395,25 @@ export default function NewPropertyPage(){
         });
         if (r.ok) {
           const data = await r.json();
-          okId = data?.id || null;
+          okId = data?.id || data?.item?.id || null;
+          returnedRef = data?.referenceNo ?? data?.item?.referenceNo ?? null;
         }
       }catch{}
 
       try { localStorage.removeItem(LS_KEY); } catch {}
 
-      if (okId) router.push(`/property/${okId}`);
+      // إشعار بسيط — لا تغيير في التصميم (تنبيه فقط)
+      const toShow = refNo || returnedRef;
+      if (toShow) alert(`تم إصدار الرقم المرجعي: ${toShow}`);
+
+      // ✅ 3) توجيه للمسار الصحيح لصفحة التفاصيل
+      if (okId) router.push(`/properties/${okId}`);
       else router.push("/properties?created=1"); // عودة لقائمة العقارات
     } catch (e:any) {
       alert("فشل الحفظ: " + (e?.message || e));
-    } finally { setSending(false); }
+    } finally {
+      setSending(false);
+    }
   };
 
   /** طباعة عبر iframe (أكثر ثباتًا من window.open) + انتظار الصور */

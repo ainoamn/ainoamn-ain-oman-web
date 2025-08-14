@@ -1,0 +1,25 @@
+[
+  {
+    "id": "1755173809238",
+    "serial": "AO-INV-3809238",
+    "reservationId": "1755173808895",
+    "propertyId": "101",
+    "currency": "OMR",
+    "subtotal": 3000,
+    "discount": 0,
+    "serviceFee": 75,
+    "amount": 3075,
+    "status": "canceled",
+    "items": [
+      {
+        "title": "عربون (5%)",
+        "qty": 1,
+        "price": 3000,
+        "total": 3000
+      }
+    ],
+    "issuedAt": "2025-08-14T12:16:49.238Z",
+    "dueAt": "2025-08-17T12:16:49.238Z",
+    "serviceFeePercent": 2.5
+  }
+]

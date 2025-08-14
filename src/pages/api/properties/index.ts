@@ -1,105 +1,95 @@
 // src/pages/api/properties/index.ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { readJson, writeJson } from "../../../server/fsdb";
-import { PROPERTIES } from "../../../lib/demoData";
+import { readJson, writeJson } from "@/server/fsdb";
 
-type StoredProp = {
-  id: number;
-  serial: string;
-  title: string;
-  title_i18n?: Record<string, string>;
-  description_i18n?: Record<string, string>;
-  location: string;
-  priceOMR: number;
-  image: string;
-  beds?: number;
-  baths?: number;
-  area?: number;
-  rating?: number;
-  lat?: number;
-  lng?: number;
-  type?: "apartment"|"villa"|"land"|"office"|"shop";
-  purpose?: "sale"|"rent"|"investment";
-  rentalType?: "daily"|"monthly"|"yearly"|null;
-  province: string;
-  state: string;
-  village?: string|null;
-  promoted?: boolean;
-  promotedAt?: string|null;
-  views?: number;
-  amenities?: string[];
-  attractions?: string[];
-  createdAt?: string;
-  ownerTarget?: string;
-  images?: string[];
-};
+const FILE = "properties";
 
-const FILE = "properties.json";
+type AnyObj = Record<string, any>;
+type StoredProp = AnyObj;
 
-function nextId(all: StoredProp[]) {
-  const demoMax = Math.max(0, ...PROPERTIES.map(p => Number(p.id) || 0));
-  const storedMax = Math.max(0, ...all.map(p => Number(p.id) || 0));
-  return Math.max(demoMax, storedMax) + 1;
-}
-function makeSerial(id: number) {
-  return `AO-P-${String(id).padStart(7, "0")}`;
+async function getDemoList(): Promise<StoredProp[]> {
+  // نقرأ من demoData فقط (إن وُجد) لتفادي أخطاء البناء
+  try {
+    const mod: AnyObj = await import("@/lib/demoData").catch(() => ({} as AnyObj));
+    const arr = mod?.PROPERTIES || mod?.properties || mod?.default || [];
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
 }
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "GET") {
-    const stored = readJson<StoredProp[]>(FILE, []);
-    const items = [...stored, ...PROPERTIES];
-    return res.status(200).json({ items });
-  }
+// توحيد الحقول: لو فيه serial ولم يوجد referenceNo ننسخه
+function normalizeRef(items: StoredProp[]): StoredProp[] {
+  return (items || []).map((it) => {
+    const referenceNo = it?.referenceNo ?? it?.serial ?? undefined;
+    return referenceNo ? { ...it, referenceNo } : it;
+  });
+}
 
-  if (req.method === "POST") {
-    const b = req.body || {};
-    if (!b?.title?.ar && !b?.title?.en) {
-      return res.status(400).json({ ok: false, error: "title_required_ar_or_en" });
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    if (req.method === "GET") {
+      const stored = await readJson<StoredProp[]>(FILE, []);
+      const demo = await getDemoList();
+
+      // نمنع التكرار حسب id
+      const merged = [
+        ...stored,
+        ...demo.filter((d) => !stored.some((s) => String(s?.id) === String(d?.id))),
+      ];
+
+      // ✅ توحيد رقم السيريال
+      const items = normalizeRef(merged);
+      return res.status(200).json({ items });
     }
-    if (!b?.priceOMR || !b?.province || !b?.state) {
-      return res.status(400).json({ ok: false, error: "missing_required_fields" });
+
+    if (req.method === "POST") {
+      const body = (req.body ?? {}) as AnyObj;
+      if (!body?.title) {
+        return res.status(400).json({ ok: false, error: "العنوان مطلوب." });
+      }
+
+      const nowIso = new Date().toISOString();
+      const newId = String(body?.id ?? Date.now());
+      let referenceNo: string | undefined = body?.referenceNo ?? body?.serial; // قبول أيهما
+
+      // إن لم يصل رقم مرجعي من الواجهة، نحاول توليده (اختياري)
+      if (!referenceNo) {
+        try {
+          const base = process.env.NEXT_PUBLIC_BASE_URL || `http://${req.headers.host}`;
+          const r = await fetch(`${base}/api/seq/next`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ entity: "PROPERTY" }),
+          });
+          if (r.ok) {
+            const js = await r.json();
+            referenceNo = js?.referenceNo ?? js?.ref ?? js?.seq ?? undefined;
+          }
+        } catch {
+          // نتجاوز بصمت
+        }
+      }
+
+      const item: StoredProp = {
+        ...body,
+        id: newId,
+        referenceNo,
+        createdAt: body?.createdAt ?? nowIso,
+        promotedAt: body?.promoted ? body?.promotedAt ?? nowIso : body?.promotedAt ?? null,
+      };
+
+      const list = await readJson<StoredProp[]>(FILE, []);
+      const nextList = [item, ...list];
+      await writeJson(FILE, nextList);
+
+      return res.status(200).json({ ok: true, item });
     }
 
-    const all = readJson<StoredProp[]>(FILE, []);
-    const id = nextId(all);
-    const now = new Date().toISOString();
-
-    const record: StoredProp = {
-      id,
-      serial: makeSerial(id),
-      title: b.title?.ar || b.title?.en || "",
-      title_i18n: b.title || {},
-      description_i18n: b.description || {},
-      location: `${b.province} - ${b.state}${b.village ? " - " + b.village : ""}`,
-      priceOMR: Number(b.priceOMR),
-      image: (b.images?.[0]) || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
-      beds: Number(b.beds || 0),
-      baths: Number(b.baths || 0),
-      area: Number(b.area || 0),
-      rating: Number(b.rating || 0),
-      lat: Number(b.lat || 0),
-      lng: Number(b.lng || 0),
-      type: b.type,
-      purpose: b.purpose,
-      rentalType: b.purpose === "rent" ? (b.rentalType || null) : null,
-      province: b.province,
-      state: b.state,
-      village: b.village || null,
-      promoted: !!b.promoted,
-      promotedAt: b.promoted ? now : null,
-      views: 0,
-      amenities: Array.isArray(b.amenities) ? b.amenities : [],
-      attractions: Array.isArray(b.attractions) ? b.attractions : [],
-      createdAt: now,
-      ownerTarget: b.ownerTarget || "admin",
-      images: Array.isArray(b.images) ? b.images : []
-    };
-
-    all.unshift(record);
-    writeJson(FILE, all);
-    return res.status(201).json({ ok: true, id, serial: record.serial, record });
+    res.setHeader("Allow", "GET, POST");
+    return res.status(405).json({ ok: false, error: "Method Not Allowed" });
+  } catch (e: any) {
+    console.error("API /api/properties error:", e);
+    return res.status(500).json({ ok: false, error: "Internal Server Error" });
   }
-
-  return res.status(405).json({ ok: false, error: "method_not_allowed" });
 }

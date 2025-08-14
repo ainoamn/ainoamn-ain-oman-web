@@ -1,21 +1,47 @@
-// src/pages/api/properties/[id].tsx
+// src/pages/api/properties/[id].ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { readJson } from "../../../server/fsdb"; // ← هنا التغيير
-import { PROPERTIES } from "../../../lib/demoData";
+import { readJson } from "@/server/fsdb";
 
-const FILE = "properties.json";
+type AnyObj = Record<string, any>;
+type Property = AnyObj;
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { id } = req.query;
-  const num = Number(id);
-  if (Number.isNaN(num)) return res.status(400).json({ ok: false, error: "bad_id" });
+function normalizeRef<T extends Record<string, any>>(obj: T | null): T | null {
+  if (!obj) return obj;
+  if (!obj.referenceNo && obj.serial) return { ...obj, referenceNo: obj.serial };
+  return obj;
+}
 
-  const stored = readJson<any[]>(FILE, []);
-  const fromStored = stored.find(p => Number(p.id) === num);
-  const fromDemo = PROPERTIES.find(p => Number(p.id) === num);
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).json({ ok: false, error: "Method Not Allowed" });
+  }
 
-  const item = fromStored || fromDemo;
-  if (!item) return res.status(404).json({ ok: false, error: "not_found" });
+  const id = String(req.query.id || "");
+  try {
+    // 1) من المخزّن
+    const list = await readJson<Property[]>("properties", []);
+    let item = list.find((p) => String(p?.id) === id) || null;
 
-  return res.status(200).json({ ok: true, item });
+    // 2) إن لم يوجد، من demoData (اختياري)
+    if (!item) {
+      try {
+        const mod: any = await import("@/lib/demoData").catch(() => ({}));
+        const arr: any[] = mod?.PROPERTIES || mod?.properties || mod?.default || [];
+        if (Array.isArray(arr) && arr.length) {
+          item = arr.find((p: any) => String(p?.id) === id) || null;
+        }
+      } catch {}
+    }
+
+    item = normalizeRef(item);
+
+    if (!item) {
+      return res.status(404).json({ ok: false, error: "Not Found" });
+    }
+    return res.status(200).json({ ok: true, item });
+  } catch (e) {
+    console.error("GET /api/properties/[id] error:", e);
+    return res.status(500).json({ ok: false, error: "Internal Server Error" });
+  }
 }
