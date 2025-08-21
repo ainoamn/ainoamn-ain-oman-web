@@ -229,5 +229,32 @@
       "blob:http://localhost:3000/d84062d4-e95f-46d2-b6a5-8004ccf3425e",
       "blob:http://localhost:3000/c8571713-a918-487c-9a02-7dcbbcbc30d4"
     ]
+  },
+  {
+    "id": 110,
+    "serial": "AO-P-000110",
+    "title": "شقة تجريبية",
+    "description": "",
+    "priceMonthly": 60,
+    "currency": "OMR",
+    "purpose": "rent",
+    "rentalType": "monthly",
+    "location": "مسقط - السيب",
+    "image": "https://images.unsplash.com/photo-1505692952047-1a78307da8ab",
+    "beds": 2,
+    "baths": 2,
+    "area": 120,
+    "rating": 4.5,
+    "lat": 23.5859,
+    "lng": 58.4059,
+    "amenities": [
+      "مواقف",
+      "تكييف مركزي",
+      "إنترنت عالي السرعة"
+    ],
+    "attractions": [
+      "قريب من البحر",
+      "قريب من المدارس"
+    ]
   }
 ]

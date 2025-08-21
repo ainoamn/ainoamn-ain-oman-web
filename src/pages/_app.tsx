@@ -2,42 +2,34 @@
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 
-// اختر المسار الصحيح حسب بنية مشروعك:
-// - إذا كان لديك `src/pages/_app.tsx` فاستخدم:
+// أنماط المشروع العامة (styles موجود في جذر المشروع)
 import "../../styles/globals.css";
-// - وإن كان لديك `pages/_app.tsx` مباشرة، غيّرها إلى:
-// import "../styles/globals.css";
 
-// i18n Provider الذي زوّدناك به سابقًا
-import { I18nProvider, useI18n } from "@/lib/i18n";
-
-// مزوِّدات اختيارية: سنحاول استيرادها إن وُجدت، وإلا سنستخدم بدائل خفيفة لا تعطل البناء.
-let GoogleMapsProvider: any = ({ children }: any) => <>{children}</>;
+// مزوّد الترجمة لديك (أو بديل خفيف)
+let I18nProvider: any = ({ children, initialLang }: any) => <>{children}</>;
+let useI18n: any = () => ({ setLang: (_: string) => {} });
 try {
-  GoogleMapsProvider = require("../components/maps/GoogleMapsProvider").default || GoogleMapsProvider;
+  const m = require("@/lib/i18n");
+  I18nProvider = m.I18nProvider || I18nProvider;
+  useI18n = m.useI18n || useI18n;
 } catch {}
+
+// بقية المزوّدات مع بدائل صامتة
+let GoogleMapsProvider: any = ({ children }: any) => <>{children}</>;
+try { GoogleMapsProvider = require("../components/maps/GoogleMapsProvider").default || GoogleMapsProvider; } catch {}
 
 let CurrencyProvider: any = ({ children }: any) => <>{children}</>;
-try {
-  CurrencyProvider = require("../context/CurrencyContext").CurrencyProvider || CurrencyProvider;
-} catch {}
+try { CurrencyProvider = require("../context/CurrencyContext").CurrencyProvider || CurrencyProvider; } catch {}
 
 let ChatProvider: any = ({ children }: any) => <>{children}</>;
 let ChatWidget: any = () => null;
 let FloatingButtons: any = () => null;
-try {
-  ChatProvider = require("../context/ChatContext").ChatProvider || ChatProvider;
-} catch {}
-try {
-  ChatWidget = require("../components/chat/ChatWidget").default || ChatWidget;
-} catch {}
-try {
-  FloatingButtons = require("../components/floating/FloatingButtons").default || FloatingButtons;
-} catch {}
+try { ChatProvider = require("../context/ChatContext").ChatProvider || ChatProvider; } catch {}
+try { ChatWidget = require("../components/chat/ChatWidget").default || ChatWidget; } catch {}
+try { FloatingButtons = require("../components/floating/FloatingButtons").default || FloatingButtons; } catch {}
 
-// مكوّن صغير لمزامنة لغة i18n مع locale الخاصة بـ Next (إن تم تفعيل i18n في next.config.js)
 function LangSyncer({ locale }: { locale?: string }) {
   const { setLang } = useI18n();
   useEffect(() => {
@@ -46,19 +38,15 @@ function LangSyncer({ locale }: { locale?: string }) {
   return null;
 }
 
-// تهيئة السمات والمظهر (دارك/لايت) + إعداد ألوان العلامة من /api/config (اختياري)
 function ThemeAndBrandBoot() {
   useEffect(() => {
+    // تفعيل الثيم وتلوين العلامة إن وُجدت إعدادات
     try {
       const saved = localStorage.getItem("theme");
-      const prefersDark =
-        typeof window !== "undefined" &&
-        window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const prefersDark = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
       const useDark = saved ? saved === "dark" : !!prefersDark;
       document.documentElement.classList.toggle("dark", useDark);
     } catch {}
-
     (async () => {
       try {
         const res = await fetch("/api/config");
@@ -68,7 +56,7 @@ function ThemeAndBrandBoot() {
         if (cfg?.brand?.colors?.brand600) root.style.setProperty("--brand-600", cfg.brand.colors.brand600);
         if (cfg?.brand?.colors?.brand700) root.style.setProperty("--brand-700", cfg.brand.colors.brand700);
         if (cfg?.brand?.colors?.brand800) root.style.setProperty("--brand-800", cfg.brand.colors.brand800);
-        if (cfg?.brand?.colors?.pageBg) root.style.setProperty("--vanilla", cfg.brand.colors.pageBg);
+        if (cfg?.brand?.colors?.pageBg)  root.style.setProperty("--vanilla",  cfg.brand.colors.pageBg);
       } catch {}
     })();
   }, []);
@@ -79,11 +67,12 @@ export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const initialLang = router.locale === "en" ? "en" : "ar";
 
-  // دعم getLayout في الصفحات
-  // @ts-expect-error getLayout اختياري وليس موجودًا في جميع الصفحات
+  // دعم getLayout إن وُجد (الصفحة/الليّاوت هو المسؤول عن الهيدر/الفوتر)
+  // @ts-expect-error
   const getLayout = Component.getLayout as undefined | ((page: JSX.Element) => JSX.Element);
+  const PageEl = <Component {...pageProps} />;
 
-  const page = (
+  return (
     <I18nProvider initialLang={initialLang}>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -91,17 +80,19 @@ export default function App({ Component, pageProps }: AppProps) {
         <title>Ain Oman</title>
       </Head>
 
-      {/* مزامنة اللغة مع locale */}
       <LangSyncer locale={router.locale} />
-
-      {/* تهيئة السمات والألوان */}
       <ThemeAndBrandBoot />
 
-      {/* مزودات اختيارية */}
       <GoogleMapsProvider>
         <CurrencyProvider>
           <ChatProvider>
-            <Component {...pageProps} />
+            {/* ملاحظة مهمّة:
+               - لا نضيف أي Header/Footer هنا إطلاقًا.
+               - إن كانت الصفحة تملك getLayout فستُلف هناك.
+               - وإلا ستُعرض مباشرة كما هي، والصفحة/ليّاوتها هو من يضيف الهيدر/الفوتر. */}
+            {typeof getLayout === "function" ? getLayout(PageEl) : PageEl}
+
+            {/* عناصر عامة عائمة */}
             <ChatWidget />
             <FloatingButtons />
           </ChatProvider>
@@ -109,6 +100,4 @@ export default function App({ Component, pageProps }: AppProps) {
       </GoogleMapsProvider>
     </I18nProvider>
   );
-
-  return typeof getLayout === "function" ? getLayout(page) : page;
 }

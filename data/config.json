@@ -1,0 +1,25 @@
+{
+  "plan": "pro",
+  "features": {
+    "aiAssistant": true,
+    "maps": true,
+    "analytics": true,
+    "media": true,
+    "attachments": true,
+    "paymentPlans": true,
+    "units": true,
+    "webhooks": true,
+    "externalLinks": true,
+    "theming": true
+  },
+  "brand": {
+    "colors": {
+      "brand600": "#0d9488",
+      "brand700": "#0f766e",
+      "brand800": "#115e59",
+      "pageBg": "#FAF9F6"
+    },
+    "logoUrl": ""
+  },
+  "webhooks": []
+}

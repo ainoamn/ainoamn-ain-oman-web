@@ -1,95 +1,128 @@
 // src/pages/api/properties/index.ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { readJson, writeJson } from "@/server/fsdb";
+import fs from "fs";
+import path from "path";
 
-const FILE = "properties";
+type Property = {
+  id: string;           // AO-P-######
+  title: string;
+  description?: string;
+  priceMonthly?: number; // OMR
+  currency?: string;     // default OMR
+  images?: string[];
+  location?: string;
+  createdAt: string;     // ISO
+  updatedAt: string;     // ISO
+  [key: string]: any;
+};
 
-type AnyObj = Record<string, any>;
-type StoredProp = AnyObj;
+type CreatePropertyPayload = Partial<Property> & { title: string };
 
-async function getDemoList(): Promise<StoredProp[]> {
-  // نقرأ من demoData فقط (إن وُجد) لتفادي أخطاء البناء
+const DATA_DIR = path.join(process.cwd(), ".data");
+const FILE_PATH = path.join(DATA_DIR, "properties.json");
+
+function ensureStore() {
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  if (!fs.existsSync(FILE_PATH)) fs.writeFileSync(FILE_PATH, "[]", "utf8");
+}
+
+function readAll(): Property[] {
+  ensureStore();
+  const raw = fs.readFileSync(FILE_PATH, "utf8");
   try {
-    const mod: AnyObj = await import("@/lib/demoData").catch(() => ({} as AnyObj));
-    const arr = mod?.PROPERTIES || mod?.properties || mod?.default || [];
+    const arr = JSON.parse(raw);
     return Array.isArray(arr) ? arr : [];
   } catch {
     return [];
   }
 }
 
-// توحيد الحقول: لو فيه serial ولم يوجد referenceNo ننسخه
-function normalizeRef(items: StoredProp[]): StoredProp[] {
-  return (items || []).map((it) => {
-    const referenceNo = it?.referenceNo ?? it?.serial ?? undefined;
-    return referenceNo ? { ...it, referenceNo } : it;
-  });
+function writeAll(list: Property[]) {
+  ensureStore();
+  fs.writeFileSync(FILE_PATH, JSON.stringify(list, null, 2), "utf8");
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    if (req.method === "GET") {
-      const stored = await readJson<StoredProp[]>(FILE, []);
-      const demo = await getDemoList();
+function nextSerial(existing: Property[]): string {
+  const prefix = "AO-P-";
+  const numbers = existing
+    .map((p) =>
+      (p.id || "").startsWith(prefix)
+        ? Number((p.id || "").slice(prefix.length))
+        : 0
+    )
+    .filter((n) => Number.isFinite(n));
+  const max = numbers.length ? Math.max(...numbers) : 0;
+  const next = (max + 1).toString().padStart(6, "0");
+  return `${prefix}${next}`;
+}
 
-      // نمنع التكرار حسب id
-      const merged = [
-        ...stored,
-        ...demo.filter((d) => !stored.some((s) => String(s?.id) === String(d?.id))),
-      ];
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === "GET") {
+    const { q, limit, offset } = req.query;
+    const all = readAll();
 
-      // ✅ توحيد رقم السيريال
-      const items = normalizeRef(merged);
-      return res.status(200).json({ items });
-    }
+    const filtered =
+      typeof q === "string" && q.trim()
+        ? all.filter(
+            (p) =>
+              (p.title || "").toLowerCase().includes(q.toLowerCase()) ||
+              (p.description || "")
+                .toLowerCase()
+                .includes(q.toLowerCase()) ||
+              (p.id || "").toLowerCase().includes(q.toLowerCase())
+          )
+        : all;
 
-    if (req.method === "POST") {
-      const body = (req.body ?? {}) as AnyObj;
-      if (!body?.title) {
-        return res.status(400).json({ ok: false, error: "العنوان مطلوب." });
+    const lim = Number(limit) > 0 ? Number(limit) : filtered.length;
+    const off = Number(offset) > 0 ? Number(offset) : 0;
+
+    return res.status(200).json({
+      ok: true,
+      total: filtered.length,
+      items: filtered.slice(off, off + lim),
+    });
+  }
+
+  if (req.method === "POST") {
+    try {
+      const body: CreatePropertyPayload =
+        typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+
+      if (!body || !body.title) {
+        return res.status(400).json({ ok: false, error: "title is required" });
       }
 
-      const nowIso = new Date().toISOString();
-      const newId = String(body?.id ?? Date.now());
-      let referenceNo: string | undefined = body?.referenceNo ?? body?.serial; // قبول أيهما
+      const all = readAll();
+      const now = new Date().toISOString();
 
-      // إن لم يصل رقم مرجعي من الواجهة، نحاول توليده (اختياري)
-      if (!referenceNo) {
-        try {
-          const base = process.env.NEXT_PUBLIC_BASE_URL || `http://${req.headers.host}`;
-          const r = await fetch(`${base}/api/seq/next`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ entity: "PROPERTY" }),
-          });
-          if (r.ok) {
-            const js = await r.json();
-            referenceNo = js?.referenceNo ?? js?.ref ?? js?.seq ?? undefined;
-          }
-        } catch {
-          // نتجاوز بصمت
-        }
-      }
-
-      const item: StoredProp = {
+      const property: Property = {
+        id: nextSerial(all),
+        title: body.title,
+        description: body.description || "",
+        priceMonthly: body.priceMonthly ?? undefined,
+        currency: body.currency || "OMR",
+        images: Array.isArray(body.images) ? body.images : [],
+        location: body.location || "",
+        createdAt: now,
+        updatedAt: now,
         ...body,
-        id: newId,
-        referenceNo,
-        createdAt: body?.createdAt ?? nowIso,
-        promotedAt: body?.promoted ? body?.promotedAt ?? nowIso : body?.promotedAt ?? null,
       };
 
-      const list = await readJson<StoredProp[]>(FILE, []);
-      const nextList = [item, ...list];
-      await writeJson(FILE, nextList);
+      // enforce authoritative fields
+      property.id = property.id;
+      property.createdAt = now;
+      property.updatedAt = now;
 
-      return res.status(200).json({ ok: true, item });
+      all.push(property);
+      writeAll(all);
+      return res.status(201).json({ ok: true, item: property });
+    } catch (e: any) {
+      return res
+        .status(500)
+        .json({ ok: false, error: e?.message || "Failed to create property" });
     }
-
-    res.setHeader("Allow", "GET, POST");
-    return res.status(405).json({ ok: false, error: "Method Not Allowed" });
-  } catch (e: any) {
-    console.error("API /api/properties error:", e);
-    return res.status(500).json({ ok: false, error: "Internal Server Error" });
   }
+
+  res.setHeader("Allow", "GET, POST");
+  return res.status(405).json({ ok: false, error: "Method not allowed" });
 }

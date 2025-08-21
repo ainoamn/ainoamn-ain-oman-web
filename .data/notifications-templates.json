@@ -1,0 +1,43 @@
+[
+  {
+    "id": "78da41fb-9e45-4c6b-a6e6-ef51ae3d7e8c",
+    "channel": "email",
+    "name": "task_invite",
+    "description": "دعوة للمشاركة في مهمة (بريد)",
+    "lang": "ar",
+    "enabled": true,
+    "subject": "دعوة للمشاركة في مهمة {{taskId}}",
+    "body": "{{message}}",
+    "variables": [
+      {
+        "name": "taskId",
+        "required": true
+      },
+      {
+        "name": "message",
+        "required": true
+      }
+    ],
+    "updatedAt": "2025-08-15T19:40:37.925Z"
+  },
+  {
+    "id": "a0c89850-ca58-4e85-a939-ae5ee276380d",
+    "channel": "whatsapp",
+    "name": "task_invite",
+    "description": "دعوة للمشاركة في مهمة (واتساب)",
+    "lang": "ar",
+    "enabled": true,
+    "body": "{{message}} (مهمة: {{taskId}})",
+    "variables": [
+      {
+        "name": "taskId",
+        "required": true
+      },
+      {
+        "name": "message",
+        "required": true
+      }
+    ],
+    "updatedAt": "2025-08-15T19:40:37.925Z"
+  }
+]

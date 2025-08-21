@@ -1,610 +1,175 @@
 // src/pages/property/[id].tsx
-import { useRouter } from "next/router";
+import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import Layout from "../../components/layout/Layout";
-import PropertyMap from "../../components/maps/PropertyMap";
-import { useCurrency } from "../../context/CurrencyContext";
-import { PROPERTIES, LANDLORDS, type Prop, type Landlord } from "../../lib/demoData";
-import {
-  FaBed, FaBath, FaRulerCombined, FaStar, FaBolt, FaMapMarkerAlt, FaHashtag,
-  FaRegHeart, FaHeart, FaCheck, FaTimes, FaCalendarCheck, FaMoneyBillWave,
-  FaWhatsapp, FaFacebook, FaTwitter, FaTelegramPlane, FaLinkedin, FaEnvelope, FaLink,
-  FaParking, FaWifi, FaCouch, FaSnowflake, FaSwimmer, FaTree, FaShieldAlt, FaVideo, FaUtensils
-} from "react-icons/fa";
-import { useChat } from "../../context/ChatContext";
+import Layout from "@/components/layout/Layout";
+// 👇 استيراد i18n من الملف المركزي
+import { useI18n } from "@/lib/i18n";
+import { useMemo } from "react";
 
-type ActionId =
-  | "chat_owner"
-  | "chat_admin"
-  | "book_visit"
-  | "negotiate"
-  | "book_unit"
-  | "link";
-
-type ActionDef = {
-  id: string;
-  label: string;
-  visible: boolean;
-  order: number;
-  action: ActionId;
-  href?: string;
+type Property = {
+  id: string; // AO-P-######
+  title: string;
+  description?: string;
+  priceMonthly?: number;
+  currency?: string;
+  images?: string[];
+  location?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  [k: string]: any;
 };
 
-const DEFAULT_ACTIONS: ActionDef[] = [
-  { id: "chat_owner",  label: "دردشة مع المالك",   visible: true, order: 1, action: "chat_owner" },
-  { id: "chat_admin",  label: "تواصل مع الإدارة",  visible: true, order: 2, action: "chat_admin" },
-  { id: "book_visit",  label: "طلب معاينة",        visible: true, order: 3, action: "book_visit" },
-  { id: "negotiate",   label: "مناقشة السعر",      visible: true, order: 4, action: "negotiate" },
-  { id: "book_unit",   label: "حجز العقار",        visible: true, order: 5, action: "book_unit" },
-];
+type PageProps = { property: Property | null };
 
-// أيقونات ثابتة للمرافق / أماكن الجذب
-const AMENITY_ICON: Record<string, JSX.Element> = {
-  "مصعد": <FaArrowUp />, "مواقف": <FaParking />, "تكييف مركزي": <FaSnowflake />, "مفروش": <FaCouch />,
-  "مسبح": <FaSwimmer />, "حديقة": <FaTree />, "مطبخ مجهز": <FaUtensils />, "أمن 24/7": <FaShieldAlt />,
-  "كاميرات": <FaVideo />, "إنترنت عالي السرعة": <FaWifi />
-};
-const ATTRACTION_ICON: Record<string, JSX.Element> = {
-  "قريب من البحر": <FaWater />, "قريب من المدارس": <FaSchool />, "قريب من المستشفى": <FaHospital />,
-  "قريب من المطار": <FaPlaneDeparture />, "قريب من المول": <FaStore />, "قريب من المنتزه": <FaTree />
-};
-// استيرادات رموز إضافية مستخدمة
-import { FaArrowUp, FaWater, FaSchool, FaHospital, FaPlaneDeparture, FaStore } from "react-icons/fa";
-
-// تحويل عنصر API لشكل Prop المستخدم في الواجهة (بدون تغيير التصميم)
-function mapApiToProp(it: any): Prop {
-  const serial = it?.referenceNo || it?.serial || (it?.id ? `AO-P-${String(it.id).padStart(7, "0")}` : undefined);
-  const title = it?.title || it?.name || (it?.id ? `عقار ${it.id}` : "عقار");
-  const location = it?.location || [it?.province, it?.state, it?.village].filter(Boolean).join(" - ");
-  const image = it?.image || (Array.isArray(it?.images) ? it.images[0] : null) ||
-    "https://images.unsplash.com/photo-1505692952047-1a78307da8ab";
-  return {
-    id: typeof it?.id === "number" ? it.id : Number(it?.id) || Date.now(),
-    serial,
-    title,
-    location,
-    priceOMR: it?.priceOMR ?? it?.price ?? 0,
-    image,
-    beds: it?.beds ?? 0,
-    baths: it?.baths ?? 0,
-    area: it?.area ?? 0,
-    rating: it?.rating ?? 0,
-    lat: it?.lat ?? 23.5859,
-    lng: it?.lng ?? 58.4059,
-    type: it?.type ?? "apartment",
-    purpose: it?.purpose ?? "sale",
-    rentalType: it?.rentalType ?? null,
-    province: it?.province ?? "",
-    state: it?.state ?? "",
-    village: it?.village ?? "",
-    promoted: !!it?.promoted,
-    promotedAt: it?.promotedAt ?? null,
-    views: it?.views ?? 0,
-    amenities: Array.isArray(it?.amenities) ? it.amenities : [],
-    attractions: Array.isArray(it?.attractions) ? it.attractions : [],
-    stats: it?.stats
-  } as Prop;
-}
-
-export default function PropertyDetailsPage() {
-  const router = useRouter();
-  const idParam = Array.isArray(router.query.id) ? router.query.id[0] : router.query.id;
-  const { format } = useCurrency();
-  const { openChat } = useChat();
-
-  // 1) من الداتا التجريبية (كما في نسختك)
-  const pDemo: Prop | undefined = useMemo(
-    () => (idParam ? PROPERTIES.find(x => String(x.id) === String(idParam)) : undefined),
-    [idParam]
-  );
-
-  // 2) إن لم توجد في الداتا التجريبية، نجلبها من الـ API بنفس التصميم
-  const [apiProp, setApiProp] = useState<Prop | null>(null);
-  useEffect(() => {
-    setApiProp(null);
-    if (!idParam || pDemo) return;
-    let canceled = false;
-    (async () => {
-      try {
-        const r = await fetch(`/api/properties/${idParam}`);
-        if (!r.ok) return;
-        const j = await r.json();
-        if (!j?.item) return;
-        const mapped = mapApiToProp(j.item);
-        if (!canceled) setApiProp(mapped);
-      } catch {}
-    })();
-    return () => { canceled = true; };
-  }, [idParam, pDemo]);
-
-  // العقار المعروض فعليًا في الواجهة
-  const p: Prop | undefined = apiProp ?? pDemo;
-
-  // معرض الصور (كما هو)
-  const gallery: string[] = useMemo(() => {
-    if (!p) return [];
-    return [
-      p.image,
-      "https://images.unsplash.com/photo-1505692952047-1a78307da8ab",
-      "https://images.unsplash.com/photo-1501183638710-841dd1904471",
-      "https://images.unsplash.com/photo-1504610926078-a1611febcad3"
-    ];
-  }, [p?.image]);
-
-  const [mainIdx, setMainIdx] = useState(0);
-
-  // مفضلة محلية (كما هو)
-  const LS_FAVS = "ao_favs";
-  const [fav, setFav] = useState(false);
-  useEffect(() => {
-    if (!p) return;
-    try {
-      const raw = localStorage.getItem(LS_FAVS);
-      const ids: number[] = raw ? JSON.parse(raw) : [];
-      setFav(ids.includes(p.id));
-    } catch {}
-  }, [p?.id]);
-  const toggleFav = () => {
-    if (!p) return;
-    try {
-      const raw = localStorage.getItem(LS_FAVS);
-      const ids: number[] = raw ? JSON.parse(raw) : [];
-      const set = new Set(ids);
-      fav ? set.delete(p.id) : set.add(p.id);
-      localStorage.setItem(LS_FAVS, JSON.stringify(Array.from(set)));
-      setFav(!fav);
-    } catch {}
+export default function PropertyDetailsPage({ property }: PageProps) {
+  const _i18n = (useI18n() as any) || {};
+  const t = (k: string, def: string) => {
+    try { const v = _i18n?.t?.(k); return typeof v === "string" && v ? v : def; }
+    catch { return def; }
   };
+  const lang: string = _i18n?.lang || "ar";
+  const dir: "rtl"|"ltr" = _i18n?.dir || (["ar","fa","ur"].includes(lang) ? "rtl" : "ltr");
 
-  const shareUrl = typeof window !== "undefined" ? window.location.href : `https://example.com/property/${idParam ?? ""}`;
-  const shareText = encodeURIComponent(p ? `${p.title} - ${p.location}` : "Property");
-  const encodedUrl = encodeURIComponent(shareUrl);
-
-  // السعر الشهري/اليومي + السنوي (تلقائي حسب rentalType)
-  const rentInfo = useMemo(() => {
-    if (!p || p.purpose !== "rent") return null;
-    const type = p.rentalType || "monthly";
-    if (type === "monthly") {
-      return { unitLabel: "شهريًا", unitPrice: p.priceOMR, yearly: p.priceOMR * 12 };
-    } else if (type === "yearly") {
-      return { unitLabel: "سنويًا", unitPrice: p.priceOMR, yearly: p.priceOMR };
-    } else {
-      // daily
-      return { unitLabel: "يوميًا", unitPrice: p.priceOMR, yearly: p.priceOMR * 365 };
-    }
-  }, [p?.purpose, p?.rentalType, p?.priceOMR]);
-
-  // ترقية “إعلان مميز حديث”
-  const isPromotedNew = useMemo(() => {
-    if (!p?.promoted || !p?.promotedAt) return false;
-    const diff = Date.now() - new Date(p.promotedAt).getTime();
-    return diff <= 7 * 24 * 60 * 60 * 1000;
-  }, [p?.promoted, p?.promotedAt]);
-
-  const similarProps = useMemo(() => {
-    if (!p) return [];
-    const sameProvinceType = PROPERTIES.filter(x => x.id !== p.id && x.province === p.province && x.type === p.type);
-    if (sameProvinceType.length) return sameProvinceType.slice(0, 6);
-    const sameProvince = PROPERTIES.filter(x => x.id !== p.id && x.province === p.province);
-    if (sameProvince.length) return sameProvince.slice(0, 6);
-    return [...PROPERTIES].filter(x => x.id !== p.id).sort((a,b)=>b.rating-a.rating).slice(0, 6);
-  }, [p?.id, p?.province, p?.type]);
-
-  const suggestedLandlords: Landlord[] = useMemo(() => {
-    if (!p) return [];
-    const byProvince = LANDLORDS.filter(l => l.province === p.province);
-    const top = [...LANDLORDS].sort((a,b)=>b.rating-a.rating || b.deals-a.deals);
-    return (byProvince.length ? byProvince.slice(0,3) : top.slice(0,3));
-  }, [p?.province]);
-
-  const jsonLd = useMemo(() => !p ? null : ({
-    "@context": "https://schema.org",
-    "@type": "RealEstateListing",
-    "name": p.title,
-    "description": "قائمة عقارية على منصة عين عُمان.",
-    "url": shareUrl,
-    "identifier": p.serial,
-    "address": { "@type": "PostalAddress", "addressLocality": p.location, "addressRegion": p.province, "addressCountry": "OM" },
-    "geo": { "@type": "GeoCoordinates", "latitude": p.lat, "longitude": p.lng },
-    "offers": { "@type": "Offer", "priceCurrency": "OMR", "price": p.priceOMR }
-  }), [p, shareUrl]);
-
-  const loading = !idParam;
-  const notFound = !!idParam && !p;
-
-  // نوافذ العمليات
-  const [visitOpen, setVisitOpen] = useState(false);
-  const [negOpen, setNegOpen] = useState(false);
-  const [reserveOpen, setReserveOpen] = useState(false);
-
-  // تحميل إعدادات الأزرار من الـ API (لوحة التحكم)
-  const [actions, setActions] = useState<ActionDef[]>(DEFAULT_ACTIONS);
-  useEffect(() => {
-    let canceled = false;
-    (async () => {
-      try {
-        const r = await fetch("/api/ui/actions");
-        if (!r.ok) return;
-        const data = await r.json();
-        const arr = Array.isArray(data?.items) ? data.items : DEFAULT_ACTIONS;
-        const visSorted = arr
-          .filter((x: ActionDef) => x.visible)
-          .sort((a: ActionDef, b: ActionDef) => a.order - b.order);
-        if (!canceled) setActions(visSorted);
-      } catch {
-        // نستخدم الافتراضي
-      }
-    })();
-    return () => { canceled = true; };
-  }, []);
+  const monthly = property?.priceMonthly ?? 0;
+  const yearly = monthly * 12;
 
   return (
     <Layout>
       <Head>
-        <title>{p ? `${p.title} | عين عُمان` : notFound ? "غير موجود | عين عُمان" : "جارٍ التحميل | عين عُمان"}</title>
-        {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />}
+        <title>{property ? `${property.title} — ${t("property.details","تفاصيل العقار")}` : t("property.notFound","لم يتم العثور على العقار")}</title>
       </Head>
 
-      {/* فتات الخبز */}
-      <nav className="text-sm text-gray-600 my-3">
-        <Link href="/" className="underline">الرئيسية</Link> <span className="mx-1">/</span>
-        <Link href="/properties" className="underline">العقارات</Link>
-        {p && <>
-          <span className="mx-1">/</span>
-          <Link href={`/properties?province=${encodeURIComponent(p.province)}`} className="underline">{p.province}</Link>
-          <span className="mx-1">/</span>
-          <span className="text-gray-800">{p.title}</span>
-        </>}
-      </nav>
-
-      {loading && <div className="py-16 text-center text-gray-600">جارٍ التحميل…</div>}
-
-      {notFound && (
-        <div className="py-16 text-center">
-          العقار غير موجود.
-          <div className="mt-3">
-            <Link href="/properties" className="underline text-[var(--brand-700)]">عودة لقائمة العقارات</Link>
-          </div>
-        </div>
-      )}
-
-      {p && (
-        <>
-          {/* العنوان والوسوم */}
-          <section className="my-2">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <h1 className="text-2xl font-bold">{p.title}</h1>
-                <div className="text-sm text-gray-600 flex flex-wrap items-center gap-4 mt-1">
-                  <span className="inline-flex items-center gap-2"><FaMapMarkerAlt /> {p.location}</span>
-                  <span className="inline-flex items-center gap-2"><FaHashtag /> الرقم المتسلسل: <b>{p.serial}</b></span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {p.promoted && (
-                  <span className="inline-flex items-center gap-1 text-xs bg-amber-500 text-white px-2 py-1 rounded">
-                    <FaBolt /> إعلان مميز
-                  </span>
-                )}
-                <button
-                  onClick={toggleFav}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded bg-[var(--brand-800)] hover:bg-[var(--brand-700)] text-white"
-                  title={fav ? "إزالة من المفضلة" : "حفظ في المفضلة"}
-                >
-                  {fav ? <FaHeart /> : <FaRegHeart />} {fav ? "في المفضلة" : "حفظ"}
-                </button>
-              </div>
+      <main dir={dir} lang={lang} className="min-h-screen bg-gray-50">
+        <div className="max-w-6xl mx-auto p-4 md:p-6">
+          {/* Breadcrumbs */}
+          <nav className="text-sm mb-4 flex items-center gap-3">
+            <Link className="underline" href="/">{t("common.home","الرئيسية")}</Link>
+            <span>/</span>
+            <Link className="underline" href="/properties">{t("properties.title","العقارات")}</Link>
+            <span>/</span>
+            <span className="text-gray-500">{property?.id || "—"}</span>
+            <div className="ms-auto">
+              <Link href="/admin/tasks" className="underline">{t("tasks.title","لوحة المهام")}</Link>
             </div>
-          </section>
+          </nav>
 
-          {/* المحتوى */}
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-            <div className="md:col-span-2">
-              {/* معرض صور */}
-              <div className="rounded-lg overflow-hidden border">
-                <img src={gallery[mainIdx]} alt={`${p.title} - صورة ${mainIdx+1}`} className="w-full h-80 object-cover" />
-                <div className="flex gap-2 p-2 overflow-auto">
-                  {gallery.map((src, i) => (
-                    <button key={i} onClick={() => setMainIdx(i)} className={`border rounded overflow-hidden ${i===mainIdx ? "ring-2 ring-[var(--brand-700)]" : ""}`}>
-                      <img src={src} alt={`thumb-${i}`} className="w-24 h-16 object-cover" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* مواصفات */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 text-sm text-gray-700 mt-3">
-                <div className="flex items-center gap-2"><FaBed /> غرف: {p.beds}</div>
-                <div className="flex items-center gap-2"><FaBath /> دورات المياه: {p.baths}</div>
-                <div className="flex items-center gap-2"><FaRulerCombined /> المساحة: {p.area} م²</div>
-                <div className="flex items-center gap-2 text-yellow-600"><FaStar /> التقييم: {p.rating}</div>
-              </div>
-
-              {/* وصف */}
-              <div className="mt-6">
-                <h3 className="font-semibold mb-2">الوصف</h3>
-                <p className="text-gray-700 leading-7">وصف تجريبي للعقار…</p>
-              </div>
-
-              {/* المرافق */}
-              <div className="mt-6">
-                <h3 className="font-semibold mb-2">المرافق</h3>
-                <div className="flex flex-wrap gap-2 text-sm">
-                  {(p.amenities ?? []).map((a) => (
-                    <span key={a} className="px-2 py-1 rounded bg-gray-100 inline-flex items-center gap-2">
-                      <span className="text-[var(--brand-700)]">{AMENITY_ICON[a] ?? <FaCheck />}</span>
-                      <span>{a}</span>
-                    </span>
-                  ))}
-                  {(p.amenities ?? []).length === 0 && <span className="text-gray-500 text-sm">لا توجد معلومات</span>}
-                </div>
-              </div>
-
-              {/* أماكن جذب قريبة */}
+          {!property ? (
+            <div className="rounded-xl p-8 bg-white shadow">
+              <p>{t("property.notFound","لم يتم العثور على العقار")}</p>
               <div className="mt-4">
-                <h3 className="font-semibold mb-2">أماكن جذب قريبة</h3>
-                <div className="flex flex-wrap gap-2 text-sm">
-                  {(p.attractions ?? []).map((a) => (
-                    <span key={a} className="px-2 py-1 rounded bg-gray-100 inline-flex items-center gap-2">
-                      <span className="text-[var(--brand-700)]">{ATTRACTION_ICON[a] ?? <FaTree />}</span>
-                      <span>{a}</span>
-                    </span>
-                  ))}
-                  {(p.attractions ?? []).length === 0 && <span className="text-gray-500 text-sm">لا توجد معلومات</span>}
-                </div>
-              </div>
-
-              {/* خريطة */}
-              <div className="mt-6">
-                <h3 className="font-semibold mb-2">الخريطة</h3>
-                <PropertyMap properties={[{ id: p.id, title: p.title, image: p.image, lat: p.lat, lng: p.lng, location: p.location }]} />
-              </div>
-
-              {/* مقترحات مشابهة */}
-              <div className="mt-10">
-                <h3 className="text-lg font-bold mb-3">مقترحات مشابهة</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {similarProps.map(sp => <SmallCard key={sp.id} p={sp} />)}
-                </div>
+                <Link className="underline" href="/properties">{t("properties.title","العقارات")}</Link>
               </div>
             </div>
-
-            {/* العمود الجانبي */}
-            <aside className="md:col-span-1 space-y-4">
-              <div className="border rounded-lg p-4 shadow">
-                <div className="text-sm text-gray-600">السعر</div>
-                <div className="text-2xl font-bold text-[var(--brand-700)]">{format(p.priceOMR)}</div>
-
-                {/* ✅ عرض السعر الشهري/اليومي + السنوي تلقائيًا */}
-                {rentInfo && (
-                  <div className="mt-2 text-sm text-gray-700 space-y-1">
-                    <div>السعر: <b>{format(rentInfo.unitPrice)}</b> {rentInfo.unitLabel}</div>
-                    <div>السعر السنوي: <b>{format(rentInfo.yearly)}</b></div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Gallery */}
+              <section className="lg:col-span-2">
+                <div className="bg-white rounded-2xl shadow overflow-hidden">
+                  <div className="aspect-video bg-gray-200 flex items-center justify-center">
+                    {property.images && property.images.length ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={property.images[0]}
+                        alt={property.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-gray-500">No Image</div>
+                    )}
                   </div>
-                )}
-
-                {p.purpose === "rent" && p.rentalType && (
-                  <div className="text-xs text-gray-600 mt-1">نوع الإيجار: {p.rentalType === "monthly" ? "شهري" : p.rentalType === "yearly" ? "سنوي" : "يومي"}</div>
-                )}
-              </div>
-
-              {/* ✅ الأزرار قابلة للتخصيص من لوحة التحكم */}
-              <div className="grid grid-cols-2 gap-2">
-                {actions.map((a) => {
-                  const common = "inline-flex items-center justify-center gap-2 rounded-lg py-2 bg-[var(--brand-800)] hover:bg-[var(--brand-700)] text-white";
-                  if (a.action === "chat_owner") {
-                    return (
-                      <button key={a.id} className={common}
-                        onClick={() => openChat({ target: "owner", propertyId: p.id, subject: p.title })}>
-                        دردشة المالك
-                      </button>
-                    );
-                  }
-                  if (a.action === "chat_admin") {
-                    return (
-                      <button key={a.id} className={common}
-                        onClick={() => openChat({ target: "admin", subject: `استفسار حول ${p.title}` })}>
-                        تواصل الإدارة
-                      </button>
-                    );
-                  }
-                  if (a.action === "book_visit") {
-                    return (
-                      <button key={a.id} className={common} onClick={() => setVisitOpen(true)}>
-                        <FaCalendarCheck /> طلب معاينة
-                      </button>
-                    );
-                  }
-                  if (a.action === "negotiate") {
-                    return (
-                      <button key={a.id} className={common} onClick={() => setNegOpen(true)}>
-                        <FaMoneyBillWave /> مناقشة السعر
-                      </button>
-                    );
-                  }
-                  if (a.action === "book_unit") {
-                    return (
-                      <button key={a.id} className={`${common} col-span-2`} onClick={() => setReserveOpen(true)}>
-                        حجز العقار
-                      </button>
-                    );
-                  }
-                  if (a.action === "link") {
-                    return (
-                      <a key={a.id} className={common} target="_blank" href={a.href || "#"}>
-                        {a.label}
-                      </a>
-                    );
-                  }
-                  return null;
-                })}
-              </div>
-
-              {/* مشاركة */}
-              <div className="border rounded-lg p-4">
-                <h4 className="font-semibold mb-2">مشاركة</h4>
-                <div className="flex flex-wrap gap-2">
-                  <a className="inline-flex items-center gap-1 border rounded px-2 py-1 hover:bg-gray-50" target="_blank" rel="noreferrer"
-                    href={`https://wa.me/?text=${shareText}%20${encodedUrl}`}><FaWhatsapp /> واتساب</a>
-                  <a className="inline-flex items-center gap-1 border rounded px-2 py-1 hover:bg-gray-50" target="_blank" rel="noreferrer"
-                    href={`https://twitter.com/intent/tweet?text=${shareText}&url=${encodedUrl}`}><FaTwitter /> تويتر</a>
-                  <a className="inline-flex items-center gap-1 border rounded px-2 py-1 hover:bg-gray-50" target="_blank" rel="noreferrer"
-                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}><FaFacebook /> فيسبوك</a>
-                  <a className="inline-flex items-center gap-1 border rounded px-2 py-1 hover:bg-gray-50" target="_blank" rel="noreferrer"
-                    href={`https://t.me/share/url?url=${encodedUrl}&text=${shareText}`}><FaTelegramPlane /> تيليجرام</a>
-                  <a className="inline-flex items-center gap-1 border rounded px-2 py-1 hover:bg-gray-50" target="_blank" rel="noreferrer"
-                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`}><FaLinkedin /> لينكدإن</a>
-                  <a className="inline-flex items-center gap-1 border rounded px-2 py-1 hover:bg-gray-50"
-                    href={`mailto:?subject=${shareText}&body=${encodedUrl}`}><FaEnvelope /> بريد</a>
-                  <button onClick={() => navigator.clipboard.writeText(shareUrl)} className="inline-flex items-center gap-1 border rounded px-2 py-1 hover:bg-gray-50"><FaLink /> نسخ الرابط</button>
+                  {property.images && property.images.length > 1 && (
+                    <div className="p-3 flex gap-2 overflow-x-auto">
+                      {property.images.slice(1).map((src, i) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          key={i}
+                          src={src}
+                          alt={`thumb-${i}`}
+                          className="h-16 w-24 object-cover rounded"
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-            </aside>
-          </section>
 
-          {/* النوافذ */}
-          <VisitModal open={visitOpen} onClose={() => setVisitOpen(false)} propertyId={p.id} />
-          <NegotiateModal open={negOpen} onClose={() => setNegOpen(false)} propertyId={p.id} />
-          <ReserveModal open={reserveOpen} onClose={() => setReserveOpen(false)} propertyId={p.id} purpose={p.purpose} rentalType={p.rentalType} />
-        </>
-      )}
+                <div className="mt-6 bg-white rounded-2xl shadow p-6">
+                  <h1 className="text-2xl font-semibold mb-2">{property.title}</h1>
+                  {property.location && (
+                    <p className="text-sm text-gray-600 mb-3">
+                      <span className="font-medium">{t("property.location","الموقع")}:</span>{" "}
+                      {property.location}
+                    </p>
+                  )}
+                  <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+                    {property.description || ""}
+                  </p>
+                </div>
+              </section>
+
+              {/* Side panel */}
+              <aside className="lg:col-span-1">
+                <div className="bg-white rounded-2xl shadow p-6 sticky top-6">
+                  <div className="space-y-3 mb-5">
+                    <div className="text-sm text-gray-600">{t("property.monthlyPrice","السعر الشهري")}</div>
+                    <div className="text-3xl font-bold" style={{ color: "var(--brand-800, #0f766e)" }}>
+                      {monthly?.toLocaleString()} {property.currency || t("currency.OMR","ريال عُماني")}
+                    </div>
+                    <div className="text-sm text-gray-600">{t("property.yearlyPrice","السعر السنوي")}</div>
+                    <div className="text-xl font-semibold" style={{ color: "var(--brand-700, #115e59)" }}>
+                      {yearly?.toLocaleString()} {property.currency || t("currency.OMR","ريال عُماني")}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <ActionButton label={t("actions.chat","دردشة")} href={`/chat?property=${encodeURIComponent(property.id)}`} />
+                    <ActionButton label={t("actions.manage","إدارة")} href={`/admin/properties/manage?id=${encodeURIComponent(property.id)}`} />
+                    <ActionButton label={t("actions.preview","معاينة")} href={`/preview/property/${encodeURIComponent(property.id)}`} />
+                    <ActionButton label={t("actions.price","سِعر")} href={`#price-${encodeURIComponent(property.id)}`} />
+                    <ActionButton label={t("actions.book","حجز")} href={`/booking?property=${encodeURIComponent(property.id)}`} full />
+                  </div>
+                </div>
+              </aside>
+            </div>
+          )}
+        </div>
+      </main>
     </Layout>
   );
 }
 
-/** بطاقة صغيرة */
-function SmallCard({ p }: { p: Prop }) {
+function ActionButton({ label, href, full = false }: { label: string; href: string; full?: boolean }) {
   return (
-    <Link href={`/property/${p.id}`} className="border rounded-lg shadow hover:shadow-lg transition overflow-hidden block">
-      <img src={p.image} alt={p.title} className="w-full h-36 object-cover" />
-      <div className="p-3">
-        <div className="text-sm font-semibold line-clamp-1">{p.title}</div>
-        <div className="text-xs text-gray-600 line-clamp-1">{p.location}</div>
-        <div className="mt-1 text-xs text-yellow-600 inline-flex items-center gap-1">
-          <FaStar /> {p.rating}
-        </div>
-      </div>
+    <Link
+      href={href}
+      className={`text-center px-4 py-2 rounded-xl border transition hover:shadow ${full ? "col-span-2" : ""}`}
+      style={{
+        background: "var(--brand-600, #14b8a6)",
+        color: "white",
+        borderColor: "var(--brand-700, #115e59)",
+      }}
+    >
+      {label}
     </Link>
   );
 }
 
-/** حجز معاينة */
-function VisitModal({ open, onClose, propertyId }: { open: boolean; onClose: () => void; propertyId: number }) {
-  const [name, setName] = useState(""); const [phone, setPhone] = useState("");
-  const [date, setDate] = useState(""); const [time, setTime] = useState("");
-  const [sent, setSent] = useState(false);
-  if (!open) return null;
-  const submit = async (e: any) => {
-    e.preventDefault();
-    await fetch(`/api/property/${propertyId}/visit`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, phone, date, time }) });
-    setSent(true);
-  };
-  return (
-    <div className="fixed inset-0 z-[58] bg-black/40 flex items-end md:items-center justify-center">
-      <div className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-md p-4">
-        <div className="flex items-center justify-between mb-2"><h3 className="font-semibold">حجز معاينة</h3><button onClick={onClose} className="text-red-600"><FaTimes /></button></div>
-        {sent ? <div className="p-4 text-green-700 bg-green-50 rounded">تم تسجيل الموعد.</div> :
-          <form onSubmit={submit} className="grid gap-2">
-            <input className="border rounded p-2" placeholder="الاسم" value={name} onChange={e=>setName(e.target.value)} required />
-            <input className="border rounded p-2" placeholder="رقم الهاتف" value={phone} onChange={e=>setPhone(e.target.value)} required />
-            <div className="grid grid-cols-2 gap-2">
-              <input type="date" className="border rounded p-2" value={date} onChange={e=>setDate(e.target.value)} required />
-              <input type="time" className="border rounded p-2" value={time} onChange={e=>setTime(e.target.value)} required />
-            </div>
-            <button className="mt-1 px-4 py-2 rounded bg-[var(--brand-800)] hover:bg-[var(--brand-700)] text-white">تأكيد</button>
-          </form>}
-      </div>
-    </div>
-  );
-}
+export const getServerSideProps: GetServerSideProps<PageProps> = async (ctx) => {
+  const id = String(ctx.params?.id || "");
+  const fs = await import("fs");
+  const path = await import("path");
+  const FILE_PATH = path.join(process.cwd(), ".data", "properties.json");
 
-/** مناقشة السعر */
-function NegotiateModal({ open, onClose, propertyId }: { open: boolean; onClose: () => void; propertyId: number }) {
-  const [name, setName] = useState(""); const [phone, setPhone] = useState("");
-  const [offer, setOffer] = useState<number | "">(""); const [note, setNote] = useState("");
-  const [sent, setSent] = useState(false);
-  if (!open) return null;
-  const submit = async (e: any) => {
-    e.preventDefault();
-    await fetch(`/api/property/${propertyId}/negotiate`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, phone, offer, note }) });
-    setSent(true);
-  };
-  return (
-    <div className="fixed inset-0 z-[58] bg-black/40 flex items-end md:items-center justify-center">
-      <div className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-md p-4">
-        <div className="flex items-center justify-between mb-2"><h3 className="font-semibold">طلب مناقشة السعر</h3><button onClick={onClose} className="text-red-600"><FaTimes /></button></div>
-        {sent ? <div className="p-4 text-green-700 bg-green-50 rounded">تم إرسال الطلب.</div> :
-          <form onSubmit={submit} className="grid gap-2">
-            <input className="border rounded p-2" placeholder="الاسم" value={name} onChange={e=>setName(e.target.value)} required />
-            <input className="border rounded p-2" placeholder="رقم الهاتف" value={phone} onChange={e=>setPhone(e.target.value)} required />
-            <input type="number" className="border rounded p-2" placeholder="العرض المقترح (ر.ع)" value={offer} onChange={e=>setOffer(e.target.value ? +e.target.value : "")} />
-            <textarea className="border rounded p-2" rows={3} placeholder="ملاحظات (اختياري)" value={note} onChange={e=>setNote(e.target.value)} />
-            <button className="mt-1 px-4 py-2 rounded bg-[var(--brand-800)] hover:bg-[var(--brand-700)] text-white">إرسال</button>
-          </form>}
-      </div>
-    </div>
-  );
-}
+  let property: Property | null = null;
+  try {
+    if (fs.existsSync(FILE_PATH)) {
+      const raw = fs.readFileSync(FILE_PATH, "utf8");
+      const list: Property[] = JSON.parse(raw || "[]");
+      property = list.find((p) => p.id === id) || null;
+    }
+  } catch {
+    property = null;
+  }
 
-/** ✅ حجز العقار */
-function ReserveModal({ open, onClose, propertyId, purpose, rentalType }: {
-  open: boolean; onClose: () => void; propertyId: number;
-  purpose?: string | null; rentalType?: "daily" | "monthly" | "yearly" | null;
-}) {
-  const [name, setName] = useState(""); const [phone, setPhone] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [periodMonths, setPeriodMonths] = useState<number | "">("");
-  const [periodDays, setPeriodDays] = useState<number | "">("");
-  const [note, setNote] = useState("");
-  const [sent, setSent] = useState(false);
-  if (!open) return null;
-
-  const isRent = purpose === "rent";
-  const onSubmit = async (e: any) => {
-    e.preventDefault();
-    await fetch(`/api/property/${propertyId}/reserve`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name, phone, startDate,
-        periodMonths: isRent && rentalType !== "daily" ? periodMonths : undefined,
-        periodDays: isRent && rentalType === "daily" ? periodDays : undefined,
-        note
-      })
-    });
-    setSent(true);
-  };
-
-  return (
-    <div className="fixed inset-0 z-[58] bg-black/40 flex items-end md:items-center justify-center">
-      <div className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-md p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold">حجز العقار</h3>
-          <button onClick={onClose} className="text-red-600"><FaTimes /></button>
-        </div>
-        {sent ? (
-          <div className="p-4 text-green-700 bg-green-50 rounded">تم تسجيل الحجز، سنتواصل معك قريبًا.</div>
-        ) : (
-          <form onSubmit={onSubmit} className="grid gap-2">
-            <input className="border rounded p-2" placeholder="الاسم" value={name} onChange={e=>setName(e.target.value)} required />
-            <input className="border rounded p-2" placeholder="رقم الهاتف" value={phone} onChange={e=>setPhone(e.target.value)} required />
-            <input type="date" className="border rounded p-2" value={startDate} onChange={e=>setStartDate(e.target.value)} required />
-            {isRent && (
-              rentalType === "daily" ? (
-                <input type="number" className="border rounded p-2" placeholder="المدة (أيام)" value={periodDays}
-                  onChange={e=>setPeriodDays(e.target.value ? +e.target.value : "")} required />
-              ) : (
-                <input type="number" className="border rounded p-2" placeholder="المدة (أشهر)" value={periodMonths}
-                  onChange={e=>setPeriodMonths(e.target.value ? +e.target.value : "")} required />
-              )
-            )}
-            <textarea className="border rounded p-2" rows={3} placeholder="ملاحظات (اختياري)" value={note} onChange={e=>setNote(e.target.value)} />
-            <button className="mt-1 px-4 py-2 rounded bg-[var(--brand-800)] hover:bg-[var(--brand-700)] text-white">تأكيد الحجز</button>
-          </form>
-        )}
-      </div>
-    </div>
-  );
-}
+  return { props: { property } };
+};

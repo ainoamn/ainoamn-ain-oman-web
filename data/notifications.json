@@ -86,7 +86,7 @@
   {
     "id": "1755173809242",
     "createdAt": "2025-08-14T12:16:49.242Z",
-    "read": false,
+    "read": true,
     "type": "invoice_issued",
     "target": "tenant",
     "message": "تم إصدار فاتورة رقم AO-INV-3809238 لحجزك.",

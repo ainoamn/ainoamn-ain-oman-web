@@ -1,0 +1,27 @@
+{
+  "builtin": [
+    {
+      "key": "chatOwner",
+      "enabled": true
+    },
+    {
+      "key": "contactAdmin",
+      "enabled": true
+    },
+    {
+      "key": "requestViewing",
+      "enabled": true
+    },
+    {
+      "key": "negotiatePrice",
+      "enabled": true
+    },
+    {
+      "key": "reserveProperty",
+      "enabled": true
+    }
+  ],
+  "custom": [],
+  "showAnnualPrice": true,
+  "iconSize": 18
+}

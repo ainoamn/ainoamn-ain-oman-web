@@ -1,0 +1,217 @@
+{
+  "tasks": [
+    {
+      "id": "AO-T-000001",
+      "title": "",
+      "description": "",
+      "priority": "urgent",
+      "status": "open",
+      "createdAt": "2025-08-18 10:08",
+      "updatedAt": "2025-08-18 06:25:00.290",
+      "assignees": [],
+      "thread": [
+        {
+          "id": "1bdc9a43-c87e-440d-b91a-af315797e482",
+          "author": "system",
+          "text": "تم تحويل المهمة إلى عبد الله (a@a.c) | 95655200",
+          "at": "2025-08-18 06:09:05.498"
+        }
+      ],
+      "participants": [],
+      "attachments": [
+        {
+          "id": "bc152a91-5ef8-4e4d-8b8b-b58f3cc77573",
+          "name": "71+F65EuLML._AC_UF894,1000_QL80_.jpg",
+          "type": "image/jpeg",
+          "size": 185399,
+          "file": "bc152a91-5ef8-4e4d-8b8b-b58f3cc77573-71+F65EuLML._AC_UF894,1000_QL80_.jpg",
+          "uploadedAt": "2025-08-18 06:09:33.855"
+        }
+      ],
+      "owner": {
+        "name": "عبد الله ",
+        "email": "a@a.c",
+        "whatsapp": "95655200"
+      },
+      "cc": []
+    },
+    {
+      "id": "AO-T-000002",
+      "title": "قلفسي",
+      "description": "ليبيس",
+      "priority": "urgent",
+      "status": "open",
+      "createdAt": "2025-08-18 04:00:08.728",
+      "updatedAt": "2025-08-18 06:25:27.662",
+      "assignees": [],
+      "thread": [
+        {
+          "id": "a03adbbd-26c9-4c55-8877-de857c5bf6d0",
+          "author": "system",
+          "text": "تمت دعوة عبد الحميد | +96895655200.",
+          "at": "2025-08-18 04:00:30.183"
+        },
+        {
+          "id": "46bf1f53-993e-4080-ab88-6836c8f04ad3",
+          "author": "system",
+          "text": "تمت دعوة عبد الحميد (AH@SFG.OM) | 95655200.",
+          "at": "2025-08-18 04:00:53.735"
+        }
+      ],
+      "participants": [
+        {
+          "id": "4625fb79-de70-4e75-aea0-4aaa7bf92806",
+          "name": "عبد الحميد",
+          "whatsapp": "+96895655200",
+          "invitedAt": "2025-08-18 04:00:30.182"
+        },
+        {
+          "id": "bc03989e-7e9e-43be-ab6c-458ae0c1e10a",
+          "name": "عبد الحميد",
+          "email": "AH@SFG.OM",
+          "whatsapp": "95655200",
+          "invitedAt": "2025-08-18 04:00:53.734"
+        }
+      ],
+      "attachments": []
+    },
+    {
+      "id": "AO-T-000003",
+      "title": "صيانه عاجلة ",
+      "description": "مطلوب صيانه عاجله لمكيفات العقار ",
+      "priority": "high",
+      "status": "open",
+      "dueDate": "2025-08-15",
+      "createdAt": "2025-08-18 04:10:30.058",
+      "updatedAt": "2025-08-18 04:12:30.696",
+      "assignees": [
+        "عبد الحميد"
+      ],
+      "thread": [
+        {
+          "id": "c34ce2e6-c8c6-4674-bc2a-574b2ac63247",
+          "author": "system",
+          "text": "تمت دعوة عبد الحميد (AH@SFG.OM) | 95655200.",
+          "at": "2025-08-18 04:11:07.912"
+        }
+      ],
+      "participants": [
+        {
+          "id": "645e5619-0471-4d6f-ab14-8a7a01de8d5f",
+          "name": "عبد الحميد",
+          "email": "AH@SFG.OM",
+          "whatsapp": "95655200",
+          "invitedAt": "2025-08-18 04:11:07.911"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "53c85740-2a51-49a7-a638-11ba43735fcb",
+          "name": "09b54a5d-98df-49a0-881e-41bc83fa7d49.png",
+          "type": "image/png",
+          "size": 3025089,
+          "file": "53c85740-2a51-49a7-a638-11ba43735fcb-09b54a5d-98df-49a0-881e-41bc83fa7d49.png",
+          "uploadedAt": "2025-08-18 04:12:27.358"
+        }
+      ]
+    },
+    {
+      "id": "AO-T-000004",
+      "title": "مهمة جديدة",
+      "description": "",
+      "priority": "medium",
+      "status": "open",
+      "createdAt": "2025-08-19T19:24:20.713Z",
+      "updatedAt": "2025-08-19 19:24:26.230",
+      "assignees": [],
+      "cc": [],
+      "thread": [],
+      "participants": [],
+      "attachments": []
+    },
+    {
+      "id": "AO-T-000006",
+      "title": "مهمة جديدة",
+      "description": "",
+      "priority": "medium",
+      "status": "open",
+      "createdAt": "2025-08-19T19:26:02.353Z",
+      "updatedAt": "2025-08-19 19:26:02.395",
+      "assignees": [],
+      "cc": [],
+      "thread": [],
+      "participants": [],
+      "attachments": []
+    },
+    {
+      "id": "AO-T-000007",
+      "title": "مهمة جديدة",
+      "description": "",
+      "priority": "medium",
+      "status": "open",
+      "createdAt": "2025-08-19T19:35:27.852Z",
+      "updatedAt": "2025-08-19 19:35:27.896",
+      "assignees": [],
+      "cc": [],
+      "thread": [],
+      "participants": [],
+      "attachments": []
+    },
+    {
+      "id": "AO-T-000008",
+      "title": "مهمة جديدة",
+      "description": "",
+      "priority": "medium",
+      "status": "open",
+      "createdAt": "2025-08-19T19:35:29.280Z",
+      "updatedAt": "2025-08-19 19:35:29.298",
+      "assignees": [],
+      "cc": [],
+      "thread": [],
+      "participants": [],
+      "attachments": []
+    },
+    {
+      "id": "AO-T-000009",
+      "title": "مهمة جديدة",
+      "description": "",
+      "priority": "medium",
+      "status": "open",
+      "createdAt": "2025-08-19T19:46:08.666Z",
+      "updatedAt": "2025-08-19 19:46:24.904",
+      "assignees": [],
+      "cc": [],
+      "thread": [],
+      "participants": [],
+      "attachments": []
+    },
+    {
+      "id": "AO-T-000010",
+      "title": "مهمة جديدة",
+      "description": "",
+      "priority": "medium",
+      "status": "open",
+      "createdAt": "2025-08-19T19:49:06.807Z",
+      "updatedAt": "2025-08-19 19:49:06.853",
+      "assignees": [],
+      "cc": [],
+      "thread": [],
+      "participants": [],
+      "attachments": []
+    },
+    {
+      "id": "TEST123",
+      "title": "مهمة جديدة",
+      "description": "",
+      "priority": "medium",
+      "status": "open",
+      "createdAt": "2025-08-19T20:01:32.554Z",
+      "updatedAt": "2025-08-19 20:01:32.577",
+      "assignees": [],
+      "cc": [],
+      "thread": [],
+      "participants": [],
+      "attachments": []
+    }
+  ]
+}
