@@ -4,7 +4,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import { FaBed, FaBath, FaRulerCombined, FaStar, FaBolt, FaMapMarkerAlt, FaHeart, FaEye } from 'react-icons/fa';
+import { FaBed, FaBath, FaRulerCombined, FaStar, FaBolt, FaMapMarkerAlt, FaHeart, FaEye, FaSearch, FaMoneyBillWave, FaBuilding, FaHouseUser } from 'react-icons/fa';
 
 // ---- i18n fallback ----
 let useI18n: any;
@@ -98,6 +98,14 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [partners, setPartners] = useState<Partner[]>([]);
   const [developers, setDevelopers] = useState<Developer[]>([]);
+
+  // حالة شريط البحث المتقدم
+  const [searchTerm, setSearchTerm] = useState("");
+  const [propertyType, setPropertyType] = useState("all");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [location, setLocation] = useState("");
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
 
   useEffect(() => {
     // جلب البيانات من API الخاصة بالعقارات، المزادات، والشركاء
@@ -268,6 +276,19 @@ export default function HomePage() {
     return `${days} يوم و ${hours} ساعة`;
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // بناء رابط البحث مع المعلمات
+    const queryParams = new URLSearchParams();
+    if (searchTerm) queryParams.append('q', searchTerm);
+    if (propertyType !== 'all') queryParams.append('type', propertyType);
+    if (minPrice) queryParams.append('minPrice', minPrice);
+    if (maxPrice) queryParams.append('maxPrice', maxPrice);
+    if (location) queryParams.append('location', location);
+    
+    router.push(`/properties?${queryParams.toString()}`);
+  };
+
   const heroStyles = {
     backgroundImage: "url('/images/banner1.jpg')",
     backgroundSize: 'cover',
@@ -282,10 +303,10 @@ export default function HomePage() {
 
   // فئات العقارات
   const propertyCategories = [
-    { id: 1, name: 'سكني', count: 450, icon: '🏠' },
-    { id: 2, name: 'تجاري', count: 230, icon: '🏢' },
-    { id: 3, name: 'أراضي', count: 180, icon: '📌' },
-    { id: 4, name: 'استثماري', count: 120, icon: '📈' },
+    { id: 1, name: 'سكني', count: 450, icon: <FaHouseUser className="text-2xl" /> },
+    { id: 2, name: 'تجاري', count: 230, icon: <FaBuilding className="text-2xl" /> },
+    { id: 3, name: 'أراضي', count: 180, icon: <FaMapMarkerAlt className="text-2xl" /> },
+    { id: 4, name: 'استثماري', count: 120, icon: <FaMoneyBillWave className="text-2xl" /> },
   ];
 
   // خدمات الموقع
@@ -305,11 +326,11 @@ export default function HomePage() {
 
       <Header />
       
-      {/* Hero Section */}
+      {/* Hero Section مع شريط البحث المتقدم */}
       <section className="relative py-20 lg:py-32" style={heroStyles}>
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl mx-auto text-center text-white">
+          <div className="max-w-4xl mx-auto text-center text-white">
             <h1 className="text-4xl lg:text-5xl font-bold mb-6">
               {t("home.hero.title")}
             </h1>
@@ -317,18 +338,94 @@ export default function HomePage() {
               {t("home.hero.subtitle")}
             </p>
             
-            {/* شريط البحث المبسط */}
-            <div className="bg-white rounded-lg p-4 shadow-lg">
-              <div className="flex flex-col md:flex-row gap-2">
-                <input
-                  type="text"
-                  placeholder={t("home.hero.search")}
-                  className="flex-1 p-3 border rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button className="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                  بحث
+            {/* شريط البحث المتقدم */}
+            <div className="bg-white rounded-xl p-6 shadow-2xl">
+              <form onSubmit={handleSearch} className="space-y-4">
+                {/* البحث الأساسي */}
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1 relative">
+                    <div className="absolute right-3 top-3 text-gray-400">
+                      <FaSearch />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder={t("home.hero.search")}
+                      className="w-full p-4 border rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-12"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <button 
+                    type="submit"
+                    className="p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <FaSearch /> بحث
+                  </button>
+                </div>
+
+                {/* خيارات البحث المتقدمة */}
+                <div className={`overflow-hidden transition-all duration-300 ${showAdvancedSearch ? 'max-h-96' : 'max-h-0'}`}>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1 text-right">نوع العقار</label>
+                      <select 
+                        className="w-full p-3 border rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={propertyType}
+                        onChange={(e) => setPropertyType(e.target.value)}
+                      >
+                        <option value="all">جميع الأنواع</option>
+                        <option value="villa">فيلا</option>
+                        <option value="apartment">شقة</option>
+                        <option value="land">أرض</option>
+                        <option value="commercial">تجاري</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1 text-right">المحافظة</label>
+                      <input
+                        type="text"
+                        placeholder="اسم المحافظة"
+                        className="w-full p-3 border rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1 text-right">السعر من</label>
+                        <input
+                          type="number"
+                          placeholder="0"
+                          className="w-full p-3 border rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          value={minPrice}
+                          onChange={(e) => setMinPrice(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1 text-right">السعر إلى</label>
+                        <input
+                          type="number"
+                          placeholder="أقصى سعر"
+                          className="w-full p-3 border rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          value={maxPrice}
+                          onChange={(e) => setMaxPrice(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* زر إظهار/إخفاء البحث المتقدم */}
+                <button 
+                  type="button"
+                  className="text-blue-600 text-sm flex items-center justify-center gap-1 mx-auto"
+                  onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+                >
+                  {showAdvancedSearch ? 'إخفاء خيارات البحث المتقدم' : 'إظهار خيارات البحث المتقدم'}
                 </button>
-              </div>
+              </form>
             </div>
           </div>
         </div>
@@ -339,9 +436,9 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {banners.map(b => (
-              <Link key={b.id} href={b.link} className="block overflow-hidden rounded-lg shadow-md">
-                <div className="w-full h-40 bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-500">{b.alt}</span>
+              <Link key={b.id} href={b.link} className="block overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <div className="w-full h-40 bg-gradient-to-r from-blue-500 to-teal-500 flex items-center justify-center text-white font-bold text-xl">
+                  {b.alt}
                 </div>
               </Link>
             ))}
@@ -352,13 +449,20 @@ export default function HomePage() {
       {/* Property Categories */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">تصفح حسب النوع</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {propertyCategories.map(category => (
-              <div key={category.id} className="text-center p-6 bg-gray-50 rounded-lg hover:shadow-md transition-shadow">
-                <div className="text-3xl mb-3">{category.icon}</div>
+              <Link 
+                key={category.id} 
+                href={`/properties?type=${category.name}`}
+                className="text-center p-6 bg-gray-50 rounded-lg hover:shadow-md transition-shadow border border-transparent hover:border-blue-200"
+              >
+                <div className="text-blue-600 mb-3 flex justify-center">
+                  {category.icon}
+                </div>
                 <h3 className="font-semibold text-lg mb-1">{category.name}</h3>
                 <p className="text-gray-600">{category.count} عقار</p>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -461,7 +565,7 @@ export default function HomePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {services.map(service => (
-              <div key={service.id} className="text-center p-6 border rounded-lg hover:shadow-md transition-shadow">
+              <div key={service.id} className="text-center p-6 border rounded-lg hover:shadow-md transition-shadow bg-gray-50">
                 <div className="text-3xl mb-4">{service.icon}</div>
                 <h3 className="font-semibold text-lg mb-2">{service.title}</h3>
                 <p className="text-gray-600 text-sm">{service.description}</p>
@@ -538,8 +642,8 @@ function PropertyCard({ property, formatPrice }: { property: Property; formatPri
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
       <div className="relative">
-        <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-          <span className="text-gray-500">صورة العقار</span>
+        <div className="w-full h-48 bg-gradient-to-br from-blue-400 to-teal-400 flex items-center justify-center text-white font-bold">
+          {property.title}
         </div>
         {property.promoted && (
           <span className="absolute top-2 right-2 text-xs bg-amber-500 text-white px-2 py-1 rounded inline-flex items-center gap-1">
@@ -621,8 +725,8 @@ function AuctionCard({ auction, formatPrice, formatRemainingTime }: {
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
       <div className="relative">
-        <div className="w-full h-44 bg-gray-200 flex items-center justify-center">
-          <span className="text-gray-500">صورة المزاد</span>
+        <div className="w-full h-44 bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold">
+          {auction.title}
         </div>
         {auction.auctionType && (
           <span className="absolute top-2 right-2 text-xs bg-red-500 text-white px-2 py-1 rounded">
