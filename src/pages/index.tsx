@@ -8,7 +8,7 @@ import { useCurrency } from '@/context/CurrencyContext';
 import PropertyMap from '@/components/maps/PropertyMap';
 import SmartSearch from '@/components/search/SmartSearch';
 import PartnerCard from '@/components/partners/PartnerCard';
-import { FaBed, FaBath, FaRulerCombined, FaStar, FaBolt, FaMapMarkerAlt, FaHeart, FaEye, FaChartLine } from 'react-icons/fa';
+import { FaBed, FaBath, FaRulerCombined, FaStar, FaBolt, FaMapMarkerAlt, FaHeart, FaEye } from 'react-icons/fa';
 
 // نوع البيانات الأساسي للعقار
 type Property = {
@@ -32,25 +32,62 @@ type Property = {
   likes?: number;
 };
 
+type Auction = {
+  id: string | number;
+  title: string;
+  image?: string;
+  startPrice?: number;
+  currentBid?: number;
+  endsAt?: string;
+  location?: string;
+  status?: string;
+};
+
 export default function HomePage() {
   const router = useRouter();
   const { format } = useCurrency();
   
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
+  const [allProperties, setAllProperties] = useState<Property[]>([]);
+  const [auctions, setAuctions] = useState<Auction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [partners, setPartners] = useState([]);
+  const [partners, setPartners] = useState<any[]>([]);
 
   useEffect(() => {
-    // جلب العقارات المميزة
-    const fetchFeaturedProperties = async () => {
+    // جلب البيانات من API الخاصة بالعقارات، المزادات، والشركاء
+    const fetchData = async () => {
+      setLoading(true);
       try {
-        const response = await fetch('/api/properties/featured');
-        if (response.ok) {
-          const data = await response.json();
-          setFeaturedProperties(data);
-        } else {
-          // بيانات تجريبية في حالة فشل API
-          setFeaturedProperties([
+        const [featRes, propsRes, auctionsRes, partnersRes] = await Promise.all([
+          fetch('/api/properties/featured'),
+          fetch('/api/properties'),
+          fetch('/api/auctions'),
+          fetch('/api/partners')
+        ]);
+
+        if (featRes.ok) {
+          const featData = await featRes.json();
+          setFeaturedProperties(featData);
+        }
+
+        if (propsRes.ok) {
+          const propsData = await propsRes.json();
+          setAllProperties(propsData);
+        }
+
+        if (auctionsRes.ok) {
+          const auctionsData = await auctionsRes.json();
+          setAuctions(auctionsData);
+        }
+
+        if (partnersRes.ok) {
+          const partnersData = await partnersRes.json();
+          setPartners(partnersData);
+        }
+
+        // إذا لم تتوفر بيانات من السيرفر، نعرض بيانات تجريبية كما كان
+        if (!featRes.ok) {
+          setFeaturedProperties(prev => prev.length ? prev : [
             {
               id: 1,
               title: 'فيلا فاخرة في القرم',
@@ -68,46 +105,29 @@ export default function HomePage() {
               referenceNo: 'PR-2023-0001',
               views: 1250,
               likes: 89
-            },
-            {
-              id: 2,
-              title: 'شقة في مجمع سكني حديث',
-              image: '/images/apartment1.jpg',
-              priceOMR: 85000,
-              province: 'مسقط',
-              state: 'السيب',
-              rating: 4.5,
-              beds: 2,
-              baths: 2,
-              area: 120,
-              type: 'apartment',
-              purpose: 'sale',
-              promoted: true,
-              referenceNo: 'PR-2023-0002',
-              views: 980,
-              likes: 67
-            },
-            {
-              id: 3,
-              title: 'أرض سكنية في العامرات',
-              image: '/images/land1.jpg',
-              priceOMR: 120000,
-              province: 'مسقط',
-              state: 'العامرات',
-              rating: 4.3,
-              area: 600,
-              type: 'land',
-              purpose: 'sale',
-              promoted: false,
-              referenceNo: 'PR-2023-0003',
-              views: 750,
-              likes: 42
             }
           ]);
         }
+
+        if (!propsRes.ok) {
+          setAllProperties(prev => prev.length ? prev : []);
+        }
+
+        if (!auctionsRes.ok) {
+          setAuctions(prev => prev.length ? prev : []);
+        }
+
+        if (!partnersRes.ok) {
+          setPartners(prev => prev.length ? prev : [
+            { id: 1, name: 'شركة العقارية الأولى', image: '/partners/partner1.png', category: 'تطوير عقاري' },
+            { id: 2, name: 'شركة الوساطة الثانية', image: '/partners/partner2.png', category: 'وساطة عقارية' },
+            { id: 3, name: 'مكتب الاستثمار الثالث', image: '/partners/partner3.png', category: 'استثمار عقاري' },
+            { id: 4, name: 'شركة التطوير الرابعة', image: '/partners/partner4.png', category: 'تطوير وتخطيط' },
+          ]);
+        }
       } catch (error) {
-        console.error('Error fetching featured properties:', error);
-        // بيانات تجريبية في حالة خطأ
+        console.error('Error fetching homepage data:', error);
+        // fallback data
         setFeaturedProperties([
           {
             id: 1,
@@ -126,48 +146,18 @@ export default function HomePage() {
             referenceNo: 'PR-2023-0001',
             views: 1250,
             likes: 89
-          },
-          {
-            id: 2,
-            title: 'شقة في مجمع سكني حديث',
-            image: '/images/apartment1.jpg',
-            priceOMR: 85000,
-            province: 'مسقط',
-            state: 'السيب',
-            rating: 4.5,
-            beds: 2,
-            baths: 2,
-            area: 120,
-            type: 'apartment',
-            purpose: 'sale',
-            promoted: true,
-            referenceNo: 'PR-2023-0002',
-            views: 980,
-            likes: 67
           }
+        ]);
+        setPartners([
+          { id: 1, name: 'شركة العقارية الأولى', image: '/partners/partner1.png', category: 'تطوير عقاري' },
+          { id: 2, name: 'شركة الوساطة الثانية', image: '/partners/partner2.png', category: 'وساطة عقارية' }
         ]);
       } finally {
         setLoading(false);
       }
     };
 
-    // جلب بيانات الشركاء
-    const fetchPartners = async () => {
-      try {
-        const mockPartners = [
-          { id: 1, name: 'شركة العقارية الأولى', image: '/partners/partner1.png', category: 'تطوير عقاري' },
-          { id: 2, name: 'شركة الوساطة الثانية', image: '/partners/partner2.png', category: 'وساطة عقارية' },
-          { id: 3, name: 'مكتب الاستثمار الثالث', image: '/partners/partner3.png', category: 'استثمار عقاري' },
-          { id: 4, name: 'شركة التطوير الرابعة', image: '/partners/partner4.png', category: 'تطوير وتخطيط' },
-        ];
-        setPartners(mockPartners);
-      } catch (error) {
-        console.error('Error fetching partners:', error);
-      }
-    };
-
-    fetchFeaturedProperties();
-    fetchPartners();
+    fetchData();
   }, []);
 
   const heroStyles = {
@@ -175,6 +165,12 @@ export default function HomePage() {
     backgroundSize: 'cover',
     backgroundPosition: 'center'
   };
+
+  // إعلانات بنرات (يمكن تعديل الروابط والصور لاحقاً)
+  const banners = [
+    { id: 1, image: '/banners/ad1.jpg', link: '/contact', alt: 'اعلان 1' },
+    { id: 2, image: '/banners/ad2.jpg', link: '/properties?promoted=true', alt: 'اعلان 2' },
+  ];
 
   // فئات العقارات
   const propertyCategories = [
@@ -218,6 +214,19 @@ export default function HomePage() {
             <div className="bg-white rounded-lg p-4 shadow-lg">
               <SmartSearch />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Banner ads below hero */}
+      <section className="py-8 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {banners.map(b => (
+              <Link key={b.id} href={b.link} className="block overflow-hidden rounded-lg shadow-md">
+                <img src={b.image} alt={b.alt} className="w-full h-40 object-cover" />
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -271,6 +280,30 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Auctions Section (imported from /api/auctions) */}
+      {auctions && auctions.length > 0 && (
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">المزادات الحالية</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">شارك الآن في المزادات واكتشف فرص استثمارية مميزة</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {auctions.map(a => (
+                <AuctionCard key={a.id} auction={a} format={format} />
+              ))}
+            </div>
+
+            <div className="text-center mt-8">
+              <Link href="/auctions" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">
+                عرض جميع المزادات
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Stats Section */}
       <section className="py-16 bg-blue-600 text-white">
@@ -341,7 +374,6 @@ export default function HomePage() {
               href="/properties?view=map" 
               className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
             >
-              <FaMapMarkerAlt className="ml-2" />
               استكشف على الخريطة
             </Link>
           </div>
@@ -380,7 +412,7 @@ export default function HomePage() {
 }
 
 // PropertyCard component for displaying property information
-function PropertyCard({ property, format }) {
+function PropertyCard({ property, format }: { property: Property; format: (v:number)=>string }) {
   const router = useRouter();
 
   return (
@@ -454,6 +486,34 @@ function PropertyCard({ property, format }) {
           onClick={() => router.push(`/property/${property.id}`)}
         >
           عرض التفاصيل
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// AuctionCard component for displaying auction items
+function AuctionCard({ auction, format }: { auction: Auction; format: (v:number)=>string }) {
+  const router = useRouter();
+
+  return (
+    <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+      <div className="relative">
+        <img src={auction.image || '/images/placeholder-service.svg'} alt={auction.title} className="w-full h-44 object-cover" />
+      </div>
+      <div className="p-4">
+        <h3 className="font-bold text-lg mb-2 line-clamp-1">{auction.title}</h3>
+        <div className="text-sm text-gray-600 mb-2">{auction.location}</div>
+        <div className="flex justify-between items-center mb-4">
+          <div className="text-blue-600 font-bold">
+            {auction.currentBid ? format(auction.currentBid) : auction.startPrice ? format(auction.startPrice) : '-'}
+          </div>
+          {auction.endsAt && (
+            <div className="text-sm text-gray-500">ينتهي: {new Date(auction.endsAt).toLocaleDateString()}</div>
+          )}
+        </div>
+        <button className="w-full mt-4 bg-amber-500 text-white py-2 rounded hover:bg-amber-600 transition-colors" onClick={() => router.push(`/auctions/${auction.id}`)}>
+          شارك في المزاد
         </button>
       </div>
     </div>
