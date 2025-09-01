@@ -1,11 +1,16 @@
+# Node / Next.js
 node_modules/
 .next/
-out/
+.out/
 dist/
 coverage/
-.env
-.env.local
-prisma/dev.db
 .DS_Store
-Thumbs.db
-*.log
+.env
+.env.*
+*.local
+# ?????? ?????
+.data/
+# ?????
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

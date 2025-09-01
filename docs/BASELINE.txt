@@ -1,0 +1,5 @@
+Ain Oman — Stable Baseline
+Repo: https://github.com/ainoamn/ainoamn-ain-oman-web
+Commit: 0637fdaff49d7e1a922dd51ca184d1451b1201d8
+Branch (locked): baseline-locked
+Tag: baseline-2025-08-21
