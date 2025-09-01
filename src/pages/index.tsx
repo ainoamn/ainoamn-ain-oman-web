@@ -1,157 +1,461 @@
-// src/pages/index.tsx (HOTFIX — safe guards, no destructive changes)
-import React, { useEffect, useState } from "react";
-import Link from "next/link";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import Head from 'next/head';
+import Link from 'next/link';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import { useCurrency } from '@/context/CurrencyContext';
+import PropertyMap from '@/components/maps/PropertyMap';
+import SmartSearch from '@/components/search/SmartSearch';
+import PartnerCard from '@/components/partners/PartnerCard';
+import { FaBed, FaBath, FaRulerCombined, FaStar, FaBolt, FaMapMarkerAlt, FaHeart, FaEye, FaChartLine } from 'react-icons/fa';
 
-type Auction = { id: string; title: string; image?: string; currentBid?: number; endsAt?: string; };
-type Property = { id: string; title: string; image?: string; price?: number; city?: string; type?: string; };
-type DevProject = { id: string; name: string; city?: string; image?: string; status?: string; };
-type Task = { id: string; title: string; priority: "low"|"medium"|"high"|"critical"; status: string; createdAt?: string; };
-
-// Helpers
-const toArray = (x: any) => {
-  if (Array.isArray(x)) return x;
-  if (x && Array.isArray(x.items)) return x.items;
-  if (x && Array.isArray(x.data)) return x.data;
-  return [];
+// نوع البيانات الأساسي للعقار
+type Property = {
+  id: string | number;
+  title: string;
+  image: string;
+  priceOMR: number;
+  province: string;
+  state: string;
+  village?: string;
+  location?: string;
+  rating?: number;
+  beds?: number;
+  baths?: number;
+  area?: number;
+  type?: string;
+  purpose?: string;
+  promoted?: boolean;
+  referenceNo?: string;
+  views?: number;
+  likes?: number;
 };
-async function safeJson(url: string, fallback: any) {
-  try {
-    const r = await fetch(url);
-    if (!r.ok) return fallback;
-    return await r.json();
-  } catch { return fallback; }
-}
 
 export default function HomePage() {
-  const [auctions, setAuctions] = useState<Auction[]>([]);
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [projects, setProjects] = useState<DevProject[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const router = useRouter();
+  const { format } = useCurrency();
+  
+  const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [partners, setPartners] = useState([]);
 
   useEffect(() => {
-    (async () => {
-      const [a, p, d, t] = await Promise.all([
-        safeJson("/api/auctions?limit=6", [
-          { id: "A-1001", title: "مزاد أرض سكنية — المعبيلة", currentBid: 120000, endsAt: "2025-09-12" },
-          { id: "A-1002", title: "مزاد شقة فاخرة — مسقط", currentBid: 84000, endsAt: "2025-09-01" },
-        ]),
-        safeJson("/api/properties?limit=8", [
-          { id: "P-2001", title: "شقة غرفتين وصالة – الخوض", price: 42000, city: "مسقط", type: "شقة" },
-          { id: "P-2002", title: "أرض سكنية — العامرات", price: 28000, city: "مسقط", type: "أرض" },
-        ]),
-        safeJson("/api/development/projects?limit=6", [
-          { id: "PR-OM-2025-000001", name: "مجمع الواجهة — بوشر", city: "مسقط", status: "selling" },
-          { id: "PR-OM-2025-000002", name: "أبراج النسيم — نزوى", city: "الداخلية", status: "planned" },
-        ]),
-        safeJson("/api/tasks?limit=5", [
-          { id: "AO-T-000001", title: "تحديث صفحة التفاصيل", priority: "high", status: "open", createdAt: "2025-08-18T10:07:52Z" },
-          { id: "AO-T-000002", title: "توليد ملف ICS", priority: "medium", status: "in_progress", createdAt: "2025-08-18T14:55:12Z" },
-        ]),
-      ]);
-      setAuctions(toArray(a));
-      setProperties(toArray(p));
-      setProjects(toArray(d));
-      setTasks(toArray(t));
-    })();
+    // جلب العقارات المميزة
+    const fetchFeaturedProperties = async () => {
+      try {
+        const response = await fetch('/api/properties/featured');
+        if (response.ok) {
+          const data = await response.json();
+          setFeaturedProperties(data);
+        } else {
+          // بيانات تجريبية في حالة فشل API
+          setFeaturedProperties([
+            {
+              id: 1,
+              title: 'فيلا فاخرة في القرم',
+              image: '/images/villa1.jpg',
+              priceOMR: 350000,
+              province: 'مسقط',
+              state: 'القرم',
+              rating: 4.8,
+              beds: 4,
+              baths: 3,
+              area: 300,
+              type: 'villa',
+              purpose: 'sale',
+              promoted: true,
+              referenceNo: 'PR-2023-0001',
+              views: 1250,
+              likes: 89
+            },
+            {
+              id: 2,
+              title: 'شقة في مجمع سكني حديث',
+              image: '/images/apartment1.jpg',
+              priceOMR: 85000,
+              province: 'مسقط',
+              state: 'السيب',
+              rating: 4.5,
+              beds: 2,
+              baths: 2,
+              area: 120,
+              type: 'apartment',
+              purpose: 'sale',
+              promoted: true,
+              referenceNo: 'PR-2023-0002',
+              views: 980,
+              likes: 67
+            },
+            {
+              id: 3,
+              title: 'أرض سكنية في العامرات',
+              image: '/images/land1.jpg',
+              priceOMR: 120000,
+              province: 'مسقط',
+              state: 'العامرات',
+              rating: 4.3,
+              area: 600,
+              type: 'land',
+              purpose: 'sale',
+              promoted: false,
+              referenceNo: 'PR-2023-0003',
+              views: 750,
+              likes: 42
+            }
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching featured properties:', error);
+        // بيانات تجريبية في حالة خطأ
+        setFeaturedProperties([
+          {
+            id: 1,
+            title: 'فيلا فاخرة في القرم',
+            image: '/images/villa1.jpg',
+            priceOMR: 350000,
+            province: 'مسقط',
+            state: 'القرم',
+            rating: 4.8,
+            beds: 4,
+            baths: 3,
+            area: 300,
+            type: 'villa',
+            purpose: 'sale',
+            promoted: true,
+            referenceNo: 'PR-2023-0001',
+            views: 1250,
+            likes: 89
+          },
+          {
+            id: 2,
+            title: 'شقة في مجمع سكني حديث',
+            image: '/images/apartment1.jpg',
+            priceOMR: 85000,
+            province: 'مسقط',
+            state: 'السيب',
+            rating: 4.5,
+            beds: 2,
+            baths: 2,
+            area: 120,
+            type: 'apartment',
+            purpose: 'sale',
+            promoted: true,
+            referenceNo: 'PR-2023-0002',
+            views: 980,
+            likes: 67
+          }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // جلب بيانات الشركاء
+    const fetchPartners = async () => {
+      try {
+        const mockPartners = [
+          { id: 1, name: 'شركة العقارية الأولى', image: '/partners/partner1.png', category: 'تطوير عقاري' },
+          { id: 2, name: 'شركة الوساطة الثانية', image: '/partners/partner2.png', category: 'وساطة عقارية' },
+          { id: 3, name: 'مكتب الاستثمار الثالث', image: '/partners/partner3.png', category: 'استثمار عقاري' },
+          { id: 4, name: 'شركة التطوير الرابعة', image: '/partners/partner4.png', category: 'تطوير وتخطيط' },
+        ];
+        setPartners(mockPartners);
+      } catch (error) {
+        console.error('Error fetching partners:', error);
+      }
+    };
+
+    fetchFeaturedProperties();
+    fetchPartners();
   }, []);
 
+  const heroStyles = {
+    backgroundImage: "url('/images/banner1.jpg')",
+    backgroundSize: 'cover',
+    backgroundPosition: 'center'
+  };
+
+  // فئات العقارات
+  const propertyCategories = [
+    { id: 1, name: 'سكني', count: 450, icon: '🏠' },
+    { id: 2, name: 'تجاري', count: 230, icon: '🏢' },
+    { id: 3, name: 'أراضي', count: 180, icon: '📌' },
+    { id: 4, name: 'استثماري', count: 120, icon: '📈' },
+  ];
+
+  // خدمات الموقع
+  const services = [
+    { id: 1, title: 'شراء عقار', description: 'ابحث عن عقارك المثالي من بين آلاف العروض', icon: '🔍' },
+    { id: 2, title: 'بيع عقار', description: 'بيع عقارك بسرعة وسهولة مع وسيط موثوق', icon: '💰' },
+    { id: 3, title: 'تأجير عقار', description: 'ابحث عن عقار للإيجار أو اعرض عقارك للتأجير', icon: '🔑' },
+    { id: 4, title: 'استثمار عقاري', description: 'استثمر في العقارات واجني أرباحاً مضمونة', icon: '📊' },
+  ];
+
   return (
-    <div className="pb-16">
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-teal-50 to-white dark:from-neutral-900 dark:to-neutral-950" />
-        <div className="relative z-10 max-w-6xl mx-auto pt-14 md:pt-20 px-4">
-          <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="flex-1">
-              <h1 className="text-3xl md:text-5xl font-bold leading-tight">
-                عين عُمان — منصّة عقارية ذكية
-              </h1>
-              <p className="mt-4 text-neutral-700 dark:text-neutral-300">
-                بيع وشراء وتأجير واستثمار وإدارة عقاراتك، مع مزادات فورية، مطوّرين، ولوحة مهام.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/properties" className="px-5 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white">تصفح العقارات</Link>
-                <Link href="/auctions" className="px-5 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800">المزادات</Link>
-                <Link href="/development" className="px-5 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800">التطوير العقاري</Link>
-                <Link href="/admin/tasks" className="px-5 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800">لوحة المهام</Link>
-              </div>
-            </div>
-            <div className="flex-1 rounded-3xl border border-neutral-200 dark:border-neutral-800 p-4 bg-white dark:bg-neutral-900">
-              <div className="grid grid-cols-2 gap-3">
-                {(properties ?? []).slice(0,4).map((p) => (
-                  <div key={(p as any).id ?? Math.random()} className="rounded-2xl border p-3 text-sm hover:shadow-sm transition">
-                    <div className="aspect-video rounded-xl bg-neutral-100 dark:bg-neutral-800 mb-2" />
-                    <div className="font-semibold line-clamp-1">{(p as any).title ?? "—"}</div>
-                    <div className="text-xs text-neutral-600 dark:text-neutral-400">{(p as any).city ?? "—"}</div>
-                  </div>
-                ))}
-              </div>
+    <div className="min-h-screen flex flex-col">
+      <Head>
+        <title>عين عمان - بوابة العقارات الأولى في سلطنة عمان</title>
+        <meta name="description" content="اكتشف أفضل العقارات في سلطنة عمان. ابحث عن شقق، فلل، مكاتب، وأراضي للبيع والإيجار." />
+      </Head>
+
+      {/* الهيدر العام الذي يتم توليده تلقائياً */}
+      <Header />
+      
+      {/* Hero Section */}
+      <section className="relative py-20 lg:py-32" style={heroStyles}>
+        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-3xl mx-auto text-center text-white">
+            <h1 className="text-4xl lg:text-5xl font-bold mb-6">
+              ابحث عن عقارك المثالي في عمان
+            </h1>
+            <p className="text-xl mb-8">
+              أكثر من 1000 عقار متاح للبيع والإيجار في مختلف محافظات السلطنة
+            </p>
+            
+            {/* شريط البحث الذي يتم توليده تلقائياً */}
+            <div className="bg-white rounded-lg p-4 shadow-lg">
+              <SmartSearch />
             </div>
           </div>
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto mt-12 px-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl md:text-2xl font-bold">عقارات مميزة</h2>
-          <Link href="/properties" className="text-teal-700 hover:underline">عرض الكل</Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-          {(properties ?? []).map((p) => (
-            <Link key={(p as any).id ?? Math.random()} href={`/properties/${(p as any).id ?? ""}`} className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-3 hover:shadow-sm transition block">
-              <div className="aspect-video rounded-xl bg-neutral-100 dark:bg-neutral-800 mb-2" />
-              <div className="font-semibold line-clamp-1">{(p as any).title ?? "—"}</div>
-              <div className="text-xs text-neutral-600 dark:text-neutral-400">
-                {(p as any).type ?? "—"} · {(p as any).city ?? "—"}
+      {/* Property Categories */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {propertyCategories.map(category => (
+              <div key={category.id} className="text-center p-6 bg-gray-50 rounded-lg hover:shadow-md transition-shadow">
+                <div className="text-3xl mb-3">{category.icon}</div>
+                <h3 className="font-semibold text-lg mb-1">{category.name}</h3>
+                <p className="text-gray-600">{category.count} عقار</p>
               </div>
-            </Link>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto mt-12 px-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl md:text-2xl font-bold">مزادات نشِطة</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          {(auctions ?? []).map((a) => (
-            <Link key={(a as any).id ?? Math.random()} href={`/auctions/${(a as any).id ?? ""}`} className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 hover:shadow-sm transition block">
-              <div className="aspect-video rounded-xl bg-neutral-100 dark:bg-neutral-800 mb-3" />
-              <div className="font-semibold line-clamp-1">{(a as any).title ?? "—"}</div>
-              <div className="text-xs text-neutral-600 dark:text-neutral-400">ينتهي: {(a as any).endsAt ?? "—"}</div>
+      {/* Featured Properties */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+              العقارات المميزة
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              اكتشف أفضل الفرص العقارية المختارة بعناية من قبل فريقنا
+            </p>
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredProperties.map(property => (
+                <PropertyCard key={property.id} property={property} format={format} />
+              ))}
+            </div>
+          )}
+          
+          <div className="text-center mt-12">
+            <Link 
+              href="/properties" 
+              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+            >
+              عرض جميع العقارات
             </Link>
-          ))}
+          </div>
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto mt-12 px-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl md:text-2xl font-bold">مشاريع التطوير العقاري</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          {(projects ?? []).map((pr) => (
-            <Link key={(pr as any).id ?? Math.random()} href={`/development/projects/${(pr as any).id ?? ""}`} className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 hover:shadow-sm transition block">
-              <div className="aspect-video rounded-xl bg-neutral-100 dark:bg-neutral-800 mb-3" />
-              <div className="font-semibold line-clamp-1">{(pr as any).name ?? "—"}</div>
-              <div className="text-xs text-neutral-600 dark:text-neutral-400">{(pr as any).city ?? "—"} · {(pr as any).status ?? "—"}</div>
-            </Link>
-          ))}
+      {/* Stats Section */}
+      <section className="py-16 bg-blue-600 text-white">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div className="p-4">
+              <div className="text-4xl font-bold mb-2">1,250+</div>
+              <div className="text-blue-100">عقار متاح</div>
+            </div>
+            <div className="p-4">
+              <div className="text-4xl font-bold mb-2">500+</div>
+              <div className="text-blue-100">عميل راضٍ</div>
+            </div>
+            <div className="p-4">
+              <div className="text-4xl font-bold mb-2">11</div>
+              <div className="text-blue-100">محافظة</div>
+            </div>
+            <div className="p-4">
+              <div className="text-4xl font-bold mb-2">50+</div>
+              <div className="text-blue-100">شريك</div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto mt-12 px-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl md:text-2xl font-bold">مهام حديثة (إدارة)</h2>
-          <Link href="/admin/tasks" className="text-teal-700 hover:underline">لوحة المهام</Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          {(tasks ?? []).map((t) => (
-            <Link key={(t as any).id ?? Math.random()} href={`/admin/tasks/${(t as any).id ?? ""}`} className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 hover:shadow-sm transition block">
-              <div className="font-semibold line-clamp-1">{(t as any).title ?? "—"}</div>
-              <div className="text-xs text-neutral-600 dark:text-neutral-400">الأولوية: {(t as any).priority ?? "—"} · الحالة: {(t as any).status ?? "—"}</div>
-            </Link>
-          ))}
+      {/* Services Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">خدماتنا</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">نقدم مجموعة متكاملة من الخدمات العقارية لتلبية جميع احتياجاتك</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {services.map(service => (
+              <div key={service.id} className="text-center p-6 border rounded-lg hover:shadow-md transition-shadow">
+                <div className="text-3xl mb-4">{service.icon}</div>
+                <h3 className="font-semibold text-lg mb-2">{service.title}</h3>
+                <p className="text-gray-600 text-sm">{service.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
+
+      {/* Map Section */}
+      <section className="py-16 bg-gray-100">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+              استكشف العقارات على الخريطة
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              ابحث عن العقارات في مواقعها الفعلية على الخريطة التفاعلية
+            </p>
+          </div>
+          
+          <div className="h-96 rounded-lg overflow-hidden shadow-lg">
+            <PropertyMap 
+              properties={featuredProperties} 
+              height="100%"
+              zoom={10}
+            />
+          </div>
+          
+          <div className="text-center mt-8">
+            <Link 
+              href="/properties?view=map" 
+              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
+            >
+              <FaMapMarkerAlt className="ml-2" />
+              استكشف على الخريطة
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Partners Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+              شركاؤنا
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              نحن نتعاون مع أفضل الشركات والوكالات العقارية في السلطنة
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {partners.map(partner => (
+              <PartnerCard 
+                key={partner.id}
+                name={partner.name}
+                image={partner.image}
+                category={partner.category}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* الفوتر العام الذي يتم توليده تلقائياً */}
+      <Footer />
+    </div>
+  );
+}
+
+// PropertyCard component for displaying property information
+function PropertyCard({ property, format }) {
+  const router = useRouter();
+
+  return (
+    <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+      <div className="relative">
+        <img 
+          src={property.image || '/images/placeholder-service.svg'} 
+          alt={property.title}
+          className="w-full h-48 object-cover"
+        />
+        {property.promoted && (
+          <span className="absolute top-2 right-2 text-xs bg-amber-500 text-white px-2 py-1 rounded inline-flex items-center gap-1">
+            <FaBolt /> مميز
+          </span>
+        )}
+        {property.referenceNo && (
+          <span className="absolute top-2 left-2 text-xs bg-black/70 text-white px-2 py-1 rounded">
+            {property.referenceNo}
+          </span>
+        )}
+        <div className="absolute bottom-2 left-2 flex space-x-2">
+          {property.views !== undefined && (
+            <span className="text-xs bg-black/70 text-white px-2 py-1 rounded inline-flex items-center gap-1">
+              <FaEye /> {property.views}
+            </span>
+          )}
+          {property.likes !== undefined && (
+            <span className="text-xs bg-black/70 text-white px-2 py-1 rounded inline-flex items-center gap-1">
+              <FaHeart /> {property.likes}
+            </span>
+          )}
+        </div>
+      </div>
+      <div className="p-4">
+        <h3 className="font-bold text-lg mb-2 line-clamp-1">{property.title}</h3>
+        <div className="flex items-center text-sm text-gray-600 mb-2">
+          <FaMapMarkerAlt className="ml-1" />
+          <span className="line-clamp-1">
+            {property.location || `${property.province} - ${property.state}${property.village ? ` - ${property.village}` : ''}`}
+          </span>
+        </div>
+        <div className="flex justify-between items-center mb-4">
+          <span className="text-blue-600 font-bold text-lg">
+            {format(property.priceOMR || 0)}
+          </span>
+          {property.rating && (
+            <span className="text-sm text-yellow-600 inline-flex items-center gap-1">
+              <FaStar /> {property.rating}
+            </span>
+          )}
+        </div>
+        <div className="flex justify-between text-sm text-gray-700 border-t pt-3">
+          {property.beds !== undefined && (
+            <div className="inline-flex items-center gap-1">
+              <FaBed /> {property.beds}
+            </div>
+          )}
+          {property.baths !== undefined && (
+            <div className="inline-flex items-center gap-1">
+              <FaBath /> {property.baths}
+            </div>
+          )}
+          {property.area !== undefined && (
+            <div className="inline-flex items-center gap-1">
+              <FaRulerCombined /> {property.area} م²
+            </div>
+          )}
+        </div>
+        <button 
+          className="w-full mt-4 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors"
+          onClick={() => router.push(`/property/${property.id}`)}
+        >
+          عرض التفاصيل
+        </button>
+      </div>
     </div>
   );
 }
