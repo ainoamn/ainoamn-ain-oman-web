@@ -1,70 +1,124 @@
-// FILE: src/pages/api/tasks/index.ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { requireAdminApi } from "@/server/auth";
-import { listTasks, createTask, bulkUpdate, deleteTask } from "@/server/tasks/store";
+import { mkdir, readFile, writeFile, access } from "node:fs/promises";
+import path from "node:path";
 
-function includes(s: string, q: string) { return s.toLowerCase().includes(q.toLowerCase()); }
+/** تخزين محلي */
+const DATA_DIR = path.join(process.cwd(), ".data");
+const FILE = path.join(DATA_DIR, "tasks.json");
 
+/** النوع */
+type TaskStatus = "open" | "done";
+type LinkedRef = { type: "subscription" | "auction" | "user" | string; id: string };
+type Task = {
+  id: string;
+  title: string;
+  description?: string;
+  status: TaskStatus;
+  linked?: LinkedRef | null;
+  assignees?: string[];
+  createdAt: number;
+  updatedAt: number;
+  createdBy?: string | null;
+};
+
+/** تهيئة ملف البيانات عند الحاجة */
+async function ensure() {
+  try { await access(DATA_DIR); } catch { await mkdir(DATA_DIR, { recursive: true }); }
+  try { await access(FILE); } catch { await writeFile(FILE, JSON.stringify({ items: [] }, null, 2), "utf8"); }
+}
+
+async function readDB(): Promise<{ items: Task[] }> {
+  const raw = await readFile(FILE, "utf8").catch(() => '{"items":[]}');
+  try { return JSON.parse(raw || '{"items":[]}'); } catch { return { items: [] }; }
+}
+
+async function writeDB(data: { items: Task[] }) {
+  await writeFile(FILE, JSON.stringify(data, null, 2), "utf8");
+}
+
+function toInt(v: any, d: number) {
+  const n = Number.parseInt(String(v), 10);
+  return Number.isFinite(n) && n >= 0 ? n : d;
+}
+
+/** GET: ?q=&status=open|done&linkedType=&linkedId=&limit=&offset=  */
+/** POST: { title, description?, status?, linked?, assignees?, createdBy? } */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (!requireAdminApi(req, res)) return;
+  await ensure();
 
   if (req.method === "GET") {
-    const { q = "", status = "", priority = "", assignees = "", categories = "", labels = "" } = req.query as Record<string, string>;
-    const items = await listTasks();
-    const out = items.filter((t) => {
-      if (status && t.status !== status) return false;
-      if (priority && t.priority !== priority) return false;
-      if (assignees) {
-        const set = new Set(assignees.split(",").map((s) => s.trim()).filter(Boolean));
-        if (!t.assignees || !t.assignees.some((a) => set.has(a))) return false;
-      }
-      if (categories) {
-        const set = new Set(categories.split(",").map((s) => s.trim()).filter(Boolean));
-        if (!t.category || !set.has(t.category)) return false;
-      }
-      if (labels) {
-        const set = new Set(labels.split(",").map((s) => s.trim()).filter(Boolean));
-        if (!t.labels || !t.labels.some((l) => set.has(l))) return false;
-      }
-      if (q) {
-        const blob = [t.id, t.serial, t.title, t.description, (t.labels||[]).join(" "), (t.assignees||[]).join(" "), t.category || ""]
-          .filter(Boolean).join(" ");
-        if (!includes(blob, q)) return false;
-      }
-      return true;
-    });
-    return res.status(200).json({ ok: true, items: out });
+    const { q, status, linkedType, linkedId } = req.query as {
+      q?: string; status?: TaskStatus; linkedType?: string; linkedId?: string;
+    };
+    const limit = toInt(req.query.limit, 50);
+    const offset = toInt(req.query.offset, 0);
+
+    const db = await readDB();
+    let items = db.items || [];
+
+    if (status === "open" || status === "done") {
+      items = items.filter(t => t.status === status);
+    }
+    if (q && q.trim()) {
+      const needle = q.toLowerCase();
+      items = items.filter(t =>
+        (t.title || "").toLowerCase().includes(needle) ||
+        (t.description || "").toLowerCase().includes(needle)
+      );
+    }
+    if (linkedType) items = items.filter(t => t.linked?.type === linkedType);
+    if (linkedId)   items = items.filter(t => t.linked?.id === linkedId);
+
+    items = items.sort((a, b) => b.createdAt - a.createdAt);
+
+    const total = items.length;
+    const page = items.slice(offset, offset + limit);
+
+    return res.status(200).json({ items: page, total, limit, offset });
   }
 
   if (req.method === "POST") {
-    const body = req.body || {};
-    const item = await createTask({
-      title: String(body.title || "Untitled"),
-      description: String(body.description || ""),
-      status: (body.status || "open"),
-      priority: (body.priority || "medium"),
-      assignees: Array.isArray(body.assignees) ? body.assignees : undefined,
-      watchers: Array.isArray(body.watchers) ? body.watchers : undefined,
-      labels: Array.isArray(body.labels) ? body.labels : undefined,
-      category: body.category || undefined,
-      createdAt: new Date().toISOString(),
-    });
-    return res.status(201).json({ ok: true, item });
+    const body = (req.body || {}) as Partial<Task> & {
+      title?: string;
+      description?: string;
+      status?: TaskStatus;
+      linked?: LinkedRef | null;
+      assignees?: string[];
+      createdBy?: string | null;
+    };
+
+    if (!body.title || !body.title.trim()) {
+      return res.status(400).json({ error: "title is required" });
+    }
+
+    const now = Date.now();
+    const id = `task_${now}_${Math.random().toString(36).slice(2, 8)}`;
+
+    const newItem: Task = {
+      id,
+      title: body.title.trim(),
+      description: body.description?.trim() || "",
+      status: body.status === "done" ? "done" : "open",
+      linked: body.linked ?? null,
+      assignees: Array.isArray(body.assignees) ? body.assignees : [],
+      createdAt: now,
+      updatedAt: now,
+      createdBy: body.createdBy ?? null,
+    };
+
+    const db = await readDB();
+    db.items = [newItem, ...(db.items || [])];
+    await writeDB(db);
+
+    return res.status(201).json({ ok: true, item: newItem });
   }
 
-  if (req.method === "PUT") {
-    const ids = Array.isArray(req.body?.ids) ? req.body.ids : [];
-    const patch = req.body?.patch || {};
-    const changed = await bulkUpdate(ids, patch);
-    return res.status(200).json({ ok: true, items: changed });
-  }
-
-  if (req.method === "DELETE") {
-    const id = String((req.body && req.body.id) || req.query.id || "");
-    const deleted = await deleteTask(id);
-    return res.status(200).json({ ok: true, deleted });
-  }
-
-  res.setHeader("Allow", "GET, POST, PUT, DELETE");
-  return res.status(405).json({ ok: false, error: "Method Not Allowed" });
+  res.setHeader("Allow", "GET, POST");
+  return res.status(405).json({ error: "Method Not Allowed" });
 }
+
+/** ملاحظات:
+ * - هذا المسار يعمل على Node فقط. لا تستخدمه من كود متصفح مباشرة عبر import.
+ * - استخدم fetch("/api/tasks") من الواجهة.
+ * - يتم الحفظ في .data/tasks.json داخل جذر المشروع.
+ */

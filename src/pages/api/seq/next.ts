@@ -1,64 +1,25 @@
 // src/pages/api/seq/next.ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { issueNextSerial, type EntityKey } from "@/lib/serialNumbers";
+import { nextSerial } from "@/server/serialNumbers";
 
-type PostBody = {
-  entity: EntityKey;           // مثال: "PROPERTY" | "AUCTION" | ...
-  year?: number;               // اختياري
-  width?: number;              // اختياري (عدد الخانات)
-  prefixOverride?: string;     // اختياري
-  resetPolicy?: "yearly" | "never"; // اختياري
-  resourceIdHint?: string;     // اختياري: لأغراض التتبع
-};
+type Data = { serial: string; value: number; prefix: string };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // نسمح بـ POST فقط
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
-    return res.status(405).json({ ok: false, error: "Method Not Allowed" });
+export default async function handler(req: NextApiRequest, res: NextApiResponse<Data | { error: string }>) {
+  const method = req.method || "GET";
+  if (method !== "GET" && method !== "POST") {
+    res.setHeader("Allow", "GET, POST");
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
+  // prefix can come from query (?ns=AO-T) or JSON body { ns: "AO-T" }
+  const nsFromQuery = typeof req.query.ns === "string" ? req.query.ns : undefined;
+  const nsFromBody = typeof (req.body?.ns) === "string" ? req.body.ns : undefined;
+  const prefix = nsFromQuery || nsFromBody || "AO-T";
+
   try {
-    const body = (req.body || {}) as PostBody;
-
-    if (!body.entity) {
-      return res.status(400).json({ ok: false, error: "Missing 'entity' field" });
-    }
-
-    const actorId =
-      (req.headers["x-user-id"] as string | undefined) ||
-      null;
-
-    const ip =
-      (req.headers["x-forwarded-for"] as string | undefined)?.split(",")[0]?.trim() ||
-      req.socket.remoteAddress ||
-      null;
-
-    const userAgent = req.headers["user-agent"] || null;
-
-    const result = await issueNextSerial(body.entity, {
-      year: body.year,
-      width: body.width,
-      prefixOverride: body.prefixOverride,
-      resetPolicy: body.resetPolicy ?? "yearly",
-      audit: {
-        actorId,
-        ip: typeof ip === "string" ? ip : null,
-        userAgent: typeof userAgent === "string" ? userAgent : null,
-        resourceIdHint: body.resourceIdHint ?? null,
-        detailsJson: null,
-      },
-    });
-
-    return res.status(200).json({
-      ok: true,
-      entity: result.entity,
-      year: result.year,
-      counter: result.counter,
-      serial: result.serial,
-    });
+    const { serial, value } = await nextSerial(prefix);
+    return res.status(200).json({ serial, value, prefix });
   } catch (err: any) {
-    console.error("SEQ_NEXT_ERROR", err);
-    return res.status(500).json({ ok: false, error: "Internal Server Error" });
+    return res.status(500).json({ error: err?.message || "Internal Server Error" });
   }
 }

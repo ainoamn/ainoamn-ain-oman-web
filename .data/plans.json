@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "free",
+      "name": "مجاني",
+      "priceOMR": 0,
+      "period": "/mo",
+      "description": "للبدء والتجربة",
+      "icon": "🆓",
+      "capabilities": {
+        "includesCreateAuction": false,
+        "includesFeaturedAds": false,
+        "maxListings": 10
+      }
+    },
+    {
+      "id": "pro",
+      "name": "احترافي",
+      "priceOMR": 9.9,
+      "period": "/mo",
+      "description": "لمستخدم نشط",
+      "icon": "🚀",
+      "highlight": true,
+      "capabilities": {
+        "includesCreateAuction": true,
+        "includesFeaturedAds": true,
+        "maxListings": 50
+      }
+    },
+    {
+      "id": "business",
+      "name": "شركات",
+      "priceOMR": 29,
+      "period": "/mo",
+      "description": "لفِرَق متعددة",
+      "icon": "🏢",
+      "capabilities": {
+        "includesCreateAuction": true,
+        "includesFeaturedAds": true,
+        "maxListings": 100
+      }
+    }
+  ]
+}

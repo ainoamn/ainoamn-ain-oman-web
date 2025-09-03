@@ -1,0 +1,9 @@
+import type { NextApiRequest, NextApiResponse } from "next";
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  res.setHeader("Set-Cookie", [
+    `uid=; Path=/; Max-Age=0; SameSite=Lax`,
+    `uname=; Path=/; Max-Age=0; SameSite=Lax`,
+    `urole=; Path=/; Max-Age=0; SameSite=Lax`,
+  ]);
+  res.status(200).json({ ok: true });
+}

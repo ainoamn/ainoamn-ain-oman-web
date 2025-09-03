@@ -1,3 +1,4 @@
+// src/pages/index.tsx
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -88,7 +89,19 @@ type Developer = {
 
 export default function HomePage() {
   const router = useRouter();
-  const { t, dir } = useI18n();
+
+  // --- إصلاح قوي: توحيد واجهة i18n حتى لو أعادت دالة أو كائن ---
+  const _i18n = useI18n();
+  const t: (k: string, vars?: Record<string, unknown>) => string =
+    typeof _i18n === "function"
+      ? _i18n
+      : typeof (_i18n as any)?.t === "function"
+        ? (_i18n as any).t
+        : ((k: string) => k);
+  const dir: "rtl" | "ltr" =
+    typeof (_i18n as any)?.dir === "string" ? (_i18n as any).dir : "rtl";
+  // ----------------------------------------------------------------
+
   const { theme } = useTheme();
   const isDark = theme === "dark";
   

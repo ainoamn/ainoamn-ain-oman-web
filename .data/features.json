@@ -1,0 +1,34 @@
+{
+  "items": [
+    {
+      "key": "auctions",
+      "enabled": true,
+      "requiresSubscription": true,
+      "minPlan": "pro"
+    },
+    {
+      "key": "featuredAds",
+      "enabled": true,
+      "requiresSubscription": true,
+      "minPlan": "pro"
+    },
+    {
+      "key": "buySell",
+      "enabled": true,
+      "requiresSubscription": false,
+      "minPlan": null
+    },
+    {
+      "key": "realEstateDev",
+      "enabled": false,
+      "requiresSubscription": true,
+      "minPlan": "business"
+    },
+    {
+      "key": "tasks",
+      "enabled": true,
+      "requiresSubscription": false,
+      "minPlan": null
+    }
+  ]
+}

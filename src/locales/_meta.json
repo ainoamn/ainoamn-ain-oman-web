@@ -1,0 +1,35 @@
+// src/locales/_meta.json  (مثال أولي؛ قابل للتحرير من لوحة الإدارة)
+{
+  "nav.home": { "routes": ["/", "/home"], "selector": "#nav-home", "icon": "Home", "visible": true }
+}
+// src/locales/_meta.json  (أمثلة توضّيح للمفاتيح التي ذكرتها)
+{
+  "subs.sell.cta": {
+    "desc": "الزر الرئيسي لدعوة المستخدم لاتخاذ إجراء البيع",
+    "routes": ["/subscriptions", "/auctions/new"],
+    "selector": "#sell-cta",
+    "icon": "Megaphone",
+    "visible": true
+  },
+  "invest.target_irr": {
+    "desc": "العائد الداخلي المستهدف (سنويًا) لفرصة الاستثمار",
+    "routes": ["/invest", "/invest/[id]"],
+    "selector": "#target-irr",
+    "icon": "TrendingUp",
+    "visible": true
+  },
+  "invest.summary": {
+    "desc": "ملخص موجز لفرصة الاستثمار",
+    "routes": ["/invest/[id]"],
+    "selector": "#invest-summary",
+    "icon": "FileText",
+    "visible": true
+  },
+  "invest.no_summary": {
+    "desc": "نص يظهر إذا لم يتوفر ملخص للاستثمار",
+    "routes": ["/invest/[id]"],
+    "selector": "#no-summary",
+    "icon": "AlertCircle",
+    "visible": true
+  }
+}

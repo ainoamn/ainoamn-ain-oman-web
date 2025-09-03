@@ -1,107 +1,132 @@
-export type ID = string;
-
-export interface HOA {
-  id: ID;
-  propertyId?: ID;
+export type HOA = {
+  id: string;
   name: string;
-  bylawsUrl?: string;
-  createdBy: ID;
   status: "active" | "inactive";
+  address?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  unitsCount?: number;
   createdAt: string;
-}
+  updatedAt?: string;
+};
 
-export interface HOAMembership {
-  id: ID;
-  hoaId: ID;
-  userId: ID;
-  unitId?: ID;
-  role: "owner" | "board" | "manager" | "auditor";
-  joinedAt: string;
-}
+export type Building = {
+  id: string;
+  hoaId: string;
+  name: string;
+  address?: string;
+  unitsCount: number;
+  forRent?: boolean;
+  delegation?: {
+    enabled: boolean;
+    delegateName: string;
+    startDate: string;
+    endDate: string;
+  };
+  docs?: Doc[];
+  createdAt: string;
+  updatedAt?: string;
+};
 
-export interface HOABoard {
-  id: ID;
-  hoaId: ID;
-  termStart: string;
-  termEnd?: string;
-}
+export type Unit = {
+  id: string;
+  buildingId: string;
+  hoaId?: string;
+  name: string;
+  number: string;
+  owner: string;
+  ownerEmail?: string;
+  ownerPhone?: string;
+  area?: number;
+  balance: number;
+  forRent?: boolean;
+  docs?: Doc[];
+  createdAt: string;
+  updatedAt?: string;
+};
 
-export interface HOABoardMember {
-  id: ID;
-  boardId: ID;
-  userId: ID;
-  position: "chair" | "vice" | "treasurer" | "secretary" | "member";
-}
-
-export interface HOAMeeting {
-  id: ID;
-  hoaId: ID;
-  date: string; // ISO
-  agenda: string;
-  minutesUrl?: string;
-  quorum?: number;
-  status: "scheduled" | "completed" | "cancelled";
-}
-
-export type VoteType = "yesno" | "multi" | "weighted";
-export interface HOAVote {
-  id: ID;
-  hoaId: ID;
-  meetingId: ID;
+export type Doc = {
+  id: string;
   title: string;
-  type: VoteType;
-  options: string[];
-  quorumRule?: number; // 0-1 ratio
-  opensAt: string;
-  closesAt: string;
-}
+  type: string;
+  expiry?: string;
+  url?: string;
+  uploadedBy: string;
+  uploadedAt: string;
+  relatedTo?: string; // unitId or buildingId
+};
 
-export interface HOAVoteBallot {
-  id: ID;
-  voteId: ID;
-  memberId: ID;
-  choice: string;
-  weight?: number;
-  castAt: string;
-}
-
-export interface HOAFee {
-  id: ID;
-  hoaId: ID;
-  title: string;
-  amount: number;
-  cycle: "monthly" | "quarterly" | "annual" | "oneoff";
-  dueDate: string;
-}
-
-export interface HOAInvoice {
-  id: ID;
-  feeId: ID;
-  memberId: ID;
-  amount: number;
-  status: "unpaid" | "paid" | "overdue";
-  issuedAt: string;
-  paidAt?: string;
-  paymentRef?: string;
-}
-
-export interface HOATicket {
-  id: ID;
-  hoaId: ID;
-  memberId: ID;
-  category: "complaint" | "violation" | "maintenance";
-  severity: "low" | "medium" | "high";
+export type Ticket = {
+  id: string;
+  by: string; // unitId or userId
+  byName: string;
+  type: string;
   status: "open" | "in_progress" | "resolved" | "closed";
-  title: string;
+  priority: "low" | "medium" | "high" | "critical";
   description?: string;
+  assignedTo?: string;
   createdAt: string;
-}
+  updatedAt?: string;
+  resolvedAt?: string;
+};
 
-export interface HOADocument {
-  id: ID;
-  hoaId: ID;
-  type: "bylaw" | "minutes" | "budget" | "ledger" | "misc";
-  fileUrl: string;
-  version?: string;
+export type Alert = {
+  id: string;
+  level: "info" | "warning" | "critical";
+  msg: string;
+  link?: string;
+  relatedTo?: string; // unitId, buildingId, or docId
+  resolved?: boolean;
+  resolvedBy?: string;
+  resolvedAt?: string;
   createdAt: string;
-}
+};
+
+export type Investor = {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  share: number;
+  units?: string[]; // unitIds
+  joinedAt: string;
+};
+
+export type Payment = {
+  id: string;
+  unitId: string;
+  amount: number;
+  type: "service" | "rent" | "fine" | "other";
+  status: "pending" | "paid" | "overdue" | "cancelled";
+  dueDate: string;
+  paidAt?: string;
+  createdAt: string;
+};
+
+export type Notification = {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  type: "info" | "alert" | "payment" | "maintenance";
+  read: boolean;
+  link?: string;
+  createdAt: string;
+};
+
+// أنواع للردود من API
+export type ApiResponse<T> = {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+};
+
+export type PaginatedResponse<T> = ApiResponse<T> & {
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+};

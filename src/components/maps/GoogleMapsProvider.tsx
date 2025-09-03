@@ -1,34 +1,23 @@
 // src/components/maps/GoogleMapsProvider.tsx
-import { createContext, useContext, useMemo, useState } from "react";
-import { LoadScriptNext } from "@react-google-maps/api";
+import { createContext, useContext, useMemo } from "react";
+import { useJsApiLoader } from "@react-google-maps/api";
 
 type Ctx = { isLoaded: boolean; error?: string };
 const GoogleMapsCtx = createContext<Ctx>({ isLoaded: false });
 
-export const GMAPS_LIBRARIES = ["places"] as const; // لا تستخدم "maps" فهي غير صالحة
+export function GoogleMapsProvider({ children }: { children: React.ReactNode }) {
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    libraries: ["places"], // أضف ما تحتاجه
+    id: "ain-oman-maps",
+  });
 
-export default function GoogleMapsProvider({ children }: { children: React.ReactNode }) {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
+  const value = useMemo<Ctx>(() => ({
+    isLoaded,
+    error: loadError ? String(loadError) : undefined
+  }), [isLoaded, loadError]);
 
-  const ctx = useMemo(() => ({ isLoaded, error }), [isLoaded, error]);
-
-  return (
-    <GoogleMapsCtx.Provider value={ctx}>
-      <LoadScriptNext
-        id="google-maps-script" // تحميل واحد ثابت
-        googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}
-        libraries={GMAPS_LIBRARIES as unknown as string[]}
-        // يمكن ضبط اللغة/المنطقة إن رغبت:
-        // language="ar"
-        // region="OM"
-        onLoad={() => setIsLoaded(true)}
-        onError={(e) => setError("فشل تحميل خرائط جوجل")}
-      >
-        {children}
-      </LoadScriptNext>
-    </GoogleMapsCtx.Provider>
-  );
+  return <GoogleMapsCtx.Provider value={value}>{children}</GoogleMapsCtx.Provider>;
 }
 
 export function useGoogleMaps() {

@@ -1,4 +1,4 @@
-// src/pages/auctions/index.tsx — merged with subscription guard + manage + sell button
+// src/pages/auctions/index.tsx
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useMemo, useState, useCallback } from "react";
@@ -6,43 +6,18 @@ import dynamic from "next/dynamic";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
-// ---- i18n fallback ----
-let useI18n: any;
-try { useI18n = require("@/lib/i18n").useI18n; } catch {
-  useI18n = () => ({
-    t: (k: string) => ({
-      "auctions.title": "المزايدات العقارية",
-      "auctions.subtitle": "اكتشف أفضل الفرص العقارية بالمزايدة.",
-      "auctions.search": "ابحث عن عقار أو موقع...",
-      "auctions.filter.all": "جميع العقارات",
-      "auctions.filter.villas": "فيلات",
-      "auctions.filter.apartments": "شقق",
-      "auctions.filter.lands": "أراضي",
-      "auctions.section.active": "المزايدات النشطة",
-      "auctions.section.featured": "عقارات مميزة",
-      "auctions.section.map": "مواقع المزايدات النشطة",
-      "auctions.cta.reset": "إعادة تعيين البحث",
-      "common.loading.properties": "جاري تحميل العقارات...",
-      "common.view.details": "عرض التفاصيل",
-      "common.bid": "قدّم مزايدة",
-      "common.location": "الموقع",
-      "common.remaining": "الوقت المتبقي",
-      "common.initial_price": "السعر الابتدائي",
-      "common.current_bid": "المزايدة الحالية",
-      "subs.required": "هذه الميزة تتطلب اشتراكًا نشطًا وصلاحية مناسبة",
-      "subs.view.paywall": "أنت بحاجة إلى باقة مزادات لعرض المحتوى بالكامل",
-      "subs.upgrade": "عرض الباقات",
-      "subs.sell.cta": "بيع عبر المزاد",
-      "dashboard.manage": "إدارة المزادات",
-    } as Record<string, string>)[k] || k,
-    lang: "ar",
-    dir: "rtl",
-  });
-}
+/** i18n hook متسامح */
+let useI18nHook: any = () => ({ t: (k: string) => k, dir: "rtl", isDark: false });
+try {
+  const mod = require("@/lib/i18n");
+  useI18nHook = mod.useI18n || mod.default?.useI18n || useI18nHook;
+} catch {}
 
-let useTheme: any;
-try { useTheme = require("@/context/ThemeContext").useTheme; } catch { useTheme = () => ({ theme: "light" }); }
+/** theme hook متسامح */
+let useTheme: any = () => ({ theme: "light" });
+try { useTheme = require("@/context/ThemeContext").useTheme || useTheme; } catch {}
 
+/** خرائط */
 const LoadScript = dynamic(() => import("@react-google-maps/api").then(m => m.LoadScript), { ssr: false });
 const GoogleMap = dynamic(() => import("@react-google-maps/api").then(m => m.GoogleMap), { ssr: false });
 const Marker = dynamic(() => import("@react-google-maps/api").then(m => m.Marker), { ssr: false });
@@ -68,11 +43,11 @@ const darkMapStyle: any[] = [
   { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }] },
 ];
 
-// ---- Auth/Subscription (lightweight, replace with real auth later) ----
+/** اشتراك مبسط */
 type Role = "guest" | "member" | "admin" | "owner";
-type Feature = "VIEW_AUCTIONS" | "CREATE_AUCTION";
-
+type Feature = "VIEW_AUCTIONS" | "CREATE_ACTION" | "CREATE_AUCTION";
 type Session = { role: Role; plan: "free" | "pro" | "enterprise" | null; features: Feature[] };
+
 function getSession(): Session {
   try {
     const raw = typeof window !== "undefined" ? localStorage.getItem("ain_auth") : null;
@@ -83,10 +58,15 @@ function getSession(): Session {
 function hasFeature(f: Feature, s: Session) { return s.features?.includes(f); }
 
 function SubscriptionBanner({ needFeature }: { needFeature?: Feature }) {
-  const { t, dir } = useI18n();
+  const i18n = useI18nHook();
+  const tFn = typeof i18n === "function" ? i18n : i18n?.t;
+  const t = (k: string) => (typeof tFn === "function" ? tFn(k) : k);
+  const dir = (i18n && typeof i18n === "object" && "dir" in i18n) ? (i18n as any).dir : "rtl";
+
   const s = getSession();
   const allowed = needFeature ? hasFeature(needFeature, s) : !!s.plan;
   if (allowed) return null;
+
   return (
     <div dir={dir} className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-4 mb-6 flex items-center justify-between">
       <div className="text-sm">{t("subs.view.paywall")} — {t("subs.required")}</div>
@@ -115,9 +95,17 @@ type Auction = {
 };
 
 export default function AuctionsPage() {
-  const { t, dir } = useI18n();
+  // i18n دفاعي: يدعم أشكال مختلفة
+  const i18n = useI18nHook();
+  const tFn = typeof i18n === "function" ? i18n : i18n?.t;
+  const t = (k: string) => (typeof tFn === "function" ? tFn(k) : k);
+  const dir = (i18n && typeof i18n === "object" && "dir" in i18n) ? (i18n as any).dir : "rtl";
+  const isDark = !!(i18n && typeof i18n === "object" && "isDark" in i18n && (i18n as any).isDark);
+
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const themeIsDark = theme === "dark";
+  const dark = isDark || themeIsDark;
+
   const session = getSession();
   const canCreate = hasFeature("CREATE_AUCTION", session);
   const isManager = session.role === "admin" || session.role === "owner";
@@ -195,34 +183,31 @@ export default function AuctionsPage() {
   const hasMapsKey = !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   return (
-    <main dir={dir} className={isDark ? "bg-gray-900 min-h-screen flex flex-col" : "bg-gray-50 min-h-screen flex flex-col"}>
+    <main dir={dir} className={dark ? "bg-gray-900 min-h-screen flex flex-col" : "bg-gray-50 min-h-screen flex flex-col"}>
       <Head><title>{t("auctions.title")} | Ain Oman</title></Head>
       <Header />
 
       <div className="flex-1">
         <div className="container mx-auto px-4 py-8">
-          {/* Paywall if user lacks a plan at all (optional) */}
           <SubscriptionBanner />
 
-          {/* Top actions (Manage, Sell) */}
           <div className="mb-4 flex gap-3 justify-end">
             {isManager && (
               <Link href="/dashboard/auctions" className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm">
-                {t("dashboard.manage")}
+                إدارة المزادات
               </Link>
             )}
             {canCreate ? (
               <Link href="/auctions/sell" className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm">
-                {t("subs.sell.cta")}
+                بيع عبر المزاد
               </Link>
             ) : (
               <Link href="/subscriptions" className="px-3 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm">
-                {t("subs.sell.cta")} — {t("subs.upgrade")}
+                بيع عبر المزاد — ترقية الباقة
               </Link>
             )}
           </div>
 
-          {/* Hero Search */}
           <div className="mb-12 rounded-2xl p-8 text-center text-white brand-bg">
             <h1 className="text-3xl sm:text-4xl font-bold mb-4">{t("auctions.title")}</h1>
             <p className="text-lg opacity-90 mb-6">{t("auctions.subtitle")}</p>
@@ -239,38 +224,36 @@ export default function AuctionsPage() {
                 value={filter}
                 onChange={(e) => setFilter(e.target.value as any)}
               >
-                <option value="all">{t("auctions.filter.all")}</option>
-                <option value="villas">{t("auctions.filter.villas")}</option>
-                <option value="apartments">{t("auctions.filter.apartments")}</option>
-                <option value="lands">{t("auctions.filter.lands")}</option>
+                <option value="all">جميع العقارات</option>
+                <option value="villas">فيلات</option>
+                <option value="apartments">شقق</option>
+                <option value="lands">أراضي</option>
               </select>
             </div>
           </div>
 
-          {/* Loading */}
           {loading ? (
-            <div className={`min-h-[200px] flex items-center justify-center ${isDark ? "text-white" : "text-gray-800"}`}>
+            <div className={`min-h-[200px] flex items-center justify-center ${dark ? "text-white" : "text-gray-800"}`}>
               <div className="text-center">
                 <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-500 mx-auto mb-6"></div>
-                <p className="text-xl">{t("common.loading.properties")}</p>
+                <p className="text-xl">جاري تحميل العقارات...</p>
               </div>
             </div>
           ) : (
             <>
-              {/* Active Auctions */}
               <section className="mb-12">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-800"}`}>{t("auctions.section.active")}</h2>
+                  <h2 className={`text-2xl font-bold ${dark ? "text-white" : "text-gray-800"}`}>المزايدات النشطة</h2>
                   <button
-                    className={`px-3 py-2 rounded-lg ${isDark ? "bg-gray-700 text-white" : "bg-white text-gray-700"} border`}
+                    className={`px-3 py-2 rounded-lg ${dark ? "bg-gray-700 text-white" : "bg-white text-gray-700"} border`}
                     onClick={() => { setFilter("all"); setSearchTerm(""); }}
                   >
-                    {t("auctions.cta.reset")}
+                    إعادة تعيين البحث
                   </button>
                 </div>
 
                 {filtered.length === 0 ? (
-                  <div className={`text-center py-12 rounded-xl ${isDark ? "bg-gray-800 text-gray-300" : "bg-white text-gray-600"} shadow-lg`}>
+                  <div className={`text-center py-12 rounded-xl ${dark ? "bg-gray-800 text-gray-300" : "bg-white text-gray-600"} shadow-lg`}>
                     لا توجد عقارات تطابق بحثك
                   </div>
                 ) : (
@@ -281,7 +264,7 @@ export default function AuctionsPage() {
                       const hours = Math.max(0, Math.floor((diff % 86400000) / 3600000));
                       const minutes = Math.max(0, Math.floor((diff % 3600000) / 60000));
                       return (
-                        <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl transition hover:scale-[1.02] ${isDark ? "bg-gray-800" : "bg-white"}`}>
+                        <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl transition hover:scale-[1.02] ${dark ? "bg-gray-800" : "bg-white"}`}>
                           <div className="relative">
                             <img src={p.image} alt={p.title} className="w-full h-56 object-cover" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -289,9 +272,9 @@ export default function AuctionsPage() {
                               {p.auctionType}
                             </div>
                             <div className="absolute bottom-4 left-4 right-4">
-                              <div className={`p-3 rounded-lg backdrop-blur-sm ${isDark ? "bg-black/30 text-white" : "bg-white/90 text-gray-800"}`}>
+                              <div className={`p-3 rounded-lg backdrop-blur-sm ${dark ? "bg-black/30 text-white" : "bg-white/90 text-gray-800"}`}>
                                 <div className="flex justify-between items-center">
-                                  <div className="font-medium">{t("common.remaining")}</div>
+                                  <div className="font-medium">الوقت المتبقي</div>
                                   <div className="flex gap-3 text-sm">
                                     <span className="text-center"><b>{days}</b> يوم</span>
                                     <span className="text-center"><b>{hours}</b> ساعة</span>
@@ -304,28 +287,28 @@ export default function AuctionsPage() {
                           <div className="p-6">
                             <div className="flex justify-between items-start mb-3">
                               <div>
-                                <h3 className={`text-lg font-bold mb-1 ${isDark ? "text-white" : "text-gray-800"}`}>{p.title}</h3>
+                                <h3 className={`text-lg font-bold mb-1 ${dark ? "text-white" : "text-gray-800"}`}>{p.title}</h3>
                                 <div className="text-sm text-gray-500">{p.location}</div>
                               </div>
                             </div>
-                            <div className={`p-4 rounded-lg mb-4 ${isDark ? "bg-gray-700" : "bg-gray-100"}`}>
+                            <div className={`p-4 rounded-lg mb-4 ${dark ? "bg-gray-700" : "bg-gray-100"}`}>
                               <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                  <div className="text-xs text-gray-500">{t("common.initial_price")}</div>
-                                  <div className={isDark ? "text-blue-300 font-semibold" : "text-blue-600 font-semibold"}>{formatPrice(p.price)}</div>
+                                  <div className="text-xs text-gray-500">السعر الابتدائي</div>
+                                  <div className={dark ? "text-blue-300 font-semibold" : "text-blue-600 font-semibold"}>{formatPrice(p.price)}</div>
                                 </div>
                                 <div>
-                                  <div className="text-xs text-gray-500">{t("common.current_bid")}</div>
-                                  <div className={isDark ? "text-green-300 font-semibold" : "text-green-600 font-semibold"}>{formatPrice(p.currentBid)}</div>
+                                  <div className="text-xs text-gray-500">المزايدة الحالية</div>
+                                  <div className={dark ? "text-green-300 font-semibold" : "text-green-600 font-semibold"}>{formatPrice(p.currentBid)}</div>
                                 </div>
                               </div>
                             </div>
                             <div className="flex gap-3">
-                              <Link href={`/auctions/${p.id}`} className={`flex-1 py-3 rounded-lg font-medium text-center ${isDark ? "bg-teal-600 hover:bg-teal-700 text-white" : "bg-teal-500 hover:bg-teal-600 text-white"}`}>
-                                {t("common.view.details")}
+                              <Link href={`/auctions/${p.id}`} className={`flex-1 py-3 rounded-lg font-medium text-center ${dark ? "bg-teal-600 hover:bg-teal-700 text-white" : "bg-teal-500 hover:bg-teal-600 text-white"}`}>
+                                عرض التفاصيل
                               </Link>
-                              <Link href={`/auctions/${p.id}`} className={`py-3 px-4 rounded-lg font-medium text-center ${isDark ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}`}>
-                                {t("common.bid")}
+                              <Link href={`/auctions/${p.id}`} className={`py-3 px-4 rounded-lg font-medium text-center ${dark ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}`}>
+                                قدّم مزايدة
                               </Link>
                             </div>
                           </div>
@@ -336,27 +319,26 @@ export default function AuctionsPage() {
                 )}
               </section>
 
-              {/* Featured */}
               <section className="mb-12">
-                <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>{t("auctions.section.featured")}</h2>
+                <h2 className={`text-2xl font-bold mb-6 ${dark ? "text-white" : "text-gray-800"}`}>عقارات مميزة</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {featured.map((p) => (
-                    <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl ${isDark ? "bg-gray-800" : "bg-white"}`}>
+                    <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl ${dark ? "bg-gray-800" : "bg-white"}`}>
                       <div className="flex flex-col md:flex-row">
                         <div className="md:w-1/2">
                           <img src={p.image} alt={p.title} className="w-full h-64 object-cover" />
                         </div>
                         <div className="md:w-1/2 p-6">
                           <span className="px-2 py-1 bg-yellow-500 text-white text-xs rounded mb-2 inline-block">مميز</span>
-                          <h3 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-gray-800"}`}>{p.title}</h3>
+                          <h3 className={`text-xl font-bold mb-1 ${dark ? "text-white" : "text-gray-800"}`}>{p.title}</h3>
                           <div className="text-sm text-gray-500 mb-3">{p.location}</div>
                           <div className="mb-3">{p.features?.slice(0,3).map((f: string, i: number) => (
-                            <span key={i} className={`inline-block ms-1 mb-1 px-3 py-1 rounded-full text-xs ${isDark ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"}`}>{f}</span>
+                            <span key={i} className={`inline-block ms-1 mb-1 px-3 py-1 rounded-full text-xs ${dark ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"}`}>{f}</span>
                           ))}</div>
-                          <div className={isDark ? "text-teal-400 font-bold mb-4" : "text-teal-600 font-bold mb-4"}>{formatPrice(p.price)}</div>
+                          <div className={dark ? "text-teal-400 font-bold mb-4" : "text-teal-600 font-bold mb-4"}>{formatPrice(p.price)}</div>
                           <div className="flex gap-3">
-                            <Link href={`/auctions/${p.id}`} className={`flex-1 py-3 rounded-lg font-medium text-center ${isDark ? "bg-teal-600 hover:bg-teal-700 text-white" : "bg-teal-500 hover:bg-teal-600 text-white"}`}>{t("common.view.details")}</Link>
-                            <Link href={`/auctions/${p.id}`} className={`py-3 px-4 rounded-lg font-medium text-center ${isDark ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}`}>تواصل</Link>
+                            <Link href={`/auctions/${p.id}`} className={`flex-1 py-3 rounded-lg font-medium text-center ${dark ? "bg-teal-600 hover:bg-teal-700 text-white" : "bg-teal-500 hover:bg-teal-600 text-white"}`}>عرض التفاصيل</Link>
+                            <Link href={`/auctions/${p.id}`} className={`py-3 px-4 rounded-lg font-medium text-center ${dark ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}`}>تواصل</Link>
                           </div>
                         </div>
                       </div>
@@ -365,16 +347,15 @@ export default function AuctionsPage() {
                 </div>
               </section>
 
-              {/* Map */}
               <section className="mb-12">
-                <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>{t("auctions.section.map")}</h2>
+                <h2 className={`text-2xl font-bold mb-6 ${dark ? "text-white" : "text-gray-800"}`}>مواقع المزايدات النشطة</h2>
                 <div className="rounded-xl overflow-hidden shadow-xl">
                   {!hasMapsKey ? (
-                    <div className={`p-12 text-center ${isDark ? "bg-gray-800 text-gray-200" : "bg-white text-gray-600"}`}>
+                    <div className={`p-12 text-center ${dark ? "bg-gray-800 text-gray-200" : "bg-white text-gray-600"}`}>
                       لم يتم ضبط مفتاح Google Maps (NEXT_PUBLIC_GOOGLE_MAPS_API_KEY)
                     </div>
                   ) : mapError ? (
-                    <div className={`p-12 text-center ${isDark ? "bg-gray-800 text-red-400" : "bg-white text-red-600"}`}>
+                    <div className={`p-12 text-center ${dark ? "bg-gray-800 text-red-400" : "bg-white text-red-600"}`}>
                       تعذّر تحميل خرائط Google
                     </div>
                   ) : (
@@ -386,7 +367,7 @@ export default function AuctionsPage() {
                         onLoad={onMapLoad}
                         onUnmount={onMapUnmount}
                         options={{
-                          styles: isDark ? (darkMapStyle as any) : [],
+                          styles: dark ? (darkMapStyle as any) : [],
                           streetViewControl: false,
                           mapTypeControl: false,
                           fullscreenControl: false,
