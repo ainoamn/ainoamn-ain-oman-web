@@ -1,3 +1,4 @@
+// src/components/layout/Header.tsx
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -9,7 +10,6 @@ type HeaderConfig = {
 };
 const K = { header: "hf.header.v1", userColor: "hf.userColor.v1" };
 
-/* إضافات جلسة بدون تغيير البنية */
 type SessionUser = { id?: string; name?: string; role?: string; features?: string[] } | null;
 const AUTH_KEY = "ain_auth";
 const AUTH_EVENT = "ain_auth:change";
@@ -37,12 +37,9 @@ export default function Header() {
   const lastY = useRef(0);
   const paletteRef = useRef<HTMLDivElement|null>(null);
   const moreRef = useRef<HTMLDivElement|null>(null);
-
-  /* حالة المستخدم — إضافة فقط */
   const [user, setUser] = useState<SessionUser>(null);
-  function readSession(): SessionUser {
-    try { const raw = localStorage.getItem(AUTH_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
-  }
+
+  function readSession(): SessionUser { try { const raw = localStorage.getItem(AUTH_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; } }
   function doLogout() {
     try { localStorage.removeItem(AUTH_KEY); localStorage.removeItem("auth_token"); } catch {}
     try { window.dispatchEvent(new CustomEvent(AUTH_EVENT)); } catch {}
@@ -50,9 +47,9 @@ export default function Header() {
   }
 
   useEffect(() => {
-    try { const h = localStorage.getItem(K.header); if (h) setCfg((o)=>({ ...o, ...JSON.parse(h) })); } catch {}
+    try { const h = localStorage.getItem(K.header); if (h) setCfg(o=>({ ...o, ...JSON.parse(h) })); } catch {}
     (async () => { try { const r = await fetch("/api/header-footer"); if (r.ok) {
-      const j = await r.json(); if (j?.header) setCfg((o)=>({ ...o, ...j.header }));
+      const j = await r.json(); if (j?.header) setCfg(o=>({ ...o, ...j.header }));
     } } catch {} })();
   }, []);
 
@@ -70,7 +67,6 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    /* تهيئة الجلسة والمتابعة لأي تغيّر */
     setUser(readSession());
     const onStorage = (e: StorageEvent) => { if (e.key === AUTH_KEY) setUser(readSession()); };
     const onCustom = () => setUser(readSession());
@@ -147,34 +143,23 @@ export default function Header() {
                   <button onClick={()=>setPaletteOpen(s=>!s)}
                           className="p-2 rounded-xl border border-white/25 text-white hover:ring-2 hover:ring-white/30"
                           aria-haspopup="true" aria-expanded={paletteOpen} aria-label="اختيار اللون" title="اختيار اللون">
-                    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden="true">
-                      <path d="M7 14c-1.657 0-3 1.343-3 3 0 1.105-.895 2-2 2h8c0-2.761-2.239-5-5-5Zm13.707-9.293a1 1 0 0 0-1.414 0l-7.5 7.5a1 1 0  0 0-.263.456l-1 3a1 1 0 0 0 1.262 1.262l3-1a1 1 0 0 0 .456-.263l7.5-7.5a1 1 0 0 0 0-1.414l-2.041-2.041Z"/>
-                    </svg>
+                    🎨
                   </button>
                   {paletteOpen && (
                     <div className="absolute end-0 mt-2 rounded-xl border border-white/15 bg-white text-gray-800 shadow-lg p-3">
                       <div className="flex items-center gap-2">
-                        {cfg.availableColors.slice(0,5).map((c)=>(
-                          <button key={c} onClick={()=>chooseColor(c)}
-                            className="h-7 w-7 rounded-full border border-black/10 focus:outline-none focus:ring-2 focus:ring-black/20"
-                            style={{ backgroundColor:c }} title={c} aria-label={`لون ${c}`} />
-                        ))}
+                        {cfg.availableColors.slice(0,5).map((c)=>(<button key={c} onClick={()=>chooseColor(c)} className="h-7 w-7 rounded-full border border-black/10 focus:outline-none focus:ring-2 focus:ring-black/20" style={{ backgroundColor:c }} title={c} aria-label={`لون ${c}`} />))}
                       </div>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* قسم حالة المستخدم — إضافة فقط */}
               {user ? (
                 <div className="flex items-center gap-2">
                   <span className="text-sm opacity-90">{user.name}</span>
                   <Link href="/dashboard" className="btn btn-primary" title="لوحتي">لوحتي</Link>
-                  <button onClick={doLogout}
-                          className="px-3 py-1.5 rounded-xl border border-white/25 text-white hover:ring-2 hover:ring-white/30"
-                          title="تسجيل الخروج">
-                    خروج
-                  </button>
+                  <button onClick={doLogout} className="px-3 py-1.5 rounded-xl border border-white/25 text-white hover:ring-2 hover:ring-white/30" title="تسجيل الخروج">خروج</button>
                 </div>
               ) : (
                 <Link href="/login" className="btn btn-primary" title="الدخول">الدخول</Link>
@@ -189,17 +174,15 @@ export default function Header() {
   );
 }
 
-/* يحدّث المتغيّرات فقط. لا يحقن CSS جديد ولا يغيّر البنية */
+/* theme helpers */
 function applyTheme(hex: string) {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
   root.style.setProperty("--brand-600", hex);
   root.style.setProperty("--brand-700", shade(hex, -8));
   root.style.setProperty("--brand-800", shade(hex, -16));
-
   const btnText = readableTextOn(hex);
   root.style.setProperty("--btn-text", btnText);
-
   try { window.dispatchEvent(new CustomEvent("brand:changed", { detail: { color: hex } })); } catch {}
 }
 function shade(hex: string, percent: number) {
@@ -219,7 +202,4 @@ function readableTextOn(bgHex: string) {
   const r = (n>>16)&255, g=(n>>8)&255, b=n&255;
   const yiq = (r*299 + g*587 + b*114)/1000;
   return yiq >= 140 ? "#111827" : "#ffffff";
-}
-export default function Header() {
-  return <header style={{padding:"12px 16px"}}>AIN Oman</header>;
 }
