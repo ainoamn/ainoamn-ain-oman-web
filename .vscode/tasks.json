@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Git: Push to GitHub",
+      "type": "shell",
+      "options": { "cwd": "C:\\dev\\ain-oman-web" },
+      "command": "powershell",
+      "args": [
+        "-NoProfile","-ExecutionPolicy","Bypass",
+        "-File","C:\\dev\\ain-oman-web\\scripts\\push.ps1"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Git: Pull from GitHub",
+      "type": "shell",
+      "options": { "cwd": "C:\\dev\\ain-oman-web" },
+      "command": "powershell",
+      "args": [
+        "-NoProfile","-ExecutionPolicy","Bypass",
+        "-File","C:\\dev\\ain-oman-web\\scripts\\pull.ps1"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}
