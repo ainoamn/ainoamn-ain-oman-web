@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "next build && next export",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start -p 3000",
     "deploy": "gh-pages -d out"
   },
   "dependencies": {
