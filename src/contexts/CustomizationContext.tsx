@@ -9,6 +9,14 @@ export type Partner = { name: string; logo?: string; url?: string };
 export type PaymentMethod = { name: string; icon?: string };
 export type Notification = { id: string; message: string; visible: boolean };
 
+import React, { createContext, useContext } from "react";
+type C = { header?: any; footer?: any; theme?: "light"|"dark" };
+const Ctx = createContext<C>({});
+export const useCustomization = () => useContext(Ctx);
+export function CustomizationProvider({children}:{children:React.ReactNode}) {
+  return <Ctx.Provider value={{}}>{children}</Ctx.Provider>;
+}
+
 export type HeaderSettings = {
   backgroundColor: string;
   textColor: string;

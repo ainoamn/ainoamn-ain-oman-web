@@ -220,3 +220,6 @@ function readableTextOn(bgHex: string) {
   const yiq = (r*299 + g*587 + b*114)/1000;
   return yiq >= 140 ? "#111827" : "#ffffff";
 }
+export default function Header() {
+  return <header style={{padding:"12px 16px"}}>AIN Oman</header>;
+}

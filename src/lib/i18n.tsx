@@ -10,6 +10,10 @@ type Dir = "rtl" | "ltr";
 const DICTS: Record<Lang, Dict> = { ar, en };
 const RTL = new Set<Lang>(["ar"]);
 
+export function t(k: string, vars?: Record<string, any>) { return k; }
+export const i18n = { locale: "ar" };
+export default i18n;
+
 export const isRTL = (l: string) => RTL.has((l || "ar").slice(0, 2) as Lang);
 const dirOf = (l: Lang): Dir => (RTL.has(l) ? "rtl" : "ltr");
 const norm = (v?: string | null): Lang => (String(v || "").toLowerCase().startsWith("ar") ? "ar" : "en");

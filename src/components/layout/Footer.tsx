@@ -198,3 +198,6 @@ function readCssBrand(): string | null {
     return null;
   }
 }
+export default function Footer() {
+  return <footer style={{padding:"12px 16px"}}>© {new Date().getFullYear()} AIN Oman</footer>;
+}
