@@ -5,6 +5,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { readArray, writeArray } from "@/server/jsonStore";
 import type { Reservation } from "@/types/billing";
+export const config = { runtime: "nodejs" };
 
 const RES_FILE = "reservations.json";
 

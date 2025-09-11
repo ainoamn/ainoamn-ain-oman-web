@@ -1,48 +1,165 @@
 // src/components/layout/Footer.tsx
-import React from "react";
+"use client";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
+type SectionLink = { label: string; href: string };
+type FooterSection = { title: string; links: SectionLink[] };
+type FooterSettings = {
+  textColor: string;
+  transparency: number;
+  sections: FooterSection[];
+  contact: { email: string; phone: string; address: string };
+  payments: { name: string; icon?: string }[];
+};
+
+const K = { footer: "hf.footer.v1", header: "hf.header.v1", userColor: "hf.userColor.v1" };
+
 export default function Footer() {
+  const [footer, setFooter] = useState<FooterSettings>({
+    textColor: "#ffffff",
+    transparency: 70,
+    sections: [],
+    contact: { email: "", phone: "", address: "" },
+    payments: [],
+  });
+
+  const [brand, setBrand] = useState<string>("#0d9488");
+  const rootObs = useRef<MutationObserver | null>(null);
+
+  // اقرأ الإعدادات مرة
+  useEffect(() => {
+    try {
+      const f = localStorage.getItem(K.footer);
+      if (f) setFooter((o) => ({ ...o, ...JSON.parse(f) }));
+    } catch {}
+
+    (async () => {
+      try {
+        const r = await fetch("/api/header-footer");
+        if (r.ok) {
+          const j = await r.json();
+          if (j?.footer) setFooter((o) => ({ ...o, ...j.footer }));
+          // لون بدئي من API إذا لم يوجد اختيار مستخدم
+          if (j?.header?.backgroundColor) setBrand((prev) => (readUserColor() || prev === "#0d9488" ? readUserColor() || j.header.backgroundColor : prev));
+        }
+      } catch {}
+    })();
+
+    // بدئي: من localStorage ثم من متغير CSS
+    const first = readUserColor() || readCssBrand() || "#0d9488";
+    setBrand(first);
+  }, []);
+
+  // استمع لتغيّر العلامة من الهيدر
+  useEffect(() => {
+    const onBrand = (e: any) => {
+      const c = e?.detail?.color as string | undefined;
+      if (c) setBrand(c);
+    };
+    window.addEventListener("brand:changed", onBrand as any);
+
+    // تغيّر localStorage من تبويب آخر
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === K.userColor) {
+        const v = e.newValue ? JSON.parse(JSON.stringify(e.newValue)) : null; // يضمن التحديث
+        const color = readUserColor();
+        if (color) setBrand(color);
+      }
+    };
+    window.addEventListener("storage", onStorage);
+
+    // راقب تغيّر متغيرات CSS على :root كحل أخير
+    rootObs.current = new MutationObserver(() => {
+      const cssColor = readCssBrand();
+      if (cssColor) setBrand((b) => (b !== cssColor ? cssColor : b));
+    });
+    rootObs.current.observe(document.documentElement, { attributes: true, attributeFilter: ["style"] });
+
+    return () => {
+      window.removeEventListener("brand:changed", onBrand as any);
+      window.removeEventListener("storage", onStorage);
+      rootObs.current?.disconnect();
+    };
+  }, []);
+
+  // ضَخّ شفافية الفوتر إلى CSS للاستخدام العام إن لزم
+  useEffect(() => {
+    document.documentElement.style.setProperty("--footer-opacity", String(alpha(footer.transparency)));
+  }, [footer.transparency]);
+
+  // خلفية الفوتر ممزوجة مع الشفافية
+  const footerBg = useMemo(() => {
+    const a = alpha(footer.transparency);
+    const p = Math.round(a * 100);
+    return `color-mix(in oklab, ${brand} ${p}%, transparent ${100 - p}%)`;
+  }, [brand, footer.transparency]);
+
   return (
-    <footer className="border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+    <footer className="border-t border-neutral-200 dark:border-neutral-800" style={{ background: footerBg, color: footer.textColor }}>
       <div className="max-w-7xl mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* عن المنصة */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="font-semibold text-lg">عين عُمان</div>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-2 leading-6">
-              منصّة عقارية لإدارة العقارات، المزادات، مشاريع التطوير، ولوحات المهام—بهويّة موحّدة
-              كما هو معتمد في المستندات.
-            </p>
+            <p className="text-sm mt-2 leading-6 opacity-90">منصّة عقارية لإدارة العقارات والمزادات.</p>
           </div>
 
-          {/* روابط سريعة */}
-          <div>
-            <div className="font-semibold">روابط</div>
-            <ul className="mt-3 space-y-2 text-sm">
-              <li><Link href="/properties" className="hover:underline">العقارات</Link></li>
-              <li><Link href="/auctions" className="hover:underline">المزادات</Link></li>
-              <li><Link href="/development" className="hover:underline">التطوير العقاري</Link></li>
-              <li><Link href="/admin/tasks" className="hover:underline">لوحة المهام</Link></li>
-              <li><Link href="/pricing" className="hover:underline">الباقات</Link></li>
-            </ul>
-          </div>
+          {footer.sections.map((s, i) => (
+            <div key={i}>
+              <div className="font-semibold">{s.title}</div>
+              <ul className="mt-3 space-y-2 text-sm">
+                {s.links.map((l, j) => (
+                  <li key={j}>
+                    <Link href={l.href} className="hover:underline opacity-90 hover:opacity-100">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
 
-          {/* تواصل */}
           <div>
             <div className="font-semibold">تواصل</div>
             <ul className="mt-3 space-y-2 text-sm">
-              <li>البريد: <a href="mailto:info@example.com" className="hover:underline">info@example.com</a></li>
-              <li>الهاتف: <a href="tel:+96800000000" className="hover:underline">+968 00 000 000</a></li>
+              <li>
+                البريد:{" "}
+                <a href={`mailto:${footer.contact.email}`} className="hover:underline">
+                  {footer.contact.email}
+                </a>
+              </li>
+              <li>
+                الهاتف:{" "}
+                <a href={`tel:${footer.contact.phone}`} className="hover:underline">
+                  {footer.contact.phone}
+                </a>
+              </li>
+              <li>العنوان: {footer.contact.address}</li>
             </ul>
+
+            <div className="mt-6">
+              <div className="text-sm font-semibold mb-2">طرق الدفع</div>
+              <div className="flex flex-wrap items-center gap-3">
+                {footer.payments.map((p, i) => (
+                  <span key={i} className="inline-flex items-center gap-2 bg-black/10 px-2 py-1 rounded">
+                    {p.icon ? <img src={p.icon} alt={p.name} className="h-5 w-auto" /> : null}
+                    <span className="text-xs">{p.name}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-neutral-200 dark:border-neutral-800 text-xs text-neutral-600 dark:text-neutral-400 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+        <div className="mt-8 pt-6 border-top border-white/20 text-xs opacity-80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
           <div>© {new Date().getFullYear()} عين عُمان — جميع الحقوق محفوظة.</div>
           <div className="flex gap-4">
-            <Link href="/terms" className="hover:underline">الشروط</Link>
-            <Link href="/privacy" className="hover:underline">الخصوصية</Link>
+            <Link href="/terms" className="hover:underline">
+              الشروط
+            </Link>
+            <Link href="/privacy" className="hover:underline">
+              الخصوصية
+            </Link>
           </div>
         </div>
       </div>
@@ -50,8 +167,34 @@ export default function Footer() {
   );
 }
 
-/*
-ملاحظات تشغيل سريعة (تم وضعها كتعليق كي لا تكسر البناء):
-- تأكد أن next.config.js مضبوط على i18n و RTL حسب المستند 1-11.
-- أي نصوص توثيقية يجب أن تُحفظ في ملفات MD/README أو داخل تعليقات، لا بعد إغلاق المكوّن.
-*/
+/* ===== helpers ===== */
+function alpha(transparency: number) {
+  return Math.max(0.2, Math.min(1, transparency / 100));
+}
+function readUserColor(): string | null {
+  try {
+    const v = localStorage.getItem(K.userColor);
+    if (!v) return null;
+    return v;
+  } catch {
+    return null;
+  }
+}
+function readCssBrand(): string | null {
+  try {
+    const cs = getComputedStyle(document.documentElement);
+    let c = cs.getPropertyValue("--brand-600")?.trim();
+    // تأكد من شكل #RRGGBB
+    if (!c) return null;
+    if (c.startsWith("rgb")) {
+      // rgb إلى hex
+      const m = c.match(/rgb\\((\\d+),\\s*(\\d+),\\s*(\\d+)\\)/i);
+      if (!m) return null;
+      const [_, r, g, b] = m;
+      c = "#" + [r, g, b].map((x) => Number(x).toString(16).padStart(2, "0")).join("");
+    }
+    return c;
+  } catch {
+    return null;
+  }
+}

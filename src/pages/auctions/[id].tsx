@@ -1,4 +1,3 @@
-// src/pages/auctions/[id].tsx
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -6,57 +5,26 @@ import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { useI18n } from "@/lib/i18n";
+import { useTheme } from "@/context/ThemeContext";
 
-/** ---------- i18n hook (دفاعي مع بديل) ---------- */
-let useI18nHook: any = () => ({
-  t: (k: string) =>
-    (
-      {
-        "auctions.details.back": "العودة إلى المزادات",
-        "auctions.bid.submit": "تقديم المزايدة",
-        "auctions.bid.current": "المزايدة الحالية",
-        "auctions.bid.start": "السعر الابتدائي",
-        "auctions.location": "الموقع",
-        "auctions.features": "الميزات",
-        "auctions.history": "تاريخ المزايدات",
-        "auctions.loading": "جاري تحميل بيانات العقار...",
-        "auctions.notfound": "العقار غير موجود",
-        "common.remaining": "الوقت المتبقي",
-        "common.active": "نشط",
-        "subs.view.paywall": "أنت بحاجة إلى باقة مزادات لعرض المحتوى بالكامل",
-        "subs.required": "هذه الميزة تتطلب اشتراكًا نشطًا وصلاحية مناسبة",
-        "subs.upgrade": "عرض الباقات",
-        "ai.analysis": "تحليل ذكي",
-      } as Record<string, string>
-    )[k] || k,
-  dir: "rtl",
-  isDark: false,
-});
-try {
-  const mod = require("@/lib/i18n");
-  useI18nHook = mod.useI18n || mod.default?.useI18n || useI18nHook;
-} catch {}
-
-/** ---------- theme hook (بديل آمن) ---------- */
-let useTheme: any = () => ({ theme: "light" });
-try {
-  useTheme = require("@/context/ThemeContext").useTheme || useTheme;
-} catch {}
-
-/** ---------- خرائط ---------- */
+// التحميل الديناميكي للخرائط
 const LoadScript = dynamic(
   () => import("@react-google-maps/api").then((m) => m.LoadScript),
   { ssr: false }
 );
+
 const GoogleMap = dynamic(
   () => import("@react-google-maps/api").then((m) => m.GoogleMap),
   { ssr: false }
 );
+
 const Marker = dynamic(
   () => import("@react-google-maps/api").then((m) => m.Marker),
   { ssr: false }
 );
 
+// أنماط الخريطة المظلمة
 const darkMapStyle: any[] = [
   { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
   { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
@@ -78,29 +46,26 @@ const darkMapStyle: any[] = [
   { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }] },
 ];
 
-/** ---------- اشتراك مبسط ---------- */
-type Role = "guest" | "member" | "admin" | "owner";
-type Feature = "VIEW_AUCTIONS" | "CREATE_AUCTION";
-type Session = { role: Role; plan: "free" | "pro" | "enterprise" | null; features: Feature[] };
-function getSession(): Session {
+// دالة المساعدة للجلسة
+function getSession() {
   try {
     const raw = typeof window !== "undefined" ? localStorage.getItem("ain_auth") : null;
-    if (raw) return JSON.parse(raw) as Session;
+    if (raw) return JSON.parse(raw);
   } catch {}
   return { role: "guest", plan: null, features: [] };
 }
-function hasFeature(f: Feature, s: Session) {
-  return s.features?.includes(f);
-}
-function SubscriptionBanner({ needFeature }: { needFeature?: Feature }) {
-  const i = useI18nHook();
-  const tFn = typeof i === "function" ? i : i?.t;
-  const t = (k: string) => (typeof tFn === "function" ? tFn(k) : k);
-  const dir = i && typeof i === "object" && "dir" in i ? (i as any).dir : "rtl";
 
-  const s = getSession();
-  const allowed = needFeature ? hasFeature(needFeature, s) : !!s.plan;
+function hasFeature(feature: string, session: any) {
+  return session.features?.includes(feature);
+}
+
+function SubscriptionBanner({ needFeature }: { needFeature?: string }) {
+  const { t, dir } = useI18n();
+  const session = getSession();
+  const allowed = needFeature ? hasFeature(needFeature, session) : !!session.plan;
+  
   if (allowed) return null;
+  
   return (
     <div
       dir={dir}
@@ -111,7 +76,7 @@ function SubscriptionBanner({ needFeature }: { needFeature?: Feature }) {
       </div>
       <Link
         href="/subscriptions"
-        className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm"
+        className="btn btn-primary text-sm"
       >
         {t("subs.upgrade")}
       </Link>
@@ -119,7 +84,7 @@ function SubscriptionBanner({ needFeature }: { needFeature?: Feature }) {
   );
 }
 
-/** ---------- Types & Mock ---------- */
+// أنواع البيانات
 type Auction = {
   id: string;
   title: string;
@@ -137,6 +102,7 @@ type Auction = {
   coords: { lat: number; lng: number };
 };
 
+// البيانات الوهمية - تأكد من وجود auction2
 const DATA: Auction[] = [
   {
     id: "auction1",
@@ -149,8 +115,7 @@ const DATA: Auction[] = [
     bedrooms: 5,
     bathrooms: 4,
     endTime: Date.now() + 48 * 3600 * 1000,
-    image:
-      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1470&q=80",
+    image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1470&q=80",
     features: ["مسبح", "جاكوزي", "حديقة خاصة", "مواقف سيارات"],
     auctionType: "مزاد علني",
     coords: { lat: 23.6005, lng: 58.1606 },
@@ -166,8 +131,7 @@ const DATA: Auction[] = [
     bedrooms: 3,
     bathrooms: 2,
     endTime: Date.now() + 24 * 3600 * 1000,
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1470&q=80",
+    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1470&q=80",
     features: ["إطلالة على البحر", "نظام أمن", "صالة رياضية"],
     auctionType: "مزاد إلكتروني",
     coords: { lat: 23.6139, lng: 58.5334 },
@@ -183,15 +147,14 @@ const DATA: Auction[] = [
     bedrooms: 0,
     bathrooms: 0,
     endTime: Date.now() + 72 * 3600 * 1000,
-    image:
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1475&q=80",
+    image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1475&q=80",
     features: ["موقع مميز", "شبكة طرق ممتازة", "قريب من الخدمات"],
     auctionType: "مزاد علني",
     coords: { lat: 23.68, lng: 57.9 },
   },
 ];
 
-/** ---------- AI Insights ---------- */
+// تحليل الذكاء الاصطناعي
 function AuctionInsights({
   price,
   currentBid,
@@ -207,9 +170,7 @@ function AuctionInsights({
   bathrooms: number;
   features: string[];
 }) {
-  const i = useI18nHook();
-  const tFn = typeof i === "function" ? i : i?.t;
-  const t = (k: string) => (typeof tFn === "function" ? tFn(k) : k);
+  const { t } = useI18n();
 
   const fair = useMemo(() => {
     const base = price * 0.96;
@@ -266,23 +227,14 @@ function AuctionInsights({
   );
 }
 
-/** ---------- تنسيق ---------- */
+// تنسيق السعر
 const formatPrice = (n: number) =>
   new Intl.NumberFormat("ar-OM").format(n) + " ر.ع";
 
-/** ---------- الصفحة ---------- */
+// الصفحة الرئيسية
 export default function AuctionDetailsPage() {
-  // i18n دفاعي
-  const i = useI18nHook();
-  const tFn = typeof i === "function" ? i : i?.t;
-  const t = (k: string) => (typeof tFn === "function" ? tFn(k) : k);
-  const dir = i && typeof i === "object" && "dir" in i ? (i as any).dir : "rtl";
-
-  const { theme } = useTheme();
-  const isDark =
-    (i && typeof i === "object" && "isDark" in i && (i as any).isDark) ||
-    theme === "dark";
-
+  const { t, dir } = useI18n();
+  const { theme, isDark } = useTheme();
   const router = useRouter();
   const { id } = router.query as { id?: string };
 
@@ -303,31 +255,58 @@ export default function AuctionDetailsPage() {
 
   useEffect(() => {
     let mounted = true;
-    const go = async () => {
-      await new Promise((r) => setTimeout(r, 200));
-      const found = DATA.find((x) => x.id === id);
-      if (!mounted) return;
-      setProperty(found || null);
-      setLoading(false);
-      if (found) {
-        setBids([
-          {
-            id: 1,
-            bidder: "عمر أحمد",
-            amount: Math.max(0, found.currentBid - 5000),
-            time: "منذ 30 دقيقة",
-          },
-          {
-            id: 2,
-            bidder: "سارة محمد",
-            amount: Math.max(0, found.currentBid - 10000),
-            time: "منذ ساعة",
-          },
-        ]);
-        setBidAmount(String(found.currentBid + 1000));
+    
+    const fetchAuctionData = async () => {
+      try {
+        setLoading(true);
+        
+        // محاكاة جلب البيانات من API
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        
+        if (!mounted) return;
+        
+        // البحث في البيانات الوهمية
+        const found = DATA.find((x) => x.id === id);
+        
+        if (!mounted) return;
+        
+        if (found) {
+          setProperty(found);
+          setBids([
+            {
+              id: 1,
+              bidder: "عمر أحمد",
+              amount: Math.max(0, found.currentBid - 5000),
+              time: "منذ 30 دقيقة",
+            },
+            {
+              id: 2,
+              bidder: "سارة محمد",
+              amount: Math.max(0, found.currentBid - 10000),
+              time: "منذ ساعة",
+            },
+          ]);
+          setBidAmount(String(found.currentBid + 1000));
+        } else {
+          setProperty(null);
+        }
+      } catch (error) {
+        console.error("Error fetching auction data:", error);
+        setProperty(null);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
-    go();
+    
+    if (id) {
+      fetchAuctionData();
+    } else {
+      setLoading(false);
+      setProperty(null);
+    }
+    
     return () => {
       mounted = false;
     };
@@ -335,6 +314,7 @@ export default function AuctionDetailsPage() {
 
   useEffect(() => {
     if (!property) return;
+    
     const timer = setInterval(() => {
       const diff = property.endTime - Date.now();
       if (diff <= 0) {
@@ -342,6 +322,7 @@ export default function AuctionDetailsPage() {
         clearInterval(timer);
         return;
       }
+      
       setTime({
         days: Math.floor(diff / 86400000),
         hours: Math.floor((diff % 86400000) / 3600000),
@@ -349,19 +330,17 @@ export default function AuctionDetailsPage() {
         seconds: Math.floor((diff % 60000) / 1000),
       });
     }, 1000);
+    
     return () => clearInterval(timer);
   }, [property]);
 
-  // صلاحيات عرض
+  // صلاحيات العرض
   const session = getSession();
   const canView = hasFeature("VIEW_AUCTIONS", session);
 
   if (loading) {
     return (
-      <main
-        dir={dir}
-        className={isDark ? "bg-gray-900 min-h-screen" : "bg-gray-50 min-h-screen"}
-      >
+      <main dir={dir} className={isDark ? "bg-gray-900 min-h-screen" : "bg-gray-50 min-h-screen"}>
         <Head>
           <title>Ain Oman | {t("auctions.loading")}</title>
         </Head>
@@ -381,27 +360,17 @@ export default function AuctionDetailsPage() {
 
   if (!property) {
     return (
-      <main
-        dir={dir}
-        className={isDark ? "bg-gray-900 min-h-screen" : "bg-gray-50 min-h-screen"}
-      >
+      <main dir={dir} className={isDark ? "bg-gray-900 min-h-screen" : "bg-gray-50 min-h-screen"}>
         <Head>
           <title>Ain Oman | {t("auctions.notfound")}</title>
         </Head>
         <Header />
         <div className="min-h-screen flex items-center justify-center text-center">
           <div>
-            <h2
-              className={`text-2xl font-bold mb-4 ${
-                isDark ? "text-white" : "text-gray-800"
-              }`}
-            >
+            <h2 className={`text-2xl font-bold mb-4 ${isDark ? "text-white" : "text-gray-800"}`}>
               {t("auctions.notfound")}
             </h2>
-            <Link
-              href="/auctions"
-              className="px-6 py-3 bg-teal-600 text-white rounded-lg"
-            >
+            <Link href="/auctions" className="btn btn-primary px-6 py-3">
               {t("auctions.details.back")}
             </Link>
           </div>
@@ -412,27 +381,21 @@ export default function AuctionDetailsPage() {
   }
 
   return (
-    <main
-      dir={dir}
-      className={isDark ? "bg-gray-900 min-h-screen py-8" : "bg-gray-50 min-h-screen py-8"}
-    >
+    <main dir={dir} className={isDark ? "bg-gray-900 min-h-screen py-8" : "bg-gray-50 min-h-screen py-8"}>
       <Head>
         <title>{property.title} | Ain Oman</title>
       </Head>
       <Header />
+      
       <div className="container mx-auto px-4">
-        <Link
-          href="/auctions"
-          className={`${isDark ? "text-gray-300" : "text-gray-700"} inline-block mb-6`}
-        >
+        <Link href="/auctions" className={`${isDark ? "text-gray-300" : "text-gray-700"} inline-block mb-6`}>
           ← {t("auctions.details.back")}
         </Link>
 
-        {/* Paywall */}
         {!canView && <SubscriptionBanner needFeature="VIEW_AUCTIONS" />}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/* يسار: معرض + تفاصيل */}
+          {/* العمود الأيسر: معرض الصور والتفاصيل */}
           <div>
             <div className="rounded-xl overflow-hidden shadow-lg mb-6">
               <img
@@ -444,11 +407,7 @@ export default function AuctionDetailsPage() {
 
             <div className={`rounded-xl p-6 shadow-lg ${isDark ? "bg-gray-800" : "bg-white"}`}>
               <div className="flex justify-between items-start mb-4">
-                <h1
-                  className={`text-2xl font-bold ${
-                    isDark ? "text-white" : "text-gray-800"
-                  }`}
-                >
+                <h1 className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-800"}`}>
                   {property.title}
                 </h1>
                 <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
@@ -473,47 +432,31 @@ export default function AuctionDetailsPage() {
                 </div>
               </div>
 
-              <h3
-                className={`text-xl font-bold mb-3 ${
-                  isDark ? "text-white" : "text-gray-800"
-                }`}
-              >
+              <h3 className={`text-xl font-bold mb-3 ${isDark ? "text-white" : "text-gray-800"}`}>
                 {t("auctions.features")}
               </h3>
               <div className="flex flex-wrap gap-2 mb-8">
                 {property.features.map((f, i) => (
                   <span
                     key={i}
-                    className={`${
-                      isDark ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"
-                    } px-3 py-2 rounded-lg text-sm`}
+                    className={`${isDark ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"} px-3 py-2 rounded-lg text-sm`}
                   >
                     {f}
                   </span>
                 ))}
               </div>
 
-              <h3
-                className={`text-xl font-bold mb-3 ${
-                  isDark ? "text-white" : "text-gray-800"
-                }`}
-              >
+              <h3 className={`text-xl font-bold mb-3 ${isDark ? "text-white" : "text-gray-800"}`}>
                 {t("auctions.location")}
               </h3>
               <div className="rounded-xl overflow-hidden shadow-lg mb-8">
                 <LoadScript
-                  googleMapsApiKey={
-                    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string
-                  }
+                  googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string}
                   onError={() => setMapError(true)}
                   onLoad={() => setMapLoaded(true)}
                 >
                   {mapError ? (
-                    <div
-                      className={`h-96 flex items-center justify-center ${
-                        isDark ? "bg-gray-800 text-red-400" : "bg-white text-red-600"
-                      }`}
-                    >
+                    <div className={`h-96 flex items-center justify-center ${isDark ? "bg-gray-800 text-red-400" : "bg-white text-red-600"}`}>
                       حدث خطأ أثناء تحميل الخريطة
                     </div>
                   ) : (
@@ -549,15 +492,11 @@ export default function AuctionDetailsPage() {
             </div>
           </div>
 
-          {/* يمين: المزايدة */}
+          {/* العمود الأيمن: المزايدة وتاريخ المزايدات */}
           <div>
             <div className={`rounded-xl p-6 shadow-lg mb-8 ${isDark ? "bg-gray-800" : "bg-white"}`}>
               <div className="flex justify-between items-center mb-6">
-                <h2
-                  className={`text-2xl font-bold ${
-                    isDark ? "text-white" : "text-gray-800"
-                  }`}
-                >
+                <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-800"}`}>
                   {t("auctions.bid.current")}
                 </h2>
                 <div className="px-4 py-2 bg-red-500 text-white rounded-full text-sm font-medium">
@@ -631,10 +570,9 @@ export default function AuctionDetailsPage() {
                 <div className="relative mb-6">
                   <input
                     type="text"
-                    className={`w-full p-4 rounded-lg border ${
-                      isDark
-                        ? "bg-gray-700 border-gray-600 text-white"
-                        : "bg-white border-gray-300 text-gray-800"
+                    className={`w-full p-4 rounded-lg border ${isDark
+                      ? "bg-gray-700 border-gray-600 text-white"
+                      : "bg-white border-gray-300 text-gray-800"
                     }`}
                     value={bidAmount}
                     onChange={(e) => setBidAmount(e.target.value)}
@@ -645,11 +583,7 @@ export default function AuctionDetailsPage() {
                 </div>
                 <button
                   type="submit"
-                  className={`w-full py-4 rounded-lg font-bold text-lg ${
-                    isDark
-                      ? "bg-teal-600 hover:bg-teal-700 text-white"
-                      : "bg-teal-500 hover:bg-teal-600 text-white"
-                  }`}
+                  className="btn btn-primary w-full py-4 rounded-lg font-bold text-lg"
                 >
                   {t("auctions.bid.submit")}
                 </button>
@@ -657,20 +591,14 @@ export default function AuctionDetailsPage() {
             </div>
 
             <div className={`rounded-xl p-6 shadow-lg ${isDark ? "bg-gray-800" : "bg-white"}`}>
-              <h2
-                className={`text-2xl font-bold mb-6 ${
-                  isDark ? "text-white" : "text-gray-800"
-                }`}
-              >
+              <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>
                 {t("auctions.history")}
               </h2>
               <div className="space-y-4">
                 {bids.map((b) => (
                   <div
                     key={b.id}
-                    className={`${
-                      isDark ? "bg-gray-700" : "bg-gray-100"
-                    } p-4 rounded-lg ${b.bidder === "أنت" ? "border-2 border-teal-500" : ""}`}
+                    className={`${isDark ? "bg-gray-700" : "bg-gray-100"} p-4 rounded-lg ${b.bidder === "أنت" ? "border-2 border-teal-500" : ""}`}
                   >
                     <div className="flex justify-between items-center">
                       <span className={`${isDark ? "text-white" : "text-gray-800"} font-medium`}>
@@ -688,6 +616,7 @@ export default function AuctionDetailsPage() {
           </div>
         </div>
       </div>
+      
       <Footer />
     </main>
   );

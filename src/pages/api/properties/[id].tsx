@@ -1,31 +1,41 @@
-/**
- * API: GET /api/properties/[id]
- * يدعم البحث بـ id الرقمي أو serial مثل AO-P-000001
- */
-import type { NextApiRequest, NextApiResponse } from "next";
-import fs from "fs";
-import path from "path";
-
-const dataDir = path.join(process.cwd(), ".data");
-const file = path.join(dataDir, "properties.json");
-function ensure() { if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true }); if (!fs.existsSync(file)) fs.writeFileSync(file, "[]", "utf8"); }
-function readAll(): any[] { ensure(); return JSON.parse(fs.readFileSync(file, "utf8")); }
+import { NextApiRequest, NextApiResponse } from 'next';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    if (req.method !== "GET") {
-      res.setHeader("Allow", "GET");
-      return res.status(405).json({ error: "Method not allowed" });
+  const { id } = req.query;
+  
+  if (req.method === 'GET') {
+    try {
+      // جلب البيانات من localStorage
+      const properties = JSON.parse(localStorage.getItem('properties') || '[]');
+      const property = properties.find((p: any) => p.id === id);
+      
+      if (!property) {
+        return res.status(404).json({ error: 'العقار غير موجود' });
+      }
+      
+      res.status(200).json({ item: property });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch property' });
     }
-    const id = String(req.query.id || "");
-    const items = readAll();
-    const byNum = items.find((x) => String(x.id) === id);
-    const bySerial = items.find((x) => String(x.serial) === id);
-    const item = byNum || bySerial;
-    if (!item) return res.status(404).json({ error: "Not found" });
-    return res.status(200).json({ item });
-  } catch (e: any) {
-    console.error(e);
-    return res.status(500).json({ error: e?.message || "Internal Server Error" });
+  } else if (req.method === 'PUT') {
+    try {
+      const properties = JSON.parse(localStorage.getItem('properties') || '[]');
+      const propertyIndex = properties.findIndex((p: any) => p.id === id);
+      
+      if (propertyIndex === -1) {
+        return res.status(404).json({ error: 'العقار غير موجود' });
+      }
+      
+      // تحديث العقار
+      properties[propertyIndex] = { ...properties[propertyIndex], ...req.body };
+      localStorage.setItem('properties', JSON.stringify(properties));
+      
+      res.status(200).json({ property: properties[propertyIndex] });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to update property' });
+    }
+  } else {
+    res.setHeader('Allow', ['GET', 'PUT']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

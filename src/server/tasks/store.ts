@@ -27,7 +27,7 @@ export type TaskStatus = "open" | "in_progress" | "blocked" | "done" | "canceled
 export type TaskPriority = "low" | "medium" | "high" | "urgent";
 export type ChecklistItem = { id: string; text: string; done: boolean };
 export type Attachment = { id: string; name: string; size?: number; mime?: string; url: string };
-export type TaskLink = { type: "property" | "maintenance" | "event" | "lease" | "invoice"; refId: string; title?: string };
+export type TaskLink = { type: "property" | "maintenance" | "event" | "lease" | "invoice" | "legal_case"; refId: string; title?: string };
 
 export type Task = {
   id: string;
@@ -202,4 +202,58 @@ export async function addThreadMessage(id: string, by: string | undefined, text:
   arr[i] = task;
   commit(arr);
   return task;
+}
+
+// ========== الدوال الجديدة لنظام التقاضي ==========
+
+/** إنشاء مهام تلقائية للقضايا القانونية */
+export async function createLegalTasks(caseId: string, caseData: any): Promise<Task[]> {
+  const tasks: Task[] = [];
+  
+  // مهمة المتابعة الأساسية
+  const mainTask = await createTask({
+    title: `متابعة القضية ${caseData.caseNumber}`,
+    description: caseData.description,
+    priority: caseData.priority || 'high',
+    links: [
+      {
+        type: 'legal_case',
+        refId: caseId,
+        title: caseData.title
+      }
+    ],
+    assignees: caseData.assignedToId ? [caseData.assignedToId] : [],
+    watchers: caseData.clientId ? [caseData.clientId] : []
+  });
+  tasks.push(mainTask);
+
+  // مهمة للموعد النهائي إذا كان موجوداً
+  if (caseData.deadline) {
+    const deadlineTask = await createTask({
+      title: `الموعد النهائي للقضية ${caseData.caseNumber}`,
+      description: `الموعد النهائي: ${new Date(caseData.deadline).toLocaleDateString()}`,
+      priority: 'urgent',
+      dueDate: caseData.deadline,
+      links: [
+        {
+          type: 'legal_case',
+          refId: caseId,
+          title: caseData.title
+        }
+      ],
+      assignees: caseData.assignedToId ? [caseData.assignedToId] : [],
+      watchers: caseData.clientId ? [caseData.clientId] : []
+    });
+    tasks.push(deadlineTask);
+  }
+
+  return tasks;
+}
+
+/** البحث عن المهام المرتبطة بقضية قانونية */
+export async function findTasksByLegalCase(caseId: string): Promise<Task[]> {
+  const allTasks = await listTasks();
+  return allTasks.filter(task => 
+    task.links?.some(link => link.type === 'legal_case' && link.refId === caseId)
+  );
 }

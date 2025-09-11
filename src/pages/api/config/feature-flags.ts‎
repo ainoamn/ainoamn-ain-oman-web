@@ -1,0 +1,21 @@
+// =============================================
+// src/pages/api/config/feature-flags.ts
+// =============================================
+
+import type { NextApiRequest, NextApiResponse } from "next";
+import fs from "fs";
+import path from "path";
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    const file = path.join(process.cwd(), "config", "feature-flags.json");
+    if (!fs.existsSync(file)) {
+      return res.status(200).json({});
+    }
+    const raw = fs.readFileSync(file, "utf8");
+    const json = JSON.parse(raw);
+    return res.status(200).json(json);
+  } catch (e: any) {
+    return res.status(200).json({});
+  }
+}

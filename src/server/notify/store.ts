@@ -26,6 +26,7 @@ export type OutboxItem = {
   subject?: string;
   text: string;
   taskId?: string;
+  legalCaseId?: string; // إضافة حقل جديد للقضايا القانونية
 };
 
 function ensure() {
@@ -61,4 +62,45 @@ export async function enqueue(item: Omit<OutboxItem, "id" | "at">): Promise<Outb
 export async function listOutbox(limit = 200): Promise<OutboxItem[]> {
   const all = readAll();
   return all.slice(0, limit);
+}
+
+// ========== الدوال الجديدة لنظام التقاضي ==========
+
+/** إرسال إشعارات لأصحاب المصلحة في القضية القانونية */
+export async function notifyLegalStakeholders(legalCase: any, type: string, message: string): Promise<OutboxItem[]> {
+  const notifications: OutboxItem[] = [];
+  const userIds = [];
+  
+  // جمع جميع المستخدمين المهتمين
+  if (legalCase.clientId) userIds.push(legalCase.clientId);
+  if (legalCase.assignedToId) userIds.push(legalCase.assignedToId);
+  
+  // إضافة المراقبين إذا وجدوا
+  if (legalCase.watchers && Array.isArray(legalCase.watchers)) {
+    legalCase.watchers.forEach((watcher: string) => {
+      if (!userIds.includes(watcher)) userIds.push(watcher);
+    });
+  }
+
+  // إرسال إشعار لكل مستخدم
+  for (const userId of userIds) {
+    const notification = await enqueue({
+      channel: "push",
+      to: userId,
+      subject: `تحديث القضية ${legalCase.caseNumber}`,
+      text: message,
+      legalCaseId: legalCase.id
+    });
+    notifications.push(notification);
+  }
+
+  return notifications;
+}
+
+/** البحث عن الإشعارات المرتبطة بقضية قانونية */
+export async function findNotificationsByLegalCase(caseId: string): Promise<OutboxItem[]> {
+  const allNotifications = await listOutbox();
+  return allNotifications.filter(notification => 
+    notification.legalCaseId === caseId
+  );
 }

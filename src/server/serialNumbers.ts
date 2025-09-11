@@ -1,65 +1,53 @@
 // src/server/serialNumbers.ts
-// Server-only utilities for sequential IDs stored in ./.data/counters.json
-// Works with Node 18+ and Next.js (Pages Router).
-// Do NOT import this file from client components.
-
-import { mkdir, readFile, writeFile, access } from "node:fs/promises";
-import path from "node:path";
+import "server-only";
+import { mkdir, readFile, writeFile } from "fs/promises";
+import path from "path";
 
 const DATA_DIR = path.join(process.cwd(), ".data");
-const COUNTERS_FILE = path.join(DATA_DIR, "counters.json");
+const FILE = path.join(DATA_DIR, "counters.json");
 
-type Counters = Record<string, number>;
-
-async function ensureStore(): Promise<void> {
+async function load(): Promise<Record<string, number>> {
+  await mkdir(DATA_DIR, { recursive: true });
   try {
-    await access(DATA_DIR);
+    const txt = await readFile(FILE, "utf8");
+    return JSON.parse(txt) as Record<string, number>;
   } catch {
-    await mkdir(DATA_DIR, { recursive: true });
-  }
-  try {
-    await access(COUNTERS_FILE);
-  } catch {
-    await writeFile(COUNTERS_FILE, JSON.stringify({}, null, 2), "utf8");
-  }
-}
-
-async function readCounters(): Promise<Counters> {
-  await ensureStore();
-  const txt = await readFile(COUNTERS_FILE, "utf8").catch(() => "{}");
-  try {
-    return JSON.parse(txt || "{}") as Counters;
-  } catch {
-    // If file is corrupted, reset to empty to avoid crashes in dev
     return {};
   }
 }
 
-async function writeCounters(counters: Counters): Promise<void> {
-  await writeFile(COUNTERS_FILE, JSON.stringify(counters, null, 2), "utf8");
+async function save(obj: Record<string, number>) {
+  await writeFile(FILE, JSON.stringify(obj, null, 2), "utf8");
 }
 
-/**
- * Get next serial like "AO-T-000001".
- * @param prefix e.g. "AO-T" or "AO-P"
- * @param width zero-padding width, default 6
- */
-export async function nextSerial(prefix: string, width = 6): Promise<{ serial: string; value: number; }> {
-  const counters = await readCounters();
-  const current = counters[prefix] ?? 0;
-  const next = current + 1;
-  counters[prefix] = next;
-  await writeCounters(counters);
-  const serial = `${prefix}-${String(next).padStart(width, "0")}`;
-  return { serial, value: next };
+/** تُرجِع الرقم الحالي بدون زيادة */
+export async function getCurrentSequenceNumber(key = "AO-T") {
+  const map = await load();
+  return map[key] ?? 0;
 }
 
-/**
- * Peek the next serial without increment.
- */
-export async function peekSerial(prefix: string, width = 6): Promise<{ serial: string; value: number; }> {
-  const counters = await readCounters();
-  const current = counters[prefix] ?? 0;
-  const next = current + 1;
-  return { serial: `${prefix}-${String(next).padStart(width, "0")}`, value: next };
+/** إعادة تعيين العداد لقيمة معيّنة */
+export async function resetCounter(key: string, value: number) {
+  if (!key) throw new Error("key required");
+  if (!Number.isFinite(value) || value < 0) throw new Error("invalid value");
+  const map = await load();
+  map[key] = Math.floor(value);
+  await save(map);
+  return map[key];
+}
+
+/** اختيارية: توليد الرقم التالي مع بادئة */
+export async function nextSerial(key = "AO-T", prefix = "AO-T-") {
+  const map = await load();
+  const n = (map[key] ?? 0) + 1;
+  map[key] = n;
+  await save(map);
+  return `${prefix}${String(n).padStart(6, "0")}`;
+}
+
+/** اختيارية: معاينة الرقم التالي دون حفظ */
+export async function peekSerial(key = "AO-T", prefix = "AO-T-") {
+  const map = await load();
+  const n = (map[key] ?? 0) + 1;
+  return `${prefix}${String(n).padStart(6, "0")}`;
 }

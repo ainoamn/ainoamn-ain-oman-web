@@ -11,6 +11,7 @@ import type { Reservation, Invoice } from "@/types/billing";
 import { nextSerial } from "@/lib/seq";
 import fs from "fs";
 import path from "path";
+export const config = { runtime: "nodejs" };
 
 const RES_FILE = "reservations.json";
 const INV_FILE = "invoices.json";

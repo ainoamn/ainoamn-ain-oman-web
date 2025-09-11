@@ -83,9 +83,7 @@ export default function NewPropertyPage(){
     if (!fl) return;
     const arr = Array.from(fl).slice(0, MAX_IMAGES - files.length);
     if (!arr.length) return;
-    // نضيف الملفات أولاً للحالة الأصلية
     setFiles(prev => [...prev, ...arr]);
-    // ثم نولّد نسخًا بعلامة مائية للمعاينة/الطباعة/الإرسال
     const wm = await Promise.all(arr.map(f => watermarkFile(f)));
     setWatermarkedUrls(prev => [...prev, ...wm.filter(Boolean) as string[]]);
   };
@@ -103,11 +101,8 @@ export default function NewPropertyPage(){
 
   /** التصنيف */
   const [category, setCategory] = useState<Category>("residential");
-  const [buildingForm, setBuildingForm] = useState<"single"|"multi">("single"); // جديد: هيكل المبنى
-  useEffect(()=>{
-    // ربط حقل "هيكل المبنى" مع نوع "multi"
-    if (buildingForm === "multi") setCategory("multi");
-  }, [buildingForm]);
+  const [buildingForm, setBuildingForm] = useState<"single"|"multi">("single");
+  useEffect(()=>{ if (buildingForm === "multi") setCategory("multi"); }, [buildingForm]);
 
   const [purpose, setPurpose] = useState<Purpose>("sale");
   const [rentalType, setRentalType] = useState<RentalType>("");
@@ -124,8 +119,8 @@ export default function NewPropertyPage(){
 
   /** تفاصيل أساسية */
   const [promoted, setPromoted] = useState(false);
-  const [hasPremiumSubscription, setHasPremiumSubscription] = useState(false); // تحقق اشتراك (وهمي الآن)
-  const [paidFeaturedFee, setPaidFeaturedFee] = useState(false); // دفع رسوم مميّز (وهمي الآن)
+  const [hasPremiumSubscription, setHasPremiumSubscription] = useState(false);
+  const [paidFeaturedFee, setPaidFeaturedFee] = useState(false);
 
   const [beds, setBeds] = useState(BED_OPTIONS[0]);
   const [baths, setBaths] = useState(BATH_OPTIONS[0]);
@@ -150,7 +145,7 @@ export default function NewPropertyPage(){
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
 
-  /** نقاط الإحداثيات (أكثر من نقطة) */
+  /** نقاط الإحداثيات */
   const [points, setPoints] = useState<Point[]>([]);
   const [latInput, setLatInput] = useState<string>("");
   const [lngInput, setLngInput] = useState<string>("");
@@ -176,7 +171,6 @@ export default function NewPropertyPage(){
     if (!fl) return;
     const arr = Array.from(fl);
     setUnits(prev => prev.map((u,idx)=> idx===i ? {...u, images:[...u.images, ...arr]} : u));
-    // لا نولّد علامة مائية هنا (هذه صور للوحدات فقط). عند الإرسال سنستخدم صور العقار إن خلت.
   };
   const removeUnitImage = (i:number, imgIdx:number) => {
     setUnits(prev => prev.map((u,idx)=> idx===i ? {...u, images: u.images.filter((_,j)=>j!==imgIdx)} : u));
@@ -209,6 +203,12 @@ export default function NewPropertyPage(){
         setPoints(s.points ?? []);
         setUnits((s.units ?? []).map((u:any)=> ({...u, images: []})));
         setWatermarkedUrls([]); // سنعيد توليدها عند إضافة صور
+
+        // صور محفوظة من الجسر/التحرير
+        if (Array.isArray(s.images) && s.images.length) {
+          setWatermarkedUrls(s.images);
+          setUploadedUrls(s.images);
+        }
       }
     } catch {}
   }, []);
@@ -223,31 +223,22 @@ export default function NewPropertyPage(){
     try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch {}
   }, [coverIndex,title,desc,descLocked,category,purpose,rentalType,investmentType,province,state,village,promoted,beds,baths,builtArea,floors,age,furnishing,mainFeatures,extraFeatures,nearby,mortgaged,orientation,priceOMR,payments,altContactName,altContactPhone,otpVerified,points,units]);
 
-  /** حفظ محلي تجريبي لعرض العناصر المحفوظة فورًا */
+  /** حفظ محلي تجريبي لعرض العناصر فورًا */
   const [devSaved, setDevSaved] = useState<any[]>([]);
-  useEffect(()=>{
-    try{ const raw = localStorage.getItem(DEV_SAVED_KEY); setDevSaved(raw?JSON.parse(raw):[]);}catch{}
-  },[]);
-  const pushDevSaved = (item:any)=>{
-    try{
-      const list = [item, ...devSaved].slice(0,10);
-      localStorage.setItem(DEV_SAVED_KEY, JSON.stringify(list));
-      setDevSaved(list);
-    }catch{}
-  };
+  useEffect(()=>{ try{ const raw = localStorage.getItem(DEV_SAVED_KEY); setDevSaved(raw?JSON.parse(raw):[]);}catch{} },[]);
+  const pushDevSaved = (item:any)=>{ try{ const list = [item, ...devSaved].slice(0,10); localStorage.setItem(DEV_SAVED_KEY, JSON.stringify(list)); setDevSaved(list);}catch{} };
 
-  /** تجهيز صور/فيديو (وهمي الآن) */
+  /** تجهيز صور/فيديو */
   const [uploading, setUploading] = useState(false);
   const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
   const [videoUrl, setVideoUrl] = useState<string>("");
   const uploadAll = async () => {
-    if (files.length < REQUIRED_IMAGES) {
+    if (files.length < REQUIRED_IMAGES && watermarkedUrls.length < REQUIRED_IMAGES) {
       alert(`يجب إرفاق ${REQUIRED_IMAGES} صور على الأقل (غلاف + 3).`);
       return;
     }
     setUploading(true);
     try {
-      // نستخدم الصور المائية بدل الأصلية
       const urls = watermarkedUrls.length ? watermarkedUrls : await Promise.all(files.map(f => watermarkFile(f))).then(a => a.filter(Boolean) as string[]);
       setWatermarkedUrls(urls);
       setUploadedUrls(urls);
@@ -256,7 +247,7 @@ export default function NewPropertyPage(){
     } finally { setUploading(false); }
   };
 
-  /** توليد تلقائي للوصف عند تغيّر المدخلات (AR/EN) */
+  /** توليد تلقائي للوصف */
   useEffect(() => {
     const h = setTimeout(() => {
       const loc = [province, state, village].filter(Boolean).join("، ");
@@ -285,7 +276,7 @@ export default function NewPropertyPage(){
     return () => clearTimeout(h);
   }, [title.ar, category, purpose, rentalType, investmentType, province, state, village, promoted, beds, baths, builtArea, mainFeatures, extraFeatures, nearby]);
 
-  /** ============ معاينة ============ */
+  /** معاينة */
   const [previewOpen, setPreviewOpen] = useState(false);
   useEffect(() => {
     if (!previewOpen) return;
@@ -294,8 +285,91 @@ export default function NewPropertyPage(){
     return () => window.removeEventListener("keydown", onKey);
   }, [previewOpen]);
 
+  /** دعم وضع التحرير */
+  const editIdRef = useRef<string | null>(null);
+  const [loadedFromEdit, setLoadedFromEdit] = useState(false);
+
+  function applyApiItemToForm(item: any) {
+    setTitle({ ar: item?.title?.ar || "", en: item?.title?.en || "" });
+    setDesc({ ar: item?.description?.ar || "", en: item?.description?.en || "" });
+    setDescLocked({ ar: false, en: false });
+
+    setCategory(item.category || "residential");
+    setBuildingForm(item.category === "multi" ? "multi" : "single");
+
+    setPurpose(item.purpose || "sale");
+    setRentalType(item.rentalType || "");
+    setInvestmentType(item.investmentType || "");
+
+    setProvince(item.province || "");
+    setState(item.state || "");
+    setVillage(item.village || "");
+
+    setPromoted(!!item.promoted);
+    setBeds(item.beds != null ? String(item.beds) : BED_OPTIONS[0]);
+    setBaths(item.baths != null ? String(item.baths) : BATH_OPTIONS[0]);
+    setBuiltArea(item.area ? String(item.area) : "");
+    setFloors(Array.isArray(item.floors) ? item.floors : []);
+    setAge(item.age || AGE_OPTIONS[0]);
+    setFurnishing((item.furnishing as any) || "unfurnished");
+
+    setMainFeatures(Array.isArray(item.amenities) ? item.amenities : []);
+    setExtraFeatures([]);
+    setNearby(Array.isArray(item.attractions) ? item.attractions : []);
+
+    setMortgaged(item.mortgaged ? "yes" : "no");
+    setOrientation(item.orientation || ORIENTATIONS[0]);
+
+    setPriceOMR(item.priceOMR != null ? String(item.priceOMR) : "");
+    setPayments([]);
+
+    setAltContactName(item?.altContact?.name || "");
+    setAltContactPhone(item?.altContact?.phone || "");
+    setOtpVerified(!!item?.altContact);
+
+    const pts = Array.isArray(item.points) ? item.points : (item.lat && item.lng ? [{ lat: item.lat, lng: item.lng }] : []);
+    setPoints(pts);
+
+    setUnits(Array.isArray(item.units)
+      ? item.units.map((u: any) => ({
+          name: u.name || "",
+          floor: u.floor || "",
+          beds: String(u.beds ?? ""),
+          baths: String(u.baths ?? ""),
+          area: String(u.area ?? ""),
+          priceOMR: String(u.priceOMR ?? ""),
+          images: [],
+        }))
+      : []);
+
+    const imgs = Array.isArray(item.images) ? item.images : [];
+    setWatermarkedUrls(imgs);
+    setUploadedUrls(imgs);
+    setCoverIndex(item.coverIndex ?? 0);
+
+    setReferenceNo(item.referenceNo || null);
+  }
+
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const eid = q.get("edit");
+    if (!eid) return;
+    editIdRef.current = eid;
+    (async () => {
+      try {
+        const r = await fetch(`/api/properties/${encodeURIComponent(eid)}`);
+        if (!r.ok) return;
+        const { item } = await r.json();
+        if (item) { applyApiItemToForm(item); setLoadedFromEdit(true); }
+      } catch {}
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   /** إرسال */
   const [sending, setSending] = useState(false);
+  const [referenceNo, setReferenceNo] = useState<string | null>(null);
+
   const validate = () => {
     if (!title.ar.trim()) { alert("أدخل عنوانًا عربيًا"); return false; }
     if (!priceOMR || Number(priceOMR) <= 0) { alert("أدخل سعرًا صحيحًا"); return false; }
@@ -306,38 +380,25 @@ export default function NewPropertyPage(){
     return true;
   };
 
-  // ✅ حالة اختيارية للاحتفاظ بالرقم المرجعي المحجوز (غير مرئية في الواجهة)
-  const [referenceNo, setReferenceNo] = useState<string | null>(null);
-
   const submit = async () => {
     if (!validate()) return;
     setSending(true);
     try {
-      const imgs = (uploadedUrls.length ? uploadedUrls : (watermarkedUrls.length ? watermarkedUrls : await Promise.all(files.map(f => watermarkFile(f))).then(a => a.filter(Boolean) as string[])));
+      const imgs =
+        uploadedUrls.length ? uploadedUrls :
+        (watermarkedUrls.length ? watermarkedUrls :
+          await Promise.all(files.map(f => watermarkFile(f))).then(a => a.filter(Boolean) as string[]));
       const cover = imgs[coverIndex] || imgs[0];
 
-      const unitsClean = units
-        .filter(u => u.name || u.area || u.priceOMR)
-        .map(u => ({
-          ...u,
-          priceOMR: Number(u.priceOMR || 0),
-          images: (u.images?.length ? awaitAll(u.images.map(f=>watermarkFile(f))) : imgs)
-        }));
-
-      // ✅ 1) حجز رقم مرجعي من نظام السيريال قبل إنشاء الإعلان
-      let refNo: string | null = null;
-      try {
-        const seqRes = await fetch("/api/seq/next", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ entity: "PROPERTY" })
-        });
-        if (seqRes.ok) {
-          const js = await seqRes.json();
-          refNo = js?.referenceNo ?? js?.ref ?? js?.seq ?? null;
-          if (refNo) setReferenceNo(refNo);
-        }
-      } catch {}
+      const unitsClean = await Promise.all(
+        units
+          .filter(u => u.name || u.area || u.priceOMR)
+          .map(async (u) => ({
+            ...u,
+            priceOMR: Number(u.priceOMR || 0),
+            images: (u.images?.length ? awaitAll(u.images.map(f=>watermarkFile(f))) : imgs)
+          }))
+      );
 
       const payload = {
         title: { ...title },
@@ -349,7 +410,7 @@ export default function NewPropertyPage(){
         investmentType: purpose==="investment" ? investmentType || undefined : undefined,
         promoted,
         province, state, village: village || undefined,
-        priceOMR: Number(priceOMR),
+        priceOMR: Number(priceOMR || 0),
         beds: bedBathToNumber(beds), baths: bedBathToNumber(baths),
         area: Number(builtArea || 0),
         floors,
@@ -367,48 +428,53 @@ export default function NewPropertyPage(){
         ownerTarget: otpVerified ? "alt_contact" : "owner",
         altContact: otpVerified ? { name: altContactName, phone: altContactPhone } : undefined,
         units: (category==="multi" || buildingForm==="multi") ? unitsClean : undefined,
-        // ✅ 2) تمرير الرقم المرجعي إلى الـ API (إن تم حجزه)
-        referenceNo: refNo || undefined
+        referenceNo: referenceNo || undefined
       };
 
-      // حفظ محلي للتجربة حتى لو تعطل API
-      pushDevSaved({
-        id: String(Date.now()),
-        title: payload.title,
-        purpose: payload.purpose,
-        category: payload.category,
-        priceOMR: payload.priceOMR,
-        location: [payload.province, payload.state, payload.village].filter(Boolean).join(" - "),
-        images: payload.images,
-        coverIndex: payload.coverIndex,
-        features: payload.amenities || []
-      });
-
-      // محاولة إرسال للـ API — لو فشل سنرجع للقائمة
-      let okId: string | null = null;
-      let returnedRef: string | null = null; // في حال كان الخادم هو من يُولّد الرقم
-      try{
-        const r = await fetch("/api/properties", {
-          method: "POST",
+      const editId = editIdRef.current;
+      if (editId) {
+        const r = await fetch(`/api/properties/${encodeURIComponent(editId)}`, {
+          method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({ ...payload, id: editId }),
         });
-        if (r.ok) {
-          const data = await r.json();
-          okId = data?.id || data?.item?.id || null;
-          returnedRef = data?.referenceNo ?? data?.item?.referenceNo ?? null;
+        if (!r.ok) {
+          const d = await r.json().catch(() => ({}));
+          throw new Error(d?.error || "Bad Request");
         }
-      }catch{}
+        try { localStorage.removeItem(LS_KEY); } catch {}
+        router.push(`/properties/${encodeURIComponent(editId)}`);
+        return;
+      }
 
+      // إضافة جديدة: حجز مرجع قبل الإرسال
+      if (!referenceNo) {
+        try {
+          const seqRes = await fetch("/api/seq/next", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ entity: "PROPERTY" }),
+          });
+          if (seqRes.ok) {
+            const js = await seqRes.json();
+            const refNo = js?.referenceNo ?? null;
+            if (refNo) setReferenceNo(refNo);
+            (payload as any).referenceNo = refNo || undefined;
+          }
+        } catch {}
+      }
+
+      const r = await fetch("/api/properties", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!r.ok) {
+        const d = await r.json().catch(() => ({}));
+        throw new Error(d?.error || "Bad Request");
+      }
       try { localStorage.removeItem(LS_KEY); } catch {}
-
-      // إشعار بسيط — لا تغيير في التصميم (تنبيه فقط)
-      const toShow = refNo || returnedRef;
-      if (toShow) alert(`تم إصدار الرقم المرجعي: ${toShow}`);
-
-      // ✅ 3) توجيه للمسار الصحيح لصفحة التفاصيل
-      if (okId) router.push(`/properties/${okId}`);
-      else router.push("/properties?created=1"); // عودة لقائمة العقارات
+      router.push("/manage-properties");
     } catch (e:any) {
       alert("فشل الحفظ: " + (e?.message || e));
     } finally {
@@ -416,7 +482,7 @@ export default function NewPropertyPage(){
     }
   };
 
-  /** طباعة عبر iframe (أكثر ثباتًا من window.open) + انتظار الصور */
+  /** طباعة عبر iframe + انتظار الصور */
   const openPrintView = () => {
     const imgs = (uploadedUrls.length ? uploadedUrls : (watermarkedUrls.length ? watermarkedUrls : files.map(f => URL.createObjectURL(f))));
     const cover = imgs[coverIndex] || imgs[0];
@@ -500,15 +566,8 @@ export default function NewPropertyPage(){
     `);
     doc.close();
 
-    // تنظيف iframe بعد الطباعة
-    const removeLater = () => {
-      setTimeout(() => {
-        if (iframe && iframe.parentNode) iframe.parentNode.removeChild(iframe);
-      }, 500);
-    };
-    iframe.onload = () => {
-      (iframe.contentWindow as any).onafterprint = removeLater;
-    };
+    const removeLater = () => { setTimeout(() => { if (iframe && iframe.parentNode) iframe.parentNode.removeChild(iframe); }, 500); };
+    iframe.onload = () => { (iframe.contentWindow as any).onafterprint = removeLater; };
   };
 
   return (
@@ -526,9 +585,9 @@ export default function NewPropertyPage(){
                 <FaCloudUploadAlt/> إضافة صور
                 <input type="file" accept={IMAGE_ACCEPT} multiple className="hidden" onChange={(e)=>addImages(e.target.files)} />
               </label>
-              {files.length>0 && (
+              { (files.length>0 || watermarkedUrls.length>0) && (
                 <button onClick={()=>{ setFiles([]); setWatermarkedUrls([]); }} className="px-3 py-2 border rounded inline-flex items-center gap-2 text-red-600"><FaTrash/> إزالة الكل</button>
-              )}
+              ) }
             </div>
 
             {(files.length>0 || watermarkedUrls.length>0) && (
@@ -569,7 +628,6 @@ export default function NewPropertyPage(){
           <SelectField label="نوع العقار" value={category} onChange={v=>setCategory(v as Category)} options={[
             ["residential","سكني"],["commercial","تجاري"],["industrial","صناعي"],["agricultural","زراعي"],["multi","مبنى متعدد الطوابق"],["existing","مبنى قائم"]
           ]}/>
-          {/* جديد: هيكل المبنى */}
           <SelectField label="هيكل المبنى" value={buildingForm} onChange={(v)=>setBuildingForm(v as any)} options={[
             ["single","عقار واحد"],["multi","متعدد الطوابق"]
           ]}/>
@@ -694,7 +752,7 @@ export default function NewPropertyPage(){
         </div>
       </section>
 
-      {/* 5) وحدات المبنى (اختياري) — يظهر فقط إذا المبنى متعدد */}
+      {/* 5) وحدات المبنى */}
       {(category==="multi" || buildingForm==="multi") && (
         <section className="border rounded-lg p-4 bg-white mt-4 space-y-3">
           <h2 className="font-semibold flex items-center gap-2"><FaBuilding/> وحدات المبنى (اختياري)</h2>
@@ -787,10 +845,10 @@ export default function NewPropertyPage(){
         </div>
       </section>
 
-      {/* أزرار أسفل الصفحة: حفظ ونشر + معاينة + طباعة */}
+      {/* أزرار أسفل الصفحة */}
       <div className="my-6 flex flex-wrap gap-3">
         <button disabled={sending} onClick={submit} className="px-6 py-2 rounded bg-[var(--brand-800)] hover:bg-[var(--brand-700)] text-white">
-          {sending ? "جاري النشر..." : "حفظ ونشر"}
+          {sending ? "جاري النشر..." : (loadedFromEdit ? "حفظ التعديلات" : "حفظ ونشر")}
         </button>
         <button onClick={()=>setPreviewOpen(true)} className="px-6 py-2 rounded border inline-flex items-center gap-2">
           <FaListUl/> معاينة كما ستظهر
@@ -801,7 +859,7 @@ export default function NewPropertyPage(){
         <span className="text-xs text-gray-500">🧠 الصفحة تحفظ مسودتك تلقائيًا وتولّد وصفًا تلقائيًا.</span>
       </div>
 
-      {/* قائمة محلية تظهر فور الحفظ/النشر (حل مؤقت خلال التطوير) */}
+      {/* قائمة محلية للعناصر المحفوظة */}
       <section className="border rounded-lg p-4 bg-white mt-2">
         <h3 className="font-semibold mb-2">العناصر المحفوظة (محليًا للتجربة)</h3>
         {devSaved.length===0 ? (
@@ -827,7 +885,7 @@ export default function NewPropertyPage(){
         )}
       </section>
 
-      {/* مودال معاينة بالحجم الكامل */}
+      {/* مودال المعاينة */}
       {previewOpen && (
         <div className="fixed inset-0 bg-black/40 z-[1000] flex items-center justify-center p-4" onClick={()=>setPreviewOpen(false)}>
           <div className="bg-white w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-lg" onClick={(e)=>e.stopPropagation()}>
@@ -837,7 +895,6 @@ export default function NewPropertyPage(){
             </div>
 
             <div className="p-4 space-y-4">
-              {/* العنوان + السعر */}
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-xl font-bold mb-1">🏠 {title.ar || "—"}</h3>
@@ -847,14 +904,12 @@ export default function NewPropertyPage(){
                 <div className="text-2xl font-extrabold text-[var(--brand-800)]">{priceOMR || "—"} <span className="text-base">ر.ع</span></div>
               </div>
 
-              {/* معرض صور مبسط */}
               <div className="grid grid-cols-3 gap-2">
                 {(uploadedUrls.length?uploadedUrls:(watermarkedUrls.length?watermarkedUrls:files.map(f=>URL.createObjectURL(f)))).slice(0,6).map((u,i)=>(
                   <img key={i} src={u} className="w-full h-36 object-cover rounded" alt={`p${i}`} />
                 ))}
               </div>
 
-              {/* أيقونات أساسية */}
               <div className="grid grid-cols-3 md:grid-cols-6 gap-2 text-sm">
                 <PreviewChip icon={<FaBed/>} label="الغرف" value={beds}/>
                 <PreviewChip icon={<FaBath/>} label="الحمّامات" value={baths}/>
@@ -864,7 +919,6 @@ export default function NewPropertyPage(){
                 <PreviewChip icon="🔒" label="مرهون" value={mortgaged==="yes"?"نعم":"لا"}/>
               </div>
 
-              {/* مزايا + أماكن قريبة */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <div className="font-semibold mb-1">✨ المزايا</div>
@@ -882,7 +936,6 @@ export default function NewPropertyPage(){
                 </div>
               </div>
 
-              {/* الوصف */}
               <div className="grid md:grid-cols-2 gap-3">
                 <div>
                   <div className="font-semibold mb-1">📝 الوصف (AR)</div>
@@ -957,7 +1010,7 @@ function PreviewChip({ icon, label, value }:{ icon: any; label:string; value:any
   );
 }
 
-/** TagPickerPlus — (مزايا أخرى) تختفي بعد الاختيار + اقتراحات + كتابة جديد */
+/** TagPickerPlus */
 function TagPickerPlus({
   title,
   baseOptions = [],
@@ -979,7 +1032,6 @@ function TagPickerPlus({
   const [query, setQuery] = useState("");
   const [openSuggest, setOpenSuggest] = useState(false);
 
-  // تختفي الميزة من "المزايا الأخرى" إن كانت محددة
   const all = useMemo(()=> [...baseOptions, ...moreOptions].filter(o=>!value.includes(o)), [baseOptions, moreOptions, value]);
 
   const add = (x:string) => {
@@ -1000,7 +1052,6 @@ function TagPickerPlus({
     <div>
       {title && <div className="mb-1 text-gray-600">{title}</div>}
 
-      {/* العناصر المحددة */}
       <div className="flex flex-wrap gap-2 mb-2">
         {value.map(v => (
           <span key={v} className="inline-flex items-center gap-1 border rounded px-2 py-1">
@@ -1010,7 +1061,6 @@ function TagPickerPlus({
         {value.length===0 && <span className="text-xs text-gray-500">لا توجد عناصر محددة بعد.</span>}
       </div>
 
-      {/* 4 عناصر سريعة + مزايا أخرى (تختفي المختارة) */}
       <div className="flex flex-wrap gap-2 mb-2">
         {baseOptions.filter(o=>!value.includes(o)).slice(0,4).map(o=>(
           <button key={o} onClick={()=>add(o)} className="px-2 py-1 border rounded text-sm hover:bg-gray-50">{o}</button>
@@ -1028,7 +1078,6 @@ function TagPickerPlus({
         </div>
       )}
 
-      {/* إدخال + اقتراحات ذكية */}
       <div className="relative">
         <input
           className="border rounded p-2 text-sm w-full"
@@ -1094,7 +1143,6 @@ const FEATURE_ICON: Record<string,string> = {
 function featureEmoji(x:string){ return FEATURE_ICON[x] ?? "•"; }
 function escapeHtml(s:string){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m] as string)); }
 
-/** علامة مائية: نص/شعار */
 async function watermarkFile(file: File): Promise<string | null> {
   try {
     const img = await fileToImage(file);
@@ -1102,11 +1150,8 @@ async function watermarkFile(file: File): Promise<string | null> {
     const ctx = canvas.getContext("2d")!;
     canvas.width = img.naturalWidth;
     canvas.height = img.naturalHeight;
-
-    // ارسم الصورة الأصل
     ctx.drawImage(img, 0, 0);
 
-    // ارسم الشعار إن وجد
     if (WATERMARK_LOGO_SRC) {
       try {
         const logo = await loadImage(WATERMARK_LOGO_SRC);
@@ -1119,7 +1164,6 @@ async function watermarkFile(file: File): Promise<string | null> {
         ctx.globalAlpha = 1;
       } catch {}
     } else {
-      // نص بديل
       const fontSize = Math.max(18, Math.round(canvas.width * 0.03));
       ctx.font = `${fontSize}px system-ui, -apple-system, Segoe UI, Tahoma`;
       ctx.fillStyle = "rgba(0,0,0,0.25)";

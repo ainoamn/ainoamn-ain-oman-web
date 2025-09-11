@@ -1,0 +1,63 @@
+// src/locales/en/admin.json
+{
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Overview and real-time alerts",
+    "recentActivity": "Recent Activity"
+  },
+  "actions": {
+    "newTask": "New Task",
+    "newReservation": "New Reservation",
+    "newNotification": "New Notification",
+    "manageAccounts": "Manage Accounts",
+    "hoaPanel": "Owners Association",
+    "newProperty": "Add Property",
+    "newAuction": "Create Auction",
+    "approveAuctions": "Review & Approve Auctions",
+    "managePartners": "Manage Partners",
+    "moderateReviews": "Moderate Reviews",
+    "billing": "Billing Console",
+    "invoices": "Manage Invoices",
+    "subscriptions": "Manage Subscriptions",
+    "manageAds": "Manage Ads",
+    "manageCoupons": "Manage Coupons",
+    "aiPanel": "AI Panel",
+    "valuation": "Smart Valuation",
+    "translations": "Manage Translations",
+    "features": "Platform Features",
+    "devProjects": "Dev Projects",
+    "impersonate": "Impersonate User"
+  },
+  "dashboardPills": {
+    "tasks": "Tasks",
+    "reservations": "Reservations",
+    "notifications": "Notifications",
+    "accounts": "Accounts",
+    "hoa": "Owners Association",
+    "properties": "Properties",
+    "auctions": "Auctions",
+    "partners": "Partners",
+    "reviews": "Reviews",
+    "billing": "Billing",
+    "invoices": "Invoices",
+    "subscriptions": "Subscriptions",
+    "ads": "Ads",
+    "coupons": "Coupons",
+    "ai-panel": "AI Panel",
+    "valuation": "Valuation",
+    "i18n": "Translations",
+    "features": "Features",
+    "projects": "Dev Projects",
+    "impersonate": "Impersonate"
+  },
+  "common": {
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "delete": "Delete"
+  },
+  "notifications": {
+    "markUnread": "Mark as unread",
+    "markRead": "Mark as read",
+    "empty": "No notifications."
+  }
+}

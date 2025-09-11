@@ -1,0 +1,63 @@
+// src/locales/ar/admin.json
+{
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "subtitle": "نظرة عامة وإشعارات فورية",
+    "recentActivity": "النشاط الأخير"
+  },
+  "actions": {
+    "newTask": "مهمة جديدة",
+    "newReservation": "حجز جديد",
+    "newNotification": "تنبيه جديد",
+    "manageAccounts": "إدارة الحسابات",
+    "hoaPanel": "لوحة جمعية الملاك",
+    "newProperty": "إضافة عقار",
+    "newAuction": "إنشاء مزاد",
+    "approveAuctions": "مراجعة واعتماد المزادات",
+    "managePartners": "إدارة الشركاء",
+    "moderateReviews": "مراجعة التقييمات",
+    "billing": "لوحة الفوترة",
+    "invoices": "إدارة الفواتير",
+    "subscriptions": "إدارة الاشتراكات",
+    "manageAds": "إدارة الإعلانات",
+    "manageCoupons": "إدارة القسائم",
+    "aiPanel": "لوحة الذكاء",
+    "valuation": "التقييم الذكي",
+    "translations": "إدارة الترجمات",
+    "features": "خصائص المنصة",
+    "devProjects": "مشاريع التطوير",
+    "impersonate": "انتحال مستخدم"
+  },
+  "dashboardPills": {
+    "tasks": "المهام",
+    "reservations": "الحجوزات",
+    "notifications": "الإشعارات",
+    "accounts": "الحسابات",
+    "hoa": "جمعية الملاك",
+    "properties": "العقارات",
+    "auctions": "المزادات",
+    "partners": "شركاؤنا",
+    "reviews": "التقييمات",
+    "billing": "الفوترة",
+    "invoices": "الفواتير",
+    "subscriptions": "الاشتراكات",
+    "ads": "الإعلانات",
+    "coupons": "القسائم",
+    "ai-panel": "لوحة الذكاء",
+    "valuation": "التقييم الذكي",
+    "i18n": "الترجمات",
+    "features": "الخصائص",
+    "projects": "مشاريع التطوير",
+    "impersonate": "انتحال مستخدم"
+  },
+  "common": {
+    "refresh": "تحديث",
+    "loading": "جارٍ التحميل...",
+    "delete": "حذف"
+  },
+  "notifications": {
+    "markUnread": "تعليم كغير مقروء",
+    "markRead": "تعليم كمقروء",
+    "empty": "لا توجد تنبيهات."
+  }
+}

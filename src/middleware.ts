@@ -1,29 +1,20 @@
+// middleware.ts
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
+// يحذف محارف الاتجاه والمحارف الخفية من المسار ويعيد التوجيه للمسار النظيف
+const STRIP = /[\u200E\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g;
+
 export function middleware(req: NextRequest) {
-  // Disabled by default. Enable by setting NEXT_PUBLIC_ENABLE_GUARD=true
-  if (process.env.NEXT_PUBLIC_ENABLE_GUARD !== "true") {
-    return NextResponse.next();
+  const url = req.nextUrl;
+  const cleaned = url.pathname.replace(STRIP, "");
+  if (cleaned !== url.pathname) {
+    const u = new URL(req.url);
+    u.pathname = cleaned;
+    return NextResponse.redirect(u, 308);
   }
-
-  const url = req.nextUrl.clone();
-  const pathname = url.pathname;
-  const guardedPrefixes = ["/owners-association", "/invest"];
-
-  const isGuarded = guardedPrefixes.some(p => pathname.startsWith(p));
-  if (!isGuarded) return NextResponse.next();
-
-  const plan = req.cookies.get("x-plan")?.value || "free";
-  if (plan === "free") {
-    url.pathname = "/pricing";
-    url.searchParams.set("reason", "upgrade_required");
-    return NextResponse.redirect(url);
-  }
-
   return NextResponse.next();
 }
 
-export const config = {
-  matcher: ["/((?!_next|api|static|favicon.ico).*)"],
-};
+// فعّال على كل المسارات
+export const config = { matcher: "/:path*" };

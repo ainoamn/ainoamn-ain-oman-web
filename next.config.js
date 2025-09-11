@@ -2,7 +2,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // لأجل Pages Router فقط:
-  // i18n: { locales: ['ar','en','fr','hi','fa','ur'], defaultLocale: 'ar' }
+  i18n: {
+    locales: ['ar', 'en', 'fr', 'hi', 'fa', 'ur'],
+    defaultLocale: 'ar',
+    localeDetection: true,
+  },
+  // إعدادات أخرى إذا لزم الأمر
 };
+
 module.exports = nextConfig;

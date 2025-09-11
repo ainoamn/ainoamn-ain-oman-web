@@ -1,42 +1,71 @@
-// prisma/schema.prisma
-
-generator client {
-  provider = "prisma-client-js"
+model LegalCase {
+  id          String   @id @default(cuid())
+  caseNumber  String   @unique
+  title       String
+  description String?
+  status      CaseStatus
+  priority    Priority
+  // أطراف القضية
+  plaintiff   String?  // الشاكي
+  defendant   String?  // المشكو فيه
+  // ربط العقار
+  property    Property? @relation(fields: [propertyId], references: [id])
+  propertyId  String?
+  unit        Unit?     @relation(fields: [unitId], references: [id])
+  unitId      String?
+  // معلومات المحكمة
+  courtName   String?
+  courtDepartment String?
+  caseNumberInCourt String?
+  // معلومات مالية
+  totalFees   Float    @default(0)
+  paidAmount  Float    @default(0)
+  // التواريخ
+  hearingDates Json?   // تواريخ الجلسات
+  // العلاقات
+  lawFirm     LawFirm? @relation(fields: [lawFirmId], references: [id])
+  lawFirmId   String?
+  client      User?    @relation(fields: [clientId], references: [id])
+  clientId    String?
+  assignedTo  User?    @relation(fields: [assignedToId], references: [id])
+  assignedToId String?
+  // التتبع الزمني
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  hearingDate DateTime?
+  deadline    DateTime?
+  isDraft     Boolean  @default(false)
+  // العلاقات
+  documents   LegalDocument[]
+  proceedings LegalProceeding[]
+  tasks       Task[]
+  messages    LegalMessage[]
+  expenses    LegalExpense[]
+  
+  @@map("legal_cases")
 }
 
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+model LegalExpense {
+  id          String   @id @default(cuid())
+  description String
+  amount      Float
+  type        ExpenseType
+  date        DateTime @default(now())
+  case        LegalCase @relation(fields: [caseId], references: [id])
+  caseId      String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdById String
+  receiptUrl  String?
+  isPaid      Boolean  @default(false)
+  paymentDate DateTime?
+  
+  @@map("legal_expenses")
 }
 
-/*
-  ملاحظة مهمة:
-  نبدأ بنموذجين فقط كبداية آمنة:
-  1) SerialCounter: للأرقام المتسلسلة لكل نوع معاملة.
-  2) AuditLog: سجل تدقيق بسيط لأي حدث مهم.
-
-  لاحقًا نمدد السكيمة (Users, Properties, Auctions, Contracts, Invoices, Payments, Tasks ...)
-  لكن كبداية هذا يعطيك أساس صلب ويشغّل الأرقام المتسلسلة فورًا.
-*/
-
-model SerialCounter {
-  id        Int      @id @default(autoincrement())
-  entity    String   // مثال: "PROPERTY", "AUCTION", "CONTRACT", "INVOICE", "PAYMENT", "TASK", "TICKET"
-  year      Int      // نستخدم السنة للفصل (مثال 2025)
-  counter   Int      @default(0) // آخر رقم مُستخدم
-  updatedAt DateTime @updatedAt
-
-  @@unique([entity, year]) // يمنع التكرار لنفس النوع والسنة
-}
-
-model AuditLog {
-  id            Int      @id @default(autoincrement())
-  eventType     String   // CREATE, UPDATE, DELETE, LOGIN...
-  actorId       String?  // من قام بالحدث (إن وجد)
-  resource      String?  // نوع المورد (مثال: PROPERTY)
-  resourceId    String?  // معرف المورد
-  ip            String?  // عنوان IP
-  userAgent     String?  // المتصفح/العميل
-  details       String?  // JSON/نص
-  createdAt     DateTime @default(now())
+enum ExpenseType {
+  LEGAL_FEES
+  COURT_FEES
+  ADMINISTRATIVE
+  TRANSPORTATION
+  OTHER
 }

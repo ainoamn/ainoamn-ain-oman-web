@@ -11,7 +11,13 @@
         "includesCreateAuction": false,
         "includesFeaturedAds": false,
         "maxListings": 10
-      }
+      },
+      "highlight": false,
+      "stockLimit": null,
+      "features": [
+        "widget.stats",
+        "widget.subscriptions"
+      ]
     },
     {
       "id": "pro",
@@ -25,7 +31,16 @@
         "includesCreateAuction": true,
         "includesFeaturedAds": true,
         "maxListings": 50
-      }
+      },
+      "stockLimit": 10,
+      "features": [
+        "widget.subscriptions",
+        "widget.auctions",
+        "widget.stats",
+        "widget.tasks",
+        "widget.createAuction"
+      ],
+      "annualDiscountPercent": 101
     },
     {
       "id": "business",
@@ -38,7 +53,19 @@
         "includesCreateAuction": true,
         "includesFeaturedAds": true,
         "maxListings": 100
-      }
+      },
+      "highlight": false,
+      "stockLimit": null,
+      "features": [
+        "widget.stats",
+        "widget.auctions",
+        "widget.subscriptions",
+        "widget.createAuction",
+        "widget.tasks",
+        "widget.messages",
+        "widget.invoices",
+        "widget.favorites"
+      ]
     }
   ]
 }

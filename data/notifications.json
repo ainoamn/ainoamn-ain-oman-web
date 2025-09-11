@@ -1,5 +1,77 @@
 [
   {
+    "id": "1757475038111",
+    "createdAt": "2025-09-10T03:30:38.111Z",
+    "read": false,
+    "type": "reservation_status_changed",
+    "target": "tenant",
+    "message": "تم رفض طلب الحجز.",
+    "data": {
+      "reservationId": "1755173808895",
+      "status": "rejected"
+    }
+  },
+  {
+    "id": "1757475036922",
+    "createdAt": "2025-09-10T03:30:36.922Z",
+    "read": false,
+    "type": "reservation_status_changed",
+    "target": "tenant",
+    "message": "تمت الموافقة على حجزك.",
+    "data": {
+      "reservationId": "1755173808895",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "1757475036729",
+    "createdAt": "2025-09-10T03:30:36.729Z",
+    "read": false,
+    "type": "reservation_status_changed",
+    "target": "tenant",
+    "message": "تمت الموافقة على حجزك.",
+    "data": {
+      "reservationId": "1755173808895",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "1757475036541",
+    "createdAt": "2025-09-10T03:30:36.541Z",
+    "read": false,
+    "type": "reservation_status_changed",
+    "target": "tenant",
+    "message": "تمت الموافقة على حجزك.",
+    "data": {
+      "reservationId": "1755173808895",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "1757475035581",
+    "createdAt": "2025-09-10T03:30:35.581Z",
+    "read": false,
+    "type": "reservation_status_changed",
+    "target": "tenant",
+    "message": "تمت الموافقة على حجزك.",
+    "data": {
+      "reservationId": "1755173808895",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "1757475033276",
+    "createdAt": "2025-09-10T03:30:33.276Z",
+    "read": false,
+    "type": "reservation_status_changed",
+    "target": "tenant",
+    "message": "تمت الموافقة على حجزك.",
+    "data": {
+      "reservationId": "1755173808895",
+      "status": "approved"
+    }
+  },
+  {
     "id": "1755173865269",
     "createdAt": "2025-08-14T12:17:45.269Z",
     "read": false,

@@ -4,6 +4,7 @@ import { readJson, writeJson } from "@/server/fsdb";
 import { requireAdminApi } from "@/server/auth";
 import type { Reservation } from "@/server/workflow";
 import { pushNotification } from "@/server/workflow";
+export const config = { runtime: "nodejs" };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!requireAdminApi(req, res)) return;

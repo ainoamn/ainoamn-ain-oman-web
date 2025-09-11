@@ -1,3 +1,204 @@
 {
-  "items": []
+  "items": [
+    {
+      "id": "sub_1757461294938",
+      "serial": "SUB-2025-000014",
+      "userId": "15214",
+      "name": "213",
+      "planId": "business",
+      "state": "active",
+      "startAt": 1757461294938,
+      "endAt": 1788997294938,
+      "promoted": false,
+      "priceOMR": 29,
+      "discount": null,
+      "finalPriceOMR": 29,
+      "createdAt": 1757461294938,
+      "billingPeriod": "/yr",
+      "payment": {
+        "method": "online",
+        "status": "paid"
+      }
+    },
+    {
+      "id": "sub_1757461290627",
+      "serial": "SUB-2025-000013",
+      "userId": "15214",
+      "name": "213",
+      "planId": "pro",
+      "state": "active",
+      "startAt": 1757461290626,
+      "endAt": 1788997290626,
+      "promoted": false,
+      "priceOMR": 9.9,
+      "discount": null,
+      "finalPriceOMR": 9.9,
+      "createdAt": 1757461290627,
+      "billingPeriod": "/yr",
+      "payment": {
+        "method": "online",
+        "status": "paid"
+      }
+    },
+    {
+      "id": "sub_1757458777288",
+      "serial": "SUB-2025-000009",
+      "userId": "15214",
+      "name": "213",
+      "planId": "business",
+      "state": "active",
+      "startAt": 1757458777288,
+      "endAt": 1788994777288,
+      "promoted": false,
+      "priceOMR": 29,
+      "discount": null,
+      "finalPriceOMR": 29,
+      "createdAt": 1757458777288,
+      "billingPeriod": "/yr",
+      "payment": {
+        "method": "online",
+        "status": "paid"
+      }
+    },
+    {
+      "id": "sub_1757443636929",
+      "serial": "SUB-2025-000007",
+      "userId": "15214",
+      "name": "213",
+      "planId": "free",
+      "state": "active",
+      "startAt": 1757443636923,
+      "endAt": 1760035636923,
+      "promoted": false,
+      "priceOMR": 0,
+      "discount": null,
+      "finalPriceOMR": 0,
+      "createdAt": 1757443636929,
+      "billingPeriod": "/mo",
+      "payment": {
+        "method": "online",
+        "status": "paid"
+      }
+    },
+    {
+      "id": "sub_1757413186127",
+      "serial": "SUB-2025-000006",
+      "userId": "15214",
+      "name": "213",
+      "planId": "free",
+      "state": "active",
+      "startAt": 1757413186127,
+      "endAt": 1760005186127,
+      "promoted": false,
+      "priceOMR": 0,
+      "discount": null,
+      "finalPriceOMR": 0,
+      "createdAt": 1757413186127,
+      "billingPeriod": "/mo",
+      "payment": {
+        "method": "online",
+        "status": "paid"
+      }
+    },
+    {
+      "id": "sub_1757412070746",
+      "serial": "SUB-2025-000005",
+      "userId": "15214",
+      "name": "213",
+      "planId": "free",
+      "state": "active",
+      "startAt": 1757412070746,
+      "endAt": 1760004070746,
+      "promoted": false,
+      "priceOMR": 0,
+      "discount": null,
+      "finalPriceOMR": 0,
+      "createdAt": 1757412070746,
+      "billingPeriod": "/mo",
+      "payment": {
+        "method": "online",
+        "status": "paid"
+      }
+    },
+    {
+      "id": "sub_1757285426214",
+      "serial": "SUB-2025-000004",
+      "userId": "545",
+      "name": "564",
+      "planId": "free",
+      "state": "active",
+      "startAt": 1757285426214,
+      "endAt": 1759877426214,
+      "promoted": false,
+      "priceOMR": 0,
+      "discount": null,
+      "finalPriceOMR": 0,
+      "createdAt": 1757285426214,
+      "billingPeriod": "/mo",
+      "payment": {
+        "method": "online",
+        "status": "paid"
+      }
+    },
+    {
+      "id": "sub_1757284561907",
+      "serial": "SUB-2025-000003",
+      "userId": "212",
+      "name": "32",
+      "planId": "pro",
+      "state": "active",
+      "startAt": 1757284561907,
+      "endAt": 1759876561907,
+      "promoted": false,
+      "priceOMR": 9.9,
+      "discount": null,
+      "finalPriceOMR": 9.9,
+      "createdAt": 1757284561907,
+      "billingPeriod": "/mo",
+      "payment": {
+        "method": "online",
+        "status": "paid"
+      }
+    },
+    {
+      "id": "sub_1757284408024",
+      "serial": "SUB-2025-000002",
+      "userId": "212",
+      "name": "32",
+      "planId": "free",
+      "state": "active",
+      "startAt": 1757284408023,
+      "endAt": 1759876408023,
+      "promoted": false,
+      "priceOMR": 0,
+      "discount": null,
+      "finalPriceOMR": 0,
+      "createdAt": 1757284408024,
+      "billingPeriod": "/mo",
+      "payment": {
+        "method": "online",
+        "status": "paid"
+      }
+    },
+    {
+      "id": "sub_1757284038008",
+      "serial": "SUB-2025-000001",
+      "userId": "212",
+      "name": "32",
+      "planId": "free",
+      "state": "active",
+      "startAt": 1757284038008,
+      "endAt": 1759876038008,
+      "promoted": false,
+      "priceOMR": 0,
+      "discount": null,
+      "finalPriceOMR": 0,
+      "createdAt": 1757284038009,
+      "billingPeriod": "/mo",
+      "payment": {
+        "method": "online",
+        "status": "paid"
+      }
+    }
+  ]
 }

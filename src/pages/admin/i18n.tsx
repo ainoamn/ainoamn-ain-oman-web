@@ -9,7 +9,6 @@ type Lang = string;
 type Dict = Record<string, string>;
 type Dicts = Record<Lang, Dict>;
 type Meta = Record<string, { hint?: string; icon?: string; route?: string; visible?: boolean }>;
-
 type Data = { langs: Lang[]; keys: string[]; dicts: Dicts; meta?: Meta; };
 
 const inpt: React.CSSProperties = { width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb", background: "#fff" };
@@ -17,17 +16,43 @@ const th:   React.CSSProperties = { position: "sticky", top: 0, background: "#f8
 const td:   React.CSSProperties = { padding: 8, verticalAlign: "top", borderBottom: "1px solid #f1f5f9", background: "#fff" };
 const btn:  React.CSSProperties = { padding: "8px 12px", borderRadius: 8, border: "1px solid #e5e7eb", background: "#fff" };
 
+/* نص آمن */
 function str(v: unknown): string {
   if (v == null) return "";
   if (typeof v === "string" || typeof v === "number" || typeof v === "boolean") return String(v);
   try { return JSON.stringify(v); } catch { return ""; }
 }
+
+/* دمج المفاتيح */
 function mergeKeys(dicts: Dicts): string[] {
   const s = new Set<string>();
   for (const d of Object.values(dicts)) Object.keys(d || {}).forEach(k => s.add(k));
   return Array.from(s).sort();
 }
 
+/* JSON tolerant: يزيل BOM + التعليقات + الفواصل الزائدة */
+function parseJsonLoose(txt: string) {
+  if (txt.charCodeAt(0) === 0xfeff) txt = txt.slice(1);
+  txt = txt.replace(/^\s*\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  txt = txt.replace(/,(\s*[}\]])/g, "$1");
+  return JSON.parse(txt);
+}
+
+/* تسطيح كائنات اللغة إلى مفاتيح dot */
+function flatten(obj: any, p = ""): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(obj || {})) {
+    const nk = p ? `${p}.${k}` : k;
+    if (v && typeof v === "object" && !Array.isArray(v)) {
+      Object.assign(out, flatten(v, nk));
+    } else {
+      out[nk] = str(v);
+    }
+  }
+  return out;
+}
+
+/* قراءة من API أو من الثابت */
 async function fetchAll(): Promise<Data | null> {
   try {
     const r = await fetch("/api/i18n/all").then(r => r.ok ? r.json() : null).catch(() => null);
@@ -43,6 +68,7 @@ async function fetchAll(): Promise<Data | null> {
   return null;
 }
 
+/* بناء احتياطي */
 function buildFromStatic(): Data {
   const dicts: Dicts = {};
   const src = (CORE_DICTS ?? {}) as Record<string, Dict>;
@@ -59,12 +85,7 @@ export default function AdminI18nPage() {
   const [newKey, setNewKey] = useState("");
   const [addingLang, setAddingLang] = useState("");
 
-  useEffect(() => {
-    (async () => {
-      const remote = await fetchAll();
-      setData(remote ?? buildFromStatic());
-    })();
-  }, []);
+  useEffect(() => { (async () => setData((await fetchAll()) ?? buildFromStatic()))(); }, []);
 
   const filteredKeys = useMemo(() => {
     if (!data) return [];
@@ -92,7 +113,6 @@ export default function AdminI18nPage() {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: value, source: srcLang, targets, provider: mtProvider })
     }).then(r => r.json()).catch(() => null as any);
-
     if (r?.translations) {
       setData(d0 => {
         const copy = structuredClone(d0!);
@@ -164,10 +184,19 @@ export default function AdminI18nPage() {
     for (const [l, d] of Object.entries(payload.dicts)) {
       for (const [k, v] of Object.entries(d)) (payload.dicts[l] as any)[k] = str(v);
     }
-    const ok = await fetch("/api/i18n/save", {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
-    }).then(r => r.ok).catch(() => false);
-    alert(ok ? "تم الحفظ" : "فشل الحفظ");
+    try {
+      const r = await fetch("/api/i18n/save", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+      });
+      if (!r.ok) {
+        const j = await r.json().catch(() => ({}));
+        alert("فشل الحفظ" + (j?.error ? `: ${j.error}` : ""));
+      } else {
+        alert("تم الحفظ");
+      }
+    } catch (e: any) {
+      alert("فشل الحفظ: " + (e?.message || "network_error"));
+    }
   };
 
   const exportAs = async (format: "json" | "csv" | "xlsx") => {
@@ -193,34 +222,76 @@ export default function AdminI18nPage() {
     downloadBlob(new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), "i18n.xlsx");
   };
 
-  const onImportFile = async (f: File) => {
-    const name = f.name.toLowerCase();
-    if (name.endsWith(".json")) {
-      const txt = await f.text();
-      const parsed = JSON.parse(txt);
+  /* تنزيل قالب الاستيراد */
+  const downloadTemplate = async () => {
+    const fmt = (window.prompt("صيغة القالب؟ اكتب: csv أو xlsx أو json", "csv") || "").toLowerCase() as "csv"|"xlsx"|"json";
+    if (!["csv","xlsx","json"].includes(fmt)) return;
+    const includeKeys = (window.prompt("هل تريد تضمين المفاتيح الحالية؟ اكتب yes أو no", "yes") || "").toLowerCase().startsWith("y");
+
+    const header = ["Key", ...data.langs];
+    const baseRows: string[][] = [header];
+    const rows = includeKeys ? [
+      header,
+      ...data.keys.map(k => [k, ...data.langs.map(() => "")])
+    ] : baseRows;
+
+    if (fmt === "json") {
       const dicts: Dicts = {};
-      for (const [l, d] of Object.entries(parsed.dicts || {})) {
-        dicts[l] = {};
-        for (const [k, v] of Object.entries(d as Dict)) dicts[l][k] = str(v);
-      }
-      const langs = Array.from(new Set([...(parsed.langs || Object.keys(dicts))]));
-      const keys = mergeKeys(dicts);
-      setData({ langs, keys, dicts, meta: data.meta });
-      return;
+      for (const l of data.langs) dicts[l] = {};
+      if (includeKeys) for (const k of data.keys) for (const l of data.langs) dicts[l][k] = "";
+      const json = JSON.stringify({ langs: data.langs, dicts }, null, 2);
+      return downloadBlob(new Blob([json], { type: "application/json" }), "i18n-template.json");
     }
-    if (name.endsWith(".csv")) {
-      const txt = await f.text();
-      const rows = txt.split(/\r?\n/).map(line => line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c => c.replace(/^"|"$/g, "").replace(/""/g, `"`)));
-      return applyRows(rows);
+    if (fmt === "csv") {
+      const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+      return downloadBlob(new Blob([csv], { type: "text/csv;charset=utf-8" }), "i18n-template.csv");
     }
-    const buf = await f.arrayBuffer();
     const mod = await import("xlsx").catch(() => null as any);
     if (!mod) return alert("الرجاء تثبيت الحزمة xlsx");
     const XLSX: any = (mod as any).default ?? mod;
-    const wb = XLSX.read(buf, { type: "array" });
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1 }) as any[][];
-    applyRows(rows);
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+    const out = XLSX.write(wb, { type: "array", bookType: "xlsx" });
+    downloadBlob(new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), "i18n-template.xlsx");
+  };
+
+  const onImportFile = async (f: File) => {
+    const name = f.name.toLowerCase();
+    try {
+      if (name.endsWith(".json")) {
+        const txt = await f.text();
+        const parsed = parseJsonLoose(txt);
+        const langs = Array.from(new Set<string>(parsed.langs || Object.keys(parsed.dicts || {})));
+        const dicts: Dicts = {};
+        for (const l of langs) {
+          const raw = (parsed.dicts || {})[l] || {};
+          dicts[l] = flatten(raw); // دعم JSON متداخل
+        }
+        const keys = mergeKeys(dicts);
+        setData({ langs, keys, dicts, meta: data.meta });
+        return;
+      }
+      if (name.endsWith(".csv")) {
+        const txt = await f.text();
+        const rows = txt
+          .replace(/^\uFEFF/, "")
+          .split(/\r?\n/)
+          .filter(line => line.trim().length > 0)
+          .map(line => line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c => c.replace(/^"|"$/g, "").replace(/""/g, `"`)));
+        return applyRows(rows);
+      }
+      const buf = await f.arrayBuffer();
+      const mod = await import("xlsx").catch(() => null as any);
+      if (!mod) return alert("الرجاء تثبيت الحزمة xlsx");
+      const XLSX: any = (mod as any).default ?? mod;
+      const wb = XLSX.read(buf, { type: "array" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1 }) as any[][];
+      applyRows(rows);
+    } catch (e: any) {
+      alert("فشل الاستيراد: " + (e?.message || "invalid_file"));
+    }
   };
 
   function applyRows(rows: any[][]) {
@@ -282,6 +353,7 @@ export default function AdminI18nPage() {
 
             <div className="flex items-center gap-2 ml-auto">
               <input placeholder="بحث في المفاتيح أو التلميحات" value={filter} onChange={e => setFilter(e.target.value)} style={inpt} />
+              <button style={btn} onClick={downloadTemplate}>تنزيل القالب</button>
               <button style={btn} onClick={() => exportAs("xlsx")}>تصدير XLSX</button>
               <button style={btn} onClick={() => exportAs("csv")}>تصدير CSV</button>
               <button style={btn} onClick={() => exportAs("json")}>تصدير JSON</button>
@@ -301,9 +373,7 @@ export default function AdminI18nPage() {
                 <tr>
                   <th style={{ ...th, left: 0, position: "sticky", zIndex: 2, minWidth: 260, textAlign: "start" }}>Key</th>
                   <th style={th}>Hint</th>
-                  {data.langs.map(l => (
-                    <th key={l} style={th}>{l.toUpperCase()}</th>
-                  ))}
+                  {data.langs.map(l => (<th key={l} style={th}>{l.toUpperCase()}</th>))}
                 </tr>
               </thead>
               <tbody>
@@ -355,7 +425,7 @@ export default function AdminI18nPage() {
             </table>
           </div>
 
-          <div className="text-sm text-gray-500 mt-3">المفاتيح غير المترجمة يظهر إطارها باللون الأحمر.</div>
+          <div className="text-sm text-gray-500 mt-3">صيغة القالب: CSV/XLSX رأسه: <code>Key,{data.langs.join(",")}</code>. JSON: <code>{`{ "langs": [...], "dicts": { "<lang>": { "<key>": "<value>" } } }`}</code>.</div>
         </div>
       </div>
 

@@ -1,19 +1,17 @@
-// src/middleware.ts
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+// middleware.ts
+import { NextResponse, NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-
-  // اسمح بتمرير أي مسار كما هو (خاصة /admin/tasks و /admin/notifications)
-  if (pathname.startsWith("/admin")) {
-    return NextResponse.next();
+  // توحيد صفحة تسجيل الدخول إلى /Login
+  if (pathname.toLowerCase() === "/login" && pathname !== "/Login") {
+    const url = req.nextUrl.clone();
+    url.pathname = "/Login";
+    return NextResponse.redirect(url);
   }
-
-  // بالنسبة لباقي الموقع: لا تغييرات
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*"], // فعّل الميدل وير على مسارات الإدارة فقط
+  matcher: ["/login", "/Login"],
 };

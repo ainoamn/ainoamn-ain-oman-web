@@ -1,47 +1,44 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { access, mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
-import type { Role } from "@/lib/rbac";
 
-const DATA = path.join(process.cwd(), ".data");
-const OTPF = path.join(DATA, "otp.json");
-const USERS = path.join(DATA, "users.json");
-const DEFAULT_ROLE: Role = "individual_tenant";
+type Success = {
+  id: string;
+  name: string;
+  role: string;
+  features: string[];
+};
+type Err = { error: string };
 
-async function ensure(){ try{await access(DATA)}catch{await mkdir(DATA,{recursive:true})}
-  for(const f of [OTPF,USERS]){ try{await access(f)}catch{await writeFile(f, JSON.stringify({items:[]},null,2), "utf8")} } }
-async function readJSON(p:string){ const raw=await readFile(p,"utf8").catch(()=> '{"items":[]}'); return JSON.parse(raw||'{"items":[]}'); }
-async function writeJSON(p:string,d:any){ await writeFile(p, JSON.stringify(d,null,2), "utf8"); }
+const DEV_PHONE = "95655200";
+const DEV_OTP = "1989";
 
-export default async function handler(req:NextApiRequest,res:NextApiResponse){
-  await ensure();
-  if(req.method!=="POST"){ res.setHeader("Allow","POST"); return res.status(405).json({error:"Method Not Allowed"}); }
-  const { phone, code, name } = req.body as { phone?:string; code?:string; name?:string };
-  if(!phone || !code) return res.status(400).json({ error:"phone and code required" });
+function onlyDigits(s: string) {
+  return (s || "").replace(/\D+/g, "");
+}
 
-  const otp = await readJSON(OTPF);
-  const row = (otp.items||[]).find((x:any)=> x.phone===phone && x.code===code);
-  if(!row) return res.status(400).json({ error:"invalid_code" });
-  if(Number(row.expiresAt) < Date.now()) return res.status(400).json({ error:"expired" });
+export default async function handler(req: NextApiRequest, res: NextApiResponse<Success | Err>) {
+  if (req.method !== "POST") return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
 
-  const id = `wa:${phone}`;
-  const users = await readJSON(USERS);
-  const i = (users.items||[]).findIndex((x:any)=> x.id===id);
-  if(i===-1){
-    users.items=[{ id, name: name||phone, role: DEFAULT_ROLE, status:"active", createdAt: Date.now() }, ...(users.items||[])];
-  }else{
-    users.items[i] = { ...users.items[i], name: name||users.items[i].name };
+  try {
+    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+    const phone = onlyDigits(String(body?.phone || ""));
+    const code = onlyDigits(String(body?.code || ""));
+    const name = String(body?.name || phone);
+    const role = String(body?.role || "individual_tenant");
+
+    // وضع تجريبي ثابت
+    if (phone === DEV_PHONE && code === DEV_OTP) {
+      return res.status(200).json({
+        id: `u-${DEV_PHONE}`,
+        name: name || "مستخدم تجريبي",
+        role,
+        features: ["DASHBOARD_ACCESS", "CREATE_AUCTION"],
+      });
+    }
+
+    // تحقق فعلي (اختياري): قارن بالكود المخزن لديك
+    // إذا لم تكن بنية التحقق متوفرة، ارفض
+    return res.status(401).json({ error: "INVALID_OTP" });
+  } catch (e: any) {
+    return res.status(500).json({ error: "SERVER_ERROR" });
   }
-  await writeJSON(USERS, users);
-
-  otp.items = (otp.items||[]).filter((x:any)=> !(x.phone===phone && x.code===code));
-  await writeJSON(OTPF, otp);
-
-  const u = (users.items||[]).find((x:any)=> x.id===id)!;
-  res.setHeader("Set-Cookie", [
-    `uid=${encodeURIComponent(u.id)}; Path=/; SameSite=Lax`,
-    `uname=${encodeURIComponent(u.name)}; Path=/; SameSite=Lax`,
-    `urole=${encodeURIComponent(u.role as Role)}; Path=/; SameSite=Lax`,
-  ]);
-  return res.status(200).json({ ok:true, user:{ id:u.id, name:u.name, role:u.role as Role } });
 }

@@ -1,95 +1,150 @@
 // src/lib/i18n.tsx
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import type { NextRouter } from "next/router";
-
 import ar from "@/locales/ar.json";
 import en from "@/locales/en.json";
-import fr from "@/locales/fr.json";
-import hi from "@/locales/hi.json";
-import fa from "@/locales/fa.json";
-import ur from "@/locales/ur.json";
 
-export type Lang = "ar" | "en" | "fr" | "hi" | "fa" | "ur";
-export type Dict = Record<string, string>;
+type Lang = "ar" | "en";
+type Dict = Record<string, string>;
 type Dir = "rtl" | "ltr";
 
-// اجعل العربية افتراضيًا وصدّر القواميس
-export const DICTS: Record<Lang, Dict> = { ar, en, fr, hi, fa, ur };
-export const SUPPORTED_LANGS: Lang[] = ["ar", "en", "fr", "hi", "fa", "ur"];
-const RTL_SET = new Set<Lang>(["ar", "fa", "ur"]);
+const DICTS: Record<Lang, Dict> = { ar, en };
+const RTL = new Set<Lang>(["ar"]);
 
-export const isRTL = (l: string) => RTL_SET.has(l as Lang);
-export const dirOf = (l: string): Dir => (isRTL(l) ? "rtl" : "ltr");
+export const isRTL = (l: string) => RTL.has((l || "ar").slice(0, 2) as Lang);
+const dirOf = (l: Lang): Dir => (RTL.has(l) ? "rtl" : "ltr");
+const norm = (v?: string | null): Lang => (String(v || "").toLowerCase().startsWith("ar") ? "ar" : "en");
 
-export function norm(v?: string | null): Lang {
-  const x = String(v || "").toLowerCase();
-  if (x.startsWith("ar")) return "ar";
-  if (x.startsWith("fa")) return "fa";
-  if (x.startsWith("ur")) return "ur";
-  if (x.startsWith("fr")) return "fr";
-  if (x.startsWith("hi")) return "hi";
-  return "en";
-}
-
-function look(d: Dict | undefined, k: string) { return d ? d[k] : undefined; }
 function fmt(s: string, vars?: Record<string, string | number>) {
   if (!vars) return s;
   return s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] != null ? String(vars[k]) : `{${k}}`));
 }
-export function t(dict: Dict, key: string, vars?: Record<string, string | number>) {
-  const v = look(dict, key); if (v != null) return fmt(v, vars);
-  const enF = look(DICTS.en, key); if (enF != null) return fmt(enF, vars);
-  const arF = look(DICTS.ar, key); if (arF != null) return fmt(arF, vars);
-  return key;
+
+// ---------- Overrides + Missing logger (اختياري لكنه مفيد) ----------
+let missingBuffer: Set<string> | null = null;
+let flushTimer: any = null;
+
+async function fetchOverrides(lang: string): Promise<Dict> {
+  try {
+    const r = await fetch(`/api/i18n/overrides?lang=${lang}`);
+    const j = await r.json();
+    return j?.entries || {};
+  } catch {
+    return {};
+  }
+}
+function reportMissing(lang: string, key: string) {
+  if (typeof window === "undefined") return;
+  missingBuffer ||= new Set<string>();
+  const tag = `${lang}:${key}`;
+  if (missingBuffer.has(tag)) return;
+  missingBuffer.add(tag);
+  clearTimeout(flushTimer);
+  flushTimer = setTimeout(() => {
+    const items = Array.from(missingBuffer || []);
+    missingBuffer = new Set<string>();
+    try {
+      navigator.sendBeacon?.(
+        "/api/i18n/missing",
+        new Blob([JSON.stringify({ items })], { type: "application/json" })
+      ) ||
+        fetch("/api/i18n/missing", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items }),
+        });
+    } catch {}
+  }, 400);
 }
 
-// دعم المكوّنات القديمة
-export function getT(router?: Partial<NextRouter> | { locale?: string } | string | null) {
-  const lang = typeof router === "string" ? norm(router) : norm((router as any)?.locale) || "ar";
-  const dict = DICTS[lang];
-  return (k: string, vars?: Record<string, string | number>) => t(dict, k, vars);
-}
-
-type Ctx = { lang: Lang; dir: Dir; setLang: (l: Lang) => void; tt: (k: string, v?: Record<string, string|number>) => string; supported: Lang[]; };
+// ---------- React context ----------
+type Ctx = {
+  lang: Lang;
+  dir: Dir;
+  setLang: (l: Lang) => void;
+  t: (key: string, fallback?: string, vars?: Record<string, string | number>) => string;
+};
 const I18nContext = createContext<Ctx | null>(null);
 
-export function I18nProvider({ children, initialLang }: { children: React.ReactNode; initialLang?: Lang | string; }) {
-  const [lang, setLangState] = useState<Lang>(norm(initialLang || "ar"));
-  const dir = dirOf(lang);
+export function I18nProvider({
+  children,
+  initialLang,
+}: {
+  children: React.ReactNode;
+  initialLang?: string;
+}) {
+  const initial =
+    norm(
+      initialLang ||
+        (typeof window !== "undefined" ? window.localStorage.getItem("locale") : "ar")
+    ) || "ar";
 
-  const setLang = (l: Lang) => {
-    const n = norm(l);
-    setLangState(n);
-    if (typeof window !== "undefined") localStorage.setItem("locale", n);
-  };
+  const [lang, setLangState] = useState<Lang>(initial);
+  const [over, setOver] = useState<Dict>({});
+
+  useEffect(() => {
+    (async () => setOver(await fetchOverrides(lang)))();
+  }, [lang]);
 
   useEffect(() => {
     if (typeof document !== "undefined") {
-      document.documentElement.setAttribute("lang", lang);
-      document.documentElement.setAttribute("dir", dir);
+      document.documentElement.lang = lang;
+      document.documentElement.dir = dirOf(lang);
+      localStorage.setItem("locale", lang);
     }
-  }, [lang, dir]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const fromUrl = new URLSearchParams(window.location.search).get("lang");
-    const stored = localStorage.getItem("locale");
-    const cand = norm(fromUrl || stored || lang);
-    if (cand !== lang) setLang(cand);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const tt = useMemo(() => {
-    const d = DICTS[lang];
-    return (k: string, v?: Record<string, string|number>) => t(d, k, v);
   }, [lang]);
 
-  const value: Ctx = useMemo(() => ({ lang, dir, setLang, tt, supported: SUPPORTED_LANGS }), [lang, dir, tt]);
+  const t = useMemo(() => {
+    return (key: string, fallback?: string, vars?: Record<string, string | number>) => {
+      // 1) overrides
+      if (over && over[key] != null) return fmt(over[key], vars);
+      // 2) القاموس الحالي
+      const cur = DICTS[lang]?.[key];
+      if (cur != null) return fmt(cur, vars);
+      // 3) الإنكليزية كاحتياط
+      const enVal = DICTS.en[key];
+      if (enVal != null) return fmt(enVal, vars);
+      // 4) fallback أو المفتاح نفسه + تسجيل مفقود
+      reportMissing(lang, key);
+      return fmt(fallback || key, vars);
+    };
+  }, [lang, over]);
+
+  const value: Ctx = useMemo(
+    () => ({
+      lang,
+      dir: dirOf(lang),
+      setLang: (l) => setLangState(norm(l)),
+      t,
+    }),
+    [lang, t]
+  );
+
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
 export function useI18n() {
   const ctx = useContext(I18nContext);
-  if (!ctx) throw new Error("useI18n must be used within I18nProvider.");
+  if (!ctx) throw new Error("useI18n must be used within I18nProvider");
   return ctx;
 }
+
+// ---------- getT للاستخدامات القديمة (Header.tsx وغيرها) ----------
+export function getT(router?: { locale?: string } | string | null) {
+  let l: Lang = "ar";
+  if (typeof router === "string") l = norm(router);
+  else if (router && typeof (router as any).locale === "string") l = norm((router as any).locale);
+  else if (typeof window !== "undefined" && localStorage.getItem("locale"))
+    l = norm(localStorage.getItem("locale"));
+
+  const dict = DICTS[l] || DICTS.ar;
+  return (key: string, fallback?: string, vars?: Record<string, string | number>) => {
+    const cur = dict[key];
+    if (cur != null) return fmt(cur, vars);
+    const enVal = DICTS.en[key];
+    if (enVal != null) return fmt(enVal, vars);
+    return fmt(fallback || key, vars);
+  };
+}
+
+// دعم import getT كافتراضي أيضًا
+export default getT;

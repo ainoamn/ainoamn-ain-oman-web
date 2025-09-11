@@ -1,76 +1,128 @@
+// src/pages/manage-properties/index.tsx
 import Head from "next/head";
-    import Header from "@/components/layout/Header";
-    import Footer from "@/components/layout/Footer";
-    import { useI18n } from "@/lib/i18n";
-    import React from "react";
-    import Link from "next/link";
-import { useMemo, useState } from "react";
-type Item = { id:string; title:string; status:"draft"|"published"|"archived"; views:number; created:string; };
-const ITEMS: Item[] = [
-  {"id":"PR-1001","title":"شقة جديدة في مسقط","status":"published","views":234,"created":"2025-08-01"},
-  {"id":"PR-1002","title":"أرض سكنية في السيب","status":"draft","views":11,"created":"2025-08-06"},
-  {"id":"PR-1003","title":"فيلا فاخرة بالخوض","status":"archived","views":980,"created":"2025-07-22"},
-];
-export function Content(){
-  const [f,setF]=useState("all");
-  const list = useMemo(()=> ITEMS.filter(i=> f==="all"?true:i.status===f),[f]);
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import Layout from "@/components/layout/Layout";
+
+type Item = {
+  id: string;
+  referenceNo?: string;
+  title?: { ar?: string; en?: string };
+  priceOMR?: number;
+  province?: string; state?: string; village?: string;
+  published?: boolean;
+  createdAt?: string;
+  status?: "vacant" | "reserved" | "leased" | "hidden" | "draft";
+};
+
+export default function ManageProperties() {
+  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch("/api/properties")
+      .then((r) => r.json())
+      .then((d) => setItems(Array.isArray(d?.items) ? d.items : []))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const togglePublish = async (id: string, published: boolean) => {
+    const cur = items.find((x) => x.id === id);
+    if (!cur) return;
+    const r = await fetch(`/api/properties/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...cur, published: !published }),
+    });
+    if (r.ok) {
+      setItems((prev) => prev.map((x) => (x.id === id ? { ...x, published: !published } : x)));
+    }
+  };
+
+  const getStatusText = (status: string | undefined) => {
+    switch (status) {
+      case "vacant": return "شاغر";
+      case "reserved": return "محجوز";
+      case "leased": return "مؤجر";
+      case "hidden": return "مخفي";
+      case "draft": return "مسودة";
+      default: return "غير معروف";
+    }
+  };
+
+  const getStatusColor = (status: string | undefined) => {
+    switch (status) {
+      case "vacant": return "bg-green-100 text-green-800";
+      case "reserved": return "bg-blue-100 text-blue-800";
+      case "leased": return "bg-purple-100 text-purple-800";
+      case "hidden": return "bg-gray-100 text-gray-800";
+      case "draft": return "bg-yellow-100 text-yellow-800";
+      default: return "bg-gray-100 text-gray-800";
+    }
+  };
+
   return (
-    <section className="py-8">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-slate-900">إدارة العقارات</h1>
-          <div className="flex items-center gap-3">
-            <select value={f} onChange={e=>setF(e.target.value)} className="rounded-xl border px-3 py-2 text-sm">
-              <option value="all">الكل</option><option value="published">منشور</option><option value="draft">مسودة</option><option value="archived">مؤرشف</option>
-            </select>
-            <Link href="/properties/add" className="rounded-2xl bg-teal-600 text-white px-4 py-2 text-sm font-semibold">إضافة عقار</Link>
+    <Layout>
+      <Head><title>إدارة عقاراتي | Ain Oman</title></Head>
+      <main className="min-h-screen bg-slate-50">
+        <div className="mx-auto max-w-7xl px-4 py-8">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold">لوحة إدارة عقاراتي</h1>
+            <Link href="/properties/new" className="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700">+ إضافة عقار</Link>
           </div>
+
+          {loading ? (
+            <div className="text-gray-500">جارِ التحميل...</div>
+          ) : (
+            <div className="overflow-x-auto bg-white border border-gray-200 rounded-2xl">
+              <table className="min-w-full text-sm">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="p-3 text-right">المرجع</th>
+                    <th className="p-3 text-right">العنوان</th>
+                    <th className="p-3 text-right">الموقع</th>
+                    <th className="p-3 text-right">السعر (OMR)</th>
+                    <th className="p-3 text-right">الحالة</th>
+                    <th className="p-3 text-right">حالة النشر</th>
+                    <th className="p-3 text-right">الإجراء</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((p) => (
+                    <tr key={p.id} className="border-t">
+                      <td className="p-3 whitespace-nowrap">{p.referenceNo || "—"}</td>
+                      <td className="p-3">{p.title?.ar || p.title?.en || `#${p.id}`}</td>
+                      <td className="p-3 text-gray-600">{[p.province, p.state, p.village].filter(Boolean).join(" - ")}</td>
+                      <td className="p-3">{typeof p.priceOMR === "number" ? p.priceOMR.toFixed(3) : "—"}</td>
+                      <td className="p-3">
+                        <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(p.status)}`}>
+                          {getStatusText(p.status)}
+                        </span>
+                      </td>
+                      <td className="p-3">{p.published ? "منشور" : "مسودة"}</td>
+                      <td className="p-3 space-x-2 space-x-reverse">
+                        <Link href={`/properties/new?edit=${encodeURIComponent(p.id)}`} className="px-3 py-1 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+                          تحرير
+                        </Link>
+                        <button onClick={() => togglePublish(p.id, !!p.published)} className="px-3 py-1 rounded-lg bg-slate-700 text-white hover:bg-slate-800">
+                          {p.published ? "إلغاء النشر" : "نشر"}
+                        </button>
+                        <Link href={`/properties/${encodeURIComponent(p.id)}`} className="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">
+                          عرض
+                        </Link>
+                        <Link href={`/properties/${encodeURIComponent(p.id)}/bookings`} className="px-3 py-1 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">
+                          الحجوزات
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full rounded-2xl overflow-hidden border bg-white">
-            <thead className="bg-slate-100"><tr>
-              <th className="px-3 py-2 text-start text-sm">المعرف</th>
-              <th className="px-3 py-2 text-start text-sm">العنوان</th>
-              <th className="px-3 py-2 text-start text-sm">الحالة</th>
-              <th className="px-3 py-2 text-start text-sm">الزيارات</th>
-              <th className="px-3 py-2 text-start text-sm">أضيف في</th>
-              <th className="px-3 py-2 text-start text-sm">إجراءات</th>
-            </tr></thead>
-            <tbody>
-              {list.map(i => (
-                <tr key={i.id} className="border-t">
-                  <td className="px-3 py-2 text-sm">{i.id}</td>
-                  <td className="px-3 py-2 text-sm">{i.title}</td>
-                  <td className="px-3 py-2 text-sm">{i.status==="published"?"منشور":i.status==="draft"?"مسودة":"مؤرشف"}</td>
-                  <td className="px-3 py-2 text-sm">{i.views}</td>
-                  <td className="px-3 py-2 text-sm">{i.created}</td>
-                  <td className="px-3 py-2 text-sm">
-                    <div className="flex gap-2">
-                      <button className="rounded-lg border px-2 py-1 text-xs">تعديل</button>
-                      <button className="rounded-lg border px-2 py-1 text-xs">نشر</button>
-                      <button className="rounded-lg border px-2 py-1 text-xs">أرشفة</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+      </main>
+    </Layout>
   );
 }
-
-    export default function Page() {
-      const { dir } = useI18n();
-      return (
-        <main dir={dir} className="min-h-screen bg-slate-50 flex flex-col">
-          <Head><title>إدارة العقارات | Ain Oman</title></Head>
-          <Header />
-          <div className="flex-1">
-            <Content />
-          </div>
-          <Footer />
-        </main>
-      );
-    }

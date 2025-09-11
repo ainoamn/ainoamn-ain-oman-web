@@ -1,29 +1,32 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { access, mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
 
-const DATA = path.join(process.cwd(), ".data");
-const OTPF = path.join(DATA, "otp.json");
+type Ok = { ok: true; demo?: boolean; demoCode?: string };
+type Err = { error: string };
 
-async function ensure() {
-  try { await access(DATA); } catch { await mkdir(DATA, { recursive: true }); }
-  try { await access(OTPF); } catch { await writeFile(OTPF, JSON.stringify({ items: [] }, null, 2), "utf8"); }
+const DEV_PHONE = "95655200";
+const DEV_OTP = "1989";
+
+function onlyDigits(s: string) {
+  return (s || "").replace(/\D+/g, "");
 }
-async function readDB() { const raw = await readFile(OTPF, "utf8").catch(()=> '{"items":[]}'); return JSON.parse(raw||'{"items":[]}'); }
-async function writeDB(d:any){ await writeFile(OTPF, JSON.stringify(d,null,2), "utf8"); }
 
-export default async function handler(req:NextApiRequest,res:NextApiResponse){
-  await ensure();
-  if(req.method!=="POST"){ res.setHeader("Allow","POST"); return res.status(405).json({error:"Method Not Allowed"}); }
-  const { phone } = req.body as { phone?:string };
-  if(!phone) return res.status(400).json({ error:"phone required" });
-  const code = String(Math.floor(100000 + Math.random()*900000));
-  const exp = Date.now() + 5*60*1000;
+export default async function handler(req: NextApiRequest, res: NextApiResponse<Ok | Err>) {
+  if (req.method !== "POST") return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
 
-  const db = await readDB();
-  db.items = [{ phone, code, expiresAt: exp }, ...(db.items||[]).filter((x:any)=> x.phone!==phone)];
-  await writeDB(db);
+  try {
+    const { phone } = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+    const p = onlyDigits(String(phone || ""));
+    if (!p) return res.status(400).json({ error: "PHONE_REQUIRED" });
 
-  // TODO: ربط واتساب API لإرسال الكود فعليًا
-  return res.status(200).json({ ok:true, demoCode: code });
+    // وضع تجريبي ثابت: الرقم 95655200 يطلق OTP = 1989
+    if (p === DEV_PHONE) {
+      return res.status(200).json({ ok: true, demo: true, demoCode: DEV_OTP });
+    }
+
+    // إنتاج فعلي (اختياري): هنا ترسل OTP عبر مزود حقيقي
+    // سنعيد نجاحًا عامًا دون كشف الكود
+    return res.status(200).json({ ok: true });
+  } catch (e: any) {
+    return res.status(500).json({ error: "SERVER_ERROR" });
+  }
 }

@@ -3,11 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* أساسيات بسيطة حتى بدون Tailwind تعمل */
+/* أساسيات */
 :root { --brand-700:#0f766e; }
 html,body { margin:0; padding:0; }
 .brand-bg { background: linear-gradient(90deg, #0d9488, #0ea5a3); }
-
 
 /* ===== Theme Tokens ===== */
 :root {
@@ -17,13 +16,19 @@ html,body { margin:0; padding:0; }
   --brand-300: #73e6de;
   --brand-400: #4cd9d1;
   --brand-500: #26ccc3;
-  --brand-600: #0d9488;
-  --brand-700: #0f766e;
-  --brand-800: #115e59;
+  --brand-600: #0d9488;     /* سيُحدَّث من الهيدر */
+  --brand-700: #0f766e;     /* سيُحدَّث من الهيدر */
+  --brand-800: #115e59;     /* سيُحدَّث من الهيدر */
   --brand-900: #134e4a;
 
   --vanilla: #FAF9F6;
   --font-ui: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Cairo", "Tajawal", "Noto Kufi Arabic", "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+
+  /* أزرار وروابط معتمدة على العلامة */
+  --btn-bg: var(--brand-700);
+  --btn-bg-hover: var(--brand-800);
+  --btn-text: #ffffff;
+  --ring-color: color-mix(in oklab, var(--brand-700) 55%, white);
 }
 
 html { font-family: var(--font-ui); }
@@ -33,7 +38,7 @@ body {
   transition: background-color .3s ease, color .3s ease;
 }
 
-/* الوضع الداكن: يمكن تعديل بعض الدرجات إذا رغبت */
+/* الوضع الداكن */
 .dark {
   --brand-600: #0d9488;
   --brand-700: #138079;
@@ -46,7 +51,6 @@ body {
 .brand-text  { color: #fff !important; }
 .page-vanilla{ background-color: var(--vanilla) !important; }
 
-/* زخرفة خفيفة */
 .vanilla-pattern {
   background-color: var(--vanilla);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath fill='%230d9488' fill-opacity='0.06' d='M14 0l2 4 4 2-4 2-2 4-2-4-4-2 4-2 2-4zM0 14l4-2 2-4 2 4 4 2-4 2-2 4-2-4-4-2zM14 28l2-4 4-2-4-2-2-4-2 4-4 2 4 2 2 4zM28 14l-4 2-2 4-2-4-4-2 4-2 2-4 2 4 4 2z'/%3E%3C/svg%3E");
@@ -55,6 +59,7 @@ body {
 }
 .dark .vanilla-pattern { background-image: none; background-color: #0f172a; }
 
+/* طبّق العلامة على عناصر عامة عند الحاجة */
 .brandify :where(.card, .section, .box, .panel, .widget, .btn, button) {
   background-color: var(--brand-600) !important;
   color: #fff !important;
@@ -72,13 +77,14 @@ body {
   background-image: linear-gradient(90deg, var(--brand-700), var(--brand-600));
 }
 
+/* حافظنا على دعم `.brand-scope .btn-primary` إن وُجد */
 .brand-scope .btn-primary{
-  background: var(--brand-700);
-  color: #fff;
+  background: var(--btn-bg);
+  color: var(--btn-text);
   border-radius: .8rem;
   padding: .65rem 1.1rem;
 }
-.brand-scope .btn-primary:hover{ background: var(--brand-800); }
+.brand-scope .btn-primary:hover{ background: var(--btn-bg-hover); }
 
 .vanilla-none{ background-image: none !important; }
 
@@ -93,10 +99,21 @@ a{ transition: color .15s ease, background-color .15s ease, opacity .15s ease; }
 .panel-muted { @apply border rounded-xl p-3 bg-gray-50 dark:bg-gray-800 dark:border-gray-700; }
 .section-title { @apply text-xl font-semibold mb-3 text-gray-900 dark:text-white; }
 
-/* Buttons */
-.btn { @apply inline-flex items-center gap-2 border rounded-lg px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors; }
-.btn-primary { @apply bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-800 dark:border-emerald-800; }
+/* === Buttons: اجعلها تعتمد المتغيّرات بدل ألوان ثابتة === */
+.btn { @apply inline-flex items-center gap-2 border rounded-lg px-3 py-2 text-sm transition-colors; }
+.btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border-color: color-mix(in oklab, var(--btn-bg) 80%, black);
+}
+.btn-primary:hover { background: var(--btn-bg-hover); }
 .btn-danger { @apply border-red-500 text-red-600 hover:bg-red-50 dark:border-red-600 dark:text-red-400 dark:hover:bg-red-900/20; }
+.btn-secondary {
+  background: color-mix(in oklab, var(--btn-bg) 12%, white);
+  color: #111827;
+  border-color: color-mix(in oklab, var(--btn-bg) 30%, #e5e7eb);
+}
+.btn:focus{ outline:2px solid var(--ring-color); outline-offset:2px; }
 
 /* Badges */
 .badge { @apply text-xs px-2 py-1 rounded-full border inline-block; }
@@ -109,15 +126,13 @@ a{ transition: color .15s ease, background-color .15s ease, opacity .15s ease; }
 .badge-selling   { @apply bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800; }
 .badge-delivered { @apply bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800; }
 
-/* ===== Dark mode inputs ===== */
+/* Dark mode inputs */
 .dark input,
 .dark select,
 .dark textarea { @apply bg-gray-800 border-gray-700 text-white; }
-
-/* كان سبب الخطأ هنا: هذه المرافق الآن موجودة بعد تعريف لوحة brand في tailwind.config.js */
 .dark input:focus,
 .dark select:focus,
-.dark textarea:focus { @apply border-brand-600 ring-brand-500; }
+.dark textarea:focus { @apply ring-2; box-shadow: 0 0 0 3px var(--ring-color); }
 
 /* Tables (dark) */
 .dark table { @apply text-gray-300; }
@@ -127,25 +142,29 @@ a{ transition: color .15s ease, background-color .15s ease, opacity .15s ease; }
 
 /* Nav (dark) */
 .dark .nav-link { @apply text-gray-300 hover:text-white hover:bg-gray-800; }
-.dark .nav-link.active { @apply bg-brand-700 text-white; }
+.dark .nav-link.active { background: var(--brand-700); color: #fff; }
 
 /* Cards (dark) */
 .dark .stat-card { @apply bg-gray-900 border-gray-800 text-white; }
 .dark .stat-card h3 { @apply text-gray-400; }
 
-/* Buttons (dark extra) */
-.dark .btn-secondary { @apply bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700 hover:text-white; }
+/* Forms */
+label { @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2; }
+input, select, textarea {
+  @apply w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors;
+}
+input:focus, select:focus, textarea:focus{ outline:2px solid var(--ring-color); outline-offset:2px; }
 
-/* Forms (dark extra) */
-.dark .form-label { @apply text-gray-300; }
-.dark .form-hint { @apply text-gray-500; }
+/* روابط تتبع العلامة بصريًا */
+a { color: color-mix(in oklab, var(--brand-700) 55%, #0a66c2); }
+a:hover { text-decoration: underline; }
 
 /* Header/Footer (dark) */
 .dark .logo-text { @apply text-white; }
 .dark .header { @apply bg-gray-900 border-gray-800; }
 .dark .footer { @apply bg-gray-900 border-gray-800 text-gray-400; }
 
-/* ===== Print ===== */
+/* طباعة */
 @media print {
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   html, body { background: var(--vanilla) !important; }
@@ -159,7 +178,7 @@ a{ transition: color .15s ease, background-color .15s ease, opacity .15s ease; }
   @page { margin: 10mm; }
 }
 
-/* ===== Animations ===== */
+/* Animations */
 .fade-in { animation: fadeIn .3s ease-in-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .slide-in { animation: slideIn .3s ease-out; }
@@ -210,18 +229,384 @@ h1 { @apply text-2xl md:text-3xl; }
 h2 { @apply text-xl md:text-2xl; }
 h3 { @apply text-lg md:text-xl; }
 
-/* Forms */
-label { @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2; }
-input, select, textarea {
-  @apply w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors;
-}
-
-/* Links use brand */
-a { @apply text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 transition-colors; }
-
 /* Badges extra */
 .badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium; }
 .badge-success { @apply badge bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300; }
 .badge-warning { @apply badge bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300; }
 .badge-error   { @apply badge bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300; }
 .badge-info    { @apply badge bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300; }
+
+/* أنماط للوحة التحكم */
+.admin-sidebar { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.2) transparent; }
+.admin-sidebar::-webkit-scrollbar { width: 4px; }
+.admin-sidebar::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+.admin-sidebar::-webkit-scrollbar-track { background: transparent; }
+
+/* تأثيرات */
+.dashboard-widget { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.dashboard-widget:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+
+/* ===== إضافات لوحة التحكم المحسنة ===== */
+
+/* تخصيص التبديل (Toggle Switch) */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* تحسينات للوحة التحكم */
+.dashboard-grid-modern {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-card-modern {
+  background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.stat-card-modern:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.dark .stat-card-modern {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-color: #334155;
+}
+
+/* تحسينات للأزرار */
+.btn-modern {
+  background: linear-gradient(135deg, var(--brand-700) 0%, var(--brand-800) 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(14, 165, 183, 0.2);
+}
+
+/* تأثيرات للبطاقات */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* تخصيص شريط التمرير */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+/* أنيميشن للعناصر */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+/* تخصيص لوحة التحكم */
+.admin-panel-modern {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.dark .admin-panel-modern {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+
+/* تأثيرات للروابط */
+.link-underline {
+  position: relative;
+  text-decoration: none;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background-color: var(--brand-700);
+  transition: width 0.3s ease;
+}
+
+.link-underline:hover::after {
+  width: 100%;
+}
+
+/* أنماط إضافية للوحة التحكم المحسنة */
+.dashboard-widget-modern {
+  @apply border rounded-2xl p-5 bg-white dark:bg-gray-800 shadow-sm transition-all duration-300;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-widget-modern:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.dark .dashboard-widget-modern {
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+/* تخصيص الإحصائيات */
+.stat-value {
+  @apply text-2xl font-bold text-gray-900 dark:text-white;
+}
+
+.stat-label {
+  @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+.stat-change {
+  @apply text-xs font-medium;
+}
+
+.stat-change.positive {
+  @apply text-green-600 dark:text-green-400;
+}
+
+.stat-change.negative {
+  @apply text-red-600 dark:text-red-400;
+}
+
+/* تحسينات للأيقونات */
+.icon-container {
+  @apply p-2 rounded-lg;
+}
+
+.icon-container.blue {
+  @apply bg-blue-100 dark:bg-blue-900/30;
+}
+
+.icon-container.purple {
+  @apply bg-purple-100 dark:bg-purple-900/30;
+}
+
+.icon-container.green {
+  @apply bg-green-100 dark:bg-green-900/30;
+}
+
+.icon-container.yellow {
+  @apply bg-yellow-100 dark:bg-yellow-900/30;
+}
+
+/* تحسينات للوضع الداكن */
+.dark .icon-container.blue {
+  @apply bg-blue-900/30;
+}
+
+.dark .icon-container.purple {
+  @apply bg-purple-900/30;
+}
+
+.dark .icon-container.green {
+  @apply bg-green-900/30;
+}
+
+.dark .icon-container.yellow {
+  @apply bg-yellow-900/30;
+}
+
+/* تخصيص أزرار الأقسام */
+.section-btn {
+  @apply rounded-xl border px-4 py-2.5 text-sm flex items-center gap-2 transition-all;
+}
+
+.section-btn.active {
+  @apply bg-[var(--brand-50,#f0fbfd)] text-[var(--brand-800,#0b8a98)] border-[var(--brand-700,#0ea5b7)] shadow-sm;
+}
+
+.section-btn.inactive {
+  @apply border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800;
+}
+
+/* تخصيص عناصر النشاط */
+.activity-item {
+  @apply flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg;
+}
+
+.activity-icon {
+  @apply p-2 rounded-lg;
+}
+
+.activity-content {
+  @apply flex flex-col;
+}
+
+.activity-title {
+  @apply text-sm font-medium text-gray-900 dark:text-white;
+}
+
+.activity-time {
+  @apply text-xs text-gray-500 dark:text-gray-400;
+}
+
+.activity-status {
+  @apply px-2 py-1 text-xs rounded-full;
+}
+
+/* تخصيص إعدادات التحكم */
+.control-setting {
+  @apply flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg;
+}
+
+.control-label {
+  @apply text-sm text-gray-700 dark:text-gray-300;
+}
+
+/* تحسينات للاستجابة */
+@media (max-width: 768px) {
+  .dashboard-grid-modern {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-card-modern {
+    padding: 1rem;
+  }
+  
+  .section-btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+/* أنماط إضافية لصفحة الاشتراكات */
+.subscription-card {
+  transition: all 0.3s ease;
+}
+
+.subscription-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.recommended-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #0d9488, #0ea5a3);
+  color: white;
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.popular-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  color: white;
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* تأثيرات للزر الرئيسي */
+.btn-primary-gradient {
+  background: linear-gradient(135deg, var(--brand-700) 0%, var(--brand-800) 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary-gradient:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(14, 165, 183, 0.2);
+}
+
+/* تخصيص شريط التمرير */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #475569;
+}

@@ -10,13 +10,20 @@ import UnifiedSearchBar from "../../components/search/UnifiedSearchBar";
 
 type Item = {
   id: number | string;
-  title: string;
-  image: string;
-  priceOMR: number;
-  province: string;
-  state: string;
-  village?: string | null;
+  /** قد تكون string قد تكون {ar,en} */
+  title?: string | { ar?: string; en?: string };
+  description?: string | { ar?: string; en?: string };
+  image?: string; // إن وجدت
+  images?: string[];
+  coverIndex?: number;
+  coverImage?: string;
+
+  priceOMR?: number;
+  province?: string;
+  state?: string;
+  village?: string;
   location?: string;
+
   rating?: number;
   beds?: number;
   baths?: number;
@@ -24,11 +31,12 @@ type Item = {
   type?: "apartment" | "villa" | "land" | "office" | "shop";
   purpose?: "sale" | "rent" | "investment";
   rentalType?: "daily" | "monthly" | "yearly" | null;
+
   promoted?: boolean;
   promotedAt?: string | null;
   createdAt?: string | null;
   amenities?: string[];
-  /** ✅ رقم السيريال المرجعي */
+  /** رقم مرجعي */
   referenceNo?: string;
 };
 
@@ -50,10 +58,24 @@ const LS_KEY = "ao_prop_filters_v2";
 
 function useMounted() {
   const [m, setM] = useState(false);
-  useEffect(() => {
-    setM(true);
-  }, []);
+  useEffect(() => void setM(true), []);
   return m;
+}
+
+/** يحوّل العنوان إلى نص قابل للعرض */
+function titleToText(t?: Item["title"]) {
+  if (!t) return "";
+  if (typeof t === "string") return t;
+  return t.ar || t.en || "";
+}
+/** يجهّز مسار الصورة المعروضة */
+function getCardImage(p: Item) {
+  if (p.coverImage) return p.coverImage;
+  if (Array.isArray(p.images) && p.images.length) {
+    const idx = typeof p.coverIndex === "number" ? p.coverIndex : 0;
+    return p.images[idx] || p.images[0];
+  }
+  return p.image || "";
 }
 
 export default function PropertiesIndexPage() {
@@ -79,6 +101,7 @@ export default function PropertiesIndexPage() {
   const [amenitySet, setAmenitySet] = useState<string[]>([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  // استعادة/حفظ الفلاتر محليًا
   useEffect(() => {
     try {
       const s = JSON.parse(localStorage.getItem(LS_KEY) || "null");
@@ -122,6 +145,7 @@ export default function PropertiesIndexPage() {
     } catch {}
   }, [q, type, purpose, rentalType, province, state, village, minPrice, maxPrice, minArea, maxArea, starSet, amenitySet]);
 
+  // جلب البيانات
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -160,12 +184,12 @@ export default function PropertiesIndexPage() {
     setVillage(s.village || "");
   };
 
-  /** نسخ الرقم المرجعي دون الانتقال لصفحة التفاصيل */
+  /** نسخ الرقم المرجعي */
   const copyRef = (e: React.MouseEvent, ref?: string) => {
     if (!ref) return;
     e.preventDefault();
     e.stopPropagation();
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
+    if (navigator?.clipboard) {
       navigator.clipboard.writeText(ref).then(
         () => alert(`تم نسخ الرقم المرجعي: ${ref}`),
         () => alert(ref)
@@ -175,19 +199,23 @@ export default function PropertiesIndexPage() {
     }
   };
 
+  // تصفية وترتيب
   const filtered = useMemo(() => {
     let list = [...items];
+
     const qq = q.trim().toLowerCase();
-    if (qq)
+    if (qq) {
       list = list.filter((p) => {
-        const t = (p.title ?? "").toLowerCase();
+        const t = titleToText(p.title).toLowerCase();
         const loc = (p.location ?? "").toLowerCase();
         const pr = (p.province ?? "").toLowerCase();
         const st = (p.state ?? "").toLowerCase();
         const vg = (p.village ?? "").toLowerCase();
-        const ref = (p.referenceNo ?? "").toLowerCase(); // ✅ البحث بالسيريال
+        const ref = (p.referenceNo ?? "").toLowerCase();
         return t.includes(qq) || loc.includes(qq) || pr.includes(qq) || st.includes(qq) || vg.includes(qq) || ref.includes(qq);
       });
+    }
+
     if (type) list = list.filter((p) => p.type === type);
     if (purpose) list = list.filter((p) => p.purpose === purpose);
     if (rentalType) list = list.filter((p) => p.rentalType === rentalType);
@@ -202,20 +230,26 @@ export default function PropertiesIndexPage() {
     if (amenitySet.length) list = list.filter((p) => amenitySet.every((x) => (p.amenities ?? []).includes(x)));
 
     list.sort((a, b) => {
-      const ap = a.promoted ? 1 : 0,
-        bp = b.promoted ? 1 : 0;
+      // المميز أولًا
+      const ap = a.promoted ? 1 : 0;
+      const bp = b.promoted ? 1 : 0;
       if (ap !== bp) return bp - ap;
+      // ثم حسب promotedAt
       const apAt = a.promotedAt ? new Date(a.promotedAt).getTime() : 0;
       const bpAt = b.promotedAt ? new Date(b.promotedAt).getTime() : 0;
       if (apAt !== bpAt) return bpAt - apAt;
+      // ثم الأحدث إنشاءً
       const ac = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const bc = b.createdAt ? new Date(b.createdAt).getTime() : 0;
       if (ac !== bc) return bc - ac;
-      const ar = a.rating ?? 0,
-        br = b.rating ?? 0;
+      // ثم الأعلى تقييمًا
+      const ar = a.rating ?? 0;
+      const br = b.rating ?? 0;
       if (ar !== br) return br - ar;
+      // ثم الأعلى سعرًا
       return (b.priceOMR ?? 0) - (a.priceOMR ?? 0);
     });
+
     return list;
   }, [
     items,
@@ -234,17 +268,18 @@ export default function PropertiesIndexPage() {
     amenitySet,
   ]);
 
+  // عدّادات المرافق الديناميكية
   const amenityCounts = useMemo(() => {
     const base = [...items].filter((p) => {
       if (q.trim()) {
         const qq = q.trim().toLowerCase();
         const ok =
-          (p.title ?? "").toLowerCase().includes(qq) ||
+          titleToText(p.title).toLowerCase().includes(qq) ||
           (p.location ?? "").toLowerCase().includes(qq) ||
           (p.province ?? "").toLowerCase().includes(qq) ||
           (p.state ?? "").toLowerCase().includes(qq) ||
           (p.village ?? "").toLowerCase().includes(qq) ||
-          (p.referenceNo ?? "").toLowerCase().includes(qq); // ✅ يدخل بالحسابات
+          (p.referenceNo ?? "").toLowerCase().includes(qq);
         if (!ok) return false;
       }
       if (type && p.type !== type) return false;
@@ -260,6 +295,7 @@ export default function PropertiesIndexPage() {
       if (starSet.length && !starSet.some((s) => Math.round(p.rating ?? 0) >= s)) return false;
       return true;
     });
+
     const m = new Map<string, number>();
     for (const a of ALL_AMENITIES) m.set(a, 0);
     for (const p of base) (p.amenities ?? []).forEach((a) => { if (m.has(a)) m.set(a, (m.get(a) ?? 0) + 1); });
@@ -516,57 +552,70 @@ export default function PropertiesIndexPage() {
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filtered.map((p) => (
-              <Link
-                href={`/property/${p.id}`}
-                key={String(p.id)}
-                className="border rounded-lg overflow-hidden shadow hover:shadow-lg transition block"
-              >
-                <div className="relative">
-                  <img src={p.image} alt={p.title} className="w-full h-48 object-cover" />
-                  {/* ✅ شارة السيريال (نسخ عند الضغط) */}
-                  {p.referenceNo && (
-                    <button
-                      onClick={(e) => copyRef(e, p.referenceNo)}
-                      title="انسخ الرقم المرجعي"
-                      className="absolute top-2 left-2 text-[10px] bg-black/70 hover:bg-black text-white px-2 py-1 rounded"
-                    >
-                      {p.referenceNo}
-                    </button>
-                  )}
-                  {p.promoted && (
-                    <span className="absolute top-2 end-2 text-xs bg-amber-500 text-white px-2 py-1 rounded inline-flex items-center gap-1">
-                      <FaBolt /> مميز
-                    </span>
-                  )}
-                </div>
-                <div className="p-3">
-                  <div className="font-semibold line-clamp-1">{p.title}</div>
-                  <div className="text-xs text-gray-600 line-clamp-1">
-                    {p.location ?? `${p.province} - ${p.state}${p.village ? " - " + p.village : ""}`}
+            {filtered.map((p) => {
+              const title = titleToText(p.title);
+              const cardImg = getCardImage(p);
+              return (
+                <Link
+                  href={`/properties/${p.id}`}
+                  key={String(p.id)}
+                  className="border rounded-lg overflow-hidden shadow hover:shadow-lg transition block"
+                >
+                  <div className="relative">
+                    {cardImg ? (
+                      <img src={cardImg} alt={title || "Property"} className="w-full h-48 object-cover" />
+                    ) : (
+                      <div className="w-full h-48 bg-gray-100" />
+                    )}
+
+                    {/* شارة السيريال مع النسخ */}
+                    {p.referenceNo && (
+                      <button
+                        onClick={(e) => copyRef(e, p.referenceNo)}
+                        title="انسخ الرقم المرجعي"
+                        className="absolute top-2 left-2 text-[10px] bg-black/70 hover:bg-black text-white px-2 py-1 rounded"
+                      >
+                        {p.referenceNo}
+                      </button>
+                    )}
+
+                    {p.promoted && (
+                      <span className="absolute top-2 end-2 text-xs bg-amber-500 text-white px-2 py-1 rounded inline-flex items-center gap-1">
+                        <FaBolt /> مميز
+                      </span>
+                    )}
                   </div>
-                  <div className="mt-2 flex items-center justify-between">
-                    <div className="text-[var(--brand-700)] font-bold">
-                      {mounted ? format(p.priceOMR ?? 0) : `${p.priceOMR ?? 0} ر.ع`}
+
+                  <div className="p-3">
+                    <div className="font-semibold line-clamp-1">{title || `#${p.id}`}</div>
+                    <div className="text-xs text-gray-600 line-clamp-1">
+                      {p.location ?? `${p.province ?? ""}${p.state ? " - " + p.state : ""}${p.village ? " - " + p.village : ""}`}
                     </div>
-                    <div className="text-xs text-yellow-600 inline-flex items-center gap-1">
-                      <FaStar /> {p.rating ?? 0}
+
+                    <div className="mt-2 flex items-center justify-between">
+                      <div className="text-[var(--brand-700)] font-bold">
+                        {mounted ? format(p.priceOMR ?? 0) : `${p.priceOMR ?? 0} ر.ع`}
+                      </div>
+                      <div className="text-xs text-yellow-600 inline-flex items-center gap-1">
+                        <FaStar /> {p.rating ?? 0}
+                      </div>
+                    </div>
+
+                    <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-gray-700">
+                      <div className="inline-flex items-center gap-1">
+                        <FaBed /> {p.beds ?? 0}
+                      </div>
+                      <div className="inline-flex items-center gap-1">
+                        <FaBath /> {p.baths ?? 0}
+                      </div>
+                      <div className="inline-flex items-center gap-1">
+                        <FaRulerCombined /> {p.area ?? 0} م²
+                      </div>
                     </div>
                   </div>
-                  <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-gray-700">
-                    <div className="inline-flex items-center gap-1">
-                      <FaBed /> {p.beds ?? 0}
-                    </div>
-                    <div className="inline-flex items-center gap-1">
-                      <FaBath /> {p.baths ?? 0}
-                    </div>
-                    <div className="inline-flex items-center gap-1">
-                      <FaRulerCombined /> {p.area ?? 0} م²
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </section>
       </div>

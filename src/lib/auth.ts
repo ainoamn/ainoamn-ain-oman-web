@@ -1,31 +1,28 @@
-import { useEffect, useState } from "react";
-import type { Role } from "./rbac";
+// src/lib/auth.ts
+import { useAuth as useAuthCtx } from "@/context/AuthContext";
 
-export type SessionUser = { id: string; name: string; role: Role } | null;
+export type Permission = string;
 
-export function useAuth() {
-  const [user, setUser] = useState<SessionUser>(null);
-  const [loading, setLoading] = useState(true);
+export type CurrentUser = {
+  id: string;
+  name: string;
+  role: string;
+  features?: string[];
+  subscription?: { planId?: string; features?: string[] } | null;
+};
 
-  async function refresh() {
-    setLoading(true);
-    try {
-      const r = await fetch("/api/session");
-      const d = await r.json();
-      setUser(d.user || null);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    await refresh();
-  }
-
-  useEffect(() => {
-    refresh();
-  }, []);
-
-  return { user, loading, refresh, logout };
+export function hasPermission(
+  user: CurrentUser | null | undefined,
+  perm: Permission
+): boolean {
+  if (!user) return false;
+  const f1 = Array.isArray(user.features) ? user.features : [];
+  const f2 = Array.isArray(user.subscription?.features)
+    ? (user.subscription!.features as string[])
+    : [];
+  const all = new Set<string>([...f1, ...f2]);
+  return all.has(perm);
 }
+
+// حافظ على نفس اسم الدالة hook كي لا تغيّر بقية الملفات
+export const useAuth = useAuthCtx;
