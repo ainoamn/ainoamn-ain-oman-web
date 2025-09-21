@@ -1,0 +1,2 @@
+cd "C:\dev\ain-oman-web"
+git archive --format=zip -o "C:\dev\ain-oman-web-src.zip" HEAD src public package.json tsconfig.json next.config.*

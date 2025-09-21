@@ -1,0 +1,50 @@
+# انسخ هذا الكود وألصقه مباشرة في محطة PowerShell
+$outputFile = "project_structure.txt"
+$projectPath = "C:\dev"
+
+# بدء كتابة الهيكل
+"هيكل ملفات المشروع: $projectPath`n" | Out-File -FilePath $outputFile -Encoding UTF8
+"=" * 80 | Out-File -FilePath $outputFile -Encoding UTF8 -Append
+
+# دالة لإنشاء الهيكل
+function Get-DirectoryTree {
+    param(
+        [string]$path,
+        [string]$indent = "",
+        [switch]$isLast
+    )
+    
+    $item = Get-Item $path
+    $name = $item.Name
+    
+    if ($item.PSIsContainer) {
+        $dirSymbol = "$name/"
+        $dirSymbol | Out-File -FilePath $outputFile -Encoding UTF8 -Append
+        
+        $children = Get-ChildItem $path -Force | 
+                    Where-Object { $_.Name -notmatch 'node_modules|\.git|dist|build' } |
+                    Sort-Object { $_.PSIsContainer -eq $false }  # مجلدات أولاً
+        
+        $count = $children.Count
+        $i = 0
+        
+        foreach ($child in $children) {
+            $i++
+            $childIsLast = $i -eq $count
+            $childIndent = $indent + ("    " * [int]!$isLast) + "│   "
+            
+            $prefix = if ($childIsLast) { "└── " } else { "├── " }
+            $newIndent = $indent + ("    " * [int]!$isLast) + ("    " * [int]$childIsLast)
+            
+            $prefix | Out-File -FilePath $outputFile -Encoding UTF8 -Append -NoNewline
+            Get-DirectoryTree -path $child.FullName -indent $childIndent -isLast:$childIsLast
+        }
+    }
+    else {
+        $name | Out-File -FilePath $outputFile -Encoding UTF8 -Append
+    }
+}
+
+# بدء عملية الاستخراج
+Get-DirectoryTree -path $projectPath
+Write-Host "تم إنشاء هيكل الملفات في $outputFile" -ForegroundColor Green
