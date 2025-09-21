@@ -1,6 +1,14 @@
 // src/contexts/CustomizationContext.tsx
 "use client";
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 export type MenuItem = { label: string; href: string };
 export type SectionLink = { label: string; href: string };
@@ -8,14 +16,6 @@ export type FooterSection = { title: string; links: SectionLink[] };
 export type Partner = { name: string; logo?: string; url?: string };
 export type PaymentMethod = { name: string; icon?: string };
 export type Notification = { id: string; message: string; visible: boolean };
-
-import React, { createContext, useContext } from "react";
-type C = { header?: any; footer?: any; theme?: "light"|"dark" };
-const Ctx = createContext<C>({});
-export const useCustomization = () => useContext(Ctx);
-export function CustomizationProvider({children}:{children:React.ReactNode}) {
-  return <Ctx.Provider value={{}}>{children}</Ctx.Provider>;
-}
 
 export type HeaderSettings = {
   backgroundColor: string;
@@ -39,7 +39,7 @@ export type FooterSettings = {
   contactInfo: { email: string; phone: string; address: string };
 };
 
-type Ctx = {
+type CtxShape = {
   header: HeaderSettings;
   footer: FooterSettings;
   isHeaderHidden: boolean;
@@ -83,19 +83,19 @@ const LocalKeys = {
   footer: "hf.footer.v1",
 };
 
-const CustomizationContext = createContext<Ctx | undefined>(undefined);
+const CustomizationContext = createContext<CtxShape | undefined>(undefined);
 
-export function CustomizationProvider({ children }: { children: React.ReactNode }) {
+export function CustomizationProvider({ children }: { children: ReactNode }) {
   const [header, setHeader] = useState<HeaderSettings>(defaultHeader);
   const [footer, setFooter] = useState<FooterSettings>(defaultFooter);
   const [isHeaderHidden, setIsHeaderHidden] = useState(false);
   const lastY = useRef(0);
 
-  // load + remote merge
+  // load from localStorage + merge remote
   useEffect(() => {
     try {
-      const h = localStorage.getItem(LocalKeys.header);
-      const f = localStorage.getItem(LocalKeys.footer);
+      const h = typeof window !== "undefined" ? localStorage.getItem(LocalKeys.header) : null;
+      const f = typeof window !== "undefined" ? localStorage.getItem(LocalKeys.footer) : null;
       if (h) setHeader({ ...defaultHeader, ...JSON.parse(h) });
       if (f) setFooter({ ...defaultFooter, ...JSON.parse(f) });
     } catch {}
@@ -111,14 +111,17 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
     })();
   }, []);
 
-  // inject CSS variables for brand + footer opacity
+  // inject CSS variables
   useEffect(() => {
+    if (typeof document === "undefined") return;
     const root = document.documentElement;
-    root.style.setProperty("--brand-600", header.backgroundColor);
-    root.style.setProperty("--footer-opacity", String(Math.max(0, Math.min(1, footer.transparency / 100))));
+    try {
+      root.style.setProperty("--brand-600", header.backgroundColor);
+      root.style.setProperty("--footer-opacity", String(Math.max(0, Math.min(1, footer.transparency / 100))));
+    } catch {}
   }, [header.backgroundColor, footer.transparency]);
 
-  // hide on scroll up/down
+  // hide header on scroll down
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
@@ -131,8 +134,10 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
 
   const persist = async (h: HeaderSettings, f: FooterSettings) => {
     try {
-      localStorage.setItem(LocalKeys.header, JSON.stringify(h));
-      localStorage.setItem(LocalKeys.footer, JSON.stringify(f));
+      if (typeof window !== "undefined") {
+        localStorage.setItem(LocalKeys.header, JSON.stringify(h));
+        localStorage.setItem(LocalKeys.footer, JSON.stringify(f));
+      }
     } catch {}
     try {
       await fetch("/api/header-footer", {
@@ -146,28 +151,32 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
   const updateHeader = (p: Partial<HeaderSettings>) => {
     setHeader((old) => {
       const next = { ...old, ...p };
-      persist(next, footer);
+      void persist(next, footer);
       return next;
     });
   };
+
   const updateFooter = (p: Partial<FooterSettings>) => {
     setFooter((old) => {
       const next = { ...old, ...p };
-      persist(header, next);
+      void persist(header, next);
       return next;
     });
   };
 
   const addNotification = (message: string) => {
-    const id = crypto.randomUUID();
+    const id = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now());
     updateHeader({ notifications: [...header.notifications, { id, message, visible: true }] });
   };
+
   const removeNotification = (id: string) => {
     updateHeader({ notifications: header.notifications.filter((n) => n.id !== id) });
   };
 
   return (
-    <CustomizationContext.Provider value={{ header, footer, isHeaderHidden, updateHeader, updateFooter, addNotification, removeNotification }}>
+    <CustomizationContext.Provider
+      value={{ header, footer, isHeaderHidden, updateHeader, updateFooter, addNotification, removeNotification }}
+    >
       {children}
     </CustomizationContext.Provider>
   );
@@ -178,3 +187,5 @@ export function useCustomization() {
   if (!ctx) throw new Error("useCustomization must be used within CustomizationProvider");
   return ctx;
 }
+
+export default CustomizationProvider;

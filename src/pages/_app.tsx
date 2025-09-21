@@ -4,7 +4,9 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import "@/styles/globals.css";
-import { initializeData } from '@/utils/initData';
+import { initializeData } from "@/utils/initData";
+import MainLayout from "@/components/layout/MainLayout";
+import { CustomizationProvider } from "@/contexts/CustomizationContext";
 
 // ThemeProvider (إن وُجد)
 let ThemeProvider: React.ComponentType<any> = ({ children }: any) => <>{children}</>;
@@ -24,7 +26,7 @@ try {
   if (typeof H === "function") useI18n = H;
 } catch {}
 
-// مزوّدات اختيارية (اتركها كما هي إن لم تكن موجودة)
+// مزوّدات اختيارية
 let GoogleMapsProvider: any = ({ children }: any) => <>{children}</>;
 let CurrencyProvider: any = ({ children }: any) => <>{children}</>;
 let ChatProvider: any = ({ children }: any) => <>{children}</>;
@@ -36,12 +38,6 @@ try { ChatProvider = require("@/context/ChatContext").ChatProvider || ChatProvid
 try { ChatWidget = require("@/components/chat/ChatWidget").default || ChatWidget; } catch {}
 try { FloatingButtons = require("@/components/floating/FloatingButtons").default || FloatingButtons; } catch {}
 
-// الهيدر والفوتر
-let HeaderComp: any = () => null;
-let FooterComp: any = () => null;
-try { HeaderComp = require("@/components/layout/Header").default || HeaderComp; } catch {}
-try { FooterComp = require("@/components/layout/Footer").default || FooterComp; } catch {}
-
 // Auth
 import { AuthProvider } from "@/context/AuthContext";
 
@@ -51,18 +47,16 @@ function LangSync() {
   const { setLang, supported } = useI18n();
   useEffect(() => {
     const fromRouter = router?.locale ? router.locale.split("-")[0] : "";
-    const fromUrl = typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search).get("lang") || ""
-      : "";
+    const fromUrl =
+      typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("lang") || "" : "";
     const cand = (fromUrl || fromRouter).toLowerCase();
-    const list = Array.isArray(supported) && supported.length ? supported : ["ar","en"];
+    const list = Array.isArray(supported) && supported.length ? supported : ["ar", "en"];
     if (cand && list.includes(cand as any)) setLang(cand as any);
   }, [router?.locale, setLang, supported]);
   return null;
 }
 
 export default function App({ Component, pageProps }: AppProps) {
-  // Initialize data on mount
   useEffect(() => {
     initializeData();
   }, []);
@@ -74,41 +68,34 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const page = <Component {...pageProps} />;
 
-  // تغليف افتراضي لكل الصفحات بالهيدر والفوتر
-  const withChrome = (
-    <>
-      <HeaderComp />
-      {page}
-      <FooterComp />
-    </>
-  );
-
   return (
     <ThemeProvider>
       <I18nProvider>
-        <AuthProvider>
-          <Head>
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <meta name="theme-color" content="#0f766e" />
-            <title>Ain Oman</title>
-          </Head>
+        <CustomizationProvider>
+          <AuthProvider>
+            <Head>
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <meta name="theme-color" content="#0f766e" />
+              <title>Ain Oman</title>
+            </Head>
 
-          <LangSync />
+            <LangSync />
 
-          <GoogleMapsProvider>
-            <CurrencyProvider>
-              <ChatProvider>
-                {getLayout
-                  ? getLayout(page)   // الصفحة تتكفّل بالكروم إذا وفّرت getLayout
-                  : noChrome
-                  ? page              // صفحة بلا كروم عند الحاجة
-                  : withChrome}       // الكروم الافتراضي لكل الصفحات، بما فيها /legal/*
-                <ChatWidget />
-                <FloatingButtons />
-              </ChatProvider>
-            </CurrencyProvider>
-          </GoogleMapsProvider>
-        </AuthProvider>
+            <GoogleMapsProvider>
+              <CurrencyProvider>
+                <ChatProvider>
+                  {noChrome
+                    ? page
+                    : getLayout
+                    ? getLayout(page) // تخطيط مخصص للصفحة
+                    : <MainLayout>{page}</MainLayout> /* الغلاف الافتراضي بهيدر/فوتر المحسّنين */}
+                  <ChatWidget />
+                  <FloatingButtons />
+                </ChatProvider>
+              </CurrencyProvider>
+            </GoogleMapsProvider>
+          </AuthProvider>
+        </CustomizationProvider>
       </I18nProvider>
     </ThemeProvider>
   );

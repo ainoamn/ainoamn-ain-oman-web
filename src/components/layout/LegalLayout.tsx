@@ -1,6 +1,8 @@
-import React from 'react';
-import Header from './Header';
-import Footer from './Footer';
+// src/components/layout/LegalLayout.tsx
+import React from "react";
+import EnhancedHeader from "./EnhancedHeader";
+import EnhancedFooter from "./EnhancedFooter";
+import { LayoutScopeProvider } from "@/contexts/LayoutScope";
 
 interface LegalLayoutProps {
   children: React.ReactNode;
@@ -8,15 +10,15 @@ interface LegalLayoutProps {
 
 const LegalLayout: React.FC<LegalLayoutProps> = ({ children }) => {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-grow bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          {children}
-        </div>
-      </main>
-      <Footer />
-    </div>
+    <LayoutScopeProvider value={{ global: true }}>
+      <div className="flex flex-col min-h-screen">
+        <EnhancedHeader />
+        <main className="flex-grow bg-gray-50">
+          <div className="container mx-auto px-4 py-8">{children}</div>
+        </main>
+        <EnhancedFooter />
+      </div>
+    </LayoutScopeProvider>
   );
 };
 

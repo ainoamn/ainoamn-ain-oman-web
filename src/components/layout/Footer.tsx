@@ -2,6 +2,7 @@
 "use client";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useLayoutScope } from "@/contexts/LayoutScope"; // حارس منع التكرار
 
 type SectionLink = { label: string; href: string };
 type FooterSection = { title: string; links: SectionLink[] };
@@ -16,6 +17,10 @@ type FooterSettings = {
 const K = { footer: "hf.footer.v1", header: "hf.header.v1", userColor: "hf.userColor.v1" };
 
 export default function Footer() {
+  // إذا الصفحة داخل تخطيط عالمي، ألغِ العرض لتجنّب التكرار
+  const scope = useLayoutScope();
+  if (scope?.global) return null;
+
   const [footer, setFooter] = useState<FooterSettings>({
     textColor: "#ffffff",
     transparency: 70,
@@ -27,13 +32,16 @@ export default function Footer() {
   const rootObs = useRef<MutationObserver | null>(null);
 
   useEffect(() => {
-    try { const f = localStorage.getItem(K.footer); if (f) setFooter(o => ({ ...o, ...JSON.parse(f) })); } catch {}
+    try {
+      const f = localStorage.getItem(K.footer);
+      if (f) setFooter((o) => ({ ...o, ...JSON.parse(f) }));
+    } catch {}
     (async () => {
       try {
         const r = await fetch("/api/header-footer");
         if (r.ok) {
           const j = await r.json();
-          if (j?.footer) setFooter(o => ({ ...o, ...j.footer }));
+          if (j?.footer) setFooter((o) => ({ ...o, ...j.footer }));
           if (j?.header?.backgroundColor) {
             const u = readUserColor();
             setBrand(u || j.header.backgroundColor);
@@ -46,17 +54,23 @@ export default function Footer() {
   }, []);
 
   useEffect(() => {
-    const onBrand = (e: any) => { const c = e?.detail?.color as string | undefined; if (c) setBrand(c); };
+    const onBrand = (e: any) => {
+      const c = e?.detail?.color as string | undefined;
+      if (c) setBrand(c);
+    };
     window.addEventListener("brand:changed", onBrand as any);
 
     const onStorage = (e: StorageEvent) => {
-      if (e.key === K.userColor) { const color = readUserColor(); if (color) setBrand(color); }
+      if (e.key === K.userColor) {
+        const color = readUserColor();
+        if (color) setBrand(color);
+      }
     };
     window.addEventListener("storage", onStorage);
 
     rootObs.current = new MutationObserver(() => {
       const cssColor = readCssBrand();
-      if (cssColor) setBrand(b => (b !== cssColor ? cssColor : b));
+      if (cssColor) setBrand((b) => (b !== cssColor ? cssColor : b));
     });
     rootObs.current.observe(document.documentElement, { attributes: true, attributeFilter: ["style"] });
 
@@ -92,7 +106,9 @@ export default function Footer() {
               <ul className="mt-3 space-y-2 text-sm">
                 {s.links.map((l, j) => (
                   <li key={j}>
-                    <Link href={l.href} className="hover:underline opacity-90 hover:opacity-100">{l.label}</Link>
+                    <Link href={l.href} className="hover:underline opacity-90 hover:opacity-100">
+                      {l.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -102,8 +118,12 @@ export default function Footer() {
           <div>
             <div className="font-semibold">تواصل</div>
             <ul className="mt-3 space-y-2 text-sm">
-              <li>البريد: <a href={`mailto:${footer.contact.email}`} className="hover:underline">{footer.contact.email}</a></li>
-              <li>الهاتف: <a href={`tel:${footer.contact.phone}`} className="hover:underline">{footer.contact.phone}</a></li>
+              <li>
+                البريد: <a href={`mailto:${footer.contact.email}`} className="hover:underline">{footer.contact.email}</a>
+              </li>
+              <li>
+                الهاتف: <a href={`tel:${footer.contact.phone}`} className="hover:underline">{footer.contact.phone}</a>
+              </li>
               <li>العنوان: {footer.contact.address}</li>
             </ul>
 
@@ -124,8 +144,12 @@ export default function Footer() {
         <div className="mt-8 pt-6 border-t border-white/20 text-xs opacity-80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
           <div>© {new Date().getFullYear()} عين عُمان — جميع الحقوق محفوظة.</div>
           <div className="flex gap-4">
-            <Link href="/terms" className="hover:underline">الشروط</Link>
-            <Link href="/privacy" className="hover:underline">الخصوصية</Link>
+            <Link href="/terms" className="hover:underline">
+              الشروط
+            </Link>
+            <Link href="/privacy" className="hover:underline">
+              الخصوصية
+            </Link>
           </div>
         </div>
       </div>
@@ -134,8 +158,16 @@ export default function Footer() {
 }
 
 /* helpers */
-function alpha(transparency: number) { return Math.max(0.2, Math.min(1, transparency / 100)); }
-function readUserColor(): string | null { try { return localStorage.getItem(K.userColor); } catch { return null; } }
+function alpha(transparency: number) {
+  return Math.max(0.2, Math.min(1, transparency / 100));
+}
+function readUserColor(): string | null {
+  try {
+    return localStorage.getItem(K.userColor);
+  } catch {
+    return null;
+  }
+}
 function readCssBrand(): string | null {
   try {
     const cs = getComputedStyle(document.documentElement);
@@ -145,8 +177,10 @@ function readCssBrand(): string | null {
       const m = c.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/i);
       if (!m) return null;
       const [_, r, g, b] = m;
-      c = "#" + [r, g, b].map(x => Number(x).toString(16).padStart(2, "0")).join("");
+      c = "#" + [r, g, b].map((x) => Number(x).toString(16).padStart(2, "0")).join("");
     }
     return c;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }

@@ -1,12 +1,455 @@
-/* Proxy-only file. لا تضف @tailwind هنا كي لا تتكرر الطبقات. */
-/* يستورد كل الأنماط من الملف الرئيسي في جذر المشروع */
-@import url("../../styles/globals.css");
+/* src/styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* إن احتجت تعديلات خاصة داخل src لاحقًا ضعها بعد الاستيراد:
+/* أساسيات */
 :root {
-  /* أمثلة:
+  --brand-50: #e6fffb;
+  --brand-100: #bff8f2;
+  --brand-200: #99efe8;
+  --brand-300: #73e6de;
+  --brand-400: #4cd9d1;
+  --brand-500: #26ccc3;
   --brand-600: #0d9488;
   --brand-700: #0f766e;
   --brand-800: #115e59;
+  --brand-900: #134e4a;
+  
+  --vanilla: #FAF9F6;
+  --font-ui: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Cairo", "Tajawal", "Noto Kufi Arabic", "Helvetica Neue", Arial, sans-serif;
+  
+  --btn-bg: var(--brand-700);
+  --btn-bg-hover: var(--brand-800);
+  --btn-text: #ffffff;
+  --ring-color: color-mix(in oklab, var(--brand-700) 55%, white);
 }
-*/
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-ui);
+  direction: rtl;
+}
+
+body {
+  @apply text-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* الوضع الداكن */
+.dark {
+  --brand-600: #0d9488;
+  --brand-700: #138079;
+  --brand-800: #0f5f5a;
+}
+
+/* ===== Utilities ===== */
+.brand-bg {
+  background: linear-gradient(90deg, var(--brand-700), var(--brand-600)) !important;
+}
+
+.brand-bg-700 {
+  background-color: var(--brand-700) !important;
+}
+
+.brand-text {
+  color: #fff !important;
+}
+
+.page-vanilla {
+  background-color: var(--vanilla) !important;
+}
+
+.vanilla-pattern {
+  background-color: var(--vanilla);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath fill='%230d9488' fill-opacity='0.06' d='M14 0l2 4 4 2-4 2-2 4-2-4-4-2 4-2 2-4zM0 14l4-2 2-4 2 4 4 2-4 2-2 4-2-4-4-2zM14 28l2-4 4-2-4-2-2-4-2 4-4 2 4 2 2 4zM28 14l-4 2-2 4-2-4-4-2 4-2 2-4 2 4 4 2z'/%3E%3C/svg%3E");
+  background-size: 28px 28px;
+  background-attachment: fixed;
+}
+
+.dark .vanilla-pattern {
+  background-image: none;
+  background-color: #0f172a;
+}
+
+/* ===== واجهة عامة ===== */
+.container-app {
+  @apply max-w-7xl mx-auto px-4;
+}
+
+.toolbar {
+  @apply flex items-center justify-between gap-2 mb-4;
+}
+
+.panel {
+  @apply border rounded-xl p-4 bg-white dark:bg-gray-900 dark:border-gray-800;
+}
+
+.panel-muted {
+  @apply border rounded-xl p-3 bg-gray-50 dark:bg-gray-800 dark:border-gray-700;
+}
+
+.section-title {
+  @apply text-xl font-semibold mb-3 text-gray-900 dark:text-white;
+}
+
+/* === Buttons === */
+.btn {
+  @apply inline-flex items-center gap-2 border rounded-lg px-3 py-2 text-sm transition-colors;
+}
+
+.btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border-color: color-mix(in oklab, var(--btn-bg) 80%, black);
+}
+
+.btn-primary:hover {
+  background: var(--btn-bg-hover);
+}
+
+.btn-danger {
+  @apply border-red-500 text-red-600 hover:bg-red-50 dark:border-red-600 dark:text-red-400 dark:hover:bg-red-900/20;
+}
+
+.btn-secondary {
+  background: color-mix(in oklab, var(--btn-bg) 12%, white);
+  color: #111827;
+  border-color: color-mix(in oklab, var(--btn-bg) 30%, #e5e7eb);
+}
+
+.btn:focus {
+  outline: 2px solid var(--ring-color);
+  outline-offset: 2px;
+}
+
+/* Badges */
+.badge {
+  @apply text-xs px-2 py-1 rounded-full border inline-block;
+}
+
+.badge-available {
+  @apply bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800;
+}
+
+.badge-reserved {
+  @apply bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800;
+}
+
+.badge-sold {
+  @apply bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800;
+}
+
+.badge-rent {
+  @apply bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800;
+}
+
+/* Forms */
+label {
+  @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2;
+}
+
+input, select, textarea {
+  @apply w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--ring-color);
+  outline-offset: 2px;
+}
+
+/* روابط */
+a {
+  color: color-mix(in oklab, var(--brand-700) 55%, #0a66c2);
+  transition: color 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Animations */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Header */
+.header {
+  @apply bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm;
+  transition: all 0.3s ease;
+}
+
+/* Sidebar */
+.sidebar {
+  transition: transform 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+/* Dashboard grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Small screens */
+@media (max-width: 640px) {
+  .container-app {
+    @apply px-3;
+  }
+  
+  .toolbar {
+    @apply flex-col items-stretch;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Arabic fonts */
+.arabic-font {
+  font-family: "Cairo", "Tajawal", "Noto Kufi Arabic", sans-serif;
+}
+
+/* RTL helpers */
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+[dir="rtl"] .ml-2 {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+[dir="rtl"] .mr-2 {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+/* A11y */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus ring helper using brand */
+.focus-ring-brand:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-500) 40%, transparent);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-semibold text-gray-900 dark:text-white;
+}
+
+h1 {
+  @apply text-2xl md:text-3xl;
+}
+
+h2 {
+  @apply text-xl md:text-2xl;
+}
+
+h3 {
+  @apply text-lg md:text-xl;
+}
+
+/* Badges extra */
+.badge-success {
+  @apply badge bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300;
+}
+
+.badge-warning {
+  @apply badge bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300;
+}
+
+.badge-error {
+  @apply badge bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300;
+}
+
+.badge-info {
+  @apply badge bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300;
+}
+
+/* تخصيص شريط التمرير */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+/* تأثيرات للبطاقات */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* أنيميشن للعناصر */
+.fade-in-up {
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* تخصيص لوحة التحكم */
+.dashboard-widget-modern {
+  @apply border rounded-2xl p-5 bg-white dark:bg-gray-800 shadow-sm transition-all duration-300;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-widget-modern:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.dark .dashboard-widget-modern {
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+/* تخصيص الإحصائيات */
+.stat-value {
+  @apply text-2xl font-bold text-gray-900 dark:text-white;
+}
+
+.stat-label {
+  @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+.stat-change {
+  @apply text-xs font-medium;
+}
+
+.stat-change.positive {
+  @apply text-green-600 dark:text-green-400;
+}
+
+.stat-change.negative {
+  @apply text-red-600 dark:text-red-400;
+}
+
+/* تحسينات للاستجابة */
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-card-modern {
+    padding: 1rem;
+  }
+}
+
+/* طباعة */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  html, body {
+    background: var(--vanilla) !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-block {
+    display: block !important;
+  }
+  
+  .container-app {
+    max-width: none !important;
+    padding: 0 12mm !important;
+  }
+  
+  header, footer, .site-header, .site-footer {
+    display: block !important;
+  }
+  
+  a[href]:after {
+    content: "";
+  }
+  
+  .panel, .panel-muted, .card, .badge {
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+  
+  .badge {
+    background-color: #f3f4f6 !important;
+    color: #374151 !important;
+  }
+  
+  @page {
+    margin: 10mm;
+  }
+}

@@ -1,0 +1,38 @@
+
+-------------------------------------------------------------------------------
+   ROBOCOPY     ::     Robust File Copy for Windows                              
+-------------------------------------------------------------------------------
+
+  Started : Thursday, August 14, 2025 4:21:40 PM
+   Source - C:\dev\ain-oman-web\
+     Dest - C:\Users\ahami\AppData\Local\Temp\ain-oman-web-staging\
+
+    Files : 
+Exc Files : C:\dev\ain-oman-web\.env
+	    C:\dev\ain-oman-web\.env.local
+	    C:\dev\ain-oman-web\prisma\dev.db
+	    
+ Exc Dirs : C:\dev\ain-oman-web\node_modules
+	    C:\dev\ain-oman-web\.next
+	    C:\dev\ain-oman-web\dist
+	    C:\dev\ain-oman-web\out
+	    C:\dev\ain-oman-web\coverage
+	    C:\dev\ain-oman-web\.git
+	    C:\dev\ain-oman-web\.vscode
+	    
+  Options : /FFT /NDL /NFL /S /E /DCOPY:T /COPY:DAT /PURGE /MIR /J /NP /R:2 /W:2 
+
+------------------------------------------------------------------------------
+
+ERROR : Invalid Parameter #35 : "C:\dev\ain-oman-web\*.log"
+
+       Simple Usage :: ROBOCOPY source destination /MIR
+
+             source :: Source Directory (drive:\path or \\server\share\path).
+        destination :: Destination Dir  (drive:\path or \\server\share\path).
+               /MIR :: Mirror a complete directory tree.
+
+    For more usage information run ROBOCOPY /?
+
+                                                          
+****  /MIR can DELETE files as well as copy them !
