@@ -1,4 +1,3 @@
-import { AIAnalysis } from '@/types/auction';
 export interface AIAnalysis {
   fairValue: number;
   risk: string;
