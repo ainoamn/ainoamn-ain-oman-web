@@ -1,0 +1,1 @@
+export type Currency = "OMR" | "AED" | "SAR" | "USD";
