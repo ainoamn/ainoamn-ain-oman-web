@@ -1,4 +1,4 @@
-// src/types/auction.ts
 export interface AIAnalysis {
-  // تعريف الحقول هنا
+  fairValue: number; // أو أي نوع بيانات مناسب
+  // ... other properties
 }
