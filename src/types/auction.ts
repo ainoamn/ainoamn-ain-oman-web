@@ -1,4 +1,8 @@
 export interface AIAnalysis {
-  fairValue: number; // أو أي نوع بيانات مناسب
-  // ... other properties
+  fairValue: number;
+  risk: string; // أو يمكن أن يكون نوعاً محدداً مثل 'low' | 'medium' | 'high'
+  // أضف أي خصائص أخرى مستخدمة في المكون
+  recommendation?: string;
+  confidence?: number;
+  // ... أي خصائص أخرى يتم استخدامها
 }
