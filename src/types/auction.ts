@@ -4,7 +4,8 @@ export interface AIAnalysis {
   marketTrend: string;
   predictedFinalPrice: number;
   nextStepRecommendation: string;
-  comparableProperties: any[]; // أضف هذا السطر
+  comparableProperties: any[];
+  updatedAt: string; // أضف هذا السطر
   recommendation?: string;
   confidence?: number;
   pricePrediction?: number;
