@@ -63,7 +63,7 @@ export default function Page({ params }: { params: { id: string } }) {
     return () => clearInterval(h);
   }, [id]);
 
-  const loadRef = React.useRef<() => void>();
+  const loadRef = React.useRef<() => void | null>(null);
   const load = useCallback(async () => {
     if (!id) return;
     try {
