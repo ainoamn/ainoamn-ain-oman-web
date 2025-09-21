@@ -5,18 +5,25 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Bars3Icon, XMarkIcon, MoonIcon, SunIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { useCustomization } from "@/contexts/CustomizationContext";
+import { useLayoutScope } from "@/contexts/LayoutScope";
 
 type Theme = "light" | "dark";
 type Currency = "OMR" | "AED" | "SAR" | "USD";
 
-export default function EnhancedHeader() {
+type Props = { force?: boolean };
+
+export default function EnhancedHeader({ force = false }: Props) {
+  // حارس منع التكرار
+  const scope = useLayoutScope();
+  if (scope?.global && !force) return null;
+
   const { header, isHeaderHidden, removeNotification } = useCustomization();
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [theme, setTheme] = useState<Theme>("light");
   const [currency, setCurrency] = useState<Currency>("OMR");
 
-  // SSR-safe: read from localStorage after mount
+  // SSR-safe
   useEffect(() => {
     try {
       const prefersDark =
@@ -63,7 +70,7 @@ export default function EnhancedHeader() {
 
   return (
     <div className={`sticky top-0 z-50 transition-transform duration-300 ${isHeaderHidden ? "-translate-y-full" : "translate-y-0"}`}>
-      {/* إشعار علوي قابل للإغلاق */}
+      {/* شريط إعلان علوي قابل للإغلاق */}
       {visibleNotifications.map((n) => (
         <div key={n.id} className="bg-amber-500 text-white">
           <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6 py-2 flex items-center justify-between">
@@ -159,7 +166,7 @@ export default function EnhancedHeader() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className="block px-3 py-2 rounded-xl font-medium hover:bg-teal-50 hover:text-teал-700"
+                  className="block px-3 py-2 rounded-xl font-medium hover:bg-teal-50 hover:text-teal-700"
                 >
                   {item.label}
                 </Link>

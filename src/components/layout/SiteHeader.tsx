@@ -1,6 +1,13 @@
+// src/components/layout/SiteHeader.tsx
 import React from "react";
+import { useLayoutScope } from "@/contexts/LayoutScope";
 
-export default function SiteHeader() {
+type Props = { force?: boolean };
+
+export default function SiteHeader({ force = false }: Props) {
+  const scope = useLayoutScope();
+  if (scope?.global && !force) return null;
+
   return (
     <header className="border-b bg-white/70 backdrop-blur sticky top-0 z-10" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
