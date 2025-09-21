@@ -3,6 +3,8 @@ export interface Property {
   title: string;
   price: number;
   location: string;
+  images?: string[]; // أضف هذا السطر
+  referenceNo?: string; // أضف هذا السطر
   bedrooms?: number;
   bathrooms?: number;
   area?: number;
