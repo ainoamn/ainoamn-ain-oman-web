@@ -1,4 +1,4 @@
-// src/pages/dashboard/owner.tsx
+// root: src/pages/dashboard/owner.tsx
 import { useState, useEffect } from "react";
 import { NextPage } from "next";
 import Head from "next/head";
@@ -7,6 +7,29 @@ import { motion } from "framer-motion";
 import PropertyCard from "@/components/properties/PropertyCard";
 import RentalStatusChart from "@/components/dashboard/RentalStatusChart";
 import StatsOverview from "@/components/dashboard/StatsOverview";
+
+/** ======== FIX: sanitize {ar,en} objects to plain strings ======== */
+type Localized = { ar?: string; en?: string; [k: string]: unknown };
+const isLocalized = (v: any): v is Localized =>
+  v && typeof v === "object" && ("ar" in v || "en" in v);
+
+const pickLoc = (v: any, prefer: "ar" | "en" = "ar") =>
+  isLocalized(v) ? (v[prefer] ?? v.ar ?? v.en ?? "") : v;
+
+function sanitizeDeep<T = any>(val: any, prefer: "ar" | "en" = "ar"): T {
+  if (val == null) return val;
+  if (typeof val === "string" || typeof val === "number" || typeof val === "boolean") return val as T;
+  if (Array.isArray(val)) return val.map((x) => sanitizeDeep(x, prefer)) as T;
+  if (isLocalized(val)) return pickLoc(val, prefer) as T;
+  if (typeof val === "object") {
+    const out: Record<string, any> = {};
+    for (const [k, v] of Object.entries(val)) out[k] = sanitizeDeep(v, prefer);
+    return out as T;
+  }
+  return val as T;
+}
+const text = (v: any) => pickLoc(v, "ar");
+/** =============================================================== */
 
 const OwnerDashboard: NextPage = () => {
   const { data: session } = useSession();
@@ -29,12 +52,16 @@ const OwnerDashboard: NextPage = () => {
 
       if (propertiesRes.ok) {
         const propertiesData = await propertiesRes.json();
-        setProperties(propertiesData.items);
+        // FIX: sanitize API items to eliminate {ar,en} children
+        const items = Array.isArray(propertiesData?.items) ? sanitizeDeep<any[]>(propertiesData.items, "ar") : [];
+        setProperties(items);
       }
 
       if (rentalsRes.ok) {
         const rentalsData = await rentalsRes.json();
-        setRentals(rentalsData.items);
+        // FIX: sanitize rentals too
+        const items = Array.isArray(rentalsData?.items) ? sanitizeDeep<any[]>(rentalsData.items, "ar") : [];
+        setRentals(items);
       }
     } catch (error) {
       console.error("Failed to fetch data:", error);
@@ -68,7 +95,7 @@ const OwnerDashboard: NextPage = () => {
         <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <h1 className="text-2xl font-bold text-gray-900">لوحة تحكم المعلن</h1>
-            <p className="text-gray-600">مرحباً {session?.user?.name}</p>
+            <p className="text-gray-600">مرحباً {text(session?.user?.name)}</p>
           </div>
         </header>
 

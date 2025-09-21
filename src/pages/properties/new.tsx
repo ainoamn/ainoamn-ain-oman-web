@@ -70,6 +70,38 @@ const WATERMARK_TEXT = "عين عُمان";
 const WATERMARK_LOGO_SRC = ""; // اختياري: ضع مسار شعار PNG شفاف إن توفر
 
 /** --- المكوّن الرئيسي --- */
+
+function appendPayloadToFormData(fd: FormData, payload: any) {
+  const pushDataUrl = (s: string) => fd.append("dataUrls", s);
+  const seen = new WeakSet();
+  const replacer = (_key: string, value: any) => {
+    if (typeof value === "string" && value.startsWith("data:image")) {
+      pushDataUrl(value);
+      return undefined;
+    }
+    if (value && typeof value === "object") {
+      if (seen.has(value)) return undefined;
+      seen.add(value);
+    }
+    return value;
+  };
+  for (const [k, v] of Object.entries(payload)) {
+    if (k === "images") continue;
+    if (v === undefined || v === null) continue;
+    if (typeof v === "string" || typeof v === "number" || typeof v === "boolean") {
+      fd.append(k, String(v));
+    } else {
+      fd.append(k, JSON.stringify(v, replacer));
+    }
+  }
+  if (Array.isArray(payload.images)) {
+    for (const u of payload.images) {
+      if (typeof u !== "string") continue;
+      if (u.startsWith("data:image")) pushDataUrl(u);
+      else fd.append("images", u);
+    }
+  }
+}
 export default function NewPropertyPage(){
   const router = useRouter();
 
@@ -464,11 +496,9 @@ export default function NewPropertyPage(){
         } catch {}
       }
 
-      const r = await fetch("/api/properties", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+      const fd = new FormData();
+appendPayloadToFormData(fd, payload);
+const r = await fetch("/api/properties", { method: "POST", body: fd });
       if (!r.ok) {
         const d = await r.json().catch(() => ({}));
         throw new Error(d?.error || "Bad Request");

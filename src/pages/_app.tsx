@@ -1,4 +1,4 @@
-// src/pages/_app.tsx
+// root: src/pages/_app.tsx
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -7,15 +7,16 @@ import "@/styles/globals.css";
 import { initializeData } from "@/utils/initData";
 import MainLayout from "@/components/layout/MainLayout";
 import { CustomizationProvider } from "@/contexts/CustomizationContext";
+import Sanitize from "@/lib/react-sanitize-children";
 
-// ThemeProvider (إن وُجد)
+// ThemeProvider (اختياري إن وُجد)
 let ThemeProvider: React.ComponentType<any> = ({ children }: any) => <>{children}</>;
 try {
   const mod = require("@/context/ThemeContext");
   ThemeProvider = mod.ThemeProvider || mod.default?.ThemeProvider || ThemeProvider;
 } catch {}
 
-// i18n (إن وُجد)
+// i18n (اختياري إن وُجد)
 let I18nProvider: React.ComponentType<any> = ({ children }: any) => <>{children}</>;
 let useI18n: any = () => ({ t: (k: string) => k, dir: "rtl", lang: "ar", setLang: () => {}, supported: ["ar","en"] });
 try {
@@ -68,6 +69,15 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const page = <Component {...pageProps} />;
 
+  const base =
+    noChrome
+      ? page
+      : getLayout
+      ? getLayout(page)
+      : <MainLayout>{page}</MainLayout>;
+
+  const content = <Sanitize locale="ar">{base}</Sanitize>;
+
   return (
     <ThemeProvider>
       <I18nProvider>
@@ -84,11 +94,7 @@ export default function App({ Component, pageProps }: AppProps) {
             <GoogleMapsProvider>
               <CurrencyProvider>
                 <ChatProvider>
-                  {noChrome
-                    ? page
-                    : getLayout
-                    ? getLayout(page) // تخطيط مخصص للصفحة
-                    : <MainLayout>{page}</MainLayout> /* الغلاف الافتراضي بهيدر/فوتر المحسّنين */}
+                  {content}
                   <ChatWidget />
                   <FloatingButtons />
                 </ChatProvider>

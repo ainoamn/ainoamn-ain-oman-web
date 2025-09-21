@@ -1,20 +1,138 @@
 [
   {
+    "createdAt": "2025-09-21T15:15:58.764Z",
+    "id": "P-20250921151558",
+    "referenceNo": "AO-P-000010",
+    "title": {
+      "ar": "عقار تجاري في موقع ممتاز ",
+      "en": "Residential"
+    },
+    "priceOMR": 3223,
+    "province": "ظفار",
+    "state": "صلالة",
+    "village": "",
+    "purpose": "investment",
+    "type": "apartment",
+    "status": "vacant",
+    "updatedAt": "2025-09-21T17:05:11.147Z",
+    "description": {
+      "ar": "مبنى متعدد الطوابق للاستثمار (جزئي) في ظفار، صلالة. مساحة البناء 234 م²، غرف: استوديو، حمّامات: 1. المزايا: شرفة/بلكونة، مسبح خاص. قريب من: مدرسة. ",
+      "en": "Multi-storey Building for investment  (partial) - area 234 sqm, beds 0, baths 1."
+    },
+    "category": "multi",
+    "investmentType": "partial",
+    "promoted": false,
+    "beds": 0,
+    "baths": 1,
+    "area": 234,
+    "floors": [
+      "طابق تحت الأرض"
+    ],
+    "age": "قيد الإنشاء",
+    "furnishing": "unfurnished",
+    "amenities": [
+      "شرفة/بلكونة",
+      "مسبح خاص"
+    ],
+    "attractions": [
+      "مدرسة"
+    ],
+    "mortgaged": false,
+    "orientation": "شمالية",
+    "images": [
+      "/uploads/properties/P-20250921151558/img_0_1758474311126.jpg",
+      "/uploads/properties/P-20250921151558/img_1_1758474311135.jpg",
+      "/uploads/properties/P-20250921151558/img_2_1758474311140.jpg",
+      "/uploads/properties/P-20250921151558/img_3_1758474311144.jpg"
+    ],
+    "coverIndex": 0,
+    "points": [],
+    "ownerTarget": "owner",
+    "units": [],
+    "published": true,
+    "usage": {
+      "0": "m",
+      "1": "u",
+      "2": "l",
+      "3": "t",
+      "4": "i"
+    }
+  },
+  {
     "id": "P-20250911120430",
     "referenceNo": "AO-P-000005",
     "title": {
-      "ar": "عقار عقار سكني",
+      "ar": "عقار زراعي",
       "en": "Residential"
     },
-    "priceOMR": 12,
-    "province": "مسقط",
-    "state": "السيب",
+    "priceOMR": 400,
+    "province": "شمال الباطنة",
+    "state": "شناص",
     "village": "",
-    "purpose": "rent",
-    "type": "office",
+    "purpose": "investment",
+    "type": "land",
     "status": "vacant",
     "createdAt": "2025-09-11T12:04:30.464Z",
-    "updatedAt": "2025-09-11T12:04:30.464Z"
+    "updatedAt": "2025-09-21T17:16:39.615Z",
+    "published": true,
+    "description": {
+      "ar": "",
+      "en": ""
+    },
+    "category": "agricultural",
+    "investmentType": "partial",
+    "promoted": false,
+    "beds": 0,
+    "baths": 1,
+    "area": 243,
+    "floors": [],
+    "age": "قيد الإنشاء",
+    "furnishing": "unfurnished",
+    "amenities": [
+      "تكييف مركزي",
+      "غرفة خادمة",
+      "مسبح خاص",
+      "مطبخ جاهز",
+      "شرفة/بلكونة",
+      "تدفئة",
+      "مكيفات",
+      "حراسة/أمن",
+      "مخزن"
+    ],
+    "attractions": [
+      "مسجد",
+      "سوبر ماركت",
+      "مدرسة",
+      "مول تجاري"
+    ],
+    "mortgaged": false,
+    "orientation": "شمالية",
+    "images": [
+      "/uploads/properties/P-20250911120430/img_0_1758474955828.jpg",
+      "/uploads/properties/P-20250911120430/img_1_1758474955839.jpg",
+      "/uploads/properties/P-20250911120430/img_2_1758474955846.jpg",
+      "/uploads/properties/P-20250911120430/img_3_1758474955858.jpg",
+      "/uploads/properties/P-20250911120430/img_4_1758474955868.jpg",
+      "/uploads/properties/P-20250911120430/img_5_1758474955874.jpg"
+    ],
+    "coverIndex": 0,
+    "points": [],
+    "ownerTarget": "owner",
+    "usage": {
+      "0": "a",
+      "1": "g",
+      "2": "r",
+      "3": "i",
+      "4": "c",
+      "5": "u",
+      "6": "l",
+      "7": "t",
+      "8": "u",
+      "9": "r",
+      "10": "a",
+      "11": "l"
+    },
+    "coverImage": "/uploads/properties/P-20250911120430/img_0_1758474955828.jpg"
   },
   {
     "id": "P-20250911120426",

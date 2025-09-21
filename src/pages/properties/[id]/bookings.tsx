@@ -1,3 +1,4 @@
+// root: src/pages/properties/[id]/bookings.tsx
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
@@ -9,20 +10,16 @@ type Booking = {
   id: string;
   bookingNumber: string;
   propertyId: string;
-  propertyTitle: string;
-  propertyReference: string;
+  propertyTitle?: string;
+  propertyReference?: string;
   startDate: string;
-  endDate: string;
+  endDate?: string;
   duration: number;
   totalAmount: number;
   status: 'pending' | 'reserved' | 'leased' | 'cancelled';
   createdAt: string;
-  contractSigned: boolean;
-  customerInfo: {
-    name: string;
-    phone: string;
-    email: string;
-  };
+  contractSigned?: boolean;
+  customerInfo: { name?: string; phone?: string; email?: string; };
 };
 
 export default function PropertyBookingsPage() {
@@ -34,8 +31,6 @@ export default function PropertyBookingsPage() {
 
   useEffect(() => {
     if (!id) return;
-
-    // جلب بيانات العقار
     const fetchProperty = async () => {
       try {
         const response = await fetch(`/api/properties/${encodeURIComponent(String(id))}`);
@@ -43,54 +38,32 @@ export default function PropertyBookingsPage() {
           const data = await response.json();
           setProperty(data.item);
         }
-      } catch (error) {
-        console.error("Error fetching property:", error);
-      }
+      } catch {}
     };
-
-    // جلب حجوزات العقار
-    const fetchBookings = () => {
+    const fetchBookings = async () => {
       try {
-        // جلب الحجوزات من localStorage
-        const storedBookings = JSON.parse(localStorage.getItem('propertyBookings') || '[]');
-        // تصفية الحجوزات الخاصة بالعقار المحدد
-        const propertyBookings = storedBookings.filter((booking: Booking) => booking.propertyId === id);
-        setBookings(propertyBookings);
-      } catch (error) {
-        console.error("Error fetching bookings:", error);
-      } finally {
-        setLoading(false);
-      }
+        const r = await fetch(`/api/bookings?propertyId=${encodeURIComponent(String(id))}`);
+        const j = await r.json();
+        setBookings(Array.isArray(j?.items) ? j.items : []);
+      } catch {}
+      setLoading(false);
     };
-
-    fetchProperty();
-    fetchBookings();
+    fetchProperty(); fetchBookings();
   }, [id]);
 
   const updateBookingStatus = async (bookingId: string, newStatus: Booking['status']) => {
     try {
-      // تحديث حالة الحجز في localStorage
-      const storedBookings = JSON.parse(localStorage.getItem('propertyBookings') || '[]');
-      const updatedBookings = storedBookings.map((booking: Booking) => 
-        booking.id === bookingId ? { ...booking, status: newStatus } : booking
-      );
-      localStorage.setItem('propertyBookings', JSON.stringify(updatedBookings));
-      
-      // تحديث الواجهة
-      setBookings(updatedBookings.filter((booking: Booking) => booking.propertyId === id));
-      
-      // إذا تم تغيير الحالة إلى 'leased'، قم بتحديث حالة العقار أيضًا
-      if (newStatus === 'leased') {
-        const existingProperties = JSON.parse(localStorage.getItem('properties') || '[]');
-        const updatedProperties = existingProperties.map((p: any) => 
-          p.id === id ? { ...p, status: 'leased' } : p
-        );
-        localStorage.setItem('properties', JSON.stringify(updatedProperties));
-      }
-      
+      const body: any = newStatus === "leased" ? { action: "lease" }
+                   : newStatus === "reserved" ? { action: "confirm" }
+                   : newStatus === "cancelled" ? { action: "cancel" }
+                   : { status: newStatus };
+      const r = await fetch(`/api/bookings/${encodeURIComponent(bookingId)}`, { method:"PUT", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) });
+      if (!r.ok) throw new Error("update_failed");
+      const rr = await fetch(`/api/bookings?propertyId=${encodeURIComponent(String(id))}`);
+      const jj = await rr.json();
+      setBookings(Array.isArray(jj?.items) ? jj.items : []);
       alert('تم تحديث حالة الحجز بنجاح');
-    } catch (error) {
-      console.error("Error updating booking status:", error);
+    } catch {
       alert('فشل في تحديث حالة الحجز');
     }
   };
@@ -107,10 +80,7 @@ export default function PropertyBookingsPage() {
 
   return (
     <Layout>
-      <Head>
-        <title>حجوزات العقار | عين عمان</title>
-      </Head>
-      
+      <Head><title>حجوزات العقار | عين عمان</title></Head>
       <div className="max-w-6xl mx-auto p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -122,15 +92,10 @@ export default function PropertyBookingsPage() {
               </p>
             )}
           </div>
-          <Link 
-            href={`/properties/${id}`}
-            className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 flex items-center"
-          >
-            <FaEye className="ml-2" />
-            عرض العقار
+          <Link href={`/properties/${id}`} className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 flex items-center">
+            <FaEye className="ml-2" /> عرض العقار
           </Link>
         </div>
-        
         {bookings.length === 0 ? (
           <div className="bg-white rounded-xl shadow-md p-8 text-center">
             <FaCalendarAlt className="text-gray-400 text-5xl mx-auto mb-4" />
@@ -145,7 +110,7 @@ export default function PropertyBookingsPage() {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h2 className="text-xl font-semibold">الحجز رقم: {booking.bookingNumber}</h2>
-                      <p className="text-gray-600">المستأجر: {booking.customerInfo.name}</p>
+                      <p className="text-gray-600">المستأجر: {booking.customerInfo?.name || '-'}</p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                       booking.status === 'leased' ? 'bg-green-100 text-green-800' :
@@ -158,72 +123,33 @@ export default function PropertyBookingsPage() {
                        booking.status === 'pending' ? 'قيد المراجعة' : 'ملغي'}
                     </span>
                   </div>
-                  
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
                     <div>
-                      <p className="text-gray-600 flex items-center">
-                        <FaCalendarAlt className="ml-2" />
-                        تاريخ البدء: {new Date(booking.startDate).toLocaleDateString('ar-OM')}
-                      </p>
-                      <p className="text-gray-600 flex items-center">
-                        <FaCalendarAlt className="ml-2" />
-                        تاريخ الانتهاء: {new Date(new Date(booking.startDate).setMonth(new Date(booking.startDate).getMonth() + booking.duration)).toLocaleDateString('ar-OM')}
-                      </p>
+                      <p className="text-gray-600 flex items-center"><FaCalendarAlt className="ml-2" />تاريخ البدء: {new Date(booking.startDate).toLocaleDateString('ar-OM')}</p>
                       <p className="text-gray-600">المدة: {booking.duration} أشهر</p>
                     </div>
-                    
                     <div>
                       <p className="text-gray-600">المبلغ الإجمالي: {booking.totalAmount.toFixed(3)} ر.ع</p>
-                      <p className="text-gray-600 flex items-center">
-                        <FaClock className="ml-2" />
-                        تاريخ الحجز: {new Date(booking.createdAt).toLocaleDateString('ar-OM')}
-                      </p>
-                      <p className="text-gray-600">البريد الإلكتروني: {booking.customerInfo.email}</p>
-                      <p className="text-gray-600">الهاتف: {booking.customerInfo.phone}</p>
+                      <p className="text-gray-600 flex items-center"><FaClock className="ml-2" />تاريخ الحجز: {new Date(booking.createdAt).toLocaleDateString('ar-OM')}</p>
+                      <p className="text-gray-600">الهاتف: {booking.customerInfo?.phone || '-'}</p>
                     </div>
                   </div>
-                  
                   <div className="flex justify-between items-center">
                     <div className="flex gap-2">
                       {booking.status === 'reserved' && (
                         <>
-                          <button
-                            onClick={() => updateBookingStatus(booking.id, 'leased')}
-                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
-                          >
-                            <FaFileContract className="ml-2" />
-                            تأكيد التأجير
+                          <button onClick={() => updateBookingStatus(booking.id, 'leased')} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center">
+                            <FaFileContract className="ml-2" /> تأكيد التأجير
                           </button>
-                          <button
-                            onClick={() => updateBookingStatus(booking.id, 'cancelled')}
-                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                          >
+                          <button onClick={() => updateBookingStatus(booking.id, 'cancelled')} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                             إلغاء الحجز
                           </button>
                         </>
                       )}
-                      
-                      {booking.status === 'leased' && (
-                        <span className="text-green-600 flex items-center">
-                          <FaCheckCircle className="ml-2" />
-                          تم تأجير العقار
-                        </span>
-                      )}
-                      
-                      {booking.status === 'cancelled' && (
-                        <span className="text-red-600 flex items-center">
-                          <FaTimesCircle className="ml-2" />
-                          تم إلغاء الحجز
-                        </span>
-                      )}
+                      {booking.status === 'leased' && <span className="text-green-600 flex items-center"><FaCheckCircle className="ml-2" />تم تأجير العقار</span>}
+                      {booking.status === 'cancelled' && <span className="text-red-600 flex items-center"><FaTimesCircle className="ml-2" />تم إلغاء الحجز</span>}
                     </div>
-                    
-                    <Link 
-                      href={`/profile/bookings/${booking.id}`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      عرض تفاصيل الحجز
-                    </Link>
+                    <Link href={`/profile/bookings/${booking.id}`} className="text-blue-600 hover:underline">عرض تفاصيل الحجز</Link>
                   </div>
                 </div>
               </div>

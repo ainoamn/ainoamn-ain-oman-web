@@ -51,3 +51,10 @@ export async function peekSerial(key = "AO-T", prefix = "AO-T-") {
   const n = (map[key] ?? 0) + 1;
   return `${prefix}${String(n).padStart(6, "0")}`;
 }
+export async function getNextSerialNumber(type: string): Promise<string> {
+  // منطق توليد الرقم التسلسلي - مثال مبسط
+  const prefix = type === 'booking' ? 'B' : 'INV';
+  const timestamp = new Date().getTime();
+  const random = Math.floor(Math.random() * 1000);
+  return `${prefix}-${timestamp}-${random}`;
+}

@@ -1,6 +1,7 @@
-// src/server/properties/store.ts
+// root: src/server/properties/store.ts
 import fs from "fs";
 import path from "path";
+import { normalizeUsage, type Usage } from "@/lib/property";
 
 export type Property = {
   id: string;
@@ -12,13 +13,15 @@ export type Property = {
   village?: string;
   purpose?: "sale" | "rent" | "investment";
   type?: "apartment" | "villa" | "land" | "office" | "shop";
+  usage?: Usage;            // سكني/تجاري/زراعي/سياحي
+  images?: string[];        // روابط عامة تحت public/
   status?: "vacant" | "reserved" | "rented" | "hidden" | "draft";
   createdAt?: string;
   updatedAt?: string;
+  [k: string]: any;
 };
 
-const ROOT = process.cwd();
-const DATA_DIR = path.join(ROOT, ".data");
+const DATA_DIR = path.resolve(process.cwd(), ".data");
 const FILE = path.join(DATA_DIR, "properties.json");
 
 function ensure() {
@@ -26,33 +29,37 @@ function ensure() {
   if (!fs.existsSync(FILE)) fs.writeFileSync(FILE, "[]", "utf8");
 }
 
-export function readAll(): Property[] {
+function readAllRaw(): Property[] {
   ensure();
-  const raw = fs.readFileSync(FILE, "utf8");
-  try {
-    const arr = JSON.parse(raw);
-    return Array.isArray(arr) ? arr : [];
-  } catch {
-    // إصلاح تلقائي عند فساد الملف
-    fs.writeFileSync(FILE, "[]", "utf8");
-    return [];
-  }
+  try { const arr = JSON.parse(fs.readFileSync(FILE, "utf8")); return Array.isArray(arr) ? arr : []; }
+  catch { fs.writeFileSync(FILE, "[]", "utf8"); return []; }
 }
 
-export function writeAll(items: Property[]) {
+function writeAll(items: Property[]) {
   ensure();
-  fs.writeFileSync(FILE, JSON.stringify(items, null, 2), "utf8");
+  const tmp = FILE + ".tmp";
+  fs.writeFileSync(tmp, JSON.stringify(items, null, 2), "utf8");
+  fs.renameSync(tmp, FILE);
 }
 
-export function upsert(p: Property) {
-  const list = readAll();
-  const i = list.findIndex((x) => String(x.id) === String(p.id));
-  if (i === -1) list.unshift(p);
-  else list[i] = p;
-  writeAll(list);
-}
+export function readAll(): Property[] { return readAllRaw(); }
 
 export function getById(id: string): Property | null {
-  const list = readAll();
-  return list.find((x) => String(x.id) === String(id)) || null;
+  return readAllRaw().find((p) => String(p.id) === String(id)) || null;
+}
+
+export function upsert(item: Property): Property {
+  const list = readAllRaw();
+  const i = list.findIndex((p) => String(p.id) === String(item.id));
+  const now = new Date().toISOString();
+  const normalized: Property = {
+    ...item,
+    usage: normalizeUsage((item as any).usage ?? (item as any).category ?? (item as any).segment),
+    images: Array.isArray(item.images) ? item.images.filter(Boolean) : [],
+    updatedAt: item.updatedAt || now,
+  };
+  if (i >= 0) list[i] = { ...list[i], ...normalized };
+  else list.unshift({ createdAt: now, ...normalized });
+  writeAll(list);
+  return i >= 0 ? (list[i] as Property) : (list[0] as Property);
 }
