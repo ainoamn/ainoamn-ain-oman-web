@@ -2,14 +2,19 @@ export interface Property {
   id: string;
   title: string;
   price: number;
+  priceOMR: number;
   location: string;
-  images?: string[]; // أضف هذا السطر
-  referenceNo?: string; // أضف هذا السطر
+  province?: string;
+  state?: string;
+  images?: string[];
+  referenceNo?: string;
+  promoted?: boolean;
   bedrooms?: number;
+  beds?: number;
   bathrooms?: number;
+  baths?: number;
   area?: number;
   imageUrl?: string;
   rating?: number;
   isFeatured?: boolean;
-  // أضف أي خصائص أخرى مستخدمة في المكون PropertyCard
 }
