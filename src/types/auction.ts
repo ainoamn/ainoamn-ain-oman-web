@@ -3,7 +3,7 @@ export interface AIAnalysis {
   risk: string;
   marketTrend: string;
   predictedFinalPrice: number;
-  // أضف أي خصائص أخرى تجدها مستخدمة في المكون
+  nextStepRecommendation: string; // أضف هذا السطر
   recommendation?: string;
   confidence?: number;
   pricePrediction?: number;
