@@ -1,12 +1,11 @@
-// src/components/admin/widgets/RecentActivity.tsx
+﻿// src/components/admin/widgets/RecentActivity.tsx
 // Client widget: show recent quick links as activity placeholder.
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
 
 type QuickLink = { id: string; label: string; href: string; icon?: string; group?: string; createdAt: string };
-
-export default function RecentActivity() {
+function RecentActivity() {
   const { t, dir } = useTranslation();
   const [items, setItems] = useState<QuickLink[]>([]);
 

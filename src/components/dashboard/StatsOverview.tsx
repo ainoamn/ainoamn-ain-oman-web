@@ -1,4 +1,4 @@
-// root: src/components/dashboard/StatsOverview.tsx
+﻿// root: src/components/dashboard/StatsOverview.tsx
 import React from "react";
 
 type Stats = {
@@ -7,8 +7,7 @@ type Stats = {
   completedRentals: number;
   pendingActions: number;
 };
-
-export default function StatsOverview({ stats }: { stats: Stats }) {
+function StatsOverview({ stats }: { stats: Stats }) {
   const items = [
     { key: "totalProperties", label: "إجمالي العقارات", value: stats.totalProperties, tint: "bg-blue-50", dot: "bg-blue-500" },
     { key: "activeRentals", label: "حجوزات نشطة", value: stats.activeRentals, tint: "bg-emerald-50", dot: "bg-emerald-500" },

@@ -1,4 +1,4 @@
-// src/pages/admin/invoices.tsx
+﻿// src/pages/admin/invoices.tsx
 import Head from "next/head";
 import Layout from "@/components/layout/Layout";
 import { useEffect, useState } from "react";
@@ -12,8 +12,7 @@ type Invoice = {
 };
 
 const ALLOWED_ROLES = ["admin", "manager", "owner", "superadmin"];
-
-export default function AdminInvoicesPage() {
+function AdminInvoicesPage() {
   const router = useRouter();
   const [authChecked, setAuthChecked] = useState(false);
   const [items, setItems] = useState<Invoice[]>([]);
@@ -41,7 +40,7 @@ export default function AdminInvoicesPage() {
           const role = d?.user?.role || d?.user?.type || (d?.user?.isAdmin ? "admin" : undefined);
           if (role && ALLOWED_ROLES.includes(String(role).toLowerCase())) return pass();
         }
-      } catch {}
+      } catch (_e) {}
 
       // 2) احتياطي: اقرأ من localStorage إن كان تطبيقك يحفظ الجلسة هناك
       try {
@@ -53,7 +52,7 @@ export default function AdminInvoicesPage() {
           const role = u?.user?.role || u?.role || (u?.isAdmin ? "admin" : undefined);
           if (role && ALLOWED_ROLES.includes(String(role).toLowerCase())) return pass();
         }
-      } catch {}
+      } catch (_e) {}
 
       deny();
     })();

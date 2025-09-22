@@ -1,4 +1,4 @@
-// src/lib/i18n-ai.ts
+﻿// src/lib/i18n-ai.ts
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 export type Lang = "ar" | "en" | "fr" | "hi" | "fa" | "ur";
@@ -80,7 +80,7 @@ export function AI18nProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setHtml(lang);
     if (isBrowser()) {
-      try { localStorage.setItem("lang", lang); } catch {}
+      try { localStorage.setItem("lang", lang); } catch (_e) {}
     }
   }, [lang]);
 

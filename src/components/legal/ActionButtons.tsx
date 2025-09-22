@@ -1,9 +1,8 @@
-import React from "react";
+﻿import React from "react";
 
 type Person = { id: string; name: string; subscriptionNo: string };
 type AssignmentItem = { toLawyerId: string; role: "RESPONSIBLE" | "SUPERVISOR" | "VIEWER"; subNo?: string };
-
-export default function ActionButtons({ caseId, onChanged }: { caseId: string; onChanged: () => void }) {
+function ActionButtons({ caseId, onChanged }: { caseId: string; onChanged: () => void }) {
   const [toStage, setToStage] = React.useState("HEARING");
   const [lawyers, setLawyers] = React.useState<Person[]>([]);
   const [items, setItems] = React.useState<AssignmentItem[]>([{ toLawyerId: "", role: "RESPONSIBLE" }]);

@@ -1,4 +1,4 @@
-// src/hooks/useTranslation.ts
+﻿// src/hooks/useTranslation.ts
 import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 
@@ -31,7 +31,7 @@ export function useTranslation() {
       try {
         navigator.sendBeacon?.("/api/i18n/missing", new Blob([JSON.stringify({ items })], { type: "application/json" }))
           || fetch("/api/i18n/missing", { method: "POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ items }) });
-      } catch {}
+      } catch (_e) {}
     }, 500);
   }
 
@@ -52,7 +52,7 @@ export function useTranslation() {
 
   return { t, dir, lang };
 }
-export default function useTranslation() {
+function useTranslation() {
   const t = (k: string, vars?: Record<string, any>) => k;
   const locale = "ar";
   return { t, locale };

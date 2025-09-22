@@ -1,4 +1,4 @@
-// src/lib/headerFooterConfig.ts
+﻿// src/lib/headerFooterConfig.ts
 export type MenuItem = { label: string; href: string; children?: MenuItem[]; show?: boolean };
 export type Announcement = { id: string; text: string; visible: boolean; closable: boolean; level: "info"|"success"|"warning"|"danger"; };
 export type HeaderFooterConfig = {

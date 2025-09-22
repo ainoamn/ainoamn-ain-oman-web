@@ -1,4 +1,4 @@
-// src/components/layout/Header.tsx
+﻿// src/components/layout/Header.tsx
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -18,8 +18,7 @@ const K = { header: "hf.header.v1", userColor: "hf.userColor.v1" };
 type SessionUser = { id?: string; name?: string; role?: string; features?: string[] } | null;
 const AUTH_KEY = "ain_auth";
 const AUTH_EVENT = "ain_auth:change";
-
-export default function Header() {
+function Header() {
   // إذا الصفحة داخل تخطيط عالمي، ألغِ العرض لتجنّب التكرار
   const scope = useLayoutScope();
   if (scope?.global) return null;
@@ -62,10 +61,10 @@ export default function Header() {
     try {
       localStorage.removeItem(AUTH_KEY);
       localStorage.removeItem("auth_token");
-    } catch {}
+    } catch (_e) {}
     try {
       window.dispatchEvent(new CustomEvent(AUTH_EVENT));
-    } catch {}
+    } catch (_e) {}
     setUser(null);
   }
 
@@ -73,7 +72,7 @@ export default function Header() {
     try {
       const h = localStorage.getItem(K.header);
       if (h) setCfg((o) => ({ ...o, ...JSON.parse(h) }));
-    } catch {}
+    } catch (_e) {}
     (async () => {
       try {
         const r = await fetch("/api/header-footer");
@@ -81,7 +80,7 @@ export default function Header() {
           const j = await r.json();
           if (j?.header) setCfg((o) => ({ ...o, ...j.header }));
         }
-      } catch {}
+      } catch (_e) {}
     })();
   }, []);
 
@@ -129,7 +128,7 @@ export default function Header() {
   const chooseColor = (hex: string) => {
     try {
       localStorage.setItem(K.userColor, hex);
-    } catch {}
+    } catch (_e) {}
     setBrand(hex);
     applyTheme(hex);
     setPaletteOpen(false);
@@ -272,7 +271,7 @@ function applyTheme(hex: string) {
   root.style.setProperty("--btn-text", btnText);
   try {
     window.dispatchEvent(new CustomEvent("brand:changed", { detail: { color: hex } }));
-  } catch {}
+  } catch (_e) {}
 }
 function shade(hex: string, percent: number) {
   const clean = hex.replace("#", "");

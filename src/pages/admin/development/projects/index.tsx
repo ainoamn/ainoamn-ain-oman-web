@@ -1,11 +1,10 @@
-/**
+﻿/**
  * /admin/development/projects — لوحة إدارة المشاريع (Baseline Restored From Docs)
  */
 import React from "react";
 import Head from "next/head";
 import Layout from "@/components/layout/Layout";
-
-export default function AdminDevProjectsIndex() {
+function AdminDevProjectsIndex() {
   return (
     <Layout>
       <Head><title>إدارة مشاريع التطوير</title></Head>

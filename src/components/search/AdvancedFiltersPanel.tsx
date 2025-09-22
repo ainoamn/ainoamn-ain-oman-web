@@ -1,4 +1,4 @@
-// src/components/search/AdvancedFiltersPanel.tsx
+﻿// src/components/search/AdvancedFiltersPanel.tsx
 import { useState } from "react";
 
 export type AdvancedFilters = {
@@ -7,8 +7,7 @@ export type AdvancedFilters = {
   areaMin?: number; areaMax?: number;
  sortBy?: "newest" | "priceAsc" | "priceDesc" | "rating" | "views" | "";
 };
-
-export default function AdvancedFiltersPanel({
+function AdvancedFiltersPanel({
   open, onClose, onApply, initial
 }: {
   open: boolean;

@@ -1,4 +1,4 @@
-import Head from "next/head";
+﻿import Head from "next/head";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useEffect, useState } from "react";
@@ -8,8 +8,7 @@ import { useI18n } from "@/lib/i18n";
 type User = { id:string; name:string; status:"active"|"restricted"|"banned" };
 type Sub = { id:string; serial:string; planId:string; state:string; startAt:number|null; endAt:number|null; finalPriceOMR:number };
 type AdOrder = { id:string; serial:string; adProductId:string; state:string; startAt:number|null; endAt:number|null; finalPriceOMR:number };
-
-export default function AdminUserPage(){
+function AdminUserPage(){
   const { dir } = useI18n();
   const router = useRouter();
   const uid = String(router.query.id||"");

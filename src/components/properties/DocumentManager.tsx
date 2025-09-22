@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { useTSafe } from "@/lib/i18n-safe";
 import { DocumentStatus } from "@/components/common/DocumentStatus";
 import { FiDownload, FiEye, FiTrash2, FiUpload, FiAlertTriangle } from "react-icons/fi";
@@ -22,8 +22,7 @@ interface DocumentManagerProps {
   allowedTypes?: string[];
   maxSize?: number; // بالميجابايت
 }
-
-export default function DocumentManager({
+function DocumentManager({
   documents,
   onUpload,
   onDelete,

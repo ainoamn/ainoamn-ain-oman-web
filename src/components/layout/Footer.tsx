@@ -1,4 +1,4 @@
-// src/components/layout/Footer.tsx
+﻿// src/components/layout/Footer.tsx
 "use client";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -15,8 +15,7 @@ type FooterSettings = {
 };
 
 const K = { footer: "hf.footer.v1", header: "hf.header.v1", userColor: "hf.userColor.v1" };
-
-export default function Footer() {
+function Footer() {
   // إذا الصفحة داخل تخطيط عالمي، ألغِ العرض لتجنّب التكرار
   const scope = useLayoutScope();
   if (scope?.global) return null;
@@ -35,7 +34,7 @@ export default function Footer() {
     try {
       const f = localStorage.getItem(K.footer);
       if (f) setFooter((o) => ({ ...o, ...JSON.parse(f) }));
-    } catch {}
+    } catch (_e) {}
     (async () => {
       try {
         const r = await fetch("/api/header-footer");
@@ -47,7 +46,7 @@ export default function Footer() {
             setBrand(u || j.header.backgroundColor);
           }
         }
-      } catch {}
+      } catch (_e) {}
     })();
     const first = readUserColor() || readCssBrand() || "#0d9488";
     setBrand(first);

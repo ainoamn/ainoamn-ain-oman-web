@@ -1,4 +1,4 @@
-// root: src/lib/property.ts
+﻿// root: src/lib/property.ts
 export type Purpose = "rent" | "sale";
 export type Category = "residential" | "commercial" | "industrial" | "agricultural" | "multi" | "existing";
 export type PropertyType = "apartment" | "villa" | "land" | "office" | "shop";

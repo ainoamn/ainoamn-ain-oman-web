@@ -1,8 +1,7 @@
-// src/pages/api/ai/recommendations.ts
+﻿// src/pages/api/ai/recommendations.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getRecommendations } from "../../../lib/ai";
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   const input = {
     userId: (req.query.userId as string) || undefined,
     context: (req.query.context as any) || "browse",

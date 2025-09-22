@@ -1,8 +1,7 @@
-// src/components/dashboard/ContractManagement.tsx
+﻿// src/components/dashboard/ContractManagement.tsx
 import React, { useState } from "react";
 import { createContract, type CreateContractInput } from "@/lib/contracts";
-
-export default function ContractManagement() {
+function ContractManagement() {
   const [form, setForm] = useState<CreateContractInput>({
     propertyId: "",
     buyerName: "",

@@ -1,7 +1,6 @@
-import React from "react";
+﻿import React from "react";
 type LegalCase = { status: "OPEN"|"ON_HOLD"|"CLOSED" };
-
-export default function StatsOverview({ items }: { items: LegalCase[] }) {
+function StatsOverview({ items }: { items: LegalCase[] }) {
   const total = items?.length ?? 0;
   const open = (items||[]).filter(i=>i.status==="OPEN").length;
   const onHold = (items||[]).filter(i=>i.status==="ON_HOLD").length;

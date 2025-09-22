@@ -1,4 +1,4 @@
-// root: src/lib/next-auth-react-shim.ts
+﻿// root: src/lib/next-auth-react-shim.ts
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 type User = { id?: string; name?: string; email?: string; role?: string };

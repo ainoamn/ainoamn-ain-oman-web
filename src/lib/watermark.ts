@@ -1,4 +1,4 @@
-export async function applyWatermark(file: File, options?: { text?: string; opacity?: number; font?: string }) {
+﻿export async function applyWatermark(file: File, options?: { text?: string; opacity?: number; font?: string }) {
   const text = options?.text ?? "Ain Oman";
   const opacity = options?.opacity ?? 0.2;
   const font = options?.font ?? "bold 36px sans-serif";

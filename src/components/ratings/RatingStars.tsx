@@ -1,5 +1,5 @@
-// src/components/ratings/RatingStars.tsx
-export default function RatingStars({ value = 0 }: { value?: number }) {
+﻿// src/components/ratings/RatingStars.tsx
+function RatingStars({ value = 0 }: { value?: number }) {
   const rounded = Math.round(value);
   return (
     <div className="flex gap-1">

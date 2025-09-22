@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect } from "react";
+﻿import React, { createContext, useContext, useEffect } from "react";
 import usePersistedState from "../hooks/usePersistedState";
 
 type Locale = "ar"|"en"|"fr"|"hi"|"fa"|"ur";

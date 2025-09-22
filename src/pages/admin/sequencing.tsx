@@ -1,9 +1,8 @@
-// src/pages/admin/sequencing.tsx
+﻿// src/pages/admin/sequencing.tsx
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import Head from "next/head";
-
-export default function SequencingPage() {
+function SequencingPage() {
   const [currentNumber, setCurrentNumber] = useState(0);
   const [newValue, setNewValue] = useState("");
   const [loading, setLoading] = useState(false);

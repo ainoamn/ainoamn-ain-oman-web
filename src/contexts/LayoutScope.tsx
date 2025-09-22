@@ -1,4 +1,4 @@
-// src/contexts/LayoutScope.tsx
+﻿// src/contexts/LayoutScope.tsx
 import { createContext, useContext } from "react";
 
 type Scope = { global: boolean };

@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+﻿import type { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import path from "path";
 
@@ -39,9 +39,9 @@ async function notifyWebhooks(event: string, payload: any) {
     if (!cfg?.features?.webhooks) return;
     const hooks: string[] = cfg?.webhooks || [];
     await Promise.all(hooks.map(async (url) => {
-      try { await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ event, payload }) }); } catch {}
+      try { await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ event, payload }) }); } catch (_e) {}
     }));
-  } catch {}
+  } catch (_e) {}
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

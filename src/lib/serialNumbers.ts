@@ -1,4 +1,4 @@
-// src/lib/serialNumbers.ts
+﻿// src/lib/serialNumbers.ts
 import { prisma } from "./prisma";
 
 // أنواع الكيانات المدعومة الآن — يمكنك التوسعة لاحقًا

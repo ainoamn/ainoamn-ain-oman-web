@@ -1,11 +1,10 @@
-// src/components/Layout.tsx
+﻿// src/components/Layout.tsx
 import React from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
 type Props = { children: React.ReactNode };
-
-export default function Layout({ children }: Props) {
+function Layout({ children }: Props) {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
       <Header />

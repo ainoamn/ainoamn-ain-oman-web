@@ -1,4 +1,4 @@
-/**
+﻿/**
  * TaskFiltersBar — فلاتر متقدّمة + حفظ آخر اختيار في localStorage
  * الاستخدام:
  * <TaskFiltersBar initial={saved} onChange={(filters)=>loadTasks(filters)} />
@@ -17,7 +17,7 @@ export type TaskFilters = {
 const LS_KEY = "ao_task_filters_v1";
 const BTN = "rounded-lg px-2 py-1 text-xs ring-1 ring-gray-200 hover:bg-gray-50";
 
-export default function TaskFiltersBar({
+function TaskFiltersBar(
   initial,
   onChange,
   options,
@@ -258,8 +258,7 @@ function readAttachmentsForTask(t: any): any[] {
   // إن كنت تخزنها في t.attachments أو في ملف .data/task-attachments.json عدّل هذه الدالة
   return Array.isArray(t?.attachments) ? t.attachments : [];
 }
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method !== "GET") { res.setHeader("Allow","GET"); return res.status(405).json({ error:"Method not allowed" }); }
 

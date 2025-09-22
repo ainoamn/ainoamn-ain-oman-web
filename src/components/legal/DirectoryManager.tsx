@@ -1,9 +1,8 @@
-import React from "react";
+﻿import React from "react";
 
 type Kind = "LAWYER"|"CLIENT";
 type Person = { id: string; subscriptionNo: string; name: string; phoneNumbers?: string[]; emails?: string[] };
-
-export default function DirectoryManager() {
+function DirectoryManager() {
   const [kind, setKind] = React.useState<Kind>("LAWYER");
   const [list, setList] = React.useState<Person[]>([]);
   const [form, setForm] = React.useState<Person>({ id:"", subscriptionNo:"", name:"", phoneNumbers: [""], emails:[""] });

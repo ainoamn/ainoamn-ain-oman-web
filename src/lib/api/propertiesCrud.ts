@@ -1,4 +1,4 @@
-// src/lib/api/propertiesCrud.ts
+﻿// src/lib/api/propertiesCrud.ts
 import path from "path";
 // نستخدم نفس مُولِّد التسلسل المستخدم في /api/seq/next
 import { issueNextSerial } from "@/lib/serialNumbers";

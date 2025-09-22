@@ -1,9 +1,8 @@
-// src/components/admin/SectionToolbar.tsx
+﻿// src/components/admin/SectionToolbar.tsx
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
-
-export default function SectionToolbar({ section }: { section: string }) {
+function SectionToolbar({ section }: { section: string }) {
   const { t, dir } = useTranslation();
   const { has } = useAuth();
 

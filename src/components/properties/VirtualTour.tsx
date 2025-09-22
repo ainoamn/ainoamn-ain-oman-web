@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -9,8 +9,7 @@ interface VirtualTourProps {
   images: string[];
   is360?: boolean;
 }
-
-export default function VirtualTour({ images, is360 = false }: VirtualTourProps) {
+function VirtualTour({ images, is360 = false }: VirtualTourProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   if (is360) {

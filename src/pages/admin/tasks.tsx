@@ -1,4 +1,4 @@
-// src/pages/admin/tasks.tsx
+﻿// src/pages/admin/tasks.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Layout from "@/components/layout/Layout";
@@ -49,7 +49,7 @@ function saveTasksSafe(list: Task[]) {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem("ao_tasks", JSON.stringify(list));
-  } catch {}
+  } catch (_e) {}
 }
 
 function priorityBadge(p: Priority): string {
@@ -60,8 +60,7 @@ function priorityBadge(p: Priority): string {
     case "urgent": return "bg-red-100 text-red-800";
   }
 }
-
-export default function AdminTasksPage() {
+function AdminTasksPage() {
   // i18n من الملف المركزي
   const _i18n = (useI18n() as any) || {};
   const t = (k: string, def: string) => {

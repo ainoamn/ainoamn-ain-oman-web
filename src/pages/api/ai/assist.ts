@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+﻿import type { NextApiRequest, NextApiResponse } from "next";
 
 /** مساعد بسيط بدون اتصال خارجي — يقدّم نصائح عامة بالاعتماد على بيانات المشروع */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

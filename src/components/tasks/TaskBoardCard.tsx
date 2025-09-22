@@ -1,9 +1,8 @@
-import TaskStatusPill from "./TaskStatusPill";
+﻿import TaskStatusPill from "./TaskStatusPill";
 import TaskQuickActions from "./TaskQuickActions";
 import TaskExportButtons from "./TaskExportButtons";
 import PriorityTint from "./PriorityTint";
-
-export default function TaskBoardCard({
+function TaskBoardCard({
   task,
   onChanged,
 }: {

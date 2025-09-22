@@ -1,4 +1,4 @@
-// src/lib/session-bridge.ts
+﻿// src/lib/session-bridge.ts
 /* eslint-disable no-console */
 export type AinUser = {
   id: string;
@@ -26,7 +26,7 @@ export function setAinAuth(u: AinUser | null): void {
   if (typeof window === "undefined") return;
   if (u) localStorage.setItem(AUTH_KEY, JSON.stringify(u));
   else localStorage.removeItem(AUTH_KEY);
-  try { window.dispatchEvent(new CustomEvent(EV)); } catch {}
+  try { window.dispatchEvent(new CustomEvent(EV)); } catch (_e) {}
 }
 export function getAuthToken(): string | null {
   if (typeof window === "undefined") return null;
@@ -80,7 +80,7 @@ export function onSessionChange(cb: () => void): () => void {
   return () => { window.removeEventListener(EV, h); window.removeEventListener("storage", s); };
 }
 export function ensureUnifiedOnLoad(): void {
-  try { unifySession(); } catch {}
+  try { unifySession(); } catch (_e) {}
 }
 export function requireFeature(navigate: (url: string) => void, feature: string, returnPath: string): void {
   const u = getAinAuth();

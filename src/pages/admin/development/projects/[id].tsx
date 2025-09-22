@@ -1,4 +1,4 @@
-أضف أسفل كل واحدة:
+﻿أضف أسفل كل واحدة:
 
 import Layout from "@/components/layout/Layout";
 
@@ -188,21 +188,21 @@ try {
   const m = require("@/lib/i18n");
   I18nProvider = m.I18nProvider || I18nProvider;
   useI18n = m.useI18n || useI18n;
-} catch {}
+} catch (_e) {}
 
 // بقية المزوّدات مع بدائل صامتة
 let GoogleMapsProvider: any = ({ children }: any) => <>{children}</>;
-try { GoogleMapsProvider = require("../components/maps/GoogleMapsProvider").default || GoogleMapsProvider; } catch {}
+try { GoogleMapsProvider = require("../components/maps/GoogleMapsProvider").default || GoogleMapsProvider; } catch (_e) {}
 
 let CurrencyProvider: any = ({ children }: any) => <>{children}</>;
-try { CurrencyProvider = require("../context/CurrencyContext").CurrencyProvider || CurrencyProvider; } catch {}
+try { CurrencyProvider = require("../context/CurrencyContext").CurrencyProvider || CurrencyProvider; } catch (_e) {}
 
 let ChatProvider: any = ({ children }: any) => <>{children}</>;
 let ChatWidget: any = () => null;
 let FloatingButtons: any = () => null;
-try { ChatProvider = require("../context/ChatContext").ChatProvider || ChatProvider; } catch {}
-try { ChatWidget = require("../components/chat/ChatWidget").default || ChatWidget; } catch {}
-try { FloatingButtons = require("../components/floating/FloatingButtons").default || FloatingButtons; } catch {}
+try { ChatProvider = require("../context/ChatContext").ChatProvider || ChatProvider; } catch (_e) {}
+try { ChatWidget = require("../components/chat/ChatWidget").default || ChatWidget; } catch (_e) {}
+try { FloatingButtons = require("../components/floating/FloatingButtons").default || FloatingButtons; } catch (_e) {}
 
 function LangSyncer({ locale }: { locale?: string }) {
   const { setLang } = useI18n();
@@ -220,7 +220,7 @@ function ThemeAndBrandBoot() {
       const prefersDark = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
       const useDark = saved ? saved === "dark" : !!prefersDark;
       document.documentElement.classList.toggle("dark", useDark);
-    } catch {}
+    } catch (_e) {}
     (async () => {
       try {
         const res = await fetch("/api/config");
@@ -231,13 +231,12 @@ function ThemeAndBrandBoot() {
         if (cfg?.brand?.colors?.brand700) root.style.setProperty("--brand-700", cfg.brand.colors.brand700);
         if (cfg?.brand?.colors?.brand800) root.style.setProperty("--brand-800", cfg.brand.colors.brand800);
         if (cfg?.brand?.colors?.pageBg)  root.style.setProperty("--vanilla",  cfg.brand.colors.pageBg);
-      } catch {}
+      } catch (_e) {}
     })();
   }, []);
   return null;
 }
-
-export default function App({ Component, pageProps }: AppProps) {
+function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const initialLang = router.locale === "en" ? "en" : "ar";
 
@@ -366,8 +365,7 @@ type Project = {
   deliveryDate?: string; amenities?: string[];
   createdAt?: string; updatedAt?: string;
 };
-
-export default function DevelopmentListPage() {
+function DevelopmentListPage() {
   const [items, setItems] = useState<Project[]>([]);
   const [q, setQ] = useState("");
 
@@ -450,8 +448,7 @@ type Project = {
   description?: string; amenities?: string[]; milestones?: { id: string; name: string; dueAt?: string; progress?: number }[];
   units?: Unit[];
 };
-
-export default function ProjectDetailsPage() {
+function ProjectDetailsPage() {
   const { query } = useRouter();
   const id = String(query.id || "");
   const [item, setItem] = useState<Project | null>(null);
@@ -569,8 +566,7 @@ import type { ReactElement } from "react";
 import Layout from "../../../../components/layout/Layout"; // من src/pages/admin/development/projects
 
 type ProjectRow = { id: string; title: string; city?: string; status?: string; updatedAt?: string };
-
-export default function AdminProjectsPage() {
+function AdminProjectsPage() {
   const [rows, setRows] = useState<ProjectRow[]>([]);
   const [q, setQ] = useState("");
 
@@ -639,8 +635,7 @@ import Link from "next/link";
 import React from "react";
 import type { ReactElement } from "react";
 import Layout from "../../../../components/layout/Layout";
-
-export default function AdminNewProjectPage() {
+function AdminNewProjectPage() {
   return (
     <>
       <Head><title>مشروع جديد</title></Head>
@@ -667,8 +662,7 @@ type Project = {
   id: string; title: string; city?: string; status?: string; deliveryDate?: string;
   description?: string; amenities?: string[];
 };
-
-export default function AdminEditProjectPage() {
+function AdminEditProjectPage() {
   const { query } = useRouter();
   const id = String(query.id || "");
   const [item, setItem] = useState<Project | null>(null);
@@ -743,8 +737,7 @@ function readAll(): Project[] {
   const raw = fs.readFileSync(p, "utf-8");
   return JSON.parse(raw) as Project[];
 }
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const all = readAll();
     const q = String(req.query.q || "").trim().toLowerCase();
@@ -772,8 +765,7 @@ function readAll(): Project[] {
   const raw = fs.readFileSync(p, "utf-8");
   return JSON.parse(raw) as Project[];
 }
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const id = String(req.query.id || "");
     const all = readAll();
@@ -796,8 +788,7 @@ function readAll(): Project[] {
   const raw = fs.readFileSync(p, "utf-8");
   return JSON.parse(raw) as Project[];
 }
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const id = String(req.query.id || "");
     const all = readAll();
@@ -989,8 +980,7 @@ type Project = {
   milestones?: { id: string; name: string; dueAt?: string; progress?: number }[];
   units?: Unit[];
 };
-
-export default function ProjectDetailsPage() {
+function ProjectDetailsPage() {
   const { query } = useRouter();
   const id = String(query.id || "");
 
@@ -1248,8 +1238,7 @@ type Estimate = {
     monthlyNet?: number;
   };
 };
-
-export default function AdminEditProjectSmartPage() {
+function AdminEditProjectSmartPage() {
   const { query } = useRouter();
   const id = String(query.id || "");
   const [item, setItem] = useState<Project | null>(null);
@@ -2013,8 +2002,7 @@ type Estimate = {
   profit: { gross?: number; grossMarginPct?: number; paybackYears?: number };
   cashflow: { monthlyNet?: number };
 };
-
-export default function ProjectDetailsPage() {
+function ProjectDetailsPage() {
   const { query } = useRouter();
   const id = String(query.id || "");
   const [item, setItem] = useState<Project | null>(null);
@@ -2038,7 +2026,7 @@ export default function ProjectDetailsPage() {
       const er = await fetch(`/api/development/analytics/estimate`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ project: j?.item }) });
       const ej = await er.json();
       setEstimate(ej?.estimate || null);
-    } catch {}
+    } catch (_e) {}
   };
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [id]);
 
@@ -2178,8 +2166,7 @@ type Project = {
   createdAt?: string;
   updatedAt?: string;
 };
-
-export default function DevelopmentListPage() {
+function DevelopmentListPage() {
   const [items, setItems] = useState<Project[]>([]);
   const [q, setQ] = useState("");
 
@@ -2259,8 +2246,7 @@ type Project = {
   units?: Unit[];
   finance?: { capex?: number; opexMonthly?: number; targetMarginPct?: number; escalationPct?: number };
 };
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const body = (typeof req.body === "string" ? JSON.parse(req.body) : req.body) || {};
     const project: Project = body.project || {};

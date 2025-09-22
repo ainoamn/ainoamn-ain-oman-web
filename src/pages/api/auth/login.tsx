@@ -1,10 +1,9 @@
-// src/pages/auth/login.tsx
+﻿// src/pages/auth/login.tsx
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import Layout from "@/components/layout/Layout";
-
-export default function LoginStub() {
+function LoginStub() {
   const router = useRouter();
   const [uid, setUid] = useState<string>(typeof window!=="undefined" ? localStorage.getItem("ao_uid") || "" : "");
   const [name, setName] = useState<string>(typeof window!=="undefined" ? localStorage.getItem("ao_name") || "" : "");

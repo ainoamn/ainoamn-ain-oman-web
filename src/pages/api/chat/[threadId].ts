@@ -1,10 +1,9 @@
-// src/pages/api/chat/[threadId].ts
+﻿// src/pages/api/chat/[threadId].ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { readJson, writeJson } from "../../../server/fsdb";
 
 const FILE = "chat.json";
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   const { threadId } = req.query;
   const threads = readJson<any[]>(FILE, []);
   const t = threads.find((x) => x.id === String(threadId));

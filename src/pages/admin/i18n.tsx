@@ -1,4 +1,4 @@
-// src/pages/admin/i18n.tsx
+﻿// src/pages/admin/i18n.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import { DICTS as CORE_DICTS, SUPPORTED_LANGS as CORE_LANGS, type Lang as CoreLang } from "@/lib/i18n";
@@ -64,7 +64,7 @@ async function fetchAll(): Promise<Data | null> {
       }
       return { langs: r.langs as Lang[], keys: mergeKeys(dicts), dicts, meta: r.meta || {} };
     }
-  } catch {}
+  } catch (_e) {}
   return null;
 }
 
@@ -76,8 +76,7 @@ function buildFromStatic(): Data {
   const keys = mergeKeys(dicts);
   return { langs: [...CORE_LANGS], keys, dicts, meta: {} };
 }
-
-export default function AdminI18nPage() {
+function AdminI18nPage() {
   const [autoMT, setAutoMT] = useState(true);
   const [mtProvider, setMtProvider] = useState<"deepl" | "google" | "libre">("google");
   const [filter, setFilter] = useState("");

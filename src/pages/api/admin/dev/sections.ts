@@ -1,4 +1,4 @@
-// src/pages/api/admin/dev/sections.ts
+﻿// src/pages/api/admin/dev/sections.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import path from "path";
@@ -32,8 +32,7 @@ function writeAll(list: Section[]) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(file, JSON.stringify(list, null, 2), "utf8");
 }
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
     const list = readAll();
     const groups = Array.from(new Set(list.map((s) => s.group).filter(Boolean)));

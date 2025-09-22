@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API: POST /api/admin/notifications/send
  * Simulates sending (email/whatsapp) & appends to log
  * Location: src/pages/api/admin/notifications/send.ts
@@ -52,8 +52,7 @@ function render(str: string, data: Record<string, any> = {}) {
     return v === undefined || v === null ? `{{${k}}}` : String(v);
   });
 }
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method !== "POST") {
       res.setHeader("Allow", "POST");

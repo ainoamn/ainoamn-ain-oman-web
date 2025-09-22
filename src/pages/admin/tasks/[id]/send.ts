@@ -1,4 +1,4 @@
-// FILE: src/pages/api/tasks/[id]/send.ts
+﻿// FILE: src/pages/api/tasks/[id]/send.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdminApi } from "@/server/auth";
 import { readTaskById, addThreadMessage } from "@/server/tasks/store";

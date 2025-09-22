@@ -1,7 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+﻿import type { NextApiRequest, NextApiResponse } from "next";
 import { getTask, upsertTask } from "../../../server/db"; // ← صحيح (3 رجوع)
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") return res.setHeader("Allow", "POST").status(405).end();
   const { taskId, start, end } = req.body || {};
   if (!taskId || typeof taskId !== "string") return res.status(400).json({ error: "taskId required" });

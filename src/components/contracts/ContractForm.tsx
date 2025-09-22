@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { createContract } from "@/lib/contracts";
 
@@ -11,8 +11,7 @@ interface ContractFormData {
   paymentFrequency: "monthly" | "quarterly" | "yearly";
   terms: string;
 }
-
-export default function ContractForm({ property, onSuccess }: { property: any; onSuccess: () => void }) {
+function ContractForm({ property, onSuccess }: { property: any; onSuccess: () => void }) {
   const { register, handleSubmit, formState: { errors } } = useForm<ContractFormData>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 

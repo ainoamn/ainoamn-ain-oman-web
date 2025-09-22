@@ -1,9 +1,8 @@
-// src/components/admin/settings/ManualDevTool.tsx
+﻿// src/components/admin/settings/ManualDevTool.tsx
 import { useEffect, useState } from "react";
 
 type Section = { id: string; title: string; href: string; group?: string; useCentral?: boolean };
-
-export default function ManualDevTool() {
+function ManualDevTool() {
   const [list, setList] = useState<Section[]>([]);
   const [form, setForm] = useState<Section>({ id: "", title: "", href: "", group: "custom", useCentral: true });
   const [saving, setSaving] = useState(false);

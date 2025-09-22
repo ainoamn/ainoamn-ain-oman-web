@@ -1,11 +1,10 @@
-// src/components/admin/widgets/SystemHealth.tsx
+﻿// src/components/admin/widgets/SystemHealth.tsx
 // Client widget: feature flags and simple status.
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 type Flags = Record<string, boolean>;
-
-export default function SystemHealth() {
+function SystemHealth() {
   const { t, dir } = useTranslation();
   const [flags, setFlags] = useState<Flags>({});
 

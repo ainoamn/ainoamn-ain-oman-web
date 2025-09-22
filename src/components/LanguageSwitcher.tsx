@@ -1,7 +1,6 @@
-// src/components/LanguageSwitcher.tsx
+﻿// src/components/LanguageSwitcher.tsx
 import { useRouter } from 'next/router';
-
-export default function LanguageSwitcher() {
+function LanguageSwitcher() {
   const router = useRouter();
   const { pathname, asPath, query, locale } = router;
 

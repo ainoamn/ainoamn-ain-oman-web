@@ -1,4 +1,4 @@
-// src/lib/demoData.ts //
+﻿// src/lib/demoData.ts //
 export type Prop = {
   id: number;
   serial: string;

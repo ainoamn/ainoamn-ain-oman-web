@@ -1,4 +1,4 @@
-import type { PlanCaps, WidgetKey } from "./dashboard-config";
+﻿import type { PlanCaps, WidgetKey } from "./dashboard-config";
 
 /** خريطة القدرات لكل باقة. أضف باقاتك الحقيقية هنا أو اجلبها من /api/plans */
 const PLAN_TO_CAPS: Record<string, Partial<PlanCaps>> = {

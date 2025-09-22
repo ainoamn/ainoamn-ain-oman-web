@@ -1,4 +1,4 @@
-// src/lib/id.ts
+﻿// src/lib/id.ts
 // Simple sequential ID helper backed by .data/sequences.json
 import fs from "fs";
 import path from "path";

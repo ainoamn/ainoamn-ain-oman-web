@@ -1,4 +1,4 @@
-// src/contexts/CustomizationContext.tsx
+﻿// src/contexts/CustomizationContext.tsx
 "use client";
 
 import React, {
@@ -98,7 +98,7 @@ export function CustomizationProvider({ children }: { children: ReactNode }) {
       const f = typeof window !== "undefined" ? localStorage.getItem(LocalKeys.footer) : null;
       if (h) setHeader({ ...defaultHeader, ...JSON.parse(h) });
       if (f) setFooter({ ...defaultFooter, ...JSON.parse(f) });
-    } catch {}
+    } catch (_e) {}
     (async () => {
       try {
         const r = await fetch("/api/header-footer");
@@ -107,7 +107,7 @@ export function CustomizationProvider({ children }: { children: ReactNode }) {
           if (j?.header) setHeader((old) => ({ ...old, ...j.header }));
           if (j?.footer) setFooter((old) => ({ ...old, ...j.footer }));
         }
-      } catch {}
+      } catch (_e) {}
     })();
   }, []);
 
@@ -118,7 +118,7 @@ export function CustomizationProvider({ children }: { children: ReactNode }) {
     try {
       root.style.setProperty("--brand-600", header.backgroundColor);
       root.style.setProperty("--footer-opacity", String(Math.max(0, Math.min(1, footer.transparency / 100))));
-    } catch {}
+    } catch (_e) {}
   }, [header.backgroundColor, footer.transparency]);
 
   // hide header on scroll down
@@ -138,14 +138,14 @@ export function CustomizationProvider({ children }: { children: ReactNode }) {
         localStorage.setItem(LocalKeys.header, JSON.stringify(h));
         localStorage.setItem(LocalKeys.footer, JSON.stringify(f));
       }
-    } catch {}
+    } catch (_e) {}
     try {
       await fetch("/api/header-footer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ header: h, footer: f }),
       });
-    } catch {}
+    } catch (_e) {}
   };
 
   const updateHeader = (p: Partial<HeaderSettings>) => {

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Client helper to load & save ActionsSettings from the API
  * Location: src/lib/actionsSettingsClient.ts
  */

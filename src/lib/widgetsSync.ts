@@ -1,4 +1,4 @@
-// src/lib/widgetsSync.ts
+﻿// src/lib/widgetsSync.ts
 import { useEffect, useMemo, useState } from "react";
 
 /* نفس المفاتيح التي تستخدمها صفحة widgets */
@@ -16,7 +16,7 @@ function loadJSON<T>(key: string, fallback: T, validate?: (v:any)=>boolean): T {
     if (validate && !validate(v)) throw new Error("invalid shape");
     return v as T;
   } catch {
-    try { localStorage.removeItem(key); } catch {}
+    try { localStorage.removeItem(key); } catch (_e) {}
     return fallback;
   }
 }

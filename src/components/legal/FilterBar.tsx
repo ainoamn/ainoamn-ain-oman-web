@@ -1,4 +1,4 @@
-// src/components/legal/FilterBar.tsx
+﻿// src/components/legal/FilterBar.tsx
 import React from "react";
 
 export type FilterValues = {
@@ -12,8 +12,7 @@ export type FilterValues = {
   client?: string;      // clientId أو اسم
   opponent?: string;    // plaintiff/defendant
 };
-
-export default function FilterBar({
+function FilterBar({
   onApply,
   onReset,
   initial,

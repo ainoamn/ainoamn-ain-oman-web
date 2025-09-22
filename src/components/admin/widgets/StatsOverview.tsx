@@ -1,10 +1,9 @@
-// src/components/admin/widgets/StatsOverview.tsx
+﻿// src/components/admin/widgets/StatsOverview.tsx
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 type KPIs = { users: number; properties: number; tasks: number; revenue: number };
-
-export default function StatsOverview() {
+function StatsOverview() {
   const { t } = useTranslation();
   const [kpi, setKpi] = useState<KPIs>({ users: 0, properties: 0, tasks: 0, revenue: 0 });
 

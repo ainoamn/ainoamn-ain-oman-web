@@ -1,4 +1,4 @@
-// src/components/admin/ModuleCard.tsx
+﻿// src/components/admin/ModuleCard.tsx
 import Link from "next/link";
 import { useMemo } from "react";
 import { type AdminModule } from "@/lib/admin/registry";
@@ -16,8 +16,7 @@ const CENTRAL = new Set<string>([
   "ads","coupons","ai-panel","valuation",
   "i18n","features","projects","impersonate",
 ]);
-
-export default function ModuleCard(props: Props) {
+function ModuleCard(props: Props) {
   const m = props.mod ?? props.module;
   if (!m) return null;
 

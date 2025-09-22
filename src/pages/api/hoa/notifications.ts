@@ -1,6 +1,5 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-
-export default function handler(_req: NextApiRequest, res: NextApiResponse) {
+﻿import type { NextApiRequest, NextApiResponse } from "next";
+function handler(_req: NextApiRequest, res: NextApiResponse) {
   try {
     return res.status(200).json({
       items: [

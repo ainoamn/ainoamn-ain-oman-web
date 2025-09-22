@@ -1,4 +1,4 @@
-// src/components/layout/MainLayout.tsx
+﻿// src/components/layout/MainLayout.tsx
 import React from "react";
 import EnhancedHeader from "./EnhancedHeader";
 import EnhancedFooter from "./EnhancedFooter";
@@ -9,8 +9,7 @@ interface Props {
   showHeader?: boolean;
   showFooter?: boolean;
 }
-
-export default function MainLayout({
+function MainLayout({
   children,
   showHeader = true,
   showFooter = true,

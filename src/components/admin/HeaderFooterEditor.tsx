@@ -1,9 +1,8 @@
-// src/components/admin/HeaderFooterEditor.tsx
+﻿// src/components/admin/HeaderFooterEditor.tsx
 "use client";
 import { useState } from "react";
 import { useCustomization } from "@/contexts/CustomizationContext";
-
-export default function HeaderFooterEditor() {
+function HeaderFooterEditor() {
   const { header, footer, updateHeader, updateFooter, addNotification } = useCustomization();
 
   const [newMenu, setNewMenu] = useState({ label: "", href: "" });

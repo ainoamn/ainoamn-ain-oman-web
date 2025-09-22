@@ -1,4 +1,4 @@
-// src/pages/api/ai/lang.ts
+﻿// src/pages/api/ai/lang.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdminApi } from "@/server/auth";
 

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Admin UI: Actions Settings page
  * Path: /admin/settings/actions
  * Location: src/pages/admin/settings/actions.tsx
@@ -30,8 +30,7 @@ function uuid() {
     return v.toString(16);
   });
 }
-
-export default function ActionsSettingsPage() {
+function ActionsSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);

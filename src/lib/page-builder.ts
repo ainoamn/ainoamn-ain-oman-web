@@ -1,4 +1,4 @@
-export class PageBuilder {
+﻿export class PageBuilder {
   static addPage(pageConfig: {
     path: string;
     component: React.ComponentType;

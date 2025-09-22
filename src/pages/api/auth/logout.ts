@@ -1,5 +1,5 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+﻿import type { NextApiRequest, NextApiResponse } from "next";
+function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader("Set-Cookie", [
     `uid=; Path=/; Max-Age=0; SameSite=Lax`,
     `uname=; Path=/; Max-Age=0; SameSite=Lax`,

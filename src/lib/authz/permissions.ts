@@ -1,4 +1,4 @@
-// src/lib/authz/permissions.ts
+﻿// src/lib/authz/permissions.ts
 // RBAC مبسّط
 export type Role =
   | "owner" | "admin" | "manager" | "finance" | "marketing"

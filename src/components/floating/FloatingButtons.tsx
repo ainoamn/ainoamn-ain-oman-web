@@ -1,9 +1,8 @@
-// src/components/floating/FloatingButtons.tsx
+﻿// src/components/floating/FloatingButtons.tsx
 import { useEffect, useState } from "react";
 import { FaComments, FaWhatsapp } from "react-icons/fa";
 import { useChat } from "../../context/ChatContext";
-
-export default function FloatingButtons() {
+function FloatingButtons() {
   const { openChat } = useChat();
   const [href, setHref] = useState<string>("#");
 

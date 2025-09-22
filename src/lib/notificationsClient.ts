@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Notifications client helpers
  * Location: src/lib/notificationsClient.ts
  */

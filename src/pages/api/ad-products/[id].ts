@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+﻿import type { NextApiRequest, NextApiResponse } from "next";
 import { mkdir, readFile, writeFile, access } from "node:fs/promises";
 import path from "node:path";
 const DATA = path.join(process.cwd(), ".data");

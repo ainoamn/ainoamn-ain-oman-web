@@ -1,4 +1,4 @@
-// src/pages/api/i18n/export.ts  (تحسين رسائل الخطأ + معالجة PDF)
+﻿// src/pages/api/i18n/export.ts  (تحسين رسائل الخطأ + معالجة PDF)
 import type { NextApiRequest, NextApiResponse } from "next";
 import { readDicts, readMeta, getLangs, unionKeys } from "@/server/i18n-admin";
 import fs from "fs";

@@ -1,4 +1,4 @@
-import Head from "next/head";
+﻿import Head from "next/head";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useEffect, useMemo, useState } from "react";
@@ -40,8 +40,7 @@ function fromInput(s: string) {
   const t = new Date(s).getTime();
   return Number.isFinite(t) ? t : null;
 }
-
-export default function AdminCoupons() {
+function AdminCoupons() {
   const { dir } = useI18n();
 
   const [plans, setPlans] = useState<Plan[]>([]);

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+﻿import React, { useCallback, useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import Layout from "@/components/layout/Layout";
@@ -75,8 +75,7 @@ const StatusBadge = ({ status }: { status: Task["status"] }) => {
     </span>
   );
 };
-
-export default function TaskDetailsPage() {
+function TaskDetailsPage() {
   const router = useRouter();
   const { id } = router.query as { id?: string };
 

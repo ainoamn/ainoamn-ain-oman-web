@@ -1,4 +1,4 @@
-export interface CreateContractInput {
+﻿export interface CreateContractInput {
   propertyId: string;
   buyerName?: string;
   sellerName?: string;

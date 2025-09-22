@@ -1,8 +1,7 @@
-// src/components/admin/settings/HeaderFooterTool.tsx
+﻿// src/components/admin/settings/HeaderFooterTool.tsx
 import { useEffect, useState } from "react";
 type HF = { logoUrl?: string; showTopBar?: boolean; showFooter?: boolean; footerHtml?: string };
-
-export default function HeaderFooterTool(){
+function HeaderFooterTool(){
   const [v,setV] = useState<HF>({ showTopBar:true, showFooter:true });
   const [saving,setSaving]=useState(false);
 

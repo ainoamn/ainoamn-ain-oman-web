@@ -1,10 +1,9 @@
-// src/pages/admin/login.tsx
+﻿// src/pages/admin/login.tsx
 import { useState } from "react";
 import Head from "next/head";
 import Layout from "@/components/layout/Layout";
 import { useRouter } from "next/router";
-
-export default function AdminLoginPage() {
+function AdminLoginPage() {
   const [key, setKey] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const router = useRouter();

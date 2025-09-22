@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 
 /* ===== Types ===== */
@@ -39,7 +39,7 @@ const defaultFooter: FooterSettings = {
 };
 
 /* ===== Page ===== */
-export default function HeaderFooterAdminPage() {
+function HeaderFooterAdminPage() {
   const [tab, setTab] = useState<"header"|"footer">("header");
   const [header, setHeader] = useState<HeaderSettings>(defaultHeader);
   const [footer, setFooter] = useState<FooterSettings>(defaultFooter);
@@ -56,7 +56,7 @@ export default function HeaderFooterAdminPage() {
       const h = localStorage.getItem(K.header); const f = localStorage.getItem(K.footer);
       if (h) setHeader((o)=>({ ...o, ...JSON.parse(h) }));
       if (f) setFooter((o)=>({ ...o, ...JSON.parse(f) }));
-    } catch {}
+    } catch (_e) {}
     (async () => {
       try {
         const r = await fetch("/api/header-footer");
@@ -83,8 +83,8 @@ export default function HeaderFooterAdminPage() {
   }, []);
 
   const persist = async (h: HeaderSettings, f: FooterSettings) => {
-    try { localStorage.setItem(K.header, JSON.stringify(h)); localStorage.setItem(K.footer, JSON.stringify(f)); } catch {}
-    try { await fetch("/api/header-footer", { method: "POST", headers: { "Content-Type":"application/json" }, body: JSON.stringify({ header: h, footer: f }) }); } catch {}
+    try { localStorage.setItem(K.header, JSON.stringify(h)); localStorage.setItem(K.footer, JSON.stringify(f)); } catch (_e) {}
+    try { await fetch("/api/header-footer", { method: "POST", headers: { "Content-Type":"application/json" }, body: JSON.stringify({ header: h, footer: f }) }); } catch (_e) {}
   };
   const saveAll = async () => { setSaving(true); try { await persist(header, footer); } finally { setSaving(false); } };
 

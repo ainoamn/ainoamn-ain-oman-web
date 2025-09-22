@@ -1,4 +1,4 @@
-// src/components/search/ExpandableSearchBar.tsx
+﻿// src/components/search/ExpandableSearchBar.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import locationData from "../../lib/locationData";
 import { FaSearch, FaChevronDown } from "react-icons/fa";
@@ -25,8 +25,7 @@ export type ExpandableSearchPayload = {
 
   sortBy?: "newest" | "priceAsc" | "priceDesc" | "rating" | "views" | "";
 };
-
-export default function ExpandableSearchBar({
+function ExpandableSearchBar({
   onSearch,
   instant = false,
   defaultValues

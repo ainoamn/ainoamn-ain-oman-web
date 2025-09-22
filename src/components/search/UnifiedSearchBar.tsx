@@ -1,4 +1,4 @@
-// src/components/search/UnifiedSearchBar.tsx
+﻿// src/components/search/UnifiedSearchBar.tsx
 import { useMemo, useState } from "react";
 import { OMAN_PROVINCES, getStates, getVillages } from "../../lib/om-locations";
 
@@ -13,7 +13,7 @@ type Props = {
     province: string; state: string; village: string;
   }>;
 };
-export default function UnifiedSearchBar({ onSearch, initial }: Props) {
+function UnifiedSearchBar({ onSearch, initial }: Props) {
   const [keyword, setKeyword] = useState(initial?.keyword ?? "");
   const [type, setType] = useState(initial?.type ?? "");
   const [purpose, setPurpose] = useState(initial?.purpose ?? "");

@@ -1,4 +1,4 @@
-// root: src/pages/api/auth/[...nextauth].ts
+﻿// root: src/pages/api/auth/[...nextauth].ts
 // استبدال كامل لعدم الاعتماد على حزمة next-auth
 import type { NextApiRequest, NextApiResponse } from "next";
 

@@ -1,11 +1,10 @@
-/**
+﻿/**
  * TaskExportOptions — واجهة خفيفة لاختيار ماذا يتضمن الـPDF
  * الاستخدام:
  * <TaskExportOptions taskId={task.id} />
  */
 import { useMemo, useState } from "react";
-
-export default function TaskExportOptions({ taskId }: { taskId: string }) {
+function TaskExportOptions({ taskId }: { taskId: string }) {
   const [includeThread, setIncludeThread] = useState(true);
   const [includeAttachments, setIncludeAttachments] = useState(true);
 

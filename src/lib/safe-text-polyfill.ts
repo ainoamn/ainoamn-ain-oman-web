@@ -1,4 +1,4 @@
-// root: src/lib/safe-text-polyfill.ts
+﻿// root: src/lib/safe-text-polyfill.ts
 import * as React from "react";
 
 type Localized = { ar?: string; en?: string; [k: string]: unknown };

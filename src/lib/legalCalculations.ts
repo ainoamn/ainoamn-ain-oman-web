@@ -1,3 +1,3 @@
-export default function handler() {
+﻿function handler() {
   return { message: "واجهة برمجية جديدة" };
 }

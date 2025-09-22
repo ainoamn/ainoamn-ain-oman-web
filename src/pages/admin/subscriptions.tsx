@@ -1,4 +1,4 @@
-// src/pages/admin/subscriptions.tsx
+﻿// src/pages/admin/subscriptions.tsx
 import Head from "next/head";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -212,7 +212,7 @@ function mergeOverlayWithServer(
 }
 
 /* الصفحة */
-export default function AdminSubscriptions() {
+function AdminSubscriptions() {
   const { dir } = useI18n();
 
   const [featuresReg, setFeaturesReg] = useState<Feature[]>([]);

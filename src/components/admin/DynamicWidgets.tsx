@@ -1,7 +1,6 @@
-// src/components/admin/DynamicWidgets.tsx
+﻿// src/components/admin/DynamicWidgets.tsx
 import { widgetRegistry, type DashboardLayout } from "@/lib/admin/widgets-registry";
-
-export default function DynamicWidgets({ layout }: { layout: DashboardLayout }) {
+function DynamicWidgets({ layout }: { layout: DashboardLayout }) {
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       <div className="space-y-6 lg:col-span-2">

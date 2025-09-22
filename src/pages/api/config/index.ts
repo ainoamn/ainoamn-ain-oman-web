@@ -1,7 +1,7 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+﻿import type { NextApiRequest, NextApiResponse } from "next";
 
 /** إعدادات عامة تُستخدم للثيم/الصفحة الرئيسية … لاحقًا سنربطها بقاعدة بيانات */
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   // يمكن لاحقًا تبديل هذه القيم من لوحة التحكم وتخزينها في DB
   const config = {
     brand: {

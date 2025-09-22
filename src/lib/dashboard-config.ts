@@ -1,4 +1,4 @@
-// مستويات الإعداد
+﻿// مستويات الإعداد
 export type WidgetKey =
   | "stats" | "subscriptions" | "auctions" | "createAuction"
   | "tasks" | "messages" | "invoices" | "favorites"

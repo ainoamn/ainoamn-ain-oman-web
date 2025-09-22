@@ -1,4 +1,4 @@
-// src/components/admin/widgets/Notifications.tsx
+﻿// src/components/admin/widgets/Notifications.tsx
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -10,8 +10,7 @@ type Notification = {
   createdAt: string;
   read: boolean;
 };
-
-export default function Notifications() {
+function Notifications() {
   const { t, dir } = useTranslation();
   const [items, setItems] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);

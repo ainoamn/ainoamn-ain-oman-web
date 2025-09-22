@@ -1,4 +1,4 @@
-// src/pages/admin/reservations.tsx
+﻿// src/pages/admin/reservations.tsx
 import Head from "next/head";
 import Layout from "@/components/layout/Layout";
 import { useEffect, useState } from "react";
@@ -19,8 +19,7 @@ type Reservation = {
 };
 
 const ALLOWED_ROLES = ["admin", "manager", "owner", "superadmin"] as const;
-
-export default function AdminReservationsPage() {
+function AdminReservationsPage() {
   const router = useRouter();
 
   // حارس عميل

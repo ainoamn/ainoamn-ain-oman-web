@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Layout from "@/components/layout/Layout";
 import type { GetServerSideProps } from "next";
 
 export const getServerSideProps: GetServerSideProps = async () => ({ redirect: { destination: "/admin/dashboard?section=tasks", permanent: false }});
-export default function RedirectTasks(){ return null; }
-export default function TasksIndexPage() {
+function RedirectTasks(){ return null; }
+function TasksIndexPage() {
   const router = useRouter();
   const [taskId, setTaskId] = useState("");
 

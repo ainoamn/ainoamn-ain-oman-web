@@ -1,9 +1,8 @@
-// src/components/auth/withSubscription.tsx
+﻿// src/components/auth/withSubscription.tsx
 import React from "react";
 import { useAuth, hasPermission, type CurrentUser, type Permission } from "@/lib/auth";
 import Link from "next/link";
-
-export default function withSubscription<P extends object>(
+function withSubscription<P extends object>(
   Component: React.ComponentType<P>,
   required: Permission[] = []
 ) {

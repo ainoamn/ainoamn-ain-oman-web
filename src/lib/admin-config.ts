@@ -1,4 +1,4 @@
-// src/lib/admin-config.ts
+﻿// src/lib/admin-config.ts
 export const adminDashboardConfig = {
   defaultWidgets: [
     'stats-overview',

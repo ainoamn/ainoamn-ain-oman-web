@@ -1,7 +1,6 @@
-// src/components/SortBar.tsx
+﻿// src/components/SortBar.tsx
 export type SortValue = "newest" | "priceAsc" | "priceDesc" | "rating" | "views" | "";
-
-export default function SortBar({ value, onChange }: { value: SortValue; onChange: (v: SortValue) => void }) {
+function SortBar({ value, onChange }: { value: SortValue; onChange: (v: SortValue) => void }) {
   return (
     <div className="sticky top-16 z-20 bg-[#FAF9F6] py-2">
       <div className="flex items-center gap-2">

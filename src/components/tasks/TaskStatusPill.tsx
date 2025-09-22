@@ -1,8 +1,8 @@
-/**
+﻿/**
  * TaskStatusPill — شارة حالة ملوّنة اعتمادًا على "الأولوية"
  * الاستخدام: <TaskStatusPill status={task.status} priority={task.priority} />
  */
-export default function TaskStatusPill({
+function TaskStatusPill({
   status,
   priority,
 }: {

@@ -1,4 +1,4 @@
-// src/components/maps/GoogleMapsLoader.ts
+﻿// src/components/maps/GoogleMapsLoader.ts
 import { useJsApiLoader } from "@react-google-maps/api";
 
 /**

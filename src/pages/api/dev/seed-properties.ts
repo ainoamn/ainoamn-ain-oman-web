@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API DEV: GET /api/dev/seed-properties
  * يضيف 3 عقارات تجريبية إذا كان الملف فارغاً.
  */
@@ -11,8 +11,7 @@ function ensure() { if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursi
 function readAll(): any[] { ensure(); return JSON.parse(fs.readFileSync(file, "utf8")); }
 function writeAll(arr: any[]) { ensure(); fs.writeFileSync(file, JSON.stringify(arr, null, 2), "utf8"); }
 function pad(n: number, w = 6) { return String(n).padStart(w, "0"); }
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method !== "GET") { res.setHeader("Allow","GET"); return res.status(405).json({ error: "Method not allowed" }); }
     const arr = readAll();

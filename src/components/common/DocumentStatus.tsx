@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { daysUntil } from "@/utils/date";
 export function DocumentStatus({ expiry }: { expiry?: string }) {
   if (!expiry) return <span className="text-xs text-neutral-500">—</span>;

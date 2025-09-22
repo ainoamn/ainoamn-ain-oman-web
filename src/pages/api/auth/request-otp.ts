@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+﻿import type { NextApiRequest, NextApiResponse } from "next";
 
 type Ok = { ok: true; demo?: boolean; demoCode?: string };
 type Err = { error: string };

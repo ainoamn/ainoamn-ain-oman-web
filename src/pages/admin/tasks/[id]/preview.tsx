@@ -1,4 +1,4 @@
-import Head from "next/head";
+﻿import Head from "next/head";
 import Layout from "@/components/layout/Layout";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -54,8 +54,7 @@ const PriorityBadge = ({ priority }: { priority: Task["priority"] }) => {
     </span>
   );
 };
-
-export default function TaskPreviewPage() {
+function TaskPreviewPage() {
   const router = useRouter();
   const tid = Array.isArray(router.query.id) ? router.query.id[0] : router.query.id;
   const [task, setTask] = useState<Task | null>(null);

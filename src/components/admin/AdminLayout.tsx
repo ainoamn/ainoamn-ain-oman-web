@@ -1,11 +1,10 @@
-// src/components/admin/AdminLayout.tsx
+﻿// src/components/admin/AdminLayout.tsx
 import { ReactNode } from "react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useTranslation } from "@/hooks/useTranslation";
-
-export default function AdminLayout({ children }: { children: ReactNode }) {
+function AdminLayout({ children }: { children: ReactNode }) {
   const { dir } = useTranslation();
   return (
     <div dir={dir} className="min-h-screen bg-slate-50">

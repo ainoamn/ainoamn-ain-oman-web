@@ -1,4 +1,4 @@
-// src/lib/auth.ts
+﻿// src/lib/auth.ts
 import { useAuth as useAuthCtx } from "@/context/AuthContext";
 
 export type Permission = string;

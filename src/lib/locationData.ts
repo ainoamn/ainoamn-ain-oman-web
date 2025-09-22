@@ -1,4 +1,4 @@
-// src/lib/locationData.ts
+﻿// src/lib/locationData.ts
 // محافظات + ولايات + عدد جيّد من القرى (يمكنك الإضافة لاحقاً من لوحة التحكم/ملف CSV)
 const locationData = {
   provinces: [

@@ -1,4 +1,4 @@
-// src/pages/api/chat/index.ts
+﻿// src/pages/api/chat/index.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { readJson, writeJson } from "../../../server/fsdb";
 
@@ -7,8 +7,7 @@ type Message = { id: string; from: "user"|"owner"|"system"|"admin"; text: string
 type Thread = { id: string; subject?: string; pageUrl?: string; propertyId?: number; target: ChatTarget; createdAt: string; messages: Message[] };
 
 const FILE = "chat.json";
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   const threads = readJson<Thread[]>(FILE, []);
 
   if (req.method === "GET") {

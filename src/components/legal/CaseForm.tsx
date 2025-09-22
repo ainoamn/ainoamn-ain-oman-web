@@ -1,4 +1,4 @@
-// src/components/legal/CaseForm.tsx
+﻿// src/components/legal/CaseForm.tsx
 import React from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 
@@ -10,8 +10,7 @@ type CaseFormData = {
   defendant?: string;
   filingDate?: string; // ISO string
 };
-
-export default function CaseForm({
+function CaseForm({
   onSubmitSuccess,
 }: {
   onSubmitSuccess?: (data: CaseFormData) => void;

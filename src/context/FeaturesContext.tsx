@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+﻿import React, { createContext, useContext, useEffect, useState } from "react";
 
 export type FeatureFlags = {
   aiAssistant: boolean;
@@ -57,7 +57,7 @@ export function FeaturesProvider({ children }: { children: React.ReactNode }) {
       if (c.brand700) root.style.setProperty("--brand-700", c.brand700);
       if (c.brand800) root.style.setProperty("--brand-800", c.brand800);
       if (c.pageBg)  root.style.setProperty("--vanilla",  c.pageBg);
-    } catch {}
+    } catch (_e) {}
   };
 
   useEffect(() => { load(); }, []);

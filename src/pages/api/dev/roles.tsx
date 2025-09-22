@@ -1,4 +1,4 @@
-import Head from "next/head";
+﻿import Head from "next/head";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useI18n } from "@/lib/i18n";
@@ -19,8 +19,7 @@ const ROLES = [
   ["sub_user","مستخدم فرعي"],
   ["super_admin","مشرف أعلى"],
 ] as const;
-
-export default function RoleDev(){
+function RoleDev(){
   const { dir } = useI18n();
   const router = useRouter();
   const [busy,setBusy]=useState(false);

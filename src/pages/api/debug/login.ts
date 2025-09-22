@@ -1,5 +1,5 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-export default function handler(req:NextApiRequest,res:NextApiResponse){
+﻿import type { NextApiRequest, NextApiResponse } from "next";
+function handler(req:NextApiRequest,res:NextApiResponse){
   const id = String((req.query.id as string)||"user@example.com");
   const name = String((req.query.name as string)||"User");
   res.setHeader("Set-Cookie", [

@@ -1,4 +1,4 @@
-// src/components/admin/NewLinkDialog.tsx
+﻿// src/components/admin/NewLinkDialog.tsx
 // يضيف "المجموعة (اختياري)" كقائمة منسدلة مع إمكانية إنشاء مجموعة جديدة
 // ويجعل onCreated اختيارية لمنع الخطأ.
 import React, { useEffect, useMemo, useState } from "react";
@@ -9,8 +9,7 @@ type Props = {
   onClose: () => void;
   onCreated?: () => void; // اختياري الآن
 };
-
-export default function NewLinkDialog({ open, onClose, onCreated }: Props) {
+function NewLinkDialog({ open, onClose, onCreated }: Props) {
   const [id, setId] = useState("");
   const [title, setTitle] = useState("");
   const [useCentral, setUseCentral] = useState(true);
@@ -30,7 +29,7 @@ export default function NewLinkDialog({ open, onClose, onCreated }: Props) {
         const r = await fetch("/api/admin/dev/sections");
         const j = await r.json();
         extras = Array.from(new Set((j?.sections || []).map((s: any) => s.group).filter(Boolean)));
-      } catch {}
+      } catch (_e) {}
       const all = Array.from(new Set([...builtins, ...extras, "custom"]));
       setGroups(all);
     })();

@@ -1,4 +1,4 @@
-// src/components/layout/AnnouncementBar.tsx
+﻿// src/components/layout/AnnouncementBar.tsx
 "use client";
 import { XMarkIcon, MegaphoneIcon, CheckBadgeIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { useHeaderFooterConfig } from "@/hooks/useHeaderFooterConfig";
@@ -9,8 +9,7 @@ const COLORS: Record<string, string> = {
   warning: "bg-amber-600",
   danger:  "bg-rose-600",
 };
-
-export default function AnnouncementBar() {
+function AnnouncementBar() {
   const { config, setConfig } = useHeaderFooterConfig();
   const visible = config.announcements.filter(a => a.visible);
 

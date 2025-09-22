@@ -1,4 +1,4 @@
-// src/pages/admin/dashboard.tsx
+﻿// src/pages/admin/dashboard.tsx
 import Head from "next/head";
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
@@ -19,7 +19,7 @@ function loadJSON<T>(key: string, fallback: T, validate?: (v:any)=>boolean): T {
     if (validate && !validate(v)) throw new Error("invalid shape");
     return v as T;
   } catch {
-    try { localStorage.removeItem(key); } catch {}
+    try { localStorage.removeItem(key); } catch (_e) {}
     return fallback;
   }
 }
@@ -140,7 +140,7 @@ function SectionCard({ title, icon:Icon, action, children }:{
 }
 
 /* ===== الصفحة ===== */
-export default function AdminDashboardPage() {
+function AdminDashboardPage() {
   const [adm, setAdm] = useState<AdminToggles>({} as AdminToggles);
   const [overrides, setOverrides] = useState<WidgetOverrides>({});
   const [links, setLinks] = useState<AdminLink[]>([]);

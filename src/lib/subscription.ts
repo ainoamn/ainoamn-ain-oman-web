@@ -1,4 +1,4 @@
-import type { AppUser } from "@/lib/auth";
+﻿import type { AppUser } from "@/lib/auth";
 
 export type Feature = "hoa" | "invest";
 

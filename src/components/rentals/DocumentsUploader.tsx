@@ -1,4 +1,4 @@
-// src/components/rentals/DocumentsUploader.tsx
+﻿// src/components/rentals/DocumentsUploader.tsx
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,8 +8,7 @@ interface DocumentsUploaderProps {
   rentalId: string;
   onUploadComplete?: (doc: any) => void;
 }
-
-export default function DocumentsUploader({ rentalId, onUploadComplete }: DocumentsUploaderProps) {
+function DocumentsUploader({ rentalId, onUploadComplete }: DocumentsUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedKind, setSelectedKind] = useState<DocKind>("id");

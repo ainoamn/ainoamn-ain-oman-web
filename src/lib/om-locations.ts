@@ -1,4 +1,4 @@
-// src/lib/om-locations.ts //
+﻿// src/lib/om-locations.ts //
 export type Village = string;
 export type State = { name: string; villages: Village[] };
 export type Province = { name: string; states: State[] };

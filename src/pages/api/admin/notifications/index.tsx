@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Admin UI: Notifications Center
  * Path: /admin/notifications
  * Location: src/pages/admin/notifications/index.tsx
@@ -32,8 +32,7 @@ function uuid() {
     return v.toString(16);
   });
 }
-
-export default function NotificationsAdminPage() {
+function NotificationsAdminPage() {
   const [loading, setLoading] = useState(true);
   const [templates, setTemplates] = useState<NotificationTemplate[]>([]);
   const [err, setErr] = useState<string | null>(null);

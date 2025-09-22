@@ -1,4 +1,4 @@
-// src/pages/admin/dashboard/widgets.tsx
+﻿// src/pages/admin/dashboard/widgets.tsx
 import Head from "next/head";
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
@@ -26,7 +26,7 @@ function loadJSON<T>(key: string, fallback: T, validate?: (v:any)=>boolean): T {
     if (validate && !validate(v)) throw new Error("invalid");
     return v as T;
   } catch {
-    try { localStorage.removeItem(key); } catch {}
+    try { localStorage.removeItem(key); } catch (_e) {}
     return fallback;
   }
 }
@@ -262,7 +262,7 @@ function Modal({
 }
 
 /* الصفحة */
-export default function AdminDashboardWidgetsPage() {
+function AdminDashboardWidgetsPage() {
   const [adm, setAdm] = useState<AdminDefaults>(DEFAULT_ADMIN);
   const [overrides, setOverrides] = useState<WidgetOverrides>({});
   const [links, setLinks] = useState<AdminLink[]>([]);

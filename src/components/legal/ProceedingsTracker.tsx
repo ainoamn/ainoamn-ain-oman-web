@@ -1,3 +1,3 @@
-export default function Component() {
+﻿function Component() {
   return <div>مكون جديد</div>;
 }

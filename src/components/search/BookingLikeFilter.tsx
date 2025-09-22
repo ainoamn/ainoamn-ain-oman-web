@@ -1,4 +1,4 @@
-// src/components/search/BookingLikeFilter.tsx
+﻿// src/components/search/BookingLikeFilter.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import locationData from "../../lib/locationData";
 
@@ -41,8 +41,7 @@ export type BookingLikePayload = {
   // وسوم سريعة
   tags?: string[]; // ["قريب من البحر", ...]
 };
-
-export default function BookingLikeFilter({
+function BookingLikeFilter({
   onSearch,
   instant = false,
   defaultValues

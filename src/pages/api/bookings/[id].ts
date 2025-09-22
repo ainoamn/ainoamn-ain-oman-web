@@ -1,4 +1,4 @@
-// root: src/pages/api/bookings/[id].ts
+﻿// root: src/pages/api/bookings/[id].ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getById as getPropertyById, upsert as upsertProperty } from "@/server/properties/store";
 
@@ -17,8 +17,7 @@ function store(): Store {
   if (!global.__AIN_OMAN_STORE__) global.__AIN_OMAN_STORE__ = { bookings: [] };
   return global.__AIN_OMAN_STORE__;
 }
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   const id = String(req.query.id || "");
   if (!id) return res.status(400).json({ error: "Missing id" });
 

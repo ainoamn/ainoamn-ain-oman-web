@@ -1,7 +1,6 @@
-// src/components/ai/AuctionInsights.tsx
+﻿// src/components/ai/AuctionInsights.tsx
 import React, { useMemo, useState } from "react";
-
-export default function AuctionInsights({ startingPrice, currentBid, area, bedrooms, bathrooms }: {
+function AuctionInsights({ startingPrice, currentBid, area, bedrooms, bathrooms }: {
   startingPrice: number;
   currentBid: number;
   area?: number;

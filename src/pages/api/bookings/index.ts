@@ -1,4 +1,4 @@
-// root: src/pages/api/bookings/index.ts
+﻿// root: src/pages/api/bookings/index.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getById as getPropertyById, upsert as upsertProperty } from "@/server/properties/store";
 
@@ -28,8 +28,7 @@ function store(): Store {
   return global.__AIN_OMAN_STORE__;
 }
 function uid(prefix: string){ return prefix + "-" + new Date().toISOString().replace(/[-:.TZ]/g,"").slice(0,14); }
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
     const { propertyId, role } = req.query;
     const items = store().bookings.filter(b => {

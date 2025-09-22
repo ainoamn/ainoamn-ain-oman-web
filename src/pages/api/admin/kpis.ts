@@ -1,4 +1,4 @@
-// src/pages/api/admin/kpis.ts
+﻿// src/pages/api/admin/kpis.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import path from "path";
@@ -24,8 +24,7 @@ function writeKPIs(kpi: KPIs) {
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
   fs.writeFileSync(dataFile, JSON.stringify(kpi, null, 2), "utf8");
 }
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
     return res.status(200).json(readKPIs());
   }

@@ -1,4 +1,4 @@
-// FILE: src/pages/admin/notifications.tsx
+﻿// FILE: src/pages/admin/notifications.tsx
 import Head from "next/head";
 import Layout from "@/components/layout/Layout";
 import { useEffect, useState } from "react";
@@ -7,8 +7,7 @@ type OutboxItem = {
   id: string; at: string; channel: "email"|"whatsapp"|"sms"|"push";
   to: string; subject?: string; text: string; taskId?: string;
 };
-
-export default function NotificationsAdminPage() {
+function NotificationsAdminPage() {
   const [items, setItems] = useState<OutboxItem[]>([]);
   const [loading, setLoading] = useState(true);
 

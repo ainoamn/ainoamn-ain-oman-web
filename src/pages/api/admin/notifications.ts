@@ -1,4 +1,4 @@
-// src/pages/api/admin/notifications.ts
+﻿// src/pages/api/admin/notifications.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import path from "path";
@@ -30,8 +30,7 @@ function writeAll(list: Notification[]) {
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
   fs.writeFileSync(dataFile, JSON.stringify(list, null, 2), "utf8");
 }
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
     const list = readAll();
     return res.status(200).json({ notifications: list });

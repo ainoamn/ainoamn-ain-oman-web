@@ -1,4 +1,4 @@
-import Head from "next/head";
+﻿import Head from "next/head";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useEffect, useMemo, useState } from "react";
@@ -9,8 +9,7 @@ type Order = { id:string; serial:string; userId:string; name:string; adProductId
 
 function toInput(ms:number|null){ if(!ms) return ""; const d=new Date(ms); const p=(n:number)=> String(n).padStart(2,"0"); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;}
 function fromInput(s:string){ if(!s) return null; const t=new Date(s).getTime(); return Number.isFinite(t)? t : null; }
-
-export default function AdminAds(){
+function AdminAds(){
   const { dir } = useI18n();
   const [products,setProducts]=useState<Product[]>([]);
   const [orders,setOrders]=useState<Order[]>([]);

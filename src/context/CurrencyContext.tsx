@@ -1,4 +1,4 @@
-// src/context/CurrencyContext.tsx
+﻿// src/context/CurrencyContext.tsx
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 export type Currency = "OMR" | "AED" | "SAR" | "USD";

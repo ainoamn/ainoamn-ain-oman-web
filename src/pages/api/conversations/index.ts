@@ -1,4 +1,4 @@
-// src/pages/api/conversations/index.ts
+﻿// src/pages/api/conversations/index.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { listThreadsForUser } from "@/server/messages/store";
 
