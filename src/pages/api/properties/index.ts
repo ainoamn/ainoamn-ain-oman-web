@@ -1,175 +1,71 @@
-// root: src/pages/api/properties/index.ts
+// src/pages/api/properties/index.ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import path from "path";
-import fs from "fs";
-import formidable, { File as FormFile } from "formidable";
-import { readAll, upsert, type Property } from "@/server/properties/store";
-import { normalizeUsage } from "@/lib/property";
 
-export const config = { api: { bodyParser: false } };
+// نفس مخزن المباني المستخدم سابقًا
+type Unit = {
+  id: string;
+  unitNo: string;
+  rentAmount?: number;
+  currency?: string;
+  status?: "vacant" | "reserved" | "leased";
+  published?: boolean;
+  image?: string;
+  images?: string[];
+};
+type Building = {
+  id: string;
+  buildingNo: string;
+  address: string;
+  images?: string[];
+  coverIndex?: number;
+  published?: boolean;
+  archived?: boolean;
+  units: Unit[];
+  createdAt: string;
+  updatedAt: string;
+};
+type DB = { buildings: Building[] };
+// @ts-ignore
+global.__AIN_DB__ = global.__AIN_DB__ || ({ buildings: [] } as DB);
+const db: DB = global.__AIN_DB__;
 
-function sanitizeDeep(value: any, seen = new WeakSet(), depth = 0): any {
-  if (value === null || value === undefined) return value;
-  const t = typeof value;
-  if (t === "string") {
-    if (/^data:image\/(png|jpe?g|webp);base64,/i.test(value)) return undefined;
-    // Avoid extremely long strings
-    if (value.length > 4_000_000) return value.slice(0, 4_000_000);
-    return value;
-  }
-  if (t === "number" || t === "boolean") return value;
-  if (t === "function") return undefined;
-  if (seen.has(value)) return undefined;
-  if (depth > 32) return undefined;
-  seen.add(value);
-  if (Array.isArray(value)) {
-    const out: any[] = [];
-    for (const v of value) {
-      const s = sanitizeDeep(v, seen, depth + 1);
-      if (s !== undefined) out.push(s);
-    }
-    return out;
-  }
-  const out: Record<string, any> = {};
-  for (const [k, v] of Object.entries(value)) {
-    if (k === "images") continue; // handled separately
-    const s = sanitizeDeep(v, seen, depth + 1);
-    if (s !== undefined) out[k] = s;
-  }
-  return out;
+function resolveSrc(name?: string) {
+  if (!name) return "";
+  if (/^https?:\/\//.test(name) || name.startsWith("data:") || name.startsWith("/")) return name;
+  return `/uploads/${name}`;
 }
 
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  // GET /api/properties?published=1
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).end();
+  }
 
-function ensureDir(p: string) { if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true }); }
-function toArray<T>(x: T | T[] | undefined | null): T[] { return !x ? [] : Array.isArray(x) ? x : [x]; }
-function parseMaybeJSON<T = any>(v: any): T | any { if (typeof v !== "string") return v; try { return JSON.parse(v); } catch { return v; } }
-async function readJSON(req: NextApiRequest): Promise<any> {
-  const chunks: Buffer[] = [];
-  for await (const c of req) chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c));
-  const raw = Buffer.concat(chunks).toString("utf8");
-  if (!raw) return {};
-  try { return JSON.parse(raw); } catch { return {}; }
-}
-function isDataUrl(s: string) { return /^data:image\/(png|jpe?g|webp);base64,/i.test(s); }
-function saveDataUrl(dataUrl: string, dir: string, idx: number): string {
-  const m = /^data:image\/(png|jpe?g|webp);base64,(.+)$/i.exec(dataUrl);
-  if (!m) return "";
-  const ext = m[1].toLowerCase().startsWith("jp") ? "jpg" : m[1].toLowerCase();
-  const buf = Buffer.from(m[2], "base64");
-  const name = `img_${idx}_${Date.now()}.${ext}`;
-  const filePath = path.join(dir, name);
-  fs.writeFileSync(filePath, buf);
-  return `/uploads/properties/${path.basename(dir)}/${name}`;
-}
-async function parseMultipart(req: NextApiRequest): Promise<{ fields: any; files: Record<string, FormFile[]>; }> {
-  const uploadRoot = path.resolve(process.cwd(), "public", "uploads", "properties");
-  ensureDir(uploadRoot);
-  const folder = String(Date.now());
-  const targetDir = path.join(uploadRoot, folder);
-  ensureDir(targetDir);
-  const form = formidable({ multiples: true, uploadDir: targetDir, keepExtensions: true });
-  return new Promise((resolve, reject) => {
-    form.parse(req, (err, fields, files) => {
-      if (err) return reject(err);
-      const map: Record<string, FormFile[]> = {};
-      for (const [k, v] of Object.entries(files)) map[k] = toArray(v as any) as FormFile[];
-      (fields as any).__folder = folder;
-      resolve({ fields, files: map });
+  const publishedOnly = String(req.query.published || "1") === "1";
+  const includeArchived = String(req.query.includeArchived || "0") === "1";
+
+  const items = db.buildings
+    .filter((b) => (includeArchived || !b.archived) && (!publishedOnly || !!b.published))
+    .flatMap((b) => {
+      const coverList = b.images || [];
+      const cover =
+        coverList[(typeof b.coverIndex === "number" ? b.coverIndex : 0) || 0] || coverList[0] || "";
+      return (b.units || [])
+        .filter((u) => (!publishedOnly || !!u.published))
+        .map((u) => ({
+          id: `${b.id}::${u.id}`, // معرف تركيبي آمن للقائمة
+          buildingId: b.id,
+          unitId: u.id,
+          buildingNo: b.buildingNo,
+          unitNo: u.unitNo,
+          address: b.address,
+          image: resolveSrc(u.image || u.images?.[0] || cover),
+          rentAmount: u.rentAmount || 0,
+          currency: u.currency || "OMR",
+          status: u.status || "vacant",
+        }));
     });
-  });
-}
-function moveFilesToUrls(files: FormFile[], folder: string): string[] {
-  const urls: string[] = [];
-  for (const f of files) {
-    const p = (f as any).filepath || (f as any).path;
-    if (!p) continue;
-    const name = path.basename(p);
-    urls.push(`/uploads/properties/${folder}/${name}`);
-  }
-  return urls;
-}
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
-
-  if (req.method === "GET") {
-    return res.status(200).json({ items: readAll() });
-  }
-
-  if (req.method === "POST") {
-    try {
-      const ctype = String(req.headers["content-type"] || "");
-      let body: any = {};
-      let images: string[] = [];
-      let folder = String(Date.now());
-
-      if (ctype.includes("multipart/form-data")) {
-        const { fields, files } = await parseMultipart(req);
-        folder = (fields as any).__folder || folder;
-        for (const k of Object.keys(fields)) (fields as any)[k] = parseMaybeJSON((fields as any)[k]);
-        body = fields;
-        const fileBuckets = ["file", "files", "images", "photos", "media"]
-          .flatMap((k) => toArray(files[k]).filter(Boolean));
-        images.push(...moveFilesToUrls(fileBuckets, folder));
-        const uploadDir = path.resolve(process.cwd(), "public", "uploads", "properties", folder);
-        ensureDir(uploadDir);
-        const dataUrlRaw = ([] as any[]).concat(
-          toArray((fields as any).images),
-          toArray((fields as any).dataUrls),
-        ).flat().filter(Boolean);
-        dataUrlRaw.forEach((v, i) => {
-          if (typeof v === "string" && isDataUrl(v)) {
-            const u = saveDataUrl(v, uploadDir, i);
-            if (u) images.push(u);
-          }
-        });
-      } else if (ctype.includes("application/json") || !ctype) {
-        body = await readJSON(req);
-        const upRoot = path.resolve(process.cwd(), "public", "uploads", "properties");
-        ensureDir(upRoot);
-        const uploadDir = path.join(upRoot, folder);
-        ensureDir(uploadDir);
-        const maybeImgs = toArray(body.images);
-        let idx = 0;
-        for (const v of maybeImgs) {
-          if (typeof v === "string") {
-            if (isDataUrl(v)) images.push(saveDataUrl(v, uploadDir, idx++));
-            else images.push(v);
-          }
-        }
-      } else {
-        return res.status(415).json({ error: "Unsupported Media Type" });
-      }
-
-      body = normalizeUsage(body || {});
-      body = sanitizeDeep(body);
-      const now = new Date().toISOString();
-      const id = body.id?.toString() || "P-" + now.replace(/[-:.TZ]/g, "").slice(0, 14);
-
-      const item: Property = {
-        id,
-        referenceNo: body.referenceNo || "",
-        title: body.title || { ar: "", en: "" },
-        priceOMR: Number(body.priceOMR ?? 0),
-        province: body.province || "",
-        state: body.state || "",
-        village: body.village || "",
-        purpose: body.purpose || "rent",
-        type: body.type || "apartment",
-        status: body.status || "vacant",
-        createdAt: now,
-        updatedAt: now,
-        ...body,
-        id,
-        images: Array.isArray(images) && images.length ? images : (Array.isArray(body.images) ? body.images : []),
-      };
-
-      upsert(item);
-      return res.status(201).json({ id: item.id, item: sanitizeDeep(item) });
-    } catch (e: any) {
-      return res.status(400).json({ error: e?.message || "Bad Request" });
-    }
-  }
-
-  return res.status(405).json({ error: "Method Not Allowed" });
+  return res.json({ items });
 }
