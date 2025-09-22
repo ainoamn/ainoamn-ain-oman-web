@@ -1,4 +1,4 @@
-/**
+﻿/**
  * TaskInvitePanel
  * إرسال دعوة بالمشاركة في المهمة عبر البريد/الواتساب باستخدام لوحة الإشعارات.
  * يتوقع وجود قوالب باسم task_invite (email/whatsapp) في /admin/notifications.
@@ -86,7 +86,6 @@ function findTplId(name: string, channel: "email" | "whatsapp", tpls: any[]) {
   return t?.id || null;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method !== "POST") { res.setHeader("Allow","POST"); return res.status(405).json({ error:"Method not allowed" }); }
     const taskId = String(req.query.id || "");
