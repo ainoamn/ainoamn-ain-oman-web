@@ -31,7 +31,7 @@ export default function TaskFiltersBar({
   };
 }) {
   const [f, setF] = useState<TaskFilters>(initial || { status: ["open","in_progress"], priorities: [] });
-  useEffect(()=>{ // تحميل آخر اختيار إن لم تُمرره من الخارج
+//   useEffect(()=>{ // تحميل آخر اختيار إن لم تُمرره من الخارج
     if (initial) return;
     try {
       const raw = localStorage.getItem(LS_KEY);
@@ -62,7 +62,7 @@ export default function TaskFiltersBar({
           onChange={(e)=>setF({ ...f, q: e.target.value })}
         />
 
-        {/* الحالة */}
+//         {/* الحالة */}
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-gray-500">الحالة:</span>
           {["open","in_progress","done"].map(s => (
@@ -72,7 +72,7 @@ export default function TaskFiltersBar({
           ))}
         </div>
 
-        {/* الأولوية */}
+//         {/* الأولوية */}
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-gray-500">الأولوية:</span>
           {[
@@ -84,7 +84,7 @@ export default function TaskFiltersBar({
           ))}
         </div>
 
-        {/* المكلّفون */}
+//         {/* المكلّفون */}
         <div className="md:col-span-2 flex flex-wrap items-center gap-2">
           <span className="text-xs text-gray-500">المكلّفون:</span>
           {(options?.assignees || []).map(u => (
@@ -94,7 +94,7 @@ export default function TaskFiltersBar({
           ))}
         </div>
 
-        {/* الفئات */}
+//         {/* الفئات */}
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-gray-500">الفئات:</span>
           {(options?.categories || []).map(c => (
@@ -104,7 +104,7 @@ export default function TaskFiltersBar({
           ))}
         </div>
 
-        {/* التسميات */}
+//         {/* التسميات */}
         <div className="md:col-span-3 flex flex-wrap items-center gap-2">
           <span className="text-xs text-gray-500">التسميات:</span>
           {(options?.labels || []).map(t => (
@@ -122,7 +122,7 @@ export default function TaskFiltersBar({
     </div>
   );
 }
-دمج سريع داخل صفحة /admin/tasks لديك:
+// دمج سريع داخل صفحة /admin/tasks لديك:
 
 import TaskFiltersBar, { type TaskFilters } from "@/components/tasks/TaskFiltersBar";
 
@@ -130,7 +130,7 @@ function AdminTasksPage() {
   // ...
   const [filters, setFilters] = useState<TaskFilters>({});
   const load = async (f: TaskFilters) => {
-    // مثال: تحويل الفلاتر إلى باراميترات واستدعاء API /api/tasks
+//     // مثال: تحويل الفلاتر إلى باراميترات واستدعاء API /api/tasks
     const params = new URLSearchParams();
     if (f.q) params.set("q", f.q);
     if (f.status?.length) params.set("status", f.status.join(","));
@@ -142,24 +142,24 @@ function AdminTasksPage() {
     // setTasks(await r.json());
   };
 
-  useEffect(()=>{ load(filters); }, []); // تحميل أولي
+//   useEffect(()=>{ load(filters); }, []); // تحميل أولي
 
   return (
     <>
       <TaskFiltersBar
-        initial={undefined} // سيقرأ من localStorage
+//         initial={undefined} // سيقرأ من localStorage
         options={{ assignees:[{id:"ali",name:"علي"},{id:"fatma",name:"فاطمة"}], categories:["صيانة","إيجارات","تحصيل"], labels:["مستعجل","خارجي","VIP"] }}
         onChange={(f)=>{ setFilters(f); load(f); }}
       />
-      {/* جدول/لوح المهام */}
+//       {/* جدول/لوح المهام */}
     </>
   );
 }
-إن أردت دعم الفلاتر في الـAPI، أضف قراءة للـquery params داخل /api/tasks لتصفية النتائج (إن لم تكن موجودة لديك).
+// إن أردت دعم الفلاتر في الـAPI، أضف قراءة للـquery params داخل /api/tasks لتصفية النتائج (إن لم تكن موجودة لديك).
 
-4) PDF للمهمة (مع المحادثة والمرفقات) + “خيارات التصدير”
-4.1 مولّد PDF بسيط (Node)
-يعتمد على pdfkit. إن لم تكن مثبتة:
+// 4) PDF للمهمة (مع المحادثة والمرفقات) + “خيارات التصدير”
+// 4.1 مولّد PDF بسيط (Node)
+// يعتمد على pdfkit. إن لم تكن مثبتة:
 
 npm i pdfkit @types/pdfkit
 TXT: src/server/pdf/taskPdf.ts
@@ -193,7 +193,7 @@ export function taskToPdfStream(task: TaskForPdf): Readable {
   const P = (t?: string) => { if (!t) return; doc.moveDown(0.2).fontSize(10).fillColor("#333").text(t); };
   const L = () => doc.moveDown(0.3).strokeColor("#ddd").lineWidth(1).moveTo(doc.page.margins.left, doc.y).lineTo(doc.page.width-doc.page.margins.right, doc.y).stroke();
 
-  // الرأس
+//   // الرأس
   doc.fontSize(18).fillColor("#0a0a0a").text(`Task ${task.id}: ${task.title}`, { align: "left" });
   P(`Status: ${task.status || "-" } • Priority: ${task.priority || "-" } • Category: ${task.category || "-" }`);
   P(`Assignees: ${(task.assignees||[]).join(", ") || "-"}`);
@@ -201,12 +201,12 @@ export function taskToPdfStream(task: TaskForPdf): Readable {
   P(`Created: ${task.createdAt || "-"} • Updated: ${task.updatedAt || "-"}`);
   L();
 
-  // الوصف
+//   // الوصف
   H("الوصف");
   P(task.description || "-");
   L();
 
-  // المحادثة
+//   // المحادثة
   H("المحادثة");
   if (!task.thread || task.thread.length === 0) {
     P("— لا توجد رسائل —");
@@ -217,7 +217,7 @@ export function taskToPdfStream(task: TaskForPdf): Readable {
   }
   L();
 
-  // المرفقات
+//   // المرفقات
   H("المرفقات");
   if (!task.attachments || task.attachments.length === 0) {
     P("— لا توجد مرفقات —");
@@ -230,7 +230,7 @@ export function taskToPdfStream(task: TaskForPdf): Readable {
   doc.end();
   return stream;
 }
-4.2 API الطباعة (يدعم خيارات includeThread/includeAttachments)
+// 4.2 API الطباعة (يدعم خيارات includeThread/includeAttachments)
 TXT: src/pages/api/tasks/[id]/print.ts
 
 /**
@@ -242,7 +242,7 @@ import { taskToPdfStream, type TaskForPdf } from "@/server/pdf/taskPdf";
 import { readFileSync, existsSync } from "fs";
 import path from "path";
 
-// مثال: إن كنت تخزن المهام في .data/tasks.json
+// // مثال: إن كنت تخزن المهام في .data/tasks.json
 function readTaskById(id: string): any | null {
   try {
     const file = path.join(process.cwd(), ".data", "tasks.json");
@@ -252,10 +252,10 @@ function readTaskById(id: string): any | null {
   } catch { return null; }
 }
 
-// (اختياري) قراءة محادثة/مرفقات من ملفات منفصلة أو ضمن نفس الكائن
+// // (اختياري) قراءة محادثة/مرفقات من ملفات منفصلة أو ضمن نفس الكائن
 function readThreadForTask(t: any): any[] { return Array.isArray(t?.thread) ? t.thread : []; }
 function readAttachmentsForTask(t: any): any[] {
-  // إن كنت تخزنها في t.attachments أو في ملف .data/task-attachments.json عدّل هذه الدالة
+//   // إن كنت تخزنها في t.attachments أو في ملف .data/task-attachments.json عدّل هذه الدالة
   return Array.isArray(t?.attachments) ? t.attachments : [];
 }
 
@@ -298,4 +298,4 @@ function readAttachmentsForTask(t: any): any[] {
     console.error(e); return res.status(500).json({ error: e?.message || "Internal Server Error" });
   }
 }
-4.3 واجهة “خيارات التصدير” (تتحكم في المعلمات)
+// 4.3 واجهة “خيارات التصدير” (تتحكم في المعلمات)
