@@ -1,4 +1,4 @@
-﻿/**
+/**
  * TaskInvitePanel
  * إرسال دعوة بالمشاركة في المهمة عبر البريد/الواتساب باستخدام لوحة الإشعارات.
  * يتوقع وجود قوالب باسم task_invite (email/whatsapp) في /admin/notifications.

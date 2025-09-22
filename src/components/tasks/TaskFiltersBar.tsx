@@ -1,4 +1,4 @@
-﻿/**
+/**
  * TaskFiltersBar — فلاتر متقدّمة + حفظ آخر اختيار في localStorage
  * الاستخدام:
  * <TaskFiltersBar initial={saved} onChange={(filters)=>loadTasks(filters)} />

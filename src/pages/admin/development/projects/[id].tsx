@@ -943,7 +943,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 أنت قلت:
 Build Error
 
-
   × Unexpected eof
 
 ./src/pages/development/projects/[id].tsx
@@ -2314,7 +2313,6 @@ const sum = (arr: number[]) => arr.reduce((a,b)=>a+(Number.isFinite(b)?b:0), 0);
 المسار: src/pages/api/ai/assist.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const body = (typeof req.body === "string" ? JSON.parse(req.body) : req.body) || {};
     const project = body.project || {};
@@ -2406,13 +2404,11 @@ function fmt(n?: number) { if(!n) return "0"; try { return new Intl.NumberFormat
 وعند الضغط على http://localhost:3000/admin/development/projects
 عرض المشروع يظهر الخطا التالي 
 
-
 1/1
 
 Next.js 15.4.6
 Webpack
 Build Error
-
 
   × Expected '}', got '<eof>'
 
