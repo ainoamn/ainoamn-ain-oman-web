@@ -23,7 +23,7 @@ export type ExpandableSearchPayload = {
   areaMin?: number;
   areaMax?: number;
 
-  sortBy?: "newest" | "priceAsc" | "priceDesc" | "rating" | "views" | "";
+  sortBy?: "newest" | "priceAsc" | "priceDesc" | "rating" | "views";
 };
 
 export default function ExpandableSearchBar({

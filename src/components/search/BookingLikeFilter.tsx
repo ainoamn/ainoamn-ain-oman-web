@@ -36,7 +36,7 @@ export type BookingLikePayload = {
   children?: number;
 
   // فرز
-  sortBy?: "newest" | "priceAsc" | "priceDesc" | "rating" | "views" | "";
+  sortBy?: "newest" | "priceAsc" | "priceDesc" | "rating" | "views";
 
   // وسوم سريعة
   tags?: string[]; // ["قريب من البحر", ...]

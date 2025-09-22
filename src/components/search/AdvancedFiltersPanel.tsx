@@ -5,7 +5,7 @@ export type AdvancedFilters = {
   priceMin?: number; priceMax?: number;
   bedsMin?: number; bathsMin?: number;
   areaMin?: number; areaMax?: number;
- sortBy?: "newest" | "priceAsc" | "priceDesc" | "rating" | "views" | "";
+  sortBy?: "newest" | "priceAsc" | "priceDesc" | "rating" | "views";
 };
 
 export default function AdvancedFiltersPanel({
