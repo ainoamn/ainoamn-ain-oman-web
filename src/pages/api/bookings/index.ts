@@ -17,6 +17,8 @@ type Booking = {
   createdAt: string;
   contractSigned?: boolean;
   customerInfo: { name: string; phone: string; email?: string };
+  // إضافات اختيارية للموافقة/الرفض
+  ownerDecision?: { approved?: boolean; reason?: string; decidedAt?: string } | null;
 };
 
 type Store = { bookings: Booking[]; };
@@ -34,7 +36,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     const { propertyId, role } = req.query;
     const items = store().bookings.filter(b => {
       if (propertyId) return String(b.propertyId) === String(propertyId);
-      if (role === "owner") return true; // تبسيط: عرض كل الحجوزات للمالك
+      if (role === "owner") return true; // تبسيط
       return true;
     });
     return res.status(200).json({ items });
@@ -62,11 +64,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           name: b?.customerInfo?.name || "",
           phone: b?.customerInfo?.phone || "",
           email: b?.customerInfo?.email || ""
-        }
+        },
+        ownerDecision: null,
       };
       store().bookings.push(item);
 
-      // عند إنشاء حجز "reserved" نحدّث حالة العقار
+      // إذا تم إنشاء حجز مؤكد نحجز العقار
       if (item.status === "reserved" && prop) {
         upsertProperty({ ...prop, status: "reserved", updatedAt: now });
       }

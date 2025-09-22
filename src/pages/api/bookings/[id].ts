@@ -9,6 +9,7 @@ type Booking = {
   status: BookingStatus; createdAt: string;
   contractSigned?: boolean;
   customerInfo: { name: string; phone: string; email?: string };
+  ownerDecision?: { approved?: boolean; reason?: string; decidedAt?: string } | null;
 };
 
 type Store = { bookings: Booking[]; };
@@ -39,6 +40,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       let next: Booking = { ...cur! };
 
       const action = String(body.action || "");
+
       if (action === "confirm") {
         next.status = "reserved";
         if (prop) upsertProperty({ ...prop, status: "reserved", updatedAt: new Date().toISOString() });
@@ -48,8 +50,22 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       } else if (action === "cancel") {
         next.status = "cancelled";
         if (prop) upsertProperty({ ...prop, status: "vacant", updatedAt: new Date().toISOString() });
+      } else if (action === "sign") {
+        // توقيع المستأجر/المشتري على العقد
+        next.contractSigned = true;
+      } else if (action === "approveContract") {
+        // اعتماد المؤجّر بعد توقيع المستأجر
+        next.ownerDecision = { approved: true, decidedAt: new Date().toISOString(), reason: "" };
+        next.status = "leased";
+        if (prop) upsertProperty({ ...prop, status: "leased", updatedAt: new Date().toISOString() });
+      } else if (action === "rejectContract") {
+        // رفض المؤجّر مع سبب
+        const reason = String(body.reason || "غير مذكور");
+        next.ownerDecision = { approved: false, reason, decidedAt: new Date().toISOString() };
+        next.status = "pending";
+        if (prop) upsertProperty({ ...prop, status: "vacant", updatedAt: new Date().toISOString() });
       } else {
-        // تحديث عادي للحقول
+        // تحديث حقول عادي
         next = { ...next, ...body };
       }
 
