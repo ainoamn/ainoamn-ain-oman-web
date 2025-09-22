@@ -5,7 +5,7 @@ import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-type Unit = { id:string; unitNo:string; rentAmount?:number; currency?:string; status?:string; published?:boolean; image?:string };
+type Unit = { id:string; unitNo:string; rentAmount?:number; currency?:string; status?:string; published?:boolean; image?:string; images?:string[] };
 type Building = {
   id:string; buildingNo:string; address:string; createdAt:string; updatedAt:string;
   units:Unit[]; published?:boolean; images?:string[]; coverIndex?:number; archived?:boolean;
@@ -13,63 +13,75 @@ type Building = {
 
 function resolveSrc(name?:string){
   if(!name) return "";
-  if(/^https?:\/\//.test(name) || name.startsWith("data:") || name.startsWith("/")) return name;
+  if(/^https?:\/\//.test(name) || name.startsWith("data:")) return name;
+  if(name.startsWith("/")) return name;
+  // يفترض وجود الملفات تحت public/uploads
   return `/uploads/${name}`;
+}
+
+function UnitThumb({u}:{u:Unit}){
+  const src = resolveSrc(u.image || (u.images?.[0]));
+  return src ? <img src={src} className="w-8 h-8 object-cover rounded" alt="" /> : <div className="w-8 h-8 rounded bg-gray-200" />;
+}
+
+function BuildingThumb({b}:{b:Building}){
+  const imgs=b.images||[]; const i=typeof b.coverIndex==="number"? b.coverIndex:0;
+  const src = resolveSrc(imgs[i]||imgs[0]);
+  return src ? <img src={src} className="w-10 h-10 object-cover rounded" alt="" /> : <div className="w-10 h-10 rounded bg-gray-200" />;
 }
 
 export default function AdminPropertiesList(){
   const [items,setItems]=useState<Building[]>([]);
   const [loading,setLoading]=useState(true);
-
-  const [fNo,setFNo]=useState(""); const [fAddr,setFAddr]=useState("");
   const [showArchived,setShowArchived]=useState(false);
+  const [fNo,setFNo]=useState(""); const [fAddr,setFAddr]=useState("");
 
-  useEffect(()=>{ (async()=>{
+  async function refresh(){
+    setLoading(true);
     const r = await fetch("/api/buildings");
-    const d = r.ok? await r.json():{items:[]};
+    const d = r.ok? await r.json() : { items: [] };
     setItems(Array.isArray(d?.items)? d.items : []);
     setLoading(false);
-  })(); },[]);
+  }
+  useEffect(()=>{ refresh(); },[]);
 
   async function toggleBuildingPublish(id:string, val:boolean){
     const r = await fetch(`/api/buildings/${encodeURIComponent(id)}`, {
-      method:"PATCH", headers:{ "content-type":"application/json" }, body: JSON.stringify({ op:"publishBuilding", published: val })
+      method:"PATCH", headers:{ "content-type":"application/json" },
+      body: JSON.stringify({ op:"publishBuilding", published: val })
     });
-    if(r.ok){ setItems(s=>s.map(x=>x.id===id?{...x,published:val}:x)); }
+    if(r.ok) refresh();
   }
-  async function toggleUnitPublish(bid:string, uid:string, val:boolean){
+  // استعمل unitNo لتفادي تكرار المعرفات
+  async function toggleUnitPublish(bid:string, unitNo:string, val:boolean){
     const r = await fetch(`/api/buildings/${encodeURIComponent(bid)}`, {
-      method:"PATCH", headers:{ "content-type":"application/json" }, body: JSON.stringify({ op:"publishUnit", unitId: uid, published: val })
+      method:"PATCH", headers:{ "content-type":"application/json" },
+      body: JSON.stringify({ op:"publishUnitByNo", unitNo, published: val })
     });
-    if(r.ok){ setItems(s=>s.map(b=> b.id!==bid? b : ({...b, units: b.units.map(u=>u.id===uid?{...u,published:val}:u)}))); }
+    if(r.ok) refresh();
   }
   async function archiveBuilding(id:string){
     if(!confirm("أرشفة المبنى؟")) return;
     const r = await fetch(`/api/buildings/${encodeURIComponent(id)}`, {
-      method:"PATCH", headers:{ "content-type":"application/json" }, body: JSON.stringify({ op:"archive", archived: true })
+      method:"PATCH", headers:{ "content-type":"application/json" },
+      body: JSON.stringify({ op:"archive", archived: true })
     });
-    if(r.ok){ setItems(s=>s.map(x=>x.id===id?{...x,archived:true,published:false}:x)); }
+    if(r.ok) refresh();
   }
   async function unarchiveBuilding(id:string){
     const r = await fetch(`/api/buildings/${encodeURIComponent(id)}`, {
-      method:"PATCH", headers:{ "content-type":"application/json" }, body: JSON.stringify({ op:"archive", archived: false })
+      method:"PATCH", headers:{ "content-type":"application/json" },
+      body: JSON.stringify({ op:"archive", archived: false })
     });
-    if(r.ok){ setItems(s=>s.map(x=>x.id===id?{...x,archived:false}:x)); }
+    if(r.ok) refresh();
   }
 
-  const filtered = useMemo(()=>{
-    return items.filter(b=>{
-      if(!showArchived && b.archived) return false;
-      if(fNo && !b.buildingNo.includes(fNo)) return false;
-      if(fAddr && !b.address.includes(fAddr)) return false;
-      return true;
-    });
-  },[items,fNo,fAddr,showArchived]);
-
-  function coverThumb(b:Building){
-    const imgs=b.images||[]; const i=typeof b.coverIndex==="number"? b.coverIndex:0;
-    return resolveSrc(imgs[i]||imgs[0]||"");
-  }
+  const filtered = useMemo(()=> items.filter(b=>{
+    if(!showArchived && b.archived) return false;
+    if(fNo && !b.buildingNo?.includes(fNo)) return false;
+    if(fAddr && !b.address?.includes(fAddr)) return false;
+    return true;
+  }),[items,showArchived,fNo,fAddr]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -106,7 +118,7 @@ export default function AdminPropertiesList(){
                   <tr key={b.id} className="border-b align-top">
                     <td className="p-2">
                       <div className="flex items-center gap-2">
-                        {coverThumb(b) ? <img src={coverThumb(b)} className="w-10 h-10 object-cover rounded" alt="" /> : <div className="w-10 h-10 rounded bg-gray-200" />}
+                        <BuildingThumb b={b}/>
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <div className="font-medium">مبنى {b.buildingNo}</div>
@@ -125,21 +137,30 @@ export default function AdminPropertiesList(){
 
                     <td className="p-2">
                       {b.units.map(u=>(
-                        <div key={u.id} className="flex items-center justify-between gap-2 border-b last:border-b-0 py-1">
+                        <div key={`${b.id}-${u.unitNo}`} className="flex items-center justify-between gap-2 border-b last:border-b-0 py-1">
                           <div className="flex items-center gap-2">
-                            {u.image ? <img src={resolveSrc(u.image)} className="w-8 h-8 object-cover rounded" alt="" /> : <div className="w-8 h-8 rounded bg-gray-200" />}
+                            <UnitThumb u={u}/>
                             <div className="text-sm">
                               <div className="flex items-center gap-2">
                                 <span>وحدة {u.unitNo}</span>
                                 <label className="text-xs inline-flex items-center gap-1">
-                                  <input type="checkbox" checked={!!u.published} onChange={e=>toggleUnitPublish(b.id,u.id,e.target.checked)} />
+                                  <input
+                                    type="checkbox"
+                                    checked={!!u.published}
+                                    onChange={e=>toggleUnitPublish(b.id,u.unitNo,e.target.checked)}
+                                  />
                                   نشر الوحدة
                                 </label>
                               </div>
-                              <div className="text-xs text-gray-500">{u.rentAmount||0} {u.currency||"OMR"} • {u.status==="leased"?"مؤجر":u.status==="reserved"?"محجوز":"شاغر"}</div>
+                              <div className="text-xs text-gray-500">
+                                {u.rentAmount||0} {u.currency||"OMR"} • {u.status==="leased"?"مؤجر":u.status==="reserved"?"محجوز":"شاغر"}
+                              </div>
                             </div>
                           </div>
-                          <Link className="btn btn-outline btn-sm" href={`/admin/rent/${encodeURIComponent(b.id)}/${encodeURIComponent(u.id)}`}>إدارة التأجير</Link>
+                          <div className="flex items-center gap-2">
+                            <Link className="btn btn-outline btn-sm" href={`/admin/rent/${encodeURIComponent(b.id)}/${encodeURIComponent(u.id)}`}>إدارة التأجير</Link>
+                            <Link className="btn btn-outline btn-sm" href={`/admin/buildings/edit/${encodeURIComponent(b.id)}`}>تعديل البيانات</Link>
+                          </div>
                         </div>
                       ))}
                     </td>

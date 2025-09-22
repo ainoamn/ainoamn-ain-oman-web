@@ -14,6 +14,13 @@ type Unit = {
   powerMeter?:string; waterMeter?:string; images?:string[]; features?:string[];
 };
 
+function resolveSrc(name?:string){
+  if(!name) return "";
+  if(/^https?:\/\//.test(name) || name.startsWith("data:")) return name;
+  if(name.startsWith("/")) return name;
+  return `/uploads/${name}`;
+}
+
 export default function EditBuildingPage(){
   const { query, push } = useRouter();
   const id = String(query.id||"");
@@ -35,27 +42,37 @@ export default function EditBuildingPage(){
   const [bPhone,setBPhone]=useState(""); const [bPhoneImg,setBPhoneImg]=useState<string>("");
   const [bPhoneVis,setBPhoneVis]=useState<Visibility>("private");
   const [extras,setExtras]=useState<ExtraRow[]>([]);
-
   const [units,setUnits]=useState<Unit[]>([]);
 
-  useEffect(()=>{ if(!id) return;
-    (async()=>{
-      try{
-        const r=await fetch(`/api/buildings/${encodeURIComponent(id)}`);
-        const d= r.ok? await r.json():null;
-        const b=d?.item;
-        if(!b) throw new Error("غير موجود");
-        setBuildingNo(b.buildingNo||""); setAddress(b.address||"");
-        setImages(b.images||[]); setCoverIndex(b.coverIndex||0);
-        setPublished(!!b.published); setArchived(!!b.archived);
-        setBPower(b.services?.powerMeter||""); setBPowerImg(b.services?.powerImage||""); setBPowerVis(b.services?.powerVisibility||"private");
-        setBWater(b.services?.waterMeter||""); setBWaterImg(b.services?.waterImage||""); setBWaterVis(b.services?.waterVisibility||"private");
-        setBPhone(b.services?.phoneMeter||""); setBPhoneImg(b.services?.phoneImage||""); setBPhoneVis(b.services?.phoneVisibility||"private");
-        setExtras(b.services?.others||[]);
-        setUnits(Array.isArray(b.units)? b.units : []);
-      }catch{ setError("تعذّر الجلب"); } finally{ setLoading(false); }
-    })();
-  },[id]);
+  // معاينات فورية للصور الجديدة
+  const [localPreviews,setLocalPreviews]=useState<string[]>([]);
+  function addPreviews(fl: FileList|null){
+    if(!fl) return;
+    const urls = Array.from(fl).map(f=>URL.createObjectURL(f));
+    setLocalPreviews(p=>[...p, ...urls]);
+  }
+
+  async function load(){
+    if(!id) return;
+    try{
+      setLoading(true); setError(null);
+      const r=await fetch(`/api/buildings/${encodeURIComponent(id)}`);
+      const d= r.ok? await r.json():null;
+      const b=d?.item;
+      if(!b) throw new Error("not found");
+      setBuildingNo(b.buildingNo||""); setAddress(b.address||"");
+      setImages(Array.isArray(b.images)? b.images : []);
+      setCoverIndex(typeof b.coverIndex==="number"? b.coverIndex:0);
+      setPublished(!!b.published); setArchived(!!b.archived);
+      setBPower(b.services?.powerMeter||""); setBPowerImg(b.services?.powerImage||""); setBPowerVis(b.services?.powerVisibility||"private");
+      setBWater(b.services?.waterMeter||""); setBWaterImg(b.services?.waterImage||""); setBWaterVis(b.services?.waterVisibility||"private");
+      setBPhone(b.services?.phoneMeter||""); setBPhoneImg(b.services?.phoneImage||""); setBPhoneVis(b.services?.phoneVisibility||"private");
+      setExtras(b.services?.others||[]);
+      setUnits(Array.isArray(b.units)? b.units : []);
+      setLocalPreviews([]); // إعادة تعيين المعاينات
+    }catch{ setError("تعذّر الجلب"); } finally{ setLoading(false); }
+  }
+  useEffect(()=>{ load(); },[id]);
 
   function addUnit(){
     const n = { id:`U-${Date.now()}`, unitNo:`${(units.length+1)}`, rentAmount:0, currency:"OMR", status:"vacant", published:false, images:[], features:[] } as Unit;
@@ -96,7 +113,7 @@ export default function EditBuildingPage(){
         </div>
       </div>
 
-      {/* بيانات المبنى */}
+      {/* المبنى */}
       <section className="border rounded-2xl p-3 space-y-3">
         <div className="font-semibold">بيانات المبنى</div>
         <div className="grid sm:grid-cols-2 gap-2">
@@ -104,36 +121,59 @@ export default function EditBuildingPage(){
           <input className="form-input" placeholder="العنوان" value={address} onChange={e=>setAddress(e.target.value)} />
         </div>
 
-        {/* الصور */}
         <div className="space-y-2">
           <div className="font-semibold">الوسائط</div>
           <div className="flex items-center gap-2">
-            <input className="form-input" type="file" multiple accept="image/*" onChange={(e)=>{
-              const names = e.target.files? Array.from(e.target.files).map(f=>f.name):[];
-              setImages(prev=>[...prev, ...names]);
-            }} />
-            <button className="btn btn-outline" onClick={()=>alert("تمت إضافة الأسماء. اربط نظام الرفع الفعلي في الخادم لحفظ الملفات.")}>رفع الصور</button>
+            <input
+              className="form-input"
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e)=>{
+                const names = e.target.files? Array.from(e.target.files).map(f=>f.name):[];
+                if(e.target.files) addPreviews(e.target.files);
+                setImages(prev=>[...prev, ...names]);
+              }}
+            />
+            <button className="btn btn-outline" onClick={()=>alert("هذه معاينة فقط. احفظ أسماء الملفات. ارفع الملفات فعليًا إلى public/uploads من جانب الخادم.")}>رفع الصور</button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {images.map((n,i)=>(
-              <div key={i} className={`border rounded overflow-hidden relative ${i===coverIndex?'ring-2 ring-emerald-500':''}`}>
-                <div className="h-24 flex items-center justify-center bg-gray-50 text-xs">{n}</div>
-                <button onClick={()=>setCoverIndex(i)} className="absolute top-1 right-1 text-xs bg-black/60 text-white px-2 py-0.5 rounded">
-                  {i===coverIndex? "الغلاف" : "تعيين غلاف"}
-                </button>
-              </div>
-            ))}
-          </div>
+
+          {/* صور موجودة */}
+          {!!images.length && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {images.map((n,i)=>(
+                <div key={`srv-${i}`} className={`border rounded overflow-hidden relative ${i===coverIndex?'ring-2 ring-emerald-500':''}`}>
+                  {resolveSrc(n)
+                    ? <img src={resolveSrc(n)} className="h-24 w-full object-cover" alt="" />
+                    : <div className="h-24 flex items-center justify-center bg-gray-50 text-xs">{n}</div>}
+                  <button onClick={()=>setCoverIndex(i)} className="absolute top-1 right-1 text-xs bg-black/60 text-white px-2 py-0.5 rounded">
+                    {i===coverIndex? "الغلاف" : "تعيين غلاف"}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* معاينات فورية للملفات الجديدة */}
+          {!!localPreviews.length && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {localPreviews.map((url,i)=>(
+                <div key={`pre-${i}`} className="border rounded overflow-hidden relative">
+                  <img src={url} className="h-24 w-full object-cover" alt="" />
+                  <div className="absolute bottom-0 left-0 right-0 text-[10px] bg-black/40 text-white px-1">معاينة</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* نشر وأرشفة */}
         <div className="grid sm:grid-cols-2 gap-2">
           <label className="flex items-center gap-2"><input type="checkbox" checked={published} onChange={e=>setPublished(e.target.checked)} />نشر المبنى</label>
           <label className="flex items-center gap-2"><input type="checkbox" checked={archived} onChange={e=>setArchived(e.target.checked)} />أرشفة المبنى</label>
         </div>
       </section>
 
-      {/* عدادات وخدمات المبنى */}
+      {/* خدمات المبنى */}
       <section className="border rounded-2xl p-3 space-y-3">
         <div className="font-semibold">عدادات وخدمات المبنى</div>
         <div className="grid sm:grid-cols-3 gap-2">
@@ -172,7 +212,7 @@ export default function EditBuildingPage(){
         </div>
       </section>
 
-      {/* الوحدات: نفس صفحة الإدخال مع جلب القيم للترميم */}
+      {/* الوحدات */}
       <section className="border rounded-2xl p-3 space-y-3">
         <div className="flex items-center justify-between">
           <div className="font-semibold">الوحدات</div>
@@ -202,18 +242,21 @@ export default function EditBuildingPage(){
               <input className="form-input" placeholder="عداد الكهرباء" value={u.powerMeter||""} onChange={e=>setUnit(idx,{powerMeter:e.target.value})}/>
               <input className="form-input" placeholder="عداد الماء" value={u.waterMeter||""} onChange={e=>setUnit(idx,{waterMeter:e.target.value})}/>
               <input className="form-input" placeholder="رابط صورة رئيسية" value={u.image||""} onChange={e=>setUnit(idx,{image:e.target.value})}/>
+
+              {/* صور الوحدة */}
               <input className="form-input" type="file" multiple accept="image/*" onChange={(e)=>{
                 const names = e.target.files? Array.from(e.target.files).map(f=>f.name):[];
                 setUnit(idx,{ images:[...(u.images||[]), ...names] });
               }}/>
-
-              <input className="form-input sm:col-span-4" placeholder="مزايا مفصولة بفواصل" value={(u.features||[]).join(", ")} onChange={(e)=>setUnit(idx,{features:e.target.value.split(",").map(s=>s.trim()).filter(Boolean)})}/>
+              <div className="sm:col-span-3 flex items-center text-xs text-gray-600">ارفع الملفات فعليًا إلى public/uploads ليتم عرضها مباشرة.</div>
             </div>
 
             {!!u.images?.length && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {u.images.map((n,i)=>(
-                  <div key={i} className="h-20 bg-gray-50 border rounded flex items-center justify-center text-xs">{n}</div>
+                  <div key={i} className="h-20 bg-gray-50 border rounded overflow-hidden">
+                    {resolveSrc(n) ? <img src={resolveSrc(n)} className="w-full h-full object-cover" alt="" /> : <div className="w-full h-full flex items-center justify-center text-xs">{n}</div>}
+                  </div>
                 ))}
               </div>
             )}
