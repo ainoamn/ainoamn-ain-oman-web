@@ -259,7 +259,7 @@ function readAttachmentsForTask(t: any): any[] {
   return Array.isArray(t?.attachments) ? t.attachments : [];
 }
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+// export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method !== "GET") { res.setHeader("Allow","GET"); return res.status(405).json({ error:"Method not allowed" }); }
 
