@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 type Unit = { id:string; unitNo:string; rentAmount?:number; currency?:string; status?:string; published?:boolean; image?:string };
 type Building = {
   id:string; buildingNo:string; address:string; createdAt:string; updatedAt:string;
-  unitsCount:number; units:Unit[]; published?:boolean; images?:string[]; coverIndex?:number; archived?:boolean;
+  units:Unit[]; published?:boolean; images?:string[]; coverIndex?:number; archived?:boolean;
 };
 
 function resolveSrc(name?:string){
@@ -22,8 +22,7 @@ export default function AdminPropertiesList(){
   const [loading,setLoading]=useState(true);
 
   const [fNo,setFNo]=useState(""); const [fAddr,setFAddr]=useState("");
-  const [fStatus,setFStatus]=useState<""|"vacant"|"reserved"|"leased">("");
-  const [fPublished,setFPublished]=useState<""|"yes"|"no">("");
+  const [showArchived,setShowArchived]=useState(false);
 
   useEffect(()=>{ (async()=>{
     const r = await fetch("/api/buildings");
@@ -32,38 +31,40 @@ export default function AdminPropertiesList(){
     setLoading(false);
   })(); },[]);
 
-  async function publishBuilding(id:string, val:boolean){
-    const r = await fetch(`/api/buildings/${encodeURIComponent(id)}`, { method:"PATCH", headers:{ "content-type":"application/json" }, body: JSON.stringify({ published: val }) });
+  async function toggleBuildingPublish(id:string, val:boolean){
+    const r = await fetch(`/api/buildings/${encodeURIComponent(id)}`, {
+      method:"PATCH", headers:{ "content-type":"application/json" }, body: JSON.stringify({ op:"publishBuilding", published: val })
+    });
     if(r.ok){ setItems(s=>s.map(x=>x.id===id?{...x,published:val}:x)); }
   }
-  async function publishUnit(bid:string, uid:string, val:boolean){
-    const r = await fetch(`/api/buildings/${encodeURIComponent(bid)}`, { method:"PATCH", headers:{ "content-type":"application/json" }, body: JSON.stringify({ unitId: uid, unitPublished: val }) });
+  async function toggleUnitPublish(bid:string, uid:string, val:boolean){
+    const r = await fetch(`/api/buildings/${encodeURIComponent(bid)}`, {
+      method:"PATCH", headers:{ "content-type":"application/json" }, body: JSON.stringify({ op:"publishUnit", unitId: uid, published: val })
+    });
     if(r.ok){ setItems(s=>s.map(b=> b.id!==bid? b : ({...b, units: b.units.map(u=>u.id===uid?{...u,published:val}:u)}))); }
   }
   async function archiveBuilding(id:string){
-    const ok = confirm("أرشفة المبنى ستخفيه من القوائم. هل تريد المتابعة؟");
-    if(!ok) return;
-    const r = await fetch(`/api/buildings/${encodeURIComponent(id)}`, { method:"PATCH", headers:{ "content-type":"application/json" }, body: JSON.stringify({ archived: true, published: false }) });
+    if(!confirm("أرشفة المبنى؟")) return;
+    const r = await fetch(`/api/buildings/${encodeURIComponent(id)}`, {
+      method:"PATCH", headers:{ "content-type":"application/json" }, body: JSON.stringify({ op:"archive", archived: true })
+    });
     if(r.ok){ setItems(s=>s.map(x=>x.id===id?{...x,archived:true,published:false}:x)); }
+  }
+  async function unarchiveBuilding(id:string){
+    const r = await fetch(`/api/buildings/${encodeURIComponent(id)}`, {
+      method:"PATCH", headers:{ "content-type":"application/json" }, body: JSON.stringify({ op:"archive", archived: false })
+    });
+    if(r.ok){ setItems(s=>s.map(x=>x.id===id?{...x,archived:false}:x)); }
   }
 
   const filtered = useMemo(()=>{
     return items.filter(b=>{
-      if(b.archived) return false;
+      if(!showArchived && b.archived) return false;
       if(fNo && !b.buildingNo.includes(fNo)) return false;
       if(fAddr && !b.address.includes(fAddr)) return false;
-      if(fPublished==="yes" && !b.published) return false;
-      if(fPublished==="no" && b.published) return false;
-      if(fStatus){
-        const any = b.units.some(u=>{
-          const st = u.status==="leased"?"leased": u.status==="reserved"?"reserved":"vacant";
-          return st===fStatus;
-        });
-        if(!any) return false;
-      }
       return true;
     });
-  },[items,fNo,fAddr,fPublished,fStatus]);
+  },[items,fNo,fAddr,showArchived]);
 
   function coverThumb(b:Building){
     const imgs=b.images||[]; const i=typeof b.coverIndex==="number"? b.coverIndex:0;
@@ -80,16 +81,13 @@ export default function AdminPropertiesList(){
           <Link href="/admin/buildings/new" className="btn btn-primary">إدخال مبنى</Link>
         </div>
 
-        {/* فلاتر */}
-        <div className="border rounded-2xl p-3 grid sm:grid-cols-5 gap-2">
+        <div className="border rounded-2xl p-3 grid sm:grid-cols-6 gap-2">
           <input className="form-input" placeholder="رقم المبنى" value={fNo} onChange={e=>setFNo(e.target.value)} />
           <input className="form-input sm:col-span-2" placeholder="العنوان" value={fAddr} onChange={e=>setFAddr(e.target.value)} />
-          <select className="form-input" value={fStatus} onChange={e=>setFStatus(e.target.value as any)}>
-            <option value="">حالة الوحدة</option><option value="vacant">شاغر</option><option value="reserved">محجوز</option><option value="leased">مؤجر</option>
-          </select>
-          <select className="form-input" value={fPublished} onChange={e=>setFPublished(e.target.value as any)}>
-            <option value="">نشر المبنى</option><option value="yes">منشور</option><option value="no">غير منشور</option>
-          </select>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={showArchived} onChange={e=>setShowArchived(e.target.checked)} />
+            عرض المباني المؤرشفة
+          </label>
         </div>
 
         {loading? <div>جارٍ التحميل…</div> : (
@@ -112,11 +110,11 @@ export default function AdminPropertiesList(){
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <div className="font-medium">مبنى {b.buildingNo}</div>
-                            {/* زر نشر بجانب اسم المبنى */}
                             <label className="text-xs inline-flex items-center gap-1">
-                              <input type="checkbox" checked={!!b.published} onChange={e=>publishBuilding(b.id,e.target.checked)} />
+                              <input type="checkbox" checked={!!b.published} onChange={e=>toggleBuildingPublish(b.id,e.target.checked)} />
                               نشر
                             </label>
+                            {b.archived && <span className="text-xs px-2 py-0.5 rounded bg-yellow-100 text-yellow-800">مؤرشف</span>}
                           </div>
                           <div className="text-xs text-gray-500">{new Date(b.createdAt).toLocaleDateString()}</div>
                         </div>
@@ -133,18 +131,15 @@ export default function AdminPropertiesList(){
                             <div className="text-sm">
                               <div className="flex items-center gap-2">
                                 <span>وحدة {u.unitNo}</span>
-                                {/* زر نشر بجانب رقم الوحدة */}
                                 <label className="text-xs inline-flex items-center gap-1">
-                                  <input type="checkbox" checked={!!u.published} onChange={e=>publishUnit(b.id,u.id,e.target.checked)} />
-                                  نشر
+                                  <input type="checkbox" checked={!!u.published} onChange={e=>toggleUnitPublish(b.id,u.id,e.target.checked)} />
+                                  نشر الوحدة
                                 </label>
                               </div>
                               <div className="text-xs text-gray-500">{u.rentAmount||0} {u.currency||"OMR"} • {u.status==="leased"?"مؤجر":u.status==="reserved"?"محجوز":"شاغر"}</div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Link className="btn btn-outline btn-sm" href={`/admin/rent/${encodeURIComponent(b.id)}/${encodeURIComponent(u.id)}`}>إدارة التأجير</Link>
-                          </div>
+                          <Link className="btn btn-outline btn-sm" href={`/admin/rent/${encodeURIComponent(b.id)}/${encodeURIComponent(u.id)}`}>إدارة التأجير</Link>
                         </div>
                       ))}
                     </td>
@@ -152,12 +147,16 @@ export default function AdminPropertiesList(){
                     <td className="p-2">
                       <div className="flex flex-col gap-2">
                         <Link className="btn btn-outline btn-sm" href={`/admin/buildings/edit/${encodeURIComponent(b.id)}`}>تعديل المبنى</Link>
-                        <button className="btn btn-outline btn-sm" onClick={()=>archiveBuilding(b.id)}>أرشفة المبنى</button>
+                        {!b.archived ? (
+                          <button className="btn btn-outline btn-sm" onClick={()=>archiveBuilding(b.id)}>أرشفة المبنى</button>
+                        ) : (
+                          <button className="btn btn-outline btn-sm" onClick={()=>unarchiveBuilding(b.id)}>إلغاء الأرشفة</button>
+                        )}
                       </div>
                     </td>
                   </tr>
                 ))}
-                {filtered.length===0 && <tr><td className="p-3 text-center text-gray-600" colSpan={4}>لا توجد مبانٍ مطابقة.</td></tr>}
+                {filtered.length===0 && <tr><td className="p-3 text-center text-gray-600" colSpan={4}>لا توجد سجلات.</td></tr>}
               </tbody>
             </table>
           </div>

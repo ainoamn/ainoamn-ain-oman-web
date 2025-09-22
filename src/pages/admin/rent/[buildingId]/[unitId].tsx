@@ -1,4 +1,6 @@
 // src/pages/admin/rent/[buildingId]/[unitId].tsx
+// نسخة كاملة مع تشديد التحقق: صورة عداد الكهرباء إلزامية دائمًا.
+// صورة عداد الماء إلزامية فقط إذا كانت الوحدة لديها عداد ماء.
 import Head from "next/head";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -22,9 +24,9 @@ export default function RentUnitPage() {
   const buildingId = String(query.buildingId || "");
   const unitId = String(query.unitId || "");
 
-  // إيجار افتراضي من الوحدة
   const [monthlyRent, setMonthlyRent] = useState<number>(0);
   const [currency, setCurrency] = useState<string>("OMR");
+  const [unitHasWaterMeter, setUnitHasWaterMeter] = useState<boolean>(false);
 
   useEffect(() => {
     if (!buildingId) return;
@@ -35,27 +37,24 @@ export default function RentUnitPage() {
       if (u) {
         setMonthlyRent(Number(u.rentAmount || 0));
         setCurrency(u.currency || "OMR");
+        setUnitHasWaterMeter(!!u.waterMeter);
       }
     })();
   }, [buildingId, unitId]);
 
-  // المستأجر + تحقق
+  // المستأجر
   const [kind, setKind] = useState<TenantKind>("omani");
   const [name, setName] = useState("");
   const [country, setCountry] = useState("+968");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [nationalId, setNationalId] = useState("");
-  const [passportNo, setPassportNo] = useState("");
-  const [crNumber, setCrNumber] = useState("");
 
   function validEmail(s: string) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
   }
   function validPhone(code: string, num: string) {
     const n = num.replace(/\D+/g, "");
-    if (code === "+968") return /^9\d{7}$/.test(n); // عمان: 8 أرقام تبدأ بـ9
-    return n.length >= 6 && n.length <= 15;
+    return code === "+968" ? /^9\d{7}$/.test(n) : n.length >= 6 && n.length <= 15;
   }
 
   // فترة العقد
@@ -106,13 +105,13 @@ export default function RentUnitPage() {
     return rows;
   }, [durationMonths, monthlyRent, extras]);
 
-  // عدادات + مرفقات
+  // العدادات + المرفقات
   const [powerReading, setPowerReading] = useState<number | "">("");
   const [waterReading, setWaterReading] = useState<number | "">("");
   const [powerImage, setPowerImage] = useState("");
   const [waterImage, setWaterImage] = useState("");
 
-  // الضمان + مرفقات
+  // الضمان + المرفقات
   const [deposit, setDeposit] = useState<number>(0);
   const [depositPaid, setDepositPaid] = useState<boolean>(false);
   const [depositPaymentMethod, setDepositPaymentMethod] =
@@ -124,7 +123,7 @@ export default function RentUnitPage() {
     setDepositFiles(Array.from(fl).map((f) => f.name));
   }
 
-  // طريقة الدفع للإيجار + شيكات + نافذة توحيد
+  // طريقة الدفع
   const [method, setMethod] = useState<"cash" | "transfer" | "cheque">("cash");
   const [cheques, setCheques] = useState<Cheque[]>([]);
   const [modal, setModal] = useState<ModalState>({ open: false, anchorIndex: -1 });
@@ -188,12 +187,21 @@ export default function RentUnitPage() {
     if (!startDate) return alert("أدخل تاريخ البداية");
     if (durationMonths <= 0) return alert("المدة غير صحيحة");
 
+    // إلزام صور العدادات
+    if (!powerImage) return alert("صورة عداد الكهرباء إلزامية");
+    if (unitHasWaterMeter && !waterImage) return alert("صورة عداد الماء إلزامية لهذه الوحدة");
+
     if (method === "cheque") {
       if (!cheques.length || cheques.some((c) => !c.chequeNo || !c.amount || !c.chequeDate))
-        return alert("أدخل جميع تواريخ ومبالغ الشيكات");
+        return alert("أدخل كل تواريخ وأرقام ومبالغ الشيكات");
     }
 
-    const totalWithExtras = computeTotalWithExtras(totalRent, extras, durationMonths, monthlyRent);
+    const totalWithExtras = computeTotalWithExtras(
+      totalRent,
+      extras,
+      Math.max(1, durationMonths),
+      monthlyRent
+    );
 
     const body = {
       buildingId,
@@ -216,7 +224,7 @@ export default function RentUnitPage() {
         powerReading: powerReading === "" ? undefined : Number(powerReading),
         powerImage: powerImage || undefined,
         waterReading: waterReading === "" ? undefined : Number(waterReading),
-        waterImage: waterImage || undefined,
+        waterImage: unitHasWaterMeter ? waterImage || undefined : undefined,
       },
       tenant: {
         id: "",
@@ -224,13 +232,6 @@ export default function RentUnitPage() {
         name,
         phone: `${country}${phone.replace(/\D+/g, "")}`,
         email: email || undefined,
-        nationalId: nationalId || undefined,
-        passportNo: passportNo || undefined,
-        crNumber: crNumber || undefined,
-        docIdFront: undefined,
-        docIdBack: undefined,
-        docPassport: undefined,
-        docCR: undefined,
       },
     };
 
@@ -270,7 +271,12 @@ export default function RentUnitPage() {
               <option value="expat">وافد</option>
               <option value="company">شركة</option>
             </select>
-            <input className="form-input" placeholder="الاسم" value={name} onChange={(e) => setName(e.target.value)} />
+            <input
+              className="form-input"
+              placeholder="الاسم"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
             <select className="form-input" value={country} onChange={(e) => setCountry(e.target.value)}>
               <option value="+968">عُمان (+968)</option>
               <option value="+971">الإمارات (+971)</option>
@@ -279,8 +285,18 @@ export default function RentUnitPage() {
               <option value="+973">البحرين (+973)</option>
               <option value="+965">الكويت (+965)</option>
             </select>
-            <input className="form-input" placeholder="رقم الهاتف" value={phone} onChange={(e) => setPhone(e.target.value)} />
-            <input className="form-input sm:col-span-2" placeholder="البريد الإلكتروني" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input
+              className="form-input"
+              placeholder="رقم الهاتف"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+            <input
+              className="form-input sm:col-span-2"
+              placeholder="البريد الإلكتروني"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
         </section>
 
@@ -293,9 +309,19 @@ export default function RentUnitPage() {
               <option value="months">بالأشهر</option>
               <option value="days">بالأيام</option>
             </select>
-            <input className="form-input" type="number" min={1} value={durationValue} onChange={(e) => setDurationValue(Math.max(1, Number(e.target.value || 1)))} />
+            <input
+              className="form-input"
+              type="number"
+              min={1}
+              value={durationValue}
+              onChange={(e) => setDurationValue(Math.max(1, Number(e.target.value || 1)))}
+            />
             <input className="form-input" value={`الإيجار الشهري: ${monthlyRent} ${currency}`} readOnly />
-            <input className="form-input" value={`ينتهي: ${endDate ? new Date(endDate).toLocaleDateString("ar-OM") : "—"}`} readOnly />
+            <input
+              className="form-input"
+              value={`ينتهي: ${endDate ? new Date(endDate).toLocaleDateString("ar-OM") : "—"}`}
+              readOnly
+            />
           </div>
 
           <div className="grid sm:grid-cols-3 gap-2">
@@ -308,8 +334,19 @@ export default function RentUnitPage() {
 
           {extras.map((t, idx) => (
             <div key={idx} className="grid sm:grid-cols-5 gap-2">
-              <input className="form-input" placeholder="اسم الرسوم" value={t.name} onChange={(e) => setTax(idx, { name: e.target.value })} />
-              <input className="form-input" type="number" placeholder="النسبة %" value={t.rate} onChange={(e) => setTax(idx, { rate: Number(e.target.value || 0) })} />
+              <input
+                className="form-input"
+                placeholder="اسم الرسوم"
+                value={t.name}
+                onChange={(e) => setTax(idx, { name: e.target.value })}
+              />
+              <input
+                className="form-input"
+                type="number"
+                placeholder="النسبة %"
+                value={t.rate}
+                onChange={(e) => setTax(idx, { rate: Number(e.target.value || 0) })}
+              />
               <select className="form-input" value={t.mode} onChange={(e) => setTax(idx, { mode: e.target.value as any })}>
                 <option value="total">على الإجمالي</option>
                 <option value="monthly">شهريًا</option>
@@ -353,10 +390,35 @@ export default function RentUnitPage() {
         <section className="border rounded-2xl p-3 space-y-3">
           <div className="font-semibold">قراءات العدادات</div>
           <div className="grid sm:grid-cols-4 gap-2">
-            <input className="form-input" type="number" placeholder="قراءة الكهرباء" value={powerReading} onChange={(e) => setPowerReading(e.target.value ? Number(e.target.value) : "")} />
-            <input className="form-input" type="file" accept="image/*" onChange={(e) => setPowerImage(e.target.files?.[0]?.name || "")} />
-            <input className="form-input" type="number" placeholder="قراءة الماء" value={waterReading} onChange={(e) => setWaterReading(e.target.value ? Number(e.target.value) : "")} />
-            <input className="form-input" type="file" accept="image/*" onChange={(e) => setWaterImage(e.target.files?.[0]?.name || "")} />
+            <input
+              className="form-input"
+              type="number"
+              placeholder="قراءة الكهرباء"
+              value={powerReading}
+              onChange={(e) => setPowerReading(e.target.value ? Number(e.target.value) : "")}
+            />
+            <input
+              className="form-input"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setPowerImage(e.target.files?.[0]?.name || "")}
+            />
+            <input
+              className="form-input"
+              type="number"
+              placeholder="قراءة الماء"
+              value={waterReading}
+              onChange={(e) => setWaterReading(e.target.value ? Number(e.target.value) : "")}
+            />
+            <input
+              className="form-input"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setWaterImage(e.target.files?.[0]?.name || "")}
+            />
+          </div>
+          <div className="text-xs text-gray-600">
+            صورة الكهرباء إلزامية. صورة الماء إلزامية فقط إذا كانت هذه الوحدة تحتوي عداد ماء.
           </div>
         </section>
 
@@ -364,22 +426,36 @@ export default function RentUnitPage() {
         <section className="border rounded-2xl p-3 space-y-3">
           <div className="font-semibold">مبلغ الضمان</div>
           <div className="grid sm:grid-cols-4 gap-2">
-            <input className="form-input" type="number" placeholder="مبلغ الضمان" value={deposit} onChange={(e) => setDeposit(Number(e.target.value || 0))} />
+            <input
+              className="form-input"
+              type="number"
+              placeholder="مبلغ الضمان"
+              value={deposit}
+              onChange={(e) => setDeposit(Number(e.target.value || 0))}
+            />
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={depositPaid} onChange={(e) => setDepositPaid(e.target.checked)} />
               تم دفع الضمان
             </label>
-            <select className="form-input" value={depositPaymentMethod} onChange={(e) => setDepositPaymentMethod(e.target.value as any)}>
+            <select
+              className="form-input"
+              value={depositPaymentMethod}
+              onChange={(e) => setDepositPaymentMethod(e.target.value as any)}
+            >
               <option value="cash">كاش</option>
               <option value="transfer">تحويل</option>
               <option value="cheque">شيك</option>
             </select>
-            <input className="form-input" placeholder="رقم الإيصال" value={depositReceiptNo} onChange={(e) => setDepositReceiptNo(e.target.value)} />
+            <input
+              className="form-input"
+              placeholder="رقم الإيصال"
+              value={depositReceiptNo}
+              onChange={(e) => setDepositReceiptNo(e.target.value)}
+            />
           </div>
           <div>
             <label className="text-sm">مرفقات إيصالات الضمان</label>
             <input className="form-input" type="file" multiple accept="image/*,.pdf" onChange={(e) => onDepositFiles(e.target.files)} />
-            {!!depositFiles.length && <div className="text-xs text-gray-600 mt-1">عدد المرفقات: {depositFiles.length}</div>}
           </div>
         </section>
 
@@ -396,7 +472,7 @@ export default function RentUnitPage() {
 
           {method === "cheque" && (
             <div className="space-y-2">
-              <div className="text-sm text-gray-600">عدد الشيكات = مدة العقد بالأشهر. إدخال التواريخ إلزامي.</div>
+              <div className="text-sm text-gray-600">عدد الشيكات = مدة العقد بالأشهر.</div>
               {cheques.map((c, idx) => (
                 <div key={idx} className="grid sm:grid-cols-6 gap-2 items-center">
                   <input
@@ -427,7 +503,7 @@ export default function RentUnitPage() {
                     <option value="refunded">مسترد</option>
                   </select>
                   <input className="form-input" type="file" accept="image/*" onChange={(e) => setCheque(idx, { image: e.target.files?.[0]?.name })} />
-                  <div className="text-xs text-gray-500">حالة الشيك بجانبه</div>
+                  <div className="text-xs text-gray-500">حالة الشيك</div>
                 </div>
               ))}
 
@@ -436,7 +512,7 @@ export default function RentUnitPage() {
                   <div className="bg-white rounded-lg p-4 w-full max-w-md space-y-3">
                     <div className="text-lg font-semibold">توحيد تواريخ الشيكات وترقيمها؟</div>
                     <div className="text-sm text-gray-600">
-                      تم إدخال الشيك الأول. هل تريد استخدام نفس التاريخ كأساس لباقي الشيكات مع زيادته شهرًا لكل شيك، وترقيم الأرقام بشكل متسلسل؟
+                      سنستخدم تاريخ الشيك الأول كأساس ونزيده شهرًا لكل شيك مع ترقيم متسلسل.
                     </div>
                     <div className="flex items-center justify-end gap-2">
                       <button
@@ -487,9 +563,8 @@ function diffMonths(a?: string, b?: string) {
   return Math.max(1, Math.round(days / 30));
 }
 function computeTotalWithExtras(base: number, extras: ExtraTax[], months: number, monthlyRent: number) {
-  const totalRates = extras.filter((x) => x.mode === "total").reduce((s, x) => s + x.rate, 0);
-  const monthlyRates = extras.filter((x) => x.mode === "monthly").reduce((s, x) => s + x.rate, 0);
-  const addTotal = base * (totalRates / 100);
-  const addMonthly = monthlyRent * (monthlyRates / 100) * Math.max(1, months || 1);
+  const addTotal = base * (extras.filter((x) => x.mode === "total").reduce((s, x) => s + x.rate, 0) / 100);
+  const addMonthly =
+    monthlyRent * (extras.filter((x) => x.mode === "monthly").reduce((s, x) => s + x.rate, 0) / 100) * Math.max(1, months || 1);
   return round2(base + addTotal + addMonthly);
 }
