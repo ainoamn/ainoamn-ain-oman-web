@@ -1,85 +1,112 @@
-// root: src/pages/api/bookings/index.ts
+// src/pages/api/bookings/index.ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getById as getPropertyById, upsert as upsertProperty } from "@/server/properties/store";
+import { readJson, writeJson, uid } from "@/lib/fsdb";
+import type { Booking, Building } from "@/lib/types";
 
-type BookingStatus = "pending" | "reserved" | "leased" | "cancelled";
-type Booking = {
-  id: string;
-  bookingNumber: string;
-  propertyId: string;
-  propertyTitle?: string;
-  propertyReference?: string;
-  startDate: string;
-  endDate?: string;
-  duration: number;
-  totalAmount: number;
-  status: BookingStatus;
-  createdAt: string;
-  contractSigned?: boolean;
-  customerInfo: { name: string; phone: string; email?: string };
-  // إضافات اختيارية للموافقة/الرفض
-  ownerDecision?: { approved?: boolean; reason?: string; decidedAt?: string } | null;
-};
+const FILE = "bookings.json";
 
-type Store = { bookings: Booking[]; };
-declare global { // eslint-disable-next-line no-var
-  var __AIN_OMAN_STORE__: Store | undefined;
+function computeEndFromMonths(start: string, months: number) {
+  const s = new Date(start); const e = new Date(s); e.setMonth(e.getMonth()+Number(months||0)); return e.toISOString();
 }
-function store(): Store {
-  if (!global.__AIN_OMAN_STORE__) global.__AIN_OMAN_STORE__ = { bookings: [] };
-  return global.__AIN_OMAN_STORE__;
+function monthsBetween(start: string, end?: string, fallbackMonths?: number){
+  if (!end) return Number(fallbackMonths||0);
+  const d1 = new Date(start); const d2 = new Date(end);
+  const days = (d2.getTime()-d1.getTime())/86400000;
+  return Math.max(1, Math.round(days/30));
 }
-function uid(prefix: string){ return prefix + "-" + new Date().toISOString().replace(/[-:.TZ]/g,"").slice(0,14); }
+function computeMunicipality(amount: number){ return Math.round((Number(amount||0) * 0.03) * 1000) / 1000; }
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+async function fetchEffective(host: string, unitId: string, buildingId: string){
+  try{
+    const base = /^https?:\/\//.test(host) ? host : `http://${host}`;
+    const url = new URL("/api/contracts/effective", base);
+    url.searchParams.set("propertyId", unitId);
+    if (buildingId) url.searchParams.set("buildingId", buildingId);
+    const r = await fetch(url.toString());
+    return r.ok ? await r.json() : null;
+  }catch{ return null; }
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse){
   if (req.method === "GET") {
-    const { propertyId, role } = req.query;
-    const items = store().bookings.filter(b => {
-      if (propertyId) return String(b.propertyId) === String(propertyId);
-      if (role === "owner") return true; // تبسيط
-      return true;
-    });
+    const items = await readJson<Booking[]>(FILE, []);
     return res.status(200).json({ items });
   }
 
   if (req.method === "POST") {
-    try {
+    try{
       const b = req.body || {};
-      const id = uid("B");
+      const items = await readJson<Booking[]>(FILE, []);
       const now = new Date().toISOString();
-      const prop = b.propertyId ? getPropertyById(String(b.propertyId)) : null;
+      const id = uid("B");
+
+      // المدة
+      const durationMonths = monthsBetween(String(b.startDate||now), String(b.endDate||""), Number(b.durationMonths||0));
+      const end = b.endDate ? new Date(b.endDate).toISOString() : computeEndFromMonths(String(b.startDate||now), durationMonths);
+
+      // إذا لم تُرسل totalRent نحسبها من إيجار الوحدة الشهري × مدة العقد
+      let totalRent = Number(b.totalRent || 0);
+      if (!totalRent || totalRent<=0) {
+        const buildings = await readJson<Building[]>("buildings.json", []);
+        const building = buildings.find(x=>x.id===String(b.buildingId||""));
+        const unit = building?.units?.find(u=>u.id===String(b.unitId||""));
+        const monthly = Number(unit?.rentAmount || 0);
+        totalRent = Math.round(monthly * durationMonths * 1000)/1000;
+      }
+      const municipalityFee3pct = computeMunicipality(totalRent);
+
+      const eff = await fetchEffective(String(req.headers.host), String(b.unitId||""), String(b.buildingId||""));
+
       const item: Booking = {
         id,
         bookingNumber: b.bookingNumber || id,
-        propertyId: String(b.propertyId),
-        propertyTitle: b.propertyTitle || (prop?.title?.ar || prop?.title?.en || ""),
-        propertyReference: b.propertyReference || prop?.referenceNo || "",
+        buildingId: String(b.buildingId || ""),
+        unitId: String(b.unitId || ""),
         startDate: String(b.startDate || now),
-        duration: Number(b.duration || 12),
-        totalAmount: Number(b.totalAmount || 0),
-        status: (b.status || "pending") as BookingStatus,
+        durationMonths,
+        endDate: end,
+        status: "pending",
         createdAt: now,
-        contractSigned: !!b.contractSigned,
-        customerInfo: {
-          name: b?.customerInfo?.name || "",
-          phone: b?.customerInfo?.phone || "",
-          email: b?.customerInfo?.email || ""
-        },
-        ownerDecision: null,
+        totalRent,
+        deposit: b.deposit ? Number(b.deposit) : 0,
+        depositPaid: !!b.depositPaid,
+        depositReceiptNo: b.depositReceiptNo || undefined,
+        depositPaymentMethod: b.depositPaymentMethod || undefined,
+        paymentMethod: b.paymentMethod || "cash",
+        cheque: null,
+        cheques: Array.isArray(b.cheques) ? b.cheques.map((c:any)=>({
+          chequeNo: String(c.chequeNo||""),
+          chequeDate: String(c.chequeDate||now),
+          amount: Number(c.amount||0),
+          status: c.status || "pending",
+          image: c.image || undefined
+        })) : [],
+        guaranteeCheques: Array.isArray(b.guaranteeCheques) ? b.guaranteeCheques.map((c:any)=>({
+          chequeNo: String(c.chequeNo||""),
+          chequeDate: String(c.chequeDate||now),
+          amount: Number(c.amount||0),
+          status: c.status || "pending",
+          image: c.image || undefined
+        })) : [],
+        municipalityFee3pct,
+        meters: b.meters || null,
+        tenant: b.tenant,
+        contractSnapshot: eff ? {
+          templateId: String(eff.templateId||""),
+          templateName: String(eff.templateName||""),
+          bodyAr: String(eff.bodyAr||""),
+          bodyEn: String(eff.bodyEn||""),
+          fields: eff.fields || {},
+          resolvedAt: String(eff.resolvedAt||now)
+        } : null
       };
-      store().bookings.push(item);
 
-      // إذا تم إنشاء حجز مؤكد نحجز العقار
-      if (item.status === "reserved" && prop) {
-        upsertProperty({ ...prop, status: "reserved", updatedAt: now });
-      }
-
+      items.push(item);
+      await writeJson(FILE, items);
       return res.status(201).json({ item });
-    } catch (e:any) {
-      return res.status(400).json({ error: e?.message || "Bad Request" });
-    }
+    }catch(e:any){ return res.status(400).json({ error:e?.message || "Bad Request" }); }
   }
 
   res.setHeader("Allow","GET,POST");
-  return res.status(405).json({ error: "Method Not Allowed" });
+  return res.status(405).json({ error:"Method Not Allowed" });
 }

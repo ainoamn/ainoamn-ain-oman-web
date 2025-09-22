@@ -1,81 +1,47 @@
-// root: src/pages/api/bookings/[id].ts
+// src/pages/api/bookings/[id].ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getById as getPropertyById, upsert as upsertProperty } from "@/server/properties/store";
+import { readJson, writeJson } from "@/lib/fsdb";
+import type { Booking } from "@/lib/types";
 
-type BookingStatus = "pending" | "reserved" | "leased" | "cancelled";
-type Booking = {
-  id: string; bookingNumber: string; propertyId: string;
-  startDate: string; duration: number; totalAmount: number;
-  status: BookingStatus; createdAt: string;
-  contractSigned?: boolean;
-  customerInfo: { name: string; phone: string; email?: string };
-  ownerDecision?: { approved?: boolean; reason?: string; decidedAt?: string } | null;
-};
+const FILE = "bookings.json";
 
-type Store = { bookings: Booking[]; };
-declare global { var __AIN_OMAN_STORE__: Store | undefined; }
-function store(): Store {
-  if (!global.__AIN_OMAN_STORE__) global.__AIN_OMAN_STORE__ = { bookings: [] };
-  return global.__AIN_OMAN_STORE__;
-}
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  const id = String(req.query.id || "");
-  if (!id) return res.status(400).json({ error: "Missing id" });
-
-  const idx = store().bookings.findIndex(b => b.id === id);
-  const cur = idx >= 0 ? store().bookings[idx] : null;
-  if (!cur && req.method !== "POST") {
-    return res.status(404).json({ error: "Not Found" });
-  }
+export default async function handler(req: NextApiRequest, res: NextApiResponse){
+  const idOrNumber = String(req.query.id || "");
 
   if (req.method === "GET") {
-    return res.status(200).json({ item: cur });
+    const items = await readJson<Booking[]>(FILE, []);
+    const item = items.find(x=> x.id===idOrNumber || x.bookingNumber===idOrNumber);
+    if(!item) return res.status(404).json({ error:"Not Found" });
+    return res.status(200).json({ item });
   }
 
-  if (req.method === "PUT" || req.method === "PATCH") {
-    try {
+  if (req.method === "PATCH") {
+    try{
+      const items = await readJson<Booking[]>(FILE, []);
+      const idx = items.findIndex(x=> x.id===idOrNumber || x.bookingNumber===idOrNumber);
+      if(idx<0) return res.status(404).json({ error:"Not Found" });
+
       const body = req.body || {};
-      const prop = getPropertyById(String(cur!.propertyId));
-      let next: Booking = { ...cur! };
+      const action = String(body.action||"");
 
-      const action = String(body.action || "");
+      const b = { ...items[idx] };
 
-      if (action === "confirm") {
-        next.status = "reserved";
-        if (prop) upsertProperty({ ...prop, status: "reserved", updatedAt: new Date().toISOString() });
-      } else if (action === "lease") {
-        next.status = "leased";
-        if (prop) upsertProperty({ ...prop, status: "leased", updatedAt: new Date().toISOString() });
-      } else if (action === "cancel") {
-        next.status = "cancelled";
-        if (prop) upsertProperty({ ...prop, status: "vacant", updatedAt: new Date().toISOString() });
-      } else if (action === "sign") {
-        // توقيع المستأجر/المشتري على العقد
-        next.contractSigned = true;
-      } else if (action === "approveContract") {
-        // اعتماد المؤجّر بعد توقيع المستأجر
-        next.ownerDecision = { approved: true, decidedAt: new Date().toISOString(), reason: "" };
-        next.status = "leased";
-        if (prop) upsertProperty({ ...prop, status: "leased", updatedAt: new Date().toISOString() });
-      } else if (action === "rejectContract") {
-        // رفض المؤجّر مع سبب
-        const reason = String(body.reason || "غير مذكور");
-        next.ownerDecision = { approved: false, reason, decidedAt: new Date().toISOString() };
-        next.status = "pending";
-        if (prop) upsertProperty({ ...prop, status: "vacant", updatedAt: new Date().toISOString() });
-      } else {
-        // تحديث حقول عادي
-        next = { ...next, ...body };
+      if(action==="tenantSign"){
+        b.status = "accounting";
+      }else if(action==="accountingConfirm"){
+        b.status = "management";
+      }else if(action==="managementApprove"){
+        b.status = "leased";
+      }else if(action==="cancel"){
+        b.status = "cancelled";
       }
 
-      store().bookings[idx] = next;
-      return res.status(200).json({ item: next });
-    } catch (e:any) {
-      return res.status(400).json({ error: e?.message || "Bad Request" });
-    }
+      items[idx] = b;
+      await writeJson(FILE, items);
+      return res.status(200).json({ item: b });
+    }catch(e:any){ return res.status(400).json({ error:e?.message || "Bad Request" }); }
   }
 
-  res.setHeader("Allow","GET,PUT,PATCH");
-  return res.status(405).json({ error: "Method Not Allowed" });
+  res.setHeader("Allow","GET,PATCH");
+  return res.status(405).json({ error:"Method Not Allowed" });
 }
