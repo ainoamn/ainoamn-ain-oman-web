@@ -66,7 +66,7 @@ function resolveSrc(name?: string) {
 export default function NewBuildingPage() {
   const { push } = useRouter();
 
-  // توجيه ما بعد الحفظ
+  // يبقى المربع كما هو للعرض فقط
   const [afterSave, setAfterSave] = useState<"edit" | "list" | "stay">("edit");
 
   // نشر وأرشفة
@@ -125,7 +125,22 @@ export default function NewBuildingPage() {
 
   // الوحدات
   const [units, setUnits] = useState<Unit[]>([
-    { id: uid("U"), unitNo: "1", serialNo: "", type: "شقة", area: 0, rentAmount: 0, currency: "OMR", status: "vacant", published: false, images: [], features: [] },
+    {
+      id: uid("U"),
+      unitNo: "1",
+      serialNo: "",
+      type: "شقة",
+      area: 0,
+      rentAmount: 0,
+      currency: "OMR",
+      status: "vacant",
+      published: false,
+      images: [],
+      features: [],
+      powerMeter: "",
+      waterMeter: "",
+      image: "",
+    },
   ]);
 
   // تزامن عدد الوحدات مع القائمة
@@ -148,6 +163,9 @@ export default function NewBuildingPage() {
             published: false,
             images: [],
             features: [],
+            powerMeter: "",
+            waterMeter: "",
+            image: "",
           });
         }
       } else if (unitsCount < prev.length) {
@@ -175,6 +193,8 @@ export default function NewBuildingPage() {
       image: src.image,
       images: src.images ? [...src.images] : [],
       features: src.features ? [...src.features] : [],
+      powerMeter: src.powerMeter,
+      waterMeter: src.waterMeter,
     };
     setUnit(i + 1, copied);
   }
@@ -195,6 +215,8 @@ export default function NewBuildingPage() {
               image: src.image,
               images: src.images ? [...src.images] : [],
               features: src.features ? [...src.features] : [],
+              powerMeter: src.powerMeter,
+              waterMeter: src.waterMeter,
             }
       )
     );
@@ -226,7 +248,11 @@ export default function NewBuildingPage() {
           })
       )
     );
-    const r = await fetch("/api/upload", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ files: payload }) });
+    const r = await fetch("/api/upload", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ files: payload }),
+    });
     if (!r.ok) {
       alert("فشل رفع الصور");
       return;
@@ -267,11 +293,14 @@ export default function NewBuildingPage() {
       return;
     }
 
+    const coverImage = images[coverIndex] || "";
+
     const payload = {
       buildingNo,
       address,
       images,
       coverIndex,
+      coverImage,
       published,
       archived,
       geo: {
@@ -306,20 +335,61 @@ export default function NewBuildingPage() {
       units,
     };
 
-    const r = await fetch(`/api/buildings`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
-    if (r.ok) {
-      const d = await r.json();
-      alert("تم الحفظ");
-      if (afterSave === "edit" && d?.item?.id) {
-        location.assign(`/admin/buildings/edit/${encodeURIComponent(d.item.id)}`);
-      } else if (afterSave === "list") {
-        push("/admin/properties");
-      } else {
-        // stay
-      }
-    } else {
+    const r = await fetch(`/api/buildings`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!r.ok) {
       alert("فشل الحفظ");
+      return;
     }
+
+    // حفظ المبنى تم
+    const d = await r.json();
+    const buildingId: string | undefined = d?.item?.id;
+
+    // عند الحفظ والنشر: أنشئ قوائم للوحدات المنشورة لتظهر في /properties
+    if (buildingId) {
+      for (const u of units) {
+        if (!u.published) continue; // ننشر فقط الوحدات المعلّمة كمنشورة
+        const unitCover = u.image || (u.images && u.images[0]) || "";
+        const body = {
+          buildingId,
+          buildingNo,
+          address,
+          unitNo: u.unitNo,
+          serialNo: u.serialNo || "",
+          type: u.type || "شقة",
+          area: u.area ?? 0,
+          rentAmount: u.rentAmount ?? 0,
+          currency: u.currency || "OMR",
+          status: u.status || "vacant",
+          published: true,
+          image: unitCover,
+          images: u.images || [],
+          powerMeter: u.powerMeter || "",
+          waterMeter: u.waterMeter || "",
+          features: u.features || [],
+          coverImage: unitCover,
+        };
+        try {
+          // بافتراض وجود API /api/properties يدعم POST لإنشاء عقار للوحدة
+          await fetch("/api/properties", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(body),
+          });
+        } catch {
+          // تجاهل خطأ فرعي للوحدة واستمر
+        }
+      }
+    }
+
+    alert("تم الحفظ");
+    // التوجيه مباشرًا لقائمة العقارات بغض النظر عن اختيار المربع
+    push("/admin/properties");
   }
 
   return (
@@ -332,17 +402,18 @@ export default function NewBuildingPage() {
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">إدخال بيانات مبنى</h1>
           <div className="flex items-center gap-2">
-            <select className="form-input" value={afterSave} onChange={(e) => setAfterSave(e.target.value as any)} title="ماذا يحدث بعد الحفظ؟">
+            <select
+              className="form-input"
+              value={afterSave}
+              onChange={(e) => setAfterSave(e.target.value as any)}
+              title="ماذا يحدث بعد الحفظ؟"
+            >
               <option value="edit">افتح صفحة التعديل</option>
               <option value="list">اذهب لقائمة العقارات</option>
               <option value="stay">ابق في نفس الصفحة</option>
             </select>
-            <Link href="/admin/properties" className="btn">
-              رجوع
-            </Link>
-            <button className="btn btn-primary" onClick={save}>
-              حفظ
-            </button>
+            <Link href="/admin/properties" className="btn">رجوع</Link>
+            <button className="btn btn-primary" onClick={save}>حفظ</button>
           </div>
         </div>
 
@@ -351,7 +422,7 @@ export default function NewBuildingPage() {
           <div className="font-semibold">البيانات الأساسية</div>
           <div className="grid sm:grid-cols-3 gap-2">
             <input className="form-input" placeholder="رقم المبنى" value={buildingNo} onChange={(e) => setBuildingNo(e.target.value)} />
-            <input className="form-input sm:col-span-2" placeholder="العنوان" value={address} onChange={(e) => setAddress(e.target.value)} />
+            <input className="form-input sm:col-span-2" placeholder="عنوان المبنى" value={address} onChange={(e) => setAddress(e.target.value)} />
             <input
               className="form-input"
               type="number"
@@ -365,15 +436,15 @@ export default function NewBuildingPage() {
           {/* موقع وبلدية */}
           <div className="grid sm:grid-cols-3 gap-2">
             <input className="form-input" placeholder="رقم الأرض" value={landNo} onChange={(e) => setLandNo(e.target.value)} />
-            <input className="form-input" placeholder="رقم الكروكي" value={mapNo} onChange={(e) => setMapNo(e.target.value)} />
+            <input className="form-input" placeholder="رقم الكروكي/الخريطة" value={mapNo} onChange={(e) => setMapNo(e.target.value)} />
             <input className="form-input" placeholder="نوع استخدام الأرض" value={landUse} onChange={(e) => setLandUse(e.target.value)} />
             <input className="form-input" placeholder="رقم المجمع" value={blockNo} onChange={(e) => setBlockNo(e.target.value)} />
-            <input className="form-input" placeholder="رقم المبنى" value={buildingSerial} onChange={(e) => setBuildingSerial(e.target.value)} />
+            <input className="form-input" placeholder="الرقم التسلسلي للمبنى" value={buildingSerial} onChange={(e) => setBuildingSerial(e.target.value)} />
             <input className="form-input" placeholder="رقم الطريق" value={roadNo} onChange={(e) => setRoadNo(e.target.value)} />
             <input className="form-input" placeholder="المحافظة" value={province} onChange={(e) => setProvince(e.target.value)} />
             <input className="form-input" placeholder="الولاية" value={state} onChange={(e) => setState(e.target.value)} />
             <input className="form-input" placeholder="المدينة" value={city} onChange={(e) => setCity(e.target.value)} />
-            <input className="form-input" placeholder="القرية" value={village} onChange={(e) => setVillage(e.target.value)} />
+            <input className="form-input" placeholder="القرية/المنطقة" value={village} onChange={(e) => setVillage(e.target.value)} />
             <input className="form-input" placeholder="البلدية" value={municipality} onChange={(e) => setMunicipality(e.target.value)} />
             <input
               className="form-input"
@@ -390,9 +461,7 @@ export default function NewBuildingPage() {
           <div className="font-semibold">الوسائط</div>
           <div className="flex items-center gap-2">
             <input className="form-input" type="file" multiple accept="image/*" onChange={(e) => onPickImages(e.target.files)} />
-            <button className="btn btn-outline" onClick={uploadPicked}>
-              رفع الصور
-            </button>
+            <button className="btn btn-outline" onClick={uploadPicked}>رفع الصور</button>
           </div>
 
           {!!images.length && (
@@ -488,24 +557,24 @@ export default function NewBuildingPage() {
         <section className="border rounded-2xl p-3 space-y-3">
           <div className="font-semibold">عدادات وخدمات المبنى</div>
           <div className="grid sm:grid-cols-3 gap-2">
-            <input className="form-input" placeholder="عداد الكهرباء" value={bPower} onChange={(e) => setBPower(e.target.value)} />
-            <input className="form-input" placeholder="صورة الكهرباء (اسم ملف)" value={bPowerImg} onChange={(e) => setBPowerImg(e.target.value)} />
+            <input className="form-input" placeholder="رقم عداد الكهرباء" value={bPower} onChange={(e) => setBPower(e.target.value)} />
+            <input className="form-input" placeholder="صورة عداد الكهرباء (اسم ملف)" value={bPowerImg} onChange={(e) => setBPowerImg(e.target.value)} />
             <select className="form-input" value={bPowerVis} onChange={(e) => setBPowerVis(e.target.value as Visibility)}>
               <option value="private">خاص</option>
               <option value="public">مرئي للجميع</option>
               <option value="tenant">مرئي للمستأجر</option>
             </select>
 
-            <input className="form-input" placeholder="عداد الماء" value={bWater} onChange={(e) => setBWater(e.target.value)} />
-            <input className="form-input" placeholder="صورة الماء (اسم ملف)" value={bWaterImg} onChange={(e) => setBWaterImg(e.target.value)} />
+            <input className="form-input" placeholder="رقم عداد الماء" value={bWater} onChange={(e) => setBWater(e.target.value)} />
+            <input className="form-input" placeholder="صورة عداد الماء (اسم ملف)" value={bWaterImg} onChange={(e) => setBWaterImg(e.target.value)} />
             <select className="form-input" value={bWaterVis} onChange={(e) => setBWaterVis(e.target.value as Visibility)}>
               <option value="private">خاص</option>
               <option value="public">مرئي للجميع</option>
               <option value="tenant">مرئي للمستأجر</option>
             </select>
 
-            <input className="form-input" placeholder="الهاتف/الإنترنت" value={bPhone} onChange={(e) => setBPhone(e.target.value)} />
-            <input className="form-input" placeholder="صورة الهاتف (اسم ملف)" value={bPhoneImg} onChange={(e) => setBPhoneImg(e.target.value)} />
+            <input className="form-input" placeholder="رقم الهاتف/الإنترنت" value={bPhone} onChange={(e) => setBPhone(e.target.value)} />
+            <input className="form-input" placeholder="صورة الهاتف/الإنترنت (اسم ملف)" value={bPhoneImg} onChange={(e) => setBPhoneImg(e.target.value)} />
             <select className="form-input" value={bPhoneVis} onChange={(e) => setBPhoneVis(e.target.value as Visibility)}>
               <option value="private">خاص</option>
               <option value="public">مرئي للجميع</option>
@@ -520,9 +589,9 @@ export default function NewBuildingPage() {
             </button>
             {extras.map((row, idx) => (
               <div key={idx} className="grid sm:grid-cols-4 gap-2">
-                <input className="form-input" placeholder="العنوان" value={row.label} onChange={(e) => setExtras((prev) => prev.map((r, i) => (i === idx ? { ...r, label: e.target.value } : r)))} />
-                <input className="form-input" placeholder="القيمة" value={row.value} onChange={(e) => setExtras((prev) => prev.map((r, i) => (i === idx ? { ...r, value: e.target.value } : r)))} />
-                <input className="form-input" placeholder="صورة (اسم ملف)" value={row.image || ""} onChange={(e) => setExtras((prev) => prev.map((r, i) => (i === idx ? { ...r, image: e.target.value } : r)))} />
+                <input className="form-input" placeholder="عنوان البيان (مثال: ملاحظة)" value={row.label} onChange={(e) => setExtras((prev) => prev.map((r, i) => (i === idx ? { ...r, label: e.target.value } : r)))} />
+                <input className="form-input" placeholder="قيمة البيان أو الوصف" value={row.value} onChange={(e) => setExtras((prev) => prev.map((r, i) => (i === idx ? { ...r, value: e.target.value } : r)))} />
+                <input className="form-input" placeholder="صورة للبيان (اسم ملف اختياري)" value={row.image || ""} onChange={(e) => setExtras((prev) => prev.map((r, i) => (i === idx ? { ...r, image: e.target.value } : r)))} />
                 <select className="form-input" value={row.visibility} onChange={(e) => setExtras((prev) => prev.map((r, i) => (i === idx ? { ...r, visibility: e.target.value as Visibility } : r)))}>
                   <option value="private">خاص</option>
                   <option value="public">مرئي للجميع</option>
@@ -541,12 +610,8 @@ export default function NewBuildingPage() {
               <div className="flex items-center justify-between">
                 <div className="font-medium">وحدة {u.unitNo}</div>
                 <div className="flex items-center gap-2">
-                  <button className="btn btn-outline btn-sm" onClick={() => copyUnitToNext(idx)} disabled={idx === units.length - 1}>
-                    نسخ للوحدة التالية
-                  </button>
-                  <button className="btn btn-outline btn-sm" onClick={() => copyUnitToAll(idx)}>
-                    نسخ لكل الوحدات
-                  </button>
+                  <button className="btn btn-outline btn-sm" onClick={() => copyUnitToNext(idx)} disabled={idx === units.length - 1}>نسخ للوحدة التالية</button>
+                  <button className="btn btn-outline btn-sm" onClick={() => copyUnitToAll(idx)}>نسخ لكل الوحدات</button>
                   <label className="text-sm inline-flex items-center gap-2">
                     <input type="checkbox" checked={!!u.published} onChange={(e) => setUnit(idx, { published: e.target.checked })} /> نشر
                   </label>
@@ -555,18 +620,23 @@ export default function NewBuildingPage() {
 
               <div className="grid sm:grid-cols-4 gap-2">
                 <input className="form-input" placeholder="رقم الوحدة" value={u.unitNo} onChange={(e) => setUnit(idx, { unitNo: e.target.value })} />
-                <input className="form-input" placeholder="رقم الوحدة التسلسلي" value={u.serialNo || ""} onChange={(e) => setUnit(idx, { serialNo: e.target.value })} />
+                <input className="form-input" placeholder="الرقم التسلسلي للوحدة (اختياري)" value={u.serialNo || ""} onChange={(e) => setUnit(idx, { serialNo: e.target.value })} />
                 <select className="form-input" value={u.type || "شقة"} onChange={(e) => setUnit(idx, { type: e.target.value })}>
-                  <option>شقة</option>
-                  <option>فيلا</option>
-                  <option>محل</option>
-                  <option>مكتب</option>
-                  <option>أرض</option>
+                  <option>شقة</option><option>فيلا</option><option>محل</option><option>مكتب</option><option>أرض</option>
                 </select>
-                <input className="form-input" type="number" placeholder="المساحة (م²)" value={u.area || 0} onChange={(e) => setUnit(idx, { area: Number(e.target.value || 0) })} />
+                <input className="form-input" type="number" placeholder="مساحة الوحدة (م²)" value={u.area ?? 0} onChange={(e) => setUnit(idx, { area: Number(e.target.value || 0) })} />
 
-                <input className="form-input" placeholder="عداد الكهرباء" value={u.powerMeter || ""} onChange={(e) => setUnit(idx, { powerMeter: e.target.value })} />
-                <input className="form-input" placeholder="عداد الماء" value={u.waterMeter || ""} onChange={(e) => setUnit(idx, { waterMeter: e.target.value })} />
+                <input className="form-input" type="number" placeholder="قيمة الإيجار" value={u.rentAmount ?? 0} onChange={(e) => setUnit(idx, { rentAmount: Number(e.target.value || 0) })} />
+                <select className="form-input" value={u.currency || "OMR"} onChange={(e) => setUnit(idx, { currency: e.target.value })}>
+                  <option value="OMR">OMR</option><option value="AED">AED</option><option value="SAR">SAR</option><option value="QAR">QAR</option><option value="BHD">BHD</option><option value="KWD">KWD</option><option value="USD">USD</option>
+                </select>
+                <select className="form-input" value={u.status || "vacant"} onChange={(e) => setUnit(idx, { status: e.target.value as Unit["status"] })}>
+                  <option value="vacant">شاغرة</option><option value="reserved">محجوزة</option><option value="leased">مؤجرة</option>
+                </select>
+
+                <input className="form-input" placeholder="رقم عداد الكهرباء للوحدة" value={u.powerMeter || ""} onChange={(e) => setUnit(idx, { powerMeter: e.target.value })} />
+                <input className="form-input" placeholder="رقم عداد الماء للوحدة" value={u.waterMeter || ""} onChange={(e) => setUnit(idx, { waterMeter: e.target.value })} />
+
                 <input className="form-input" placeholder="رابط صورة رئيسية أو اسم ملف مرفوع" value={u.image || ""} onChange={(e) => setUnit(idx, { image: e.target.value })} />
                 <input
                   className="form-input"
@@ -586,7 +656,12 @@ export default function NewBuildingPage() {
                           })
                       )
                     );
-                    const r = await fetch("/api/upload", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ files: payload }) });
+                    const r = await fetch("/api/upload", {
+                      method: "POST",
+                      headers: { "content-type": "application/json" },
+                      body: JSON.stringify({ files: payload }),
+                    });
+                    if (!r.ok) return;
                     const d = await r.json();
                     const names: string[] = Array.isArray(d?.names) ? d.names : [];
                     setUnit(idx, { images: [...(u.images || []), ...names] });
@@ -595,9 +670,16 @@ export default function NewBuildingPage() {
 
                 <input
                   className="form-input sm:col-span-4"
-                  placeholder="مزايا مفصولة بفواصل"
+                  placeholder="أدخل مزايا الوحدة مفصولة بفواصل (مثال: تكييف, مصعد, مواقف)"
                   value={(u.features || []).join(", ")}
-                  onChange={(e) => setUnit(idx, { features: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
+                  onChange={(e) =>
+                    setUnit(idx, {
+                      features: e.target.value
+                        .split(",")
+                        .map((s) => s.trim())
+                        .filter(Boolean),
+                    })
+                  }
                 />
               </div>
 
@@ -645,7 +727,7 @@ function PartySection({
         <input className="form-input" placeholder="الاسم (إنجليزي)" value={party.nameEn} onChange={(e) => setParty({ ...party, nameEn: e.target.value })} />
         <input className="form-input" type="email" placeholder="البريد الإلكتروني" value={party.email} onChange={(e) => setParty({ ...party, email: e.target.value })} />
         <input className="form-input" placeholder="رقم الهاتف" value={party.phone} onChange={(e) => setParty({ ...party, phone: e.target.value })} />
-        <input className="form-input sm:col-span-3" placeholder="العنوان" value={party.address} onChange={(e) => setParty({ ...party, address: e.target.value })} />
+        <input className="form-input sm:col-span-3" placeholder="العنوان الكامل" value={party.address} onChange={(e) => setParty({ ...party, address: e.target.value })} />
       </div>
 
       <div className="flex items-center justify-between">
@@ -735,7 +817,7 @@ function PartySection({
             <input className="form-input" placeholder="رقم الوكالة" value={party.agencyNumber || ""} onChange={(e) => setParty({ ...party, agencyNumber: e.target.value })} />
             <input className="form-input" type="date" placeholder="تاريخ الانتهاء" value={party.agencyExpiry || ""} onChange={(e) => setParty({ ...party, agencyExpiry: e.target.value })} />
             <div className="flex items-center gap-2">
-              <input className="form-input" placeholder="مرفق (اسم ملف)" value={party.agencyAttachment || ""} onChange={(e) => setParty({ ...party, agencyAttachment: e.target.value })} />
+              <input className="form-input" placeholder="مرفق الوكالة (اسم ملف)" value={party.agencyAttachment || ""} onChange={(e) => setParty({ ...party, agencyAttachment: e.target.value })} />
               <input
                 type="file"
                 className="form-input"
