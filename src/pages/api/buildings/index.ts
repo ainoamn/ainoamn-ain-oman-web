@@ -1,19 +1,26 @@
 // src/pages/api/buildings/index.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 
-type Unit = {
-  id: string;
-  unitNo: string;
-  rentAmount?: number;
-  currency?: string;
-  status?: "vacant" | "reserved" | "leased";
-  published?: boolean;
-  image?: string;
-  waterMeter?: string;
-  powerMeter?: string;
-  images?: string[];
-  features?: string[];
+type ExtraRow = { label:string; value:string; image?:string; visibility:"private"|"public"|"tenant" };
+type License = { id:string; kind:string; number:string; expiry:string; attachment?:string };
+type PersonDoc = { id:string; docType:string; docNumber:string; attachment?:string; expiry?:string };
+type Party = {
+  category:"فرد"|"شركة";
+  nationalIdOrCR:string;
+  nameAr:string; nameEn:string; email:string; phone:string; address:string;
+  docs:PersonDoc[];
+  agencyNumber?:string; agencyExpiry?:string; agencyAttachment?:string;
 };
+type Unit = {
+  id: string; unitNo: string; serialNo?:string; type?:string; area?:number;
+  rentAmount?: number; currency?: string;
+  status?: "vacant" | "reserved" | "leased";
+  published?: boolean; image?: string;
+  waterMeter?: string; powerMeter?: string;
+  images?: string[]; features?: string[];
+};
+type Step = { id:string; name:string; status:"pending"|"in_progress"|"done"|"rejected"; date?:string; owner?:string; notes?:string; };
+
 type Building = {
   id: string;
   buildingNo: string;
@@ -22,8 +29,26 @@ type Building = {
   coverIndex?: number;
   published?: boolean;
   archived?: boolean;
-  services?: any;
+
+  // إضافات جديدة
+  geo?: {
+    landNo?:string; mapNo?:string; landUse?:string; blockNo?:string; buildingSerial?:string; roadNo?:string;
+    province?:string; state?:string; city?:string; village?:string; municipality?:string;
+    buildingArea?:number;
+  };
+  licenses?: License[];
+  services?: {
+    powerMeter?: string; powerImage?: string; powerVisibility?: "private"|"public"|"tenant";
+    waterMeter?: string; waterImage?: string; waterVisibility?: "private"|"public"|"tenant";
+    phoneMeter?: string; phoneImage?: string; phoneVisibility?: "private"|"public"|"tenant";
+    others?: ExtraRow[];
+  };
+  owner?: Party;
+  agent?: Party;
+
   units: Unit[];
+  workflow?: Step[];
+
   createdAt: string;
   updatedAt: string;
 };
@@ -38,7 +63,6 @@ function uid(prefix: string) { return `${prefix}-${Date.now()}`; }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
-    // دعم التصفية البسيطة: ?published=1&archived=0
     const { published, archived } = req.query;
     let items = db.buildings.slice().sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
     if (published === "1") items = items.filter(b => !!b.published);
@@ -58,8 +82,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       coverIndex: typeof body.coverIndex === "number" ? body.coverIndex : 0,
       published: !!body.published,
       archived: !!body.archived,
+      geo: body.geo || {},
+      licenses: Array.isArray(body.licenses)? body.licenses : [],
       services: body.services || {},
+      owner: body.owner || undefined,
+      agent: body.agent || undefined,
       units: Array.isArray(body.units) ? body.units : [],
+      workflow: Array.isArray(body.workflow)? body.workflow : [],
       createdAt: now(),
       updatedAt: now(),
     };
@@ -68,7 +97,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === "PATCH") {
-    // تحديث جماعي سريع عبر buildingNo أو id
     const { id, buildingNo } = req.body || {};
     const item = db.buildings.find(b => (id && b.id === id) || (buildingNo && b.buildingNo === buildingNo));
     if (!item) return res.status(404).json({ error: "not found" });
