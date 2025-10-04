@@ -1,65 +1,71 @@
-// root: src/server/properties/store.ts
-import fs from "fs";
-import path from "path";
-import { normalizeUsage, type Usage } from "@/lib/property";
+import { readDb, writeDb } from "@/db/jsonDb";
 
 export type Property = {
   id: string;
   referenceNo?: string;
-  title?: { ar?: string; en?: string };
+  title?: string | { ar?: string; en?: string };
   priceOMR?: number;
-  province?: string;
-  state?: string;
-  village?: string;
-  purpose?: "sale" | "rent" | "investment";
-  type?: "apartment" | "villa" | "land" | "office" | "shop";
-  usage?: Usage;            // سكني/تجاري/زراعي/سياحي
-  images?: string[];        // روابط عامة تحت public/
-  status?: "vacant" | "reserved" | "rented" | "hidden" | "draft";
+  province?: string; state?: string; village?: string;
+  published?: boolean;
+  status?: "vacant" | "reserved" | "leased" | "hidden" | "draft";
+  coverIndex?: number;
+  images?: string[];
+  units?: any[];
+  tags?: string[];
+  featured?: boolean;
   createdAt?: string;
   updatedAt?: string;
   [k: string]: any;
 };
 
-const DATA_DIR = path.resolve(process.cwd(), ".data");
-const FILE = path.join(DATA_DIR, "properties.json");
+const COLL = "properties";
 
-function ensure() {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(FILE)) fs.writeFileSync(FILE, "[]", "utf8");
+function ensure(db: any) {
+  if (!db[COLL]) db[COLL] = [];
+  return db;
 }
 
-function readAllRaw(): Property[] {
-  ensure();
-  try { const arr = JSON.parse(fs.readFileSync(FILE, "utf8")); return Array.isArray(arr) ? arr : []; }
-  catch { fs.writeFileSync(FILE, "[]", "utf8"); return []; }
+export function getAll(): Property[] {
+  const db = ensure(readDb());
+  return db[COLL] as Property[];
 }
-
-function writeAll(items: Property[]) {
-  ensure();
-  const tmp = FILE + ".tmp";
-  fs.writeFileSync(tmp, JSON.stringify(items, null, 2), "utf8");
-  fs.renameSync(tmp, FILE);
-}
-
-export function readAll(): Property[] { return readAllRaw(); }
 
 export function getById(id: string): Property | null {
-  return readAllRaw().find((p) => String(p.id) === String(id)) || null;
+  return getAll().find((x) => x.id === id) || null;
 }
 
-export function upsert(item: Property): Property {
-  const list = readAllRaw();
-  const i = list.findIndex((p) => String(p.id) === String(item.id));
+export function upsert(doc: Partial<Property>): Property {
+  const db = ensure(readDb());
+  const arr: Property[] = db[COLL];
   const now = new Date().toISOString();
-  const normalized: Property = {
-    ...item,
-    usage: normalizeUsage((item as any).usage ?? (item as any).category ?? (item as any).segment),
-    images: Array.isArray(item.images) ? item.images.filter(Boolean) : [],
-    updatedAt: item.updatedAt || now,
-  };
-  if (i >= 0) list[i] = { ...list[i], ...normalized };
-  else list.unshift({ createdAt: now, ...normalized });
-  writeAll(list);
-  return i >= 0 ? (list[i] as Property) : (list[0] as Property);
+
+  if (!doc.id) throw new Error("id required");
+  const idx = arr.findIndex((x) => x.id === doc.id);
+  if (idx === -1) {
+    const created: Property = {
+      id: String(doc.id),
+      createdAt: doc.createdAt || now,
+      updatedAt: now,
+      ...doc,
+    } as Property;
+    arr.push(created);
+    db[COLL] = arr;
+    writeDb(db);
+    return created;
+  } else {
+    const merged: Property = { ...arr[idx], ...doc, updatedAt: now } as Property;
+    arr[idx] = merged;
+    db[COLL] = arr;
+    writeDb(db);
+    return merged;
+  }
+}
+
+export function remove(id: string): boolean {
+  const db = ensure(readDb());
+  const arr: Property[] = db[COLL];
+  const next = arr.filter((x) => x.id !== id);
+  db[COLL] = next;
+  writeDb(db);
+  return true;
 }

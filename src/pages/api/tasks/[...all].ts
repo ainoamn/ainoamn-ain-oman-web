@@ -29,16 +29,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (slug.length === 0) return ok(res, { ok: true, root: "tasks" });
     if (slug.length === 1 && slug[0] === "ping") return ok(res, { ok: true, feature: "tasks" });
 
-    // === جديد: /api/tasks/list?q=&status=&priority=
+    // === جديد: /api/tasks/list?q=&status=&priority=&propertyId=
     if (slug.length === 1 && slug[0] === "list") {
       if (req.method !== "GET") { res.setHeader("Allow","GET"); return res.status(405).end(); }
       const q = typeof req.query.q === "string" ? req.query.q : undefined;
       const status = typeof req.query.status === "string" ? req.query.status as any : undefined;
       const priority = typeof req.query.priority === "string" ? req.query.priority as any : undefined;
+      const propertyId = typeof req.query.propertyId === "string" ? req.query.propertyId : undefined;
       const items = listTasks({ q, status, priority });
+      
+      // فلترة حسب propertyId إذا تم توفيره
+      let filteredItems = items;
+      if (propertyId) {
+        filteredItems = items.filter(t => {
+          // البحث في link (LinkedEntity) أو propertyId
+          return (t.link?.id === propertyId) || 
+                 (t.link?.type === "property" && t.link?.id === propertyId) ||
+                 ((t as any).propertyId === propertyId);
+        });
+      }
+      
       // نُرجع الحقول المهمة للقائمة فقط (خفيف)
-      const tasks = items.map(t => ({
-        id: t.id, title: t.title, priority: t.priority, status: t.status, createdAt: t.createdAt, updatedAt: t.updatedAt
+      const tasks = filteredItems.map(t => ({
+        id: t.id, 
+        title: t.title, 
+        priority: t.priority, 
+        status: t.status, 
+        createdAt: t.createdAt, 
+        updatedAt: t.updatedAt,
+        propertyId: t.link?.id || (t as any).propertyId,
+        assignee: t.assignee,
+        dueDate: t.dueDate,
+        type: t.type,
+        description: t.description
       }));
       return ok(res, { tasks });
     }

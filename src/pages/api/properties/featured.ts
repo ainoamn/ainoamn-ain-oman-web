@@ -1,18 +1,22 @@
-// src/pages/api/properties/featured.ts
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getFeaturedProperties } from '@/lib/api/propertiesCrud';
+import type { NextApiRequest, NextApiResponse } from "next";
+import { getAll } from "@/server/properties/store";
+import { HOMEPAGE } from "@/lib/homepage-config";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    if (req.method !== 'GET') {
-      res.setHeader('Allow', ['GET']);
-      return res.status(405).end(`Method ${req.method} Not Allowed`);
-    }
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  const limit = Math.max(1, Math.min(50, Number(req.query.limit || HOMEPAGE.limits.featured)));
+  const tag = String(req.query.tag || HOMEPAGE.featuredTag).toLowerCase();
 
-    const featuredProperties = await getFeaturedProperties();
-    res.status(200).json(featuredProperties);
-  } catch (error) {
-    console.error('API Error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+  const items = getAll()
+    .filter((p: any) => {
+      const flags = [
+        p?.featured === true,
+        String(p?.status || "").toLowerCase() === "featured",
+        Array.isArray(p?.tags) && p.tags.map((x: any) => String(x).toLowerCase()).includes(tag),
+      ];
+      return flags.some(Boolean);
+    })
+    .sort((a: any, b: any) => String(b?.updatedAt || b?.createdAt || "").localeCompare(String(a?.updatedAt || a?.createdAt || "")))
+    .slice(0, limit);
+
+  return res.status(200).json({ items });
 }

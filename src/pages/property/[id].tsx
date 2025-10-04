@@ -1,4 +1,3 @@
-// src/pages/property/[id].tsx
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -22,7 +21,7 @@ type Property = {
 
 type PageProps = { property: Property | null };
 
-export default function PropertyDetailsPage({ property }: PageProps) {
+function PropertyDetailsPage({ property }: PageProps) {
   const _i18n = (useI18n() as any) || {};
   const t = (k: string, def: string) => {
     try { const v = _i18n?.t?.(k); return typeof v === "string" && v ? v : def; }
@@ -171,5 +170,11 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (ctx) => 
     property = null;
   }
 
-  return { props: { property } };
-};
+  return {
+    props: {
+      property,
+    },
+  };
+}
+
+export default PropertyDetailsPage;

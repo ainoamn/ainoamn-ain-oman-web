@@ -1,7 +1,8 @@
 // src/pages/manage-properties/index.tsx
 import Head from "next/head";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/router";
 import Layout from "@/components/layout/Layout";
 
 type Item = {
@@ -18,14 +19,39 @@ type Item = {
 export default function ManageProperties() {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  // دالة جلب مع إلغاء الكاش
+  const fetchList = useCallback(() => {
+    setLoading(true);
+    fetch(`/api/properties?_ts=${Date.now()}`, { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => setItems(Array.isArray(d?.items) ? d.items : []))
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
+    // الجلب الأولي (الكود الأصلي)
     setLoading(true);
     fetch("/api/properties")
       .then((r) => r.json())
       .then((d) => setItems(Array.isArray(d?.items) ? d.items : []))
       .finally(() => setLoading(false));
   }, []);
+
+  // إعادة الجلب عند اكتمال أي تنقل أو عند عودة التبويب
+  useEffect(() => {
+    const onRoute = () => fetchList();
+    const onVis = () => { if (document.visibilityState === "visible") fetchList(); };
+    try { router.events.on("routeChangeComplete", onRoute); } catch {}
+    document.addEventListener("visibilitychange", onVis);
+    // محاولة تحديث فوري عند الوصول
+    if (typeof document !== "undefined" && document.visibilityState === "visible") fetchList();
+    return () => {
+      try { router.events.off("routeChangeComplete", onRoute); } catch {}
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [router.events, fetchList]);
 
   const togglePublish = async (id: string, published: boolean) => {
     const cur = items.find((x) => x.id === id);
@@ -73,7 +99,7 @@ export default function ManageProperties() {
           </div>
 
           {loading ? (
-            <div className="text-gray-500">جارِ التحميل...</div>
+            <div className="text-gray-500">جارٍ التحميل...</div>
           ) : (
             <div className="overflow-x-auto bg-white border border-gray-200 rounded-2xl">
               <table className="min-w-full text-sm">

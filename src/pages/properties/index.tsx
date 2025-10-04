@@ -1,7 +1,8 @@
 // src/pages/properties/index.tsx
 import Head from "next/head";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { useRouter } from "next/router";
 import Layout from "../../components/layout/Layout";
 import { useCurrency } from "../../context/CurrencyContext";
 import { getStates, getVillages, OMAN_PROVINCES } from "../../lib/om-locations";
@@ -101,6 +102,8 @@ export default function PropertiesIndexPage() {
   const [amenitySet, setAmenitySet] = useState<string[]>([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  const router = useRouter();
+
   // استعادة/حفظ الفلاتر محليًا
   useEffect(() => {
     try {
@@ -145,16 +148,47 @@ export default function PropertiesIndexPage() {
     } catch {}
   }, [q, type, purpose, rentalType, province, state, village, minPrice, maxPrice, minArea, maxArea, starSet, amenitySet]);
 
-  // جلب البيانات
-  useEffect(() => {
+  // دالة إعادة الجلب — تُستخدم عند التحميل والتنقل والتركيز
+  const fetchList = useCallback(() => {
     setLoading(true);
     setError(null);
-    fetch("/api/properties")
+    fetch(`/api/properties?_ts=${Date.now()}`, { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => setItems(Array.isArray(d?.items) ? d.items : []))
       .catch(() => setError("تعذر جلب البيانات"))
       .finally(() => setLoading(false));
   }, []);
+
+  // جلب البيانات عند التحميل أول مرة (الكود الأصلي مع إضافة منع الكاش)
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    fetch("/api/properties", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => setItems(Array.isArray(d?.items) ? d.items : []))
+      .catch(() => setError("تعذر جلب البيانات"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // إعادة الجلب تلقائيًا عند العودة للصفحة أو اكتمال أي تنقل داخل التطبيق
+  useEffect(() => {
+    const onRoute = () => fetchList();
+    const onVis = () => {
+      if (document.visibilityState === "visible") fetchList();
+    };
+    try {
+      router.events.on("routeChangeComplete", onRoute);
+    } catch {}
+    document.addEventListener("visibilitychange", onVis);
+    if (typeof document !== "undefined" && document.visibilityState === "visible") {
+      // محاولة تحديث فورية عند الوصول
+      fetchList();
+    }
+    return () => {
+      try { router.events.off("routeChangeComplete", onRoute); } catch {}
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [router.events, fetchList]);
 
   const states = useMemo(() => getStates(province), [province]);
   const villages = useMemo(() => getVillages(province, state), [province, state]);
@@ -227,7 +261,10 @@ export default function PropertiesIndexPage() {
     if (minArea !== "") list = list.filter((p) => (p.area ?? 0) >= Number(minArea));
     if (maxArea !== "") list = list.filter((p) => (p.area ?? 0) <= Number(maxArea));
     if (starSet.length) list = list.filter((p) => starSet.some((s) => Math.round(p.rating ?? 0) >= s));
-    if (amenitySet.length) list = list.filter((p) => amenitySet.every((x) => (p.amenities ?? []).includes(x)));
+    if (amenitySet.length) list = list.filter((p) => {
+      const amenities = Array.isArray(p.amenities) ? p.amenities : [];
+      return amenitySet.every((x) => amenities.includes(x));
+    });
 
     list.sort((a, b) => {
       // المميز أولًا
@@ -298,7 +335,10 @@ export default function PropertiesIndexPage() {
 
     const m = new Map<string, number>();
     for (const a of ALL_AMENITIES) m.set(a, 0);
-    for (const p of base) (p.amenities ?? []).forEach((a) => { if (m.has(a)) m.set(a, (m.get(a) ?? 0) + 1); });
+    for (const p of base) {
+      const amenities = Array.isArray(p.amenities) ? p.amenities : [];
+      amenities.forEach((a) => { if (m.has(a)) m.set(a, (m.get(a) ?? 0) + 1); });
+    }
     return m;
   }, [items, q, type, purpose, rentalType, province, state, village, minPrice, maxPrice, minArea, maxArea, starSet]);
 

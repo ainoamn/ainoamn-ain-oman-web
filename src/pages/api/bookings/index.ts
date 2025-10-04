@@ -29,8 +29,56 @@ async function fetchEffective(host: string, unitId: string, buildingId: string){
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse){
   if (req.method === "GET") {
+    // قراءة الحجوزات من ملف bookings.json
     const items = await readJson<Booking[]>(FILE, []);
-    return res.status(200).json({ items });
+    
+    // قراءة الحجوزات من db.json أيضاً للتوافق
+    const fs = require('fs');
+    const path = require('path');
+    const dbPath = path.resolve(process.cwd(), ".data", "db.json");
+    let dbItems: any[] = [];
+    
+    try {
+      if (fs.existsSync(dbPath)) {
+        const db = JSON.parse(fs.readFileSync(dbPath, "utf8") || "{}");
+        dbItems = Array.isArray(db.bookings) ? db.bookings : [];
+      }
+    } catch (error) {
+      console.warn("Error reading db.json:", error);
+    }
+    
+    // دمج الحجوزات من كلا المصدرين
+    const allItems = [...items, ...dbItems];
+    
+    // إزالة التكرارات بناءً على ID
+    const uniqueItems = new Map();
+    allItems.forEach(item => {
+      const id = String(item.id || "");
+      if (id && !uniqueItems.has(id)) {
+        // إضافة بيانات افتراضية للحجوزات الناقصة
+        const enhancedItem = {
+          id: item.id,
+          bookingNumber: item.bookingNumber || item.id,
+          propertyId: item.propertyId || item.unitId || "غير محدد",
+          propertyTitle: item.propertyTitle || "عقار غير محدد",
+          propertyReference: item.propertyReference || "غير محدد",
+          startDate: item.startDate || item.createdAt || new Date().toISOString(),
+          duration: item.duration || item.durationMonths || 1,
+          totalAmount: item.totalAmount || item.totalRent || 0,
+          status: item.status || "pending",
+          createdAt: item.createdAt || new Date().toISOString(),
+          contractSigned: item.contractSigned || false,
+          customerInfo: item.customerInfo || item.tenant || { name: "غير محدد", phone: "غير محدد", email: "" },
+          ownerDecision: item.ownerDecision || null,
+          ...item
+        };
+        uniqueItems.set(id, enhancedItem);
+      }
+    });
+    
+    const finalItems = Array.from(uniqueItems.values());
+    
+    return res.status(200).json({ items: finalItems });
   }
 
   if (req.method === "POST") {

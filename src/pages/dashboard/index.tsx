@@ -1,228 +1,264 @@
-// src/pages/dashboard/index.tsx
+// src/pages/dashboard/index.tsx - صفحة اختيار نوع لوحة التحكم
 import React, { useState, useEffect } from 'react';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line
-} from 'recharts';
-import { 
-  FiUsers, FiShoppingCart, FiDollarSign, FiActivity,
-  FiCalendar, FiMessageSquare, FiSettings, FiLogOut,
-  FiHome, FiTrendingUp, FiPackage, FiUser
-} from 'react-icons/fi';
+import Link from 'next/link';
+// Icons replaced with emoji characters to avoid import issues
 
-// بيانات وهمية للإحصائيات
-const dashboardStats = [
-  { id: 1, title: 'إجمالي المستخدمين', value: '2,842', icon: <FiUsers size={24} />, change: '+12%', color: 'bg-blue-500' },
-  { id: 2, title: 'إجمالي المبيعات', value: '$28,421', icon: <FiDollarSign size={24} />, change: '+8%', color: 'bg-green-500' },
-  { id: 3, title: 'الطلبات الجديدة', value: '342', icon: <FiShoppingCart size={24} />, change: '-3%', color: 'bg-yellow-500' },
-  { id: 4, title: 'نشاط النظام', value: '92.4%', icon: <FiActivity size={24} />, change: '+2%', color: 'bg-purple-500' }
-];
-
-// بيانات وهمية للرسم البياني
-const chartData = [
-  { name: 'يناير', مبيعات: 4000, مستخدمون: 2400 },
-  { name: 'فبراير', مبيعات: 3000, مستخدمون: 1398 },
-  { name: 'مارس', مبيعات: 2000, مستخدمون: 9800 },
-  { name: 'أبريل', مبيعات: 2780, مستخدمون: 3908 },
-  { name: 'مايو', مبيعات: 1890, مستخدمون: 4800 },
-  { name: 'يونيو', مبيعات: 2390, مستخدمون: 3800 },
-  { name: 'يوليو', مبيعات: 3490, مستخدمون: 4300 }
-];
-
-// بيانات وهمية للفئات
-const categoryData = [
-  { name: 'إلكترونيات', value: 35 },
-  { name: 'ملابس', value: 25 },
-  { name: 'أطعمة', value: 20 },
-  { name: 'أخرى', value: 20 }
-];
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
-
-// بيانات وهمية للطلبات الحديثة
-const recentOrders = [
-  { id: '#ORD-001', customer: 'أحمد محمد', date: '2023-10-01', amount: '$120', status: 'مكتمل' },
-  { id: '#ORD-002', customer: 'سارة عبدالله', date: '2023-10-02', amount: '$85', status: 'قيد التجهيز' },
-  { id: '#ORD-003', customer: 'محمد خالد', date: '2023-10-02', amount: '$240', status: 'مكتمل' },
-  { id: '#ORD-004', customer: 'فاطمة علي', date: '2023-10-03', amount: '$65', status: 'ملغي' },
-  { id: '#ORD-005', customer: 'يوسف إبراهيم', date: '2023-10-04', amount: '$150', status: 'قيد التجهيز' }
+// أنواع لوحات التحكم المتاحة
+const dashboardTypes = [
+  {
+    id: 'admin',
+    title: 'إدارة النظام الكاملة',
+    description: 'لوحة تحكم شاملة لإدارة الموقع بالكامل',
+    icon: <span className="text-4xl">🛡️</span>,
+    color: 'bg-red-500',
+    bgColor: 'bg-red-50',
+    textColor: 'text-red-600',
+    features: [
+      'إدارة المستخدمين والأذونات',
+      'مراقبة النظام والأداء',
+      'إدارة جميع العقارات',
+      'إدارة جميع الحجوزات',
+      'التحليلات والتقارير',
+      'إعدادات النظام'
+    ],
+    link: '/dashboard/admin'
+  },
+  {
+    id: 'property-owner',
+    title: 'إدارة العقار والملاك',
+    description: 'لوحة تحكم للملاك وإدارة العقارات',
+    icon: <span className="text-4xl">🏢</span>,
+    color: 'bg-green-500',
+    bgColor: 'bg-green-50',
+    textColor: 'text-green-600',
+    features: [
+      'إدارة عقاراتك',
+      'مراجعة الحجوزات',
+      'إدارة العملاء',
+      'التحليلات المالية',
+      'إدارة المهام',
+      'التقارير والإحصائيات'
+    ],
+    link: '/dashboard/property-owner'
+  },
+  {
+    id: 'customer',
+    title: 'لوحة العميل',
+    description: 'لوحة تحكم للعملاء لعرض حجوزاتهم ومعاملاتهم',
+    icon: <span className="text-4xl">👤</span>,
+    color: 'bg-blue-500',
+    bgColor: 'bg-blue-50',
+    textColor: 'text-blue-600',
+    features: [
+      'عرض حجوزاتك',
+      'إدارة المدفوعات',
+      'العقارات المستأجرة',
+      'التواصل مع الإدارة',
+      'تتبع المعاملات',
+      'الرسائل والإشعارات'
+    ],
+    link: '/dashboard/customer'
+  }
 ];
 
 export default function Dashboard() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [userAuth, setUserAuth] = useState<any>(null);
+  const [subscription, setSubscription] = useState<any>(null);
+
+  useEffect(() => {
+    // جلب معلومات المستخدم من localStorage
+    try {
+      const authData = localStorage.getItem('ain_auth');
+      if (authData) {
+        const user = JSON.parse(authData);
+        setUserAuth(user);
+        setSubscription(user.subscription);
+      }
+    } catch (error) {
+      console.log('No auth data found');
+    }
+  }, []);
+
+  // تحديد اللوحات المتاحة حسب الاشتراك
+  const getAvailableDashboards = () => {
+    if (!userAuth) return dashboardTypes;
+    
+    const available = [];
+    
+    // لوحة الإدارة - للمديرين فقط
+    if (userAuth.role === 'admin') {
+      available.push(dashboardTypes[0]);
+    }
+    
+    // لوحة المالك - للملاك والمطورين والشركات
+    if (['owner', 'developer', 'company', 'broker'].includes(userAuth.role)) {
+      available.push(dashboardTypes[1]);
+    }
+    
+    // لوحة العميل - للجميع
+    available.push(dashboardTypes[2]);
+    
+    return available;
+  };
+
+  const availableDashboards = getAvailableDashboards();
 
   return (
-    <div className="flex h-screen bg-gray-100 text-gray-800">
-      {/* الشريط الجانبي */}
-      <div className={`bg-white shadow-lg transform transition-transform duration-300 ${sidebarOpen ? 'w-64' : 'w-20'} flex flex-col`}>
-        <div className="p-4 flex items-center justify-between border-b">
-          {sidebarOpen && <h1 className="text-xl font-bold">نظام الإدارة</h1>}
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-full hover:bg-gray-100">
-            <FiActivity size={20} />
-          </button>
-        </div>
-        
-        <nav className="flex-1 overflow-y-auto pt-6">
-          <div className={`px-4 space-y-2 ${!sidebarOpen && 'flex flex-col items-center'}`}>
-            <button className={`flex items-center w-full p-2 rounded-lg ${activeTab === 'overview' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('overview')}>
-              <FiHome size={20} />
-              {sidebarOpen && <span className="mr-2">نظرة عامة</span>}
-            </button>
-            
-            <button className={`flex items-center w-full p-2 rounded-lg ${activeTab === 'analytics' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('analytics')}>
-              <FiTrendingUp size={20} />
-              {sidebarOpen && <span className="mr-2">التحليلات</span>}
-            </button>
-            
-            <button className={`flex items-center w-full p-2 rounded-lg ${activeTab === 'products' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('products')}>
-              <FiPackage size={20} />
-              {sidebarOpen && <span className="mr-2">المنتجات</span>}
-            </button>
-            
-            <button className={`flex items-center w-full p-2 rounded-lg ${activeTab === 'customers' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('customers')}>
-              <FiUser size={20} />
-              {sidebarOpen && <span className="mr-2">العملاء</span>}
-            </button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">لوحات التحكم</h1>
+              <p className="text-gray-600 mt-1">
+                {userAuth ? `مرحباً ${userAuth.name}` : 'اختر نوع لوحة التحكم المناسبة لك'}
+              </p>
+              {subscription && (
+                <div className="mt-2">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                    {subscription.planName} - {subscription.remainingDays} يوم متبقي
+                  </span>
+                </div>
+              )}
           </div>
-        </nav>
-        
-        <div className="p-4 border-t">
-          <button className="flex items-center w-full p-2 rounded-lg hover:bg-gray-100">
-            <FiLogOut size={20} />
-            {sidebarOpen && <span className="mr-2">تسجيل الخروج</span>}
-          </button>
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-white text-xl">📊</span>
         </div>
       </div>
-
-      {/* المحتوى الرئيسي */}
-      <div className="flex-1 overflow-y-auto">
-        {/* الشريط العلوي */}
-        <header className="bg-white shadow-sm p-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">لوحة التحكم</h2>
-          <div className="flex items-center space-x-4">
-            <button className="p-2 rounded-full hover:bg-gray-100">
-              <FiMessageSquare size={20} />
-            </button>
-            <button className="p-2 rounded-full hover:bg-gray-100">
-              <FiCalendar size={20} />
-            </button>
-            <button className="p-2 rounded-full hover:bg-gray-100">
-              <FiSettings size={20} />
-            </button>
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
-              <FiUser size={16} />
             </div>
           </div>
         </header>
 
-        {/* المحتوى */}
-        <main className="p-6">
-          {/* إحصائيات سريعة */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {dashboardStats.map(stat => (
-              <div key={stat.id} className="bg-white rounded-xl shadow-sm p-6 flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">{stat.title}</p>
-                  <h3 className="text-2xl font-bold mt-1">{stat.value}</h3>
-                  <span className={`text-xs ${stat.change.includes('+') ? 'text-green-500' : 'text-red-500'}`}>
-                    {stat.change} من الشهر الماضي
-                  </span>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {availableDashboards.map((dashboard) => (
+            <div
+              key={dashboard.id}
+              className={`${dashboard.bgColor} rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200`}
+            >
+              <div className="p-8">
+                {/* Icon */}
+                <div className={`${dashboard.color} w-20 h-20 rounded-2xl flex items-center justify-center text-white mb-6`}>
+                  {dashboard.icon}
                 </div>
-                <div className={`p-3 rounded-full ${stat.color} text-white`}>
-                  {stat.icon}
+
+                {/* Title and Description */}
+                <h2 className={`text-2xl font-bold ${dashboard.textColor} mb-3`}>
+                  {dashboard.title}
+                </h2>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  {dashboard.description}
+                </p>
+
+                {/* Features */}
+                <div className="mb-8">
+                  <h3 className="font-semibold text-gray-800 mb-4">المميزات:</h3>
+                  <ul className="space-y-2">
+                    {dashboard.features.map((feature, index) => (
+                      <li key={index} className="flex items-center text-sm text-gray-600">
+                        <div className={`w-2 h-2 rounded-full ${dashboard.color.replace('bg-', 'bg-')} ml-3`}></div>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Action Button */}
+                <Link
+                  href={dashboard.link}
+                  className={`${dashboard.color} hover:opacity-90 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center group`}
+                >
+                  <span>الانتقال إلى اللوحة</span>
+                  <span className="mr-2 group-hover:translate-x-1 transition-transform">➡️</span>
+                </Link>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* الرسوم البيانية */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="text-lg font-semibold mb-4">مبيعات الشهر</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="مبيعات" fill="#8884d8" />
-                  <Bar dataKey="مستخدمون" fill="#82ca9d" />
-                </BarChart>
-              </ResponsiveContainer>
+        {/* Subscription Management */}
+        {userAuth && (
+          <div className="mt-12 bg-white rounded-2xl shadow-lg p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900">إدارة الاشتراك</h3>
+              <Link 
+                href="/subscriptions"
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                إدارة الاشتراك
+              </Link>
             </div>
             
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="text-lg font-semibold mb-4">توزيع المبيعات حسب الفئة</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={categoryData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {categoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+            {subscription ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 mb-2">الخطة الحالية</h4>
+                  <p className="text-gray-600">{subscription.planName}</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 mb-2">الأيام المتبقية</h4>
+                  <p className="text-gray-600">{subscription.remainingDays} يوم</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 mb-2">الاستخدام</h4>
+                  <p className="text-gray-600">
+                    {subscription.usage.properties}/{subscription.limits.properties === -1 ? '∞' : subscription.limits.properties} عقارات
+                  </p>
             </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-600 mb-4">لم يتم العثور على اشتراك نشط</p>
+                <Link 
+                  href="/subscriptions"
+                  className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                >
+                  اشترك الآن
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Additional Info */}
+        <div className="mt-16 bg-white rounded-2xl shadow-lg p-8">
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">نظام متكامل لإدارة العقارات</h3>
+            <p className="text-gray-600 mb-8 max-w-3xl mx-auto">
+              نظام شامل ومتطور لإدارة العقارات والحجوزات مع مزامنة ذكية فورية بين جميع لوحات التحكم
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-blue-600 text-2xl">🛡️</span>
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-2">أمان عالي</h4>
+                <p className="text-sm text-gray-600">نظام أمان متقدم لحماية البيانات</p>
           </div>
 
-          {/* جدول الطلبات الحديثة */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-semibold">الطلبات الحديثة</h3>
-              <button className="text-blue-600 text-sm">عرض الكل</button>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-green-600 text-2xl">📈</span>
+            </div>
+                <h4 className="font-semibold text-gray-900 mb-2">مزامنة فورية</h4>
+                <p className="text-sm text-gray-600">تحديث فوري بين جميع اللوحات</p>
             </div>
             
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="text-right text-sm text-gray-500 border-b">
-                    <th className="pb-3 px-4">الحالة</th>
-                    <th className="pb-3 px-4">المبلغ</th>
-                    <th className="pb-3 px-4">التاريخ</th>
-                    <th className="pb-3 px-4">العميل</th>
-                    <th className="pb-3 px-4">رقم الطلب</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentOrders.map(order => (
-                    <tr key={order.id} className="text-sm border-b hover:bg-gray-50">
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          order.status === 'مكتمل' ? 'bg-green-100 text-green-800' :
-                          order.status === 'قيد التجهيز' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 font-medium">{order.amount}</td>
-                      <td className="py-3 px-4 text-gray-500">{order.date}</td>
-                      <td className="py-3 px-4">{order.customer}</td>
-                      <td className="py-3 px-4 font-medium">{order.id}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-purple-600 text-2xl">🚀</span>
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-2">تحليلات ذكية</h4>
+                <p className="text-sm text-gray-600">تقارير وتحليلات متقدمة</p>
+              </div>
+            </div>
             </div>
           </div>
         </main>
-      </div>
     </div>
   );
 }

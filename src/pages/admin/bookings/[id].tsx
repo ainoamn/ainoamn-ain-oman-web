@@ -1,4 +1,3 @@
-// src/pages/admin/bookings/[id].tsx
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -8,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import { FaCheck, FaTimes, FaPrint, FaArrowRight } from "react-icons/fa";
 
 /* ===== Types aligned with API ===== */
-type BookingStatus = "pending" | "reserved" | "leased" | "cancelled";
+type BookingStatus = "pending" | "reserved" | "leased" | "cancelled" | "accounting";
 type Booking = {
   id: string;
   bookingNumber: string;
@@ -71,6 +70,7 @@ function statusLabel(s?: BookingStatus) {
   if (s === "reserved") return "محجوز";
   if (s === "leased") return "مؤجّر";
   if (s === "cancelled") return "ملغى";
+  if (s === "accounting") return "محاسبي";
   return "قيد المراجعة";
 }
 function ownerDecisionLabel(d?: { approved?: boolean; reason?: string; decidedAt?: string } | null) {

@@ -1,7 +1,7 @@
 // src/pages/api/appointments/[appointmentId].ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { AppointmentsStore } from "../../../server/appointments/store"; // ← تم التصحيح
-import { getSessionUser as realGetSessionUser } from "../../../server/auth/session"; // ← تم التصحيح
+import { AppointmentsStore } from "../../../server/appointments/store";
+import { getSessionUser as realGetSessionUser } from "../../../server/auth/session";
 
 function getSessionUserSafe(req: NextApiRequest) {
   try {

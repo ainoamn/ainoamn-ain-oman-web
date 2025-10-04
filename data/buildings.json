@@ -1,0 +1,248 @@
+[
+  {
+    "id": "BLD-1758737774620",
+    "buildingNo": "022",
+    "address": "",
+    "images": [
+      "images.jpeg"
+    ],
+    "coverIndex": 0,
+    "coverImage": "images.jpeg",
+    "published": false,
+    "archived": false,
+    "geo": {
+      "landNo": "",
+      "mapNo": "",
+      "landUse": "",
+      "blockNo": "",
+      "buildingSerial": "",
+      "roadNo": "",
+      "province": "",
+      "state": "",
+      "city": "",
+      "village": "",
+      "municipality": "",
+      "buildingArea": ""
+    },
+    "licenses": [],
+    "services": {
+      "powerMeter": "",
+      "powerImage": "",
+      "powerVisibility": "private",
+      "waterMeter": "",
+      "waterImage": "",
+      "waterVisibility": "private",
+      "phoneMeter": "",
+      "phoneImage": "",
+      "phoneVisibility": "private",
+      "others": []
+    },
+    "owner": {
+      "category": "فرد",
+      "nationalIdOrCR": "",
+      "nameAr": "",
+      "nameEn": "",
+      "email": "",
+      "phone": "",
+      "address": "",
+      "docs": []
+    },
+    "agent": {
+      "category": "فرد",
+      "nationalIdOrCR": "",
+      "nameAr": "",
+      "nameEn": "",
+      "email": "",
+      "phone": "",
+      "address": "",
+      "docs": [],
+      "agencyNumber": "",
+      "agencyExpiry": "",
+      "agencyAttachment": ""
+    },
+    "units": [
+      {
+        "id": "U-1758737694060-535",
+        "unitNo": "1",
+        "serialNo": "34",
+        "type": "شقة",
+        "area": 0,
+        "rentAmount": 234,
+        "currency": "OMR",
+        "status": "vacant",
+        "published": false,
+        "images": [],
+        "features": [],
+        "powerMeter": "",
+        "waterMeter": "",
+        "image": ""
+      }
+    ],
+    "createdAt": 1758737774620,
+    "updatedAt": 1758737774620
+  },
+  {
+    "id": "BLD-1758739371668",
+    "op": "publishBuilding",
+    "archived": true,
+    "updatedAt": 1758740819505,
+    "published": true
+  },
+  {
+    "buildingNo": "11",
+    "address": "11",
+    "images": [],
+    "coverIndex": 0,
+    "coverImage": "",
+    "published": false,
+    "archived": false,
+    "geo": {
+      "landNo": "",
+      "mapNo": "",
+      "landUse": "",
+      "blockNo": "",
+      "buildingSerial": "",
+      "roadNo": "",
+      "province": "",
+      "state": "",
+      "city": "",
+      "village": "",
+      "municipality": "",
+      "buildingArea": ""
+    },
+    "licenses": [],
+    "services": {
+      "powerMeter": "",
+      "powerImage": "",
+      "powerVisibility": "private",
+      "waterMeter": "",
+      "waterImage": "",
+      "waterVisibility": "private",
+      "phoneMeter": "",
+      "phoneImage": "",
+      "phoneVisibility": "private",
+      "others": []
+    },
+    "owner": {
+      "category": "فرد",
+      "nationalIdOrCR": "",
+      "nameAr": "",
+      "nameEn": "",
+      "email": "",
+      "phone": "",
+      "address": "",
+      "docs": []
+    },
+    "agent": {
+      "category": "فرد",
+      "nationalIdOrCR": "",
+      "nameAr": "",
+      "nameEn": "",
+      "email": "",
+      "phone": "",
+      "address": "",
+      "docs": [],
+      "agencyNumber": "",
+      "agencyExpiry": "",
+      "agencyAttachment": ""
+    },
+    "units": [
+      {
+        "id": "U-1758741940807-1221",
+        "unitNo": "1",
+        "serialNo": "",
+        "type": "شقة",
+        "area": 0,
+        "rentAmount": 0,
+        "currency": "OMR",
+        "status": "vacant",
+        "published": false,
+        "images": [],
+        "features": []
+      }
+    ],
+    "id": "BLD-1758741949049",
+    "createdAt": "2025-09-24T19:25:49.049Z",
+    "updatedAt": "2025-09-24T19:25:49.049Z"
+  },
+  {
+    "buildingNo": "3121",
+    "address": "",
+    "images": [],
+    "coverIndex": 0,
+    "coverImage": "",
+    "published": false,
+    "archived": false,
+    "geo": {
+      "landNo": "",
+      "mapNo": "",
+      "landUse": "",
+      "blockNo": "",
+      "buildingSerial": "",
+      "roadNo": "",
+      "province": "",
+      "state": "",
+      "city": "",
+      "village": "",
+      "municipality": "",
+      "buildingArea": ""
+    },
+    "licenses": [],
+    "services": {
+      "powerMeter": "3",
+      "powerImage": "",
+      "powerVisibility": "private",
+      "waterMeter": "1",
+      "waterImage": "",
+      "waterVisibility": "private",
+      "phoneMeter": "",
+      "phoneImage": "",
+      "phoneVisibility": "private",
+      "others": []
+    },
+    "owner": {
+      "category": "فرد",
+      "nationalIdOrCR": "",
+      "nameAr": "",
+      "nameEn": "",
+      "email": "",
+      "phone": "",
+      "address": "",
+      "docs": []
+    },
+    "agent": {
+      "category": "فرد",
+      "nationalIdOrCR": "",
+      "nameAr": "",
+      "nameEn": "",
+      "email": "",
+      "phone": "",
+      "address": "",
+      "docs": [],
+      "agencyNumber": "",
+      "agencyExpiry": "",
+      "agencyAttachment": ""
+    },
+    "units": [
+      {
+        "id": "U-1758741981970-7911",
+        "unitNo": "1",
+        "serialNo": "3",
+        "type": "شقة",
+        "area": 0,
+        "rentAmount": 50,
+        "currency": "OMR",
+        "status": "vacant",
+        "published": false,
+        "images": [],
+        "features": [],
+        "powerMeter": "",
+        "waterMeter": "",
+        "image": ""
+      }
+    ],
+    "id": "BLD-1758741998266",
+    "createdAt": "2025-09-24T19:26:38.266Z",
+    "updatedAt": "2025-09-24T19:26:38.266Z"
+  }
+]

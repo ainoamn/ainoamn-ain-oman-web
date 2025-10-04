@@ -201,6 +201,37 @@ export default function Header() {
             </nav>
 
             <div className="hidden lg:flex items-center gap-3">
+              {/* البحث الذكي */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="البحث في العقارات..."
+                  className="px-4 py-2 rounded-xl border border-white/25 bg-white/10 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/30 w-64"
+                />
+                <button className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70">
+                  🔍
+                </button>
+              </div>
+
+              {/* الإشعارات */}
+              <div className="relative">
+                <button className="p-2 rounded-xl border border-white/25 text-white hover:ring-2 hover:ring-white/30 relative">
+                  🔔
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    3
+                  </span>
+                </button>
+              </div>
+
+              {/* المفضلة */}
+              <Link
+                href="/favorites"
+                className="p-2 rounded-xl border border-white/25 text-white hover:ring-2 hover:ring-white/30"
+                title="المفضلة"
+              >
+                ❤️
+              </Link>
+
               {cfg.showUserColorPicker && (
                 <div className="relative" ref={paletteRef}>
                   <button
@@ -247,9 +278,14 @@ export default function Header() {
                   </button>
                 </div>
               ) : (
-                <Link href="/login" className="btn btn-primary" title="الدخول">
-                  الدخول
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link href="/register" className="px-3 py-1.5 rounded-xl border border-white/25 text-white hover:ring-2 hover:ring-white/30">
+                    تسجيل
+                  </Link>
+                  <Link href="/login" className="btn btn-primary" title="الدخول">
+                    الدخول
+                  </Link>
+                </div>
               )}
             </div>
 

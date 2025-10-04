@@ -1,11 +1,38 @@
 import Head from "next/head";
+import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useRouter } from "next/router";
 
-type AinAuth = { id: string; name: string; role: string; features?: string[]; plan?: any };
+type AinAuth = { 
+  id: string; 
+  name: string; 
+  role: string; 
+  features?: string[]; 
+  plan?: any;
+  subscription?: {
+    planId: string;
+    planName: string;
+    permissions: string[];
+    limits: {
+      properties: number;
+      units: number;
+      bookings: number;
+      users: number;
+      storage: number;
+    };
+    usage: {
+      properties: number;
+      units: number;
+      bookings: number;
+      users: number;
+      storage: number;
+    };
+    remainingDays: number;
+  };
+};
 
 function setSession(u: AinAuth) {
   localStorage.setItem("ain_auth", JSON.stringify(u));
@@ -49,7 +76,26 @@ function LoginPage() {
       const r = await fetch("/api/auth/verify-otp", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone, code, name: name || phone, role }) });
       const d = await r.json();
       if (!r.ok) return alert(d?.error || "فشل التحقق");
-      setSession({ id: d.id || phone, name: d.name || name || phone, role: d.role || role, features: d.features || ["DASHBOARD_ACCESS"] });
+      
+      // جلب معلومات الاشتراك
+      let subscription = null;
+      try {
+        const subRes = await fetch(`/api/subscriptions/user?userId=${d.id || phone}`);
+        if (subRes.ok) {
+          const subData = await subRes.json();
+          subscription = subData.stats;
+        }
+      } catch (error) {
+        console.log("No subscription found, using default");
+      }
+      
+      setSession({ 
+        id: d.id || phone, 
+        name: d.name || name || phone, 
+        role: d.role || role, 
+        features: d.features || ["DASHBOARD_ACCESS"],
+        subscription: subscription
+      });
       router.replace(getReturn(router));
     } finally {
       setBusy(false);
@@ -90,12 +136,14 @@ function LoginPage() {
                 <input value={code} onChange={(e)=>setCode(e.target.value)} placeholder="XXXXXX" className="w-full border rounded px-3 py-2 mb-4" />
                 <label className="block mb-2 text-sm">الاسم</label>
                 <input value={name} onChange={(e)=>setName(e.target.value)} placeholder="اسمك" className="w-full border rounded px-3 py-2 mb-4" />
-                <label className="block mb-2 text-sm">الدور</label>
+                <label className="block mb-2 text-sm">نوع الحساب</label>
                 <select value={role} onChange={(e)=>setRole(e.target.value)} className="w-full border rounded px-3 py-2 mb-4">
-                  <option value="individual_tenant">Individual</option>
-                  <option value="owner">Owner</option>
-                  <option value="broker">Broker</option>
-                  <option value="admin">Admin</option>
+                  <option value="individual_tenant">فرد - مستأجر</option>
+                  <option value="owner">مالك عقار</option>
+                  <option value="broker">وسيط عقاري</option>
+                  <option value="developer">مطور عقاري</option>
+                  <option value="company">شركة إدارة عقارات</option>
+                  <option value="admin">مدير النظام</option>
                 </select>
                 <button disabled={!code || busy} onClick={verifyOtp} className="w-full px-4 py-2 rounded bg-emerald-600 text-white">تحقق</button>
                 <div className="mt-4 grid grid-cols-2 gap-2">
@@ -109,12 +157,38 @@ function LoginPage() {
           </div>
 
           <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="text-lg font-semibold mb-2">الميزات</h2>
-            <ul className="list-disc ps-5 text-sm space-y-1 text-slate-700">
-              <li>دخول سريع برقم الهاتف</li>
-              <li>توافق مع لوحة التحكم</li>
-              <li>يحفظ الجلسة في المتصفح</li>
-            </ul>
+            <h2 className="text-lg font-semibold mb-4">خطط الاشتراك</h2>
+            <div className="space-y-3">
+              <div className="border rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-medium text-blue-600">الخطة الأساسية</h3>
+                  <span className="text-sm text-gray-500">29 ر.ع/شهر</span>
+                </div>
+                <p className="text-xs text-gray-600">حتى 5 عقارات، 20 وحدة</p>
+              </div>
+              
+              <div className="border rounded-lg p-3 bg-green-50">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-medium text-green-600">الخطة المعيارية</h3>
+                  <span className="text-sm text-gray-500">79 ر.ع/شهر</span>
+                </div>
+                <p className="text-xs text-gray-600">حتى 25 عقار، 100 وحدة، تقويم ومهام</p>
+              </div>
+              
+              <div className="border rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-medium text-purple-600">الخطة المميزة</h3>
+                  <span className="text-sm text-gray-500">149 ر.ع/شهر</span>
+                </div>
+                <p className="text-xs text-gray-600">حتى 100 عقار، ذكاء اصطناعي</p>
+              </div>
+            </div>
+            
+            <div className="mt-4 pt-4 border-t">
+              <Link href="/subscriptions" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                عرض جميع الخطط →
+              </Link>
+            </div>
           </div>
         </div>
       </div>

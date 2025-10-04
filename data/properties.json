@@ -1,0 +1,196 @@
+[
+  {
+    "id": "BLD-1758737774620",
+    "title": {
+      "ar": "مبنى رقم 022",
+      "en": "Building No. 022"
+    },
+    "type": "residential",
+    "purpose": "rent",
+    "priceOMR": 234,
+    "province": "مسقط",
+    "state": "",
+    "address": "",
+    "beds": "2",
+    "baths": "2",
+    "area": 120,
+    "status": "vacant",
+    "published": false,
+    "images": [
+      "images.jpeg"
+    ],
+    "coverIndex": 0,
+    "coverImage": "images.jpeg",
+    "units": [
+      {
+        "id": "U-1758737694060-535",
+        "unitNo": "1",
+        "serialNo": "34",
+        "type": "شقة",
+        "area": 120,
+        "rentAmount": 234,
+        "currency": "OMR",
+        "status": "vacant",
+        "published": false,
+        "images": [],
+        "features": [],
+        "powerMeter": "",
+        "waterMeter": "",
+        "image": ""
+      }
+    ],
+    "createdAt": "2025-01-24T19:25:49.049Z",
+    "updatedAt": "2025-01-24T19:25:49.049Z"
+  },
+  {
+    "id": "BLD-1758741949049",
+    "title": {
+      "ar": "مبنى رقم 11",
+      "en": "Building No. 11"
+    },
+    "type": "residential",
+    "purpose": "rent",
+    "priceOMR": 0,
+    "province": "مسقط",
+    "state": "",
+    "address": "11",
+    "beds": "1",
+    "baths": "1",
+    "area": 80,
+    "status": "vacant",
+    "published": false,
+    "images": [],
+    "coverIndex": 0,
+    "coverImage": "",
+    "units": [
+      {
+        "id": "U-1758741940807-1221",
+        "unitNo": "1",
+        "serialNo": "",
+        "type": "شقة",
+        "area": 80,
+        "rentAmount": 0,
+        "currency": "OMR",
+        "status": "vacant",
+        "published": false,
+        "images": [],
+        "features": []
+      }
+    ],
+    "createdAt": "2025-01-24T19:25:49.049Z",
+    "updatedAt": "2025-01-24T19:25:49.049Z"
+  },
+  {
+    "id": "BLD-1758741998266",
+    "title": {
+      "ar": "مبنى رقم 3121",
+      "en": "Building No. 3121"
+    },
+    "type": "residential",
+    "purpose": "rent",
+    "priceOMR": 50,
+    "province": "مسقط",
+    "state": "",
+    "address": "",
+    "beds": "1",
+    "baths": "1",
+    "area": 60,
+    "status": "vacant",
+    "published": false,
+    "images": [],
+    "coverIndex": 0,
+    "coverImage": "",
+    "units": [
+      {
+        "id": "U-1758741981970-7911",
+        "unitNo": "1",
+        "serialNo": "3",
+        "type": "شقة",
+        "area": 60,
+        "rentAmount": 50,
+        "currency": "OMR",
+        "status": "vacant",
+        "published": false,
+        "images": [],
+        "features": [],
+        "powerMeter": "",
+        "waterMeter": "",
+        "image": ""
+      }
+    ],
+    "createdAt": "2025-01-24T19:26:38.266Z",
+    "updatedAt": "2025-01-24T19:26:38.266Z"
+  },
+  {
+    "id": "P-20251001205248",
+    "title": {
+      "ar": "فيلا فاخرة في مسقط",
+      "en": "Luxury Villa in Muscat"
+    },
+    "type": "residential",
+    "purpose": "sale",
+    "priceOMR": 150000,
+    "province": "مسقط",
+    "state": "السيب",
+    "address": "شارع السلطان قابوس، السيب",
+    "beds": "4",
+    "baths": "3",
+    "area": 300,
+    "status": "vacant",
+    "published": true,
+    "images": [
+      "villa1.jpg",
+      "villa2.jpg"
+    ],
+    "coverIndex": 0,
+    "coverImage": "villa1.jpg",
+    "units": [
+      {
+        "id": "U-20251001205248-1",
+        "unitNo": "1",
+        "serialNo": "V001",
+        "type": "فيلا",
+        "area": 300,
+        "rentAmount": 150000,
+        "currency": "OMR",
+        "status": "vacant",
+        "published": true,
+        "images": ["villa1.jpg", "villa2.jpg"],
+        "features": ["مسبح", "حديقة", "موقف سيارات"],
+        "powerMeter": "PM001",
+        "waterMeter": "WM001",
+        "image": "villa1.jpg",
+        "beds": "4",
+        "baths": "3",
+        "builtArea": "300",
+        "furnishing": "furnished",
+        "mainFeatures": ["مسبح", "حديقة", "موقف سيارات"],
+        "extraFeatures": ["تكييف مركزي", "أمن 24/7"],
+        "orientation": "شمالية",
+        "payments": ["كاش", "تحويل بنكي"],
+        "promoted": true,
+        "priceOMR": "150000",
+        "age": "1-5 سنوات",
+        "floors": ["طابق أرضي", "1"],
+        "nearby": ["مدرسة", "مستشفى", "مول تجاري"],
+        "mortgaged": "no",
+        "hasPremiumSubscription": true,
+        "paidFeaturedFee": true,
+        "title": {
+          "ar": "فيلا فاخرة في مسقط",
+          "en": "Luxury Villa in Muscat"
+        },
+        "description": {
+          "ar": "فيلا فاخرة في موقع مميز مع مسبح وحديقة واسعة",
+          "en": "Luxury villa in prime location with pool and spacious garden"
+        },
+        "descLocked": {
+          "ar": false,
+          "en": false
+        }
+      }
+    ],
+    "createdAt": "2025-01-01T12:05:24.800Z",
+    "updatedAt": "2025-01-01T12:05:24.800Z"
+  }
+]

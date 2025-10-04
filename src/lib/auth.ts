@@ -1,28 +1,35 @@
-// src/lib/auth.ts
-import { useAuth as useAuthCtx } from "@/context/AuthContext";
+// واجهة موحّدة للصلاحيات والهوية تعتمد RBAC من permissions.ts
+import { useAuth as useAuthHook } from "@/hooks/useAuth";
+import {
+  RolePermissions,
+  type Role,
+  type Permission as RBACPermission,
+  can,
+} from "@/lib/authz/permissions";
 
-export type Permission = string;
+export type Permission = RBACPermission;
 
 export type CurrentUser = {
   id: string;
   name: string;
-  role: string;
-  features?: string[];
+  role?: string;       // توافق قديم
+  roles?: Role[];      // المعتمد حالياً
+  features?: string[]; // غير مستخدمة للمنح
   subscription?: { planId?: string; features?: string[] } | null;
 };
 
 export function hasPermission(
   user: CurrentUser | null | undefined,
-  perm: Permission
+  need: Permission | Permission[]
 ): boolean {
   if (!user) return false;
-  const f1 = Array.isArray(user.features) ? user.features : [];
-  const f2 = Array.isArray(user.subscription?.features)
-    ? (user.subscription!.features as string[])
-    : [];
-  const all = new Set<string>([...f1, ...f2]);
-  return all.has(perm);
+  const roles: Role[] =
+    (user.roles && user.roles.length ? user.roles : undefined) ??
+    (user.role ? ([user.role] as Role[]) : ([] as Role[]));
+
+  const set = new Set<RBACPermission>();
+  for (const r of roles) for (const p of (RolePermissions[r] || [])) set.add(p);
+  return can(Array.from(set), need);
 }
 
-// حافظ على نفس اسم الدالة hook كي لا تغيّر بقية الملفات
-export const useAuth = useAuthCtx;
+export const useAuth = useAuthHook;

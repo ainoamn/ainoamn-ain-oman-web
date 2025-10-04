@@ -94,48 +94,98 @@ export default function Footer() {
   return (
     <footer className="border-t border-neutral-200 dark:border-neutral-800" style={{ background: footerBg, color: footer.textColor }}>
       <div className="max-w-7xl mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <div className="font-semibold text-lg">عين عُمان</div>
-            <p className="text-sm mt-2 leading-6 opacity-90">منصّة عقارية لإدارة العقارات والمزادات.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+          {/* معلومات الشركة */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center gap-2 mb-4">
+              <img src="/logo.png" alt="logo" className="w-8 h-8 object-contain" />
+              <div className="font-semibold text-lg">عين عُمان</div>
+            </div>
+            <p className="text-sm mt-2 leading-6 opacity-90 mb-4">
+              منصّة عقارية شاملة لإدارة العقارات والمزادات والاستثمار العقاري في سلطنة عُمان.
+            </p>
+            
+            {/* وسائل التواصل الاجتماعي */}
+            <div className="flex items-center gap-3">
+              <a href="#" className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
+                📘
+              </a>
+              <a href="#" className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
+                📷
+              </a>
+              <a href="#" className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
+                🐦
+              </a>
+              <a href="#" className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
+                💼
+              </a>
+            </div>
           </div>
 
-          {footer.sections.map((s, i) => (
-            <div key={i}>
-              <div className="font-semibold">{s.title}</div>
-              <ul className="mt-3 space-y-2 text-sm">
-                {s.links.map((l, j) => (
-                  <li key={j}>
-                    <Link href={l.href} className="hover:underline opacity-90 hover:opacity-100">
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-
+          {/* العقارات */}
           <div>
-            <div className="font-semibold">تواصل</div>
-            <ul className="mt-3 space-y-2 text-sm">
-              <li>
-                البريد: <a href={`mailto:${footer.contact.email}`} className="hover:underline">{footer.contact.email}</a>
+            <div className="font-semibold mb-3">العقارات</div>
+            <ul className="space-y-2 text-sm">
+              <li><Link href="/properties" className="hover:underline opacity-90 hover:opacity-100">جميع العقارات</Link></li>
+              <li><Link href="/properties?type=apartment" className="hover:underline opacity-90 hover:opacity-100">شقق</Link></li>
+              <li><Link href="/properties?type=villa" className="hover:underline opacity-90 hover:opacity-100">فيلات</Link></li>
+              <li><Link href="/properties?type=office" className="hover:underline opacity-90 hover:opacity-100">مكاتب</Link></li>
+              <li><Link href="/properties?type=shop" className="hover:underline opacity-90 hover:opacity-100">محلات</Link></li>
+              <li><Link href="/properties/map" className="hover:underline opacity-90 hover:opacity-100">الخريطة</Link></li>
+            </ul>
+          </div>
+
+          {/* الخدمات */}
+          <div>
+            <div className="font-semibold mb-3">الخدمات</div>
+            <ul className="space-y-2 text-sm">
+              <li><Link href="/auctions" className="hover:underline opacity-90 hover:opacity-100">المزادات</Link></li>
+              <li><Link href="/development/projects" className="hover:underline opacity-90 hover:opacity-100">المشاريع</Link></li>
+              <li><Link href="/subscriptions" className="hover:underline opacity-90 hover:opacity-100">الاشتراكات</Link></li>
+              <li><Link href="/reviews" className="hover:underline opacity-90 hover:opacity-100">التقييمات</Link></li>
+              <li><Link href="/reports" className="hover:underline opacity-90 hover:opacity-100">التقارير</Link></li>
+              <li><Link href="/support" className="hover:underline opacity-90 hover:opacity-100">الدعم الفني</Link></li>
+            </ul>
+          </div>
+
+          {/* تواصل معنا */}
+          <div>
+            <div className="font-semibold mb-3">تواصل معنا</div>
+            <ul className="space-y-2 text-sm">
+              <li className="flex items-center gap-2">
+                <span>📧</span>
+                <a href={`mailto:${footer.contact.email || 'info@ainoman.com'}`} className="hover:underline">
+                  {footer.contact.email || 'info@ainoman.com'}
+                </a>
               </li>
-              <li>
-                الهاتف: <a href={`tel:${footer.contact.phone}`} className="hover:underline">{footer.contact.phone}</a>
+              <li className="flex items-center gap-2">
+                <span>📞</span>
+                <a href={`tel:${footer.contact.phone || '+968 1234 5678'}`} className="hover:underline">
+                  {footer.contact.phone || '+968 1234 5678'}
+                </a>
               </li>
-              <li>العنوان: {footer.contact.address}</li>
+              <li className="flex items-start gap-2">
+                <span>📍</span>
+                <span>{footer.contact.address || 'مسقط، سلطنة عُمان'}</span>
+              </li>
             </ul>
 
+            {/* طرق الدفع */}
             <div className="mt-6">
-              <div className="text-sm font-semibold mb-2">طرق الدفع</div>
-              <div className="flex flex-wrap items-center gap-3">
-                {footer.payments.map((p, i) => (
-                  <span key={i} className="inline-flex items-center gap-2 bg-black/10 px-2 py-1 rounded">
-                    {p.icon ? <img src={p.icon} alt={p.name} className="h-5 w-auto" /> : null}
-                    <span className="text-xs">{p.name}</span>
-                  </span>
-                ))}
+              <div className="text-sm font-semibold mb-3">طرق الدفع المقبولة</div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1 bg-white/10 px-2 py-1 rounded text-xs">
+                  💳 فيزا
+                </span>
+                <span className="inline-flex items-center gap-1 bg-white/10 px-2 py-1 rounded text-xs">
+                  💳 ماستركارد
+                </span>
+                <span className="inline-flex items-center gap-1 bg-white/10 px-2 py-1 rounded text-xs">
+                  🏦 بنك مسقط
+                </span>
+                <span className="inline-flex items-center gap-1 bg-white/10 px-2 py-1 rounded text-xs">
+                  📱 محفظة إلكترونية
+                </span>
               </div>
             </div>
           </div>

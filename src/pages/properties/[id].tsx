@@ -401,11 +401,11 @@ export default function PropertyDetailsPage() {
             </Block>
 
             <Block title="المزايا">
-              <AmenitiesGrid items={item.amenities || []}/>
+              <AmenitiesGrid items={Array.isArray(item.amenities) ? item.amenities : []}/>
             </Block>
 
             <Block title="أماكن قريبة">
-              <Chips items={item.attractions || []} empty="لا توجد أماكن قريبة مضافة." prefix="📍 " />
+              <Chips items={Array.isArray(item.attractions) ? item.attractions : []} empty="لا توجد أماكن قريبة مضافة." prefix="📍 " />
             </Block>
 
             <ReviewsSection propertyId={item.id}/>

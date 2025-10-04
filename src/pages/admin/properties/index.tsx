@@ -90,7 +90,7 @@ export default function AdminPropertiesList(){
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">العقارات</h1>
-          <Link href="/admin/buildings/new" className="btn btn-primary">إدخال مبنى</Link>
+          <Link href="/properties/new" className="btn btn-primary">إدخال مبنى</Link>
         </div>
 
         <div className="border rounded-2xl p-3 grid sm:grid-cols-6 gap-2">

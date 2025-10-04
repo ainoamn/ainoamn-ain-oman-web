@@ -1,5 +1,95 @@
 [
   {
+    "createdAt": "2025-09-29T17:38:38.225Z",
+    "title": [
+      "{\"ar\":\"عقار عقار سكني\",\"en\":\"Residential\"}"
+    ],
+    "description": [
+      "{\"ar\":\"عقار سكني للإيجار (سنوي) في مسندم. مساحة البناء 122 م²، غرف: استوديو، حمّامات: 1. \",\"en\":\"Residential for rent (yearly)  - area 122 sqm, beds 0, baths 1.\"}"
+    ],
+    "category": [
+      "residential"
+    ],
+    "type": [
+      "apartment"
+    ],
+    "purpose": [
+      "rent"
+    ],
+    "rentalType": [
+      "yearly"
+    ],
+    "promoted": [
+      "false"
+    ],
+    "province": [
+      "مسندم"
+    ],
+    "state": [
+      ""
+    ],
+    "priceOMR": [
+      "213"
+    ],
+    "beds": [
+      "0"
+    ],
+    "baths": [
+      "1"
+    ],
+    "area": [
+      "122"
+    ],
+    "floors": [
+      "[]"
+    ],
+    "age": [
+      "قيد الإنشاء"
+    ],
+    "furnishing": [
+      "unfurnished"
+    ],
+    "amenities": [
+      "[]"
+    ],
+    "attractions": [
+      "[]"
+    ],
+    "mortgaged": [
+      "false"
+    ],
+    "orientation": [
+      "شمالية"
+    ],
+    "coverIndex": 0,
+    "coverImage": [],
+    "points": [
+      "[]"
+    ],
+    "ownerTarget": [
+      "owner"
+    ],
+    "referenceNo": [
+      "AO-P-000012"
+    ],
+    "dataUrls": [],
+    "tags": [],
+    "units": [],
+    "featured": false,
+    "id": "P-1759167518206",
+    "images": [
+      "/uploads/properties/P-1759167518206/img_0_1759167518219.jpg",
+      "/uploads/properties/P-1759167518206/img_1_1759167518220.jpg",
+      "/uploads/properties/P-1759167518206/img_2_1759167518222.jpg",
+      "/uploads/properties/P-1759167518206/img_3_1759167518223.jpg",
+      "/uploads/properties/P-1759167518206/img_4_1759167518224.jpg"
+    ],
+    "updatedAt": "2025-09-29T17:38:38.225Z",
+    "usage": {
+      "0": "residential"
+    }
+  },
+  {
     "createdAt": "2025-09-21T15:15:58.764Z",
     "id": "P-20250921151558",
     "referenceNo": "AO-P-000010",

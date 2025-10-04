@@ -1,9 +1,28 @@
 // src/pages/api/rentals/workflow/[id].ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { transition } from "@/server/rentals/workflow";
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") return res.status(405).end();
-  const id = req.query.id as string; const { event, note } = req.body || {};
-  try { const rental = await transition(id, event, (req.headers["x-user-id"] as string) || "system", note); res.json({ ok: true, rental }); }
-  catch (e:any){ res.status(400).json({ error: e?.message || "transition_failed" }); }
+import { readJson, writeJson } from "@/server/fsdb";
+
+type RentalWorkflow = { id: string; events: { at: string; event: string; payload?: any }[] };
+const FILE = "rental_workflow.json";
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  const id = String(req.query.id || "");
+  const list = readJson<RentalWorkflow[]>(FILE, []);
+  const i = list.findIndex(x => x.id === id);
+
+  if (req.method === "POST") {
+    const body = req.body || {};
+    const ev = { at: new Date().toISOString(), event: String(body.event || ""), payload: body || {} };
+    if (i >= 0) list[i].events.push(ev);
+    else list.push({ id, events: [ev] });
+    writeJson(FILE, list);
+    return res.status(200).json({ ok: true });
+  }
+
+  if (req.method === "GET") {
+    if (i < 0) return res.status(200).json({ id, events: [] });
+    return res.status(200).json(list[i]);
+  }
+
+  return res.status(405).end();
 }

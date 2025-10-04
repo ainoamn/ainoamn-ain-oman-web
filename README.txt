@@ -69,3 +69,34 @@ All pages use RTL/LTR via `useI18n().dir`. Each page has a single `default expor
    - لن ترى 404 حتى وإن كانت قاعدة البيانات فارغة.
 
 ملاحظة: جميع الاستيرادات داخل ملفات API تستخدم مسارات نسبية، لذلك لا تحتاج لإعداد alias '@'.
+# Appendix — Fix Log & Migration Guide (2025-09-29)
+
+هذا الملحق يكمّل التعليمات السابقة ولا يستبدلها.
+
+## A) ضبط بنية Next.js Pages
+1) منع صفحات UI داخل `/pages/api`:
+   - حوّل كل `.tsx` تحت `src/pages/api/**` إلى `.ts` واجعلها دوال API.
+   - قالب موحّد:
+     ```ts
+     import type { NextApiRequest, NextApiResponse } from "next";
+     export default function handler(req: NextApiRequest, res: NextApiResponse) {
+       if (req.method === "GET") return res.status(200).json({ ok: true });
+       return res.status(405).json({ ok: false, error: "Method Not Allowed" });
+     }
+     ```
+
+2) إزالة المسارات المكررة:
+   - إن وُجد ملف `pages/foo.tsx` ومعه `pages/foo/index.tsx` أبقِ `index.tsx` واحذف الآخر.
+   - أمثلة عُولِجت: `/dashboard`, `/subscriptions`, `/admin/{ads,coupons,i18n,invoices,notifications,reservations,subscriptions,tasks}`.
+
+3) فرض `export default` لكل صفحة `.tsx`:
+   - إن لم تكن تعرف المكوّن الرئيسي مؤقتًا، أضف في آخر الملف:
+     ```tsx
+     export default function Page(){ return null; }
+     ```
+   - لاحقًا استبدله بالمكوّن الصحيح.
+
+4) إصلاح استيرادات Next:
+   ```tsx
+   import Link from "next/link";
+   import Image from "next/image";

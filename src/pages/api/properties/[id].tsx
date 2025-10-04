@@ -48,7 +48,33 @@ async function readJSON(req: NextApiRequest): Promise<any> {
   for await (const c of req) chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c));
   const raw = Buffer.concat(chunks).toString("utf8");
   if (!raw) return {};
-  try { return JSON.parse(raw); } catch { return {}; }
+  try { 
+    const parsed = JSON.parse(raw);
+    // إصلاح مشكلة الترميز للنصوص العربية
+    return fixEncoding(parsed);
+  } catch { return {}; }
+}
+
+function fixEncoding(obj: any): any {
+  if (typeof obj === 'string') {
+    // محاولة إصلاح الترميز المشوه
+    try {
+      return decodeURIComponent(escape(obj));
+    } catch {
+      return obj;
+    }
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(fixEncoding);
+  }
+  if (obj && typeof obj === 'object') {
+    const fixed: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      fixed[key] = fixEncoding(value);
+    }
+    return fixed;
+  }
+  return obj;
 }
 function isDataUrl(s: string) { return /^data:image\/(png|jpe?g|webp);base64,/i.test(s); }
 function saveDataUrl(dataUrl: string, dir: string, idx: number): string {
@@ -94,7 +120,57 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === "GET") {
     const item = getById(id);
-    return item ? res.status(200).json({ item }) : res.status(404).json({ error: "Not Found" });
+    if (!item) return res.status(404).json({ error: "Not Found" });
+    
+    // تنظيف البيانات القديمة التي تأتي كـ arrays
+    const cleaned: any = {};
+    for (const [key, value] of Object.entries(item)) {
+      if (Array.isArray(value) && value.length === 1) {
+        // إذا كان array يحتوي على عنصر واحد، استخرجه
+        cleaned[key] = value[0];
+      } else {
+        cleaned[key] = value;
+      }
+    }
+    
+    // إصلاح مشكلة الترميز للنصوص العربية
+    if (cleaned.title && typeof cleaned.title === 'object') {
+      if (cleaned.title.ar && typeof cleaned.title.ar === 'string') {
+        try {
+          cleaned.titleAr = cleaned.title.ar;
+        } catch (e) {
+          cleaned.titleAr = cleaned.title.ar;
+        }
+      }
+      if (cleaned.title.en && typeof cleaned.title.en === 'string') {
+        try {
+          cleaned.titleEn = cleaned.title.en;
+        } catch (e) {
+          cleaned.titleEn = cleaned.title.en;
+        }
+      }
+    }
+    
+    if (cleaned.description && typeof cleaned.description === 'object') {
+      if (cleaned.description.ar && typeof cleaned.description.ar === 'string') {
+        try {
+          cleaned.descriptionAr = cleaned.description.ar;
+        } catch (e) {
+          cleaned.descriptionAr = cleaned.description.ar;
+        }
+      }
+      if (cleaned.description.en && typeof cleaned.description.en === 'string') {
+        try {
+          cleaned.descriptionEn = cleaned.description.en;
+        } catch (e) {
+          cleaned.descriptionEn = cleaned.description.en;
+        }
+      }
+    }
+    
+    // إضافة headers للترميز الصحيح
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    return res.status(200).json(cleaned);
   }
 
   if (req.method === "PUT") {

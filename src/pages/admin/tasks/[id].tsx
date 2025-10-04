@@ -49,14 +49,8 @@ const PriorityBadge = ({ priority }: { priority: Task["priority"] }) => {
     high: { color: "bg-orange-100 text-orange-800", text: "مرتفعة" },
     urgent: { color: "bg-red-100 text-red-800", text: "طارئة" }
   };
-
   const config = priorityConfig[priority];
-
-  return (
-    <span className={`text-xs rounded-full px-2 py-1 ${config.color}`}>
-      {config.text}
-    </span>
-  );
+  return <span className={`text-xs rounded-full px-2 py-1 ${config.color}`}>{config.text}</span>;
 };
 
 const StatusBadge = ({ status }: { status: Task["status"] }) => {
@@ -66,14 +60,8 @@ const StatusBadge = ({ status }: { status: Task["status"] }) => {
     done: { color: "bg-green-100 text-green-800", text: "منجزة" },
     archived: { color: "bg-gray-100 text-gray-800", text: "مؤرشفة" }
   };
-
   const config = statusConfig[status];
-
-  return (
-    <span className={`text-xs rounded-full px-2 py-1 ${config.color}`}>
-      {config.text}
-    </span>
-  );
+  return <span className={`text-xs rounded-full px-2 py-1 ${config.color}`}>{config.text}</span>;
 };
 
 export default function TaskDetailsPage() {
@@ -93,9 +81,7 @@ export default function TaskDetailsPage() {
       const response = await fetch(`/api/tasks/${encodeURIComponent(String(id))}`, { 
         cache: "no-store" as RequestCache 
       });
-      
       if (response.status === 404) {
-        // إنشاء تلقائي عند 404
         const newTask = fallbackTask(String(id));
         await fetch(`/api/tasks/${encodeURIComponent(String(id))}`, {
           method: "PUT",
@@ -110,42 +96,61 @@ export default function TaskDetailsPage() {
       } else {
         setTask(fallbackTask(String(id)));
       }
-    } catch (error) {
-      console.error("Failed to load task:", error);
+    } catch {
       setTask(fallbackTask(String(id)));
     } finally {
       setLoading(false);
     }
   }, [id]);
 
-  useEffect(() => {
-    loadTask();
-  }, [loadTask]);
+  useEffect(() => { loadTask(); }, [loadTask]);
+
+  async function broadcastUpdated(t: Task) {
+    try {
+      const bc = new BroadcastChannel("ao_tasks");
+      const message = { type: "updated", taskId: t.id, propertyId: t.relatedEntity?.id || "" };
+      console.log("Broadcasting task update:", message);
+      bc.postMessage(message);
+      bc.close();
+    } catch (error) {
+      console.error("Broadcast error:", error);
+    }
+    try { 
+      localStorage.setItem("ao_tasks_bump", String(Date.now()));
+      console.log("Updated localStorage bump");
+    } catch (error) {
+      console.error("localStorage error:", error);
+    }
+  }
 
   const saveTask = async (updates: Partial<Task>) => {
     if (!id) return false;
-    
     setSaving(true);
     try {
-      const response = await fetch(`/api/tasks/${encodeURIComponent(String(id))}`, {
+      // استخدام API المبسط لتحديث المهمة
+      const response = await fetch("/api/tasks/simple", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
+        body: JSON.stringify({ id, ...updates }),
       });
-      
       if (response.ok) {
         const data = await response.json();
-        const updatedTask = (data?.item as Task) ?? (data as Task);
-        setTask(prev => updatedTask ?? { ...(prev as Task), ...updates });
+        console.log("Task updated successfully via unified API");
+        
+        // تحديث المهمة محلياً
+        setTask(prev => ({ ...(prev as Task), ...updates }));
         setSaveStatus("success");
         setTimeout(() => setSaveStatus("idle"), 2000);
+        
+        // إشعار التحديث للقوائم
+        await broadcastUpdated({ ...(task as Task), ...updates });
         return true;
       } else {
         const error = await response.text();
         throw new Error(error || "Failed to save task");
       }
     } catch (error) {
-      console.error("Save error:", error);
+      console.error("Error saving task:", error);
       setTask(prev => ({ ...(prev as Task), ...updates }));
       setSaveStatus("error");
       setTimeout(() => setSaveStatus("idle"), 3000);
@@ -157,11 +162,8 @@ export default function TaskDetailsPage() {
 
   const handleFieldChange = async (field: keyof Task, value: any) => {
     if (!task) return;
-    
     const updatedTask = { ...task, [field]: value };
     setTask(updatedTask);
-    
-    // حفظ تلقائي بعد التعديل
     await saveTask({ [field]: value });
   };
 
@@ -177,82 +179,87 @@ export default function TaskDetailsPage() {
 
   const sendMessage = async () => {
     if (!id || !message.trim()) return;
-    
-    const newMessage = { 
-      id: `m-${Date.now()}`, 
-      author: "admin", 
-      ts: new Date().toISOString(), 
-      text: message.trim() 
-    };
-    
-    setTask(prev => prev ? { 
-      ...prev, 
-      thread: [newMessage, ...(prev.thread ?? [])] 
-    } : prev);
-    
+    const newMessage = { id: `m-${Date.now()}`, author: "admin", ts: new Date().toISOString(), text: message.trim() };
+    setTask(prev => prev ? { ...prev, thread: [newMessage, ...(prev.thread ?? [])] } : prev);
     setMessage("");
-    
     try {
       await fetch(`/api/tasks/${encodeURIComponent(String(id))}/thread`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newMessage),
       });
-    } catch (error) {
-      console.error("Failed to send message:", error);
-    }
+    } catch {}
   };
 
   const uploadAttachment = async (file: File) => {
     if (!id) return;
-    
     try {
       const buffer = await file.arrayBuffer();
       const base64Data = arrayBufferToBase64(buffer);
-      
       await fetch(`/api/tasks/${encodeURIComponent(String(id))}/attachments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          filename: file.name, 
-          contentType: file.type, 
-          data: base64Data 
-        }),
+        body: JSON.stringify({ filename: file.name, contentType: file.type, data: base64Data }),
       });
-      
-      // إعادة تحميل المهمة بعد إضافة المرفق
       await loadTask();
-    } catch (error) {
-      console.error("Upload error:", error);
+    } catch {
       alert("تعذّر رفع المرفق. يرجى المحاولة مرة أخرى.");
     }
   };
 
   const sendInvites = async () => {
     if (!id) return;
-    
     try {
       await fetch(`/api/tasks/${encodeURIComponent(String(id))}/invite`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ emails: [] }),
       });
-      
       alert("تم إرسال الدعوات بنجاح.");
-    } catch (error) {
-      console.error("Invite error:", error);
+    } catch {
       alert("تعذّر إرسال الدعوات. يرجى المحاولة مرة أخرى.");
     }
   };
 
-  if (!id) {
-    return (
-      <Layout>
-        <div className="p-6 text-center">لا يوجد معرّف مهمة.</div>
-      </Layout>
-    );
-  }
+  const handleTransferTask = async () => {
+    if (!id) return;
+    const nameInput = document.getElementById("transferName") as HTMLInputElement;
+    const emailInput = document.getElementById("transferEmail") as HTMLInputElement;
+    
+    const name = nameInput?.value?.trim();
+    const email = emailInput?.value?.trim();
+    
+    if (!name) {
+      alert("يرجى إدخال اسم الشخص");
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/tasks/${encodeURIComponent(String(id))}/transfer`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          to: { name, email: email || undefined },
+          ccSelf: true 
+        }),
+      });
+      
+      if (response.ok) {
+        alert("تم إحالة المهمة بنجاح.");
+        nameInput.value = "";
+        emailInput.value = "";
+        await loadTask(); // إعادة تحميل المهمة
+      } else {
+        alert("تعذّر إحالة المهمة. يرجى المحاولة مرة أخرى.");
+      }
+    } catch {
+      alert("تعذّر إحالة المهمة. يرجى المحاولة مرة أخرى.");
+    }
+  };
 
+  if (!id) {
+    return (<Layout><div className="p-6 text-center">لا يوجد معرّف مهمة.</div></Layout>);
+  }
   if (loading || !task) {
     return (
       <Layout>
@@ -266,18 +273,12 @@ export default function TaskDetailsPage() {
 
   return (
     <Layout>
-      <Head>
-        <title>{task.title} | إدارة المهام | Ain Oman</title>
-      </Head>
-
+      <Head><title>{task.title} | إدارة المهام | Ain Oman</title></Head>
       <div className="container mx-auto px-4 py-6 space-y-6">
         {/* شريط الحالة وأزرار التنقل */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <button 
-              onClick={() => router.push("/admin/tasks")}
-              className="flex items-center text-blue-600 hover:text-blue-800 mb-2"
-            >
+            <button onClick={() => router.push("/admin/tasks")} className="flex items-center text-blue-600 hover:text-blue-800 mb-2">
               <svg className="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
@@ -285,38 +286,18 @@ export default function TaskDetailsPage() {
             </button>
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900">تفاصيل المهمة</h1>
           </div>
-          
           <div className="flex items-center gap-3">
-            {saveStatus === "success" && (
-              <span className="text-green-600 text-sm bg-green-100 px-3 py-1 rounded-full">
-                تم الحفظ بنجاح
-              </span>
-            )}
-            {saveStatus === "error" && (
-              <span className="text-red-600 text-sm bg-red-100 px-3 py-1 rounded-full">
-                خطأ في الحفظ
-              </span>
-            )}
-            {saving && (
-              <span className="text-blue-600 text-sm bg-blue-100 px-3 py-1 rounded-full">
-                جاري الحفظ...
-              </span>
-            )}
-            
+            {saveStatus === "success" && <span className="text-green-600 text-sm bg-green-100 px-3 py-1 rounded-full">تم الحفظ بنجاح</span>}
+            {saveStatus === "error" && <span className="text-red-600 text-sm bg-red-100 px-3 py-1 rounded-full">خطأ في الحفظ</span>}
+            {saving && <span className="text-blue-600 text-sm bg-blue-100 px-3 py-1 rounded-full">جاري الحفظ...</span>}
             <div className="flex gap-2">
-              <button
-                onClick={handlePrint}
-                className="px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 flex items-center"
-              >
+              <button onClick={handlePrint} className="px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 flex items-center">
                 <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m4 4h6a2 2 0 002-2v-4a2 2 0 00-2-2h-6a2 2 0 00-2 2v4a2 2 0 002 2z" />
                 </svg>
                 طباعة
               </button>
-              <button
-                onClick={handleGenerateICS}
-                className="px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 flex items-center"
-              >
+              <button onClick={handleGenerateICS} className="px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 flex items-center">
                 <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -332,7 +313,6 @@ export default function TaskDetailsPage() {
             {/* معلومات الأساسية */}
             <div className="rounded-2xl border border-slate-200 bg-white p-6">
               <h2 className="text-xl font-semibold mb-4">معلومات المهمة</h2>
-              
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">العنوان</label>
@@ -343,7 +323,6 @@ export default function TaskDetailsPage() {
                     onBlur={() => handleFieldChange("title", task.title)}
                   />
                 </div>
-                
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">الحالة</label>
                   <select
@@ -358,7 +337,7 @@ export default function TaskDetailsPage() {
                   </select>
                 </div>
               </div>
-              
+
               <div className="mb-6">
                 <label className="block text-sm font-medium text-slate-700 mb-2">الوصف</label>
                 <textarea
@@ -369,7 +348,7 @@ export default function TaskDetailsPage() {
                   placeholder="أضف وصفًا مفصلاً للمهمة..."
                 />
               </div>
-              
+
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">الأولوية</label>
@@ -384,7 +363,6 @@ export default function TaskDetailsPage() {
                     <option value="urgent">طارئة</option>
                   </select>
                 </div>
-                
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">تاريخ الاستحقاق</label>
                   <input
@@ -400,7 +378,6 @@ export default function TaskDetailsPage() {
             {/* المحادثة */}
             <div className="rounded-2xl border border-slate-200 bg-white p-6">
               <h2 className="text-xl font-semibold mb-4">المحادثة</h2>
-              
               <div className="flex gap-2 mb-4">
                 <input
                   className="flex-1 border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -409,7 +386,7 @@ export default function TaskDetailsPage() {
                   placeholder="اكتب رسالة..."
                   onKeyPress={(e) => e.key === "Enter" && sendMessage()}
                 />
-                <button 
+                <button
                   onClick={sendMessage}
                   className="px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium disabled:opacity-50"
                   disabled={!message.trim()}
@@ -417,7 +394,6 @@ export default function TaskDetailsPage() {
                   إرسال
                 </button>
               </div>
-              
               <div className="space-y-4 max-h-96 overflow-y-auto">
                 {(task.thread ?? []).length === 0 ? (
                   <div className="text-center py-8 text-slate-500">
@@ -455,7 +431,6 @@ export default function TaskDetailsPage() {
             {/* معلومات إضافية */}
             <div className="rounded-2xl border border-slate-200 bg-white p-6">
               <h2 className="text-xl font-semibold mb-4">معلومات إضافية</h2>
-              
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">المسؤولون</label>
@@ -467,7 +442,27 @@ export default function TaskDetailsPage() {
                     placeholder="أدخل أسماء المسؤولين مفصولة بفواصل"
                   />
                 </div>
-                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">إحالة المهمة لشخص آخر</label>
+                  <div className="flex gap-2">
+                    <input
+                      className="flex-1 border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="اسم الشخص"
+                      id="transferName"
+                    />
+                    <input
+                      className="flex-1 border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="البريد الإلكتروني (اختياري)"
+                      id="transferEmail"
+                    />
+                    <button
+                      onClick={handleTransferTask}
+                      className="px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                    >
+                      إحالة
+                    </button>
+                  </div>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">التصنيفات</label>
                   <input
@@ -478,7 +473,6 @@ export default function TaskDetailsPage() {
                     placeholder="أدخل التصنيفات مفصولة بفواصل"
                   />
                 </div>
-                
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div>
                     <div className="text-sm font-medium text-slate-700">تاريخ الإنشاء</div>
@@ -486,7 +480,6 @@ export default function TaskDetailsPage() {
                       {task.createdAt ? new Date(task.createdAt).toLocaleDateString('ar-EG') : "-"}
                     </div>
                   </div>
-                  
                   <div>
                     <div className="text-sm font-medium text-slate-700">آخر تحديث</div>
                     <div className="text-slate-600">
@@ -500,7 +493,6 @@ export default function TaskDetailsPage() {
             {/* المرفقات */}
             <div className="rounded-2xl border border-slate-200 bg-white p-6">
               <h2 className="text-xl font-semibold mb-4">المرفقات</h2>
-              
               <div className="mb-4">
                 <label className="block text-sm font-medium text-slate-700 mb-2">إضافة مرفق</label>
                 <input
@@ -512,12 +504,9 @@ export default function TaskDetailsPage() {
                   className="w-full border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
               <div className="space-y-2">
                 {(task.attachments ?? []).length === 0 ? (
-                  <div className="text-center py-4 text-slate-500">
-                    لا توجد مرفقات
-                  </div>
+                  <div className="text-center py-4 text-slate-500">لا توجد مرفقات</div>
                 ) : (
                   task.attachments.map((att) => (
                     <a
@@ -540,7 +529,6 @@ export default function TaskDetailsPage() {
             {/* الإجراءات */}
             <div className="rounded-2xl border border-slate-200 bg-white p-6">
               <h2 className="text-xl font-semibold mb-4">الإجراءات</h2>
-              
               <div className="space-y-3">
                 <button
                   onClick={sendInvites}
@@ -551,13 +539,12 @@ export default function TaskDetailsPage() {
                   </svg>
                   إرسال دعوات مراقبة
                 </button>
-                
                 <button
                   onClick={() => navigator.clipboard.writeText(window.location.href)}
                   className="w-full px-4 py-3 rounded-xl border border-slate-300 hover:bg-slate-50 flex items-center justify-center"
                 >
                   <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                   نسخ رابط المهمة
                 </button>
