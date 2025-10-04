@@ -1,4 +1,4 @@
-//c/pages/properties/[id]/bookings.tsx
+//c/pages/property/[id]/bookings.tsx
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
