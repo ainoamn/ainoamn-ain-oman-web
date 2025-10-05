@@ -1,4 +1,4 @@
-﻿// src/hooks/useLiveBidding.ts
+// src/hooks/useLiveBidding.ts
 export const useLiveBidding = (auctionId: string) => {
   const [currentBid, setCurrentBid] = useState(0);
   const [bidHistory, setBidHistory] = useState<Bid[]>([]);

@@ -1,7 +1,8 @@
-﻿// src/pages/api/auth/admin-login.ts
+// src/pages/api/auth/admin-login.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { adminCookieName, isAdminCookie } from "@/server/auth";
-function handler(req: NextApiRequest, res: NextApiResponse) {
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ ok: false, error: "Method Not Allowed" });

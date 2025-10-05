@@ -1,4 +1,4 @@
-﻿// src/hooks/useHeaderFooterConfig.ts
+// src/hooks/useHeaderFooterConfig.ts
 "use client";
 import { useEffect, useState } from "react";
 import { CONFIG_KEY, defaultConfig, HeaderFooterConfig, mergeConfig } from "@/lib/headerFooterConfig";
@@ -10,7 +10,7 @@ export function useHeaderFooterConfig() {
   useEffect(() => {
     const local = typeof window !== "undefined" ? localStorage.getItem(CONFIG_KEY) : null;
     if (local) {
-      try { setConfig(mergeConfig(defaultConfig, JSON.parse(local))); } catch (_e) {}
+      try { setConfig(mergeConfig(defaultConfig, JSON.parse(local))); } catch {}
     }
     (async () => {
       try {

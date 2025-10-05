@@ -1,7 +1,8 @@
-﻿import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 type Ticket = { id: string; by: string; type: string; status: "open" | "in_progress" | "done"; createdAt: string };
-function handler(req: NextApiRequest, res: NextApiResponse) {
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method === "GET") {
       const items: Ticket[] = [

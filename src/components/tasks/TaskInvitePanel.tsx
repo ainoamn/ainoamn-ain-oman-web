@@ -1,4 +1,4 @@
-﻿/**
+/**
  * TaskInvitePanel
  * إرسال دعوة بالمشاركة في المهمة عبر البريد/الواتساب باستخدام لوحة الإشعارات.
  * يتوقع وجود قوالب باسم task_invite (email/whatsapp) في /admin/notifications.
@@ -16,7 +16,8 @@ async function postInvite(taskId: string, emails: string[], phones: string[], me
     throw new Error(j?.error || "فشل إرسال الدعوات");
   }
 }
-function TaskInvitePanel({ taskId, onDone }: { taskId: string; onDone?: () => void }) {
+
+export default function TaskInvitePanel({ taskId, onDone }: { taskId: string; onDone?: () => void }) {
   const [emails, setEmails] = useState("");
   const [phones, setPhones] = useState("");
   const [message, setMessage] = useState("تمت دعوتك للمشاركة في مهمة.");
@@ -85,6 +86,7 @@ function findTplId(name: string, channel: "email" | "whatsapp", tpls: any[]) {
   return t?.id || null;
 }
 
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method !== "POST") { res.setHeader("Allow","POST"); return res.status(405).json({ error:"Method not allowed" }); }
     const taskId = String(req.query.id || "");
@@ -220,7 +222,8 @@ function ensure() { if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursi
 function readAll(): any[] { ensure(); return JSON.parse(fs.readFileSync(file, "utf8")); }
 function writeAll(arr: any[]) { ensure(); fs.writeFileSync(file, JSON.stringify(arr, null, 2), "utf8"); }
 function uuid() { return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => { const r=(Math.random()*16)|0, v=c==="x"?r:(r&0x3)|0x8; return v.toString(16); }); }
-function handler(req: NextApiRequest, res: NextApiResponse) {
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method !== "GET") { res.setHeader("Allow","GET"); return res.status(405).json({ error:"Method not allowed" }); }
     const arr = readAll();

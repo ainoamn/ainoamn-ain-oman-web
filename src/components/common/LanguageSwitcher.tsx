@@ -1,5 +1,6 @@
-﻿import { useI18n } from "@/lib/i18n";
-function LanguageSwitcher() {
+import { useI18n } from "@/lib/i18n";
+
+export default function LanguageSwitcher() {
   const { lang, setLang } = useI18n();
   return (
     <div className="inline-flex items-center gap-2">

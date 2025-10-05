@@ -1,4 +1,4 @@
-﻿// root: src/components/dashboard/RentalStatusChart.tsx
+// root: src/components/dashboard/RentalStatusChart.tsx
 import React, { useMemo } from "react";
 
 type Rental = {
@@ -31,7 +31,8 @@ const LABELS_AR: Record<string, string> = {
   rejected: "مرفوض",
   pending: "قيد المراجعة",
 };
-function RentalStatusChart({ rentals }: Props) {
+
+export default function RentalStatusChart({ rentals }: Props) {
   const buckets = useMemo(() => {
     const acc: Record<string, number> = {};
     const norm = (v?: string) => String(v || "").toLowerCase().trim();

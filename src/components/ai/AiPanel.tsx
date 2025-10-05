@@ -1,6 +1,7 @@
-﻿// src/components/ai/AiPanel.tsx
+// src/components/ai/AiPanel.tsx
 import React, { useState } from "react";
-function AiPanel({ taskId, onApply }: { taskId: string; onApply?: (cmd: string) => void }) {
+
+export default function AiPanel({ taskId, onApply }: { taskId: string; onApply?: (cmd: string) => void }) {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<{summary?: string; nextSteps?: string[]; hints?: string[]}>({});
 

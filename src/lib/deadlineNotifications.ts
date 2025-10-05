@@ -1,4 +1,4 @@
-﻿import { prisma } from '../server/db';
+import { prisma } from '../server/db';
 import { notifyUsers } from '../server/notify/store';
 
 export class DeadlineNotifier {

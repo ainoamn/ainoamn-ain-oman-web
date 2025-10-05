@@ -1,4 +1,4 @@
-﻿// src/pages/admin/hoa/index.tsx
+// src/pages/admin/hoa/index.tsx
 import type { GetServerSideProps } from "next";
 export const getServerSideProps: GetServerSideProps = async () => ({ redirect: { destination: "/admin/dashboard?section=hoa", permanent: false }});
-function RedirectHoa(){ return null; }
+export default function RedirectHoa(){ return null; }

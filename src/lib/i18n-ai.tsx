@@ -1,4 +1,4 @@
-﻿// src/lib/i18n-ai.tsx
+// src/lib/i18n-ai.tsx
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 export type Lang = "ar" | "en" | "fr" | "hi" | "fa" | "ur";
@@ -79,7 +79,7 @@ export function AI18nProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setHtml(lang);
-    if (isBrowser()) try { localStorage.setItem("lang", lang); } catch (_e) {}
+    if (isBrowser()) try { localStorage.setItem("lang", lang); } catch {}
   }, [lang]);
 
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);

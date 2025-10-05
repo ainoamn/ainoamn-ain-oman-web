@@ -1,4 +1,4 @@
-﻿// src/lib/ai.ts
+// src/lib/ai.ts
 // Placeholder AI services (to be replaced with real models/integrations)
 export type RecommendationInput = {
   userId?: string;

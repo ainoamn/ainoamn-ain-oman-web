@@ -1,10 +1,10 @@
-﻿// src/pages/api/ai/tasks/assist.ts
+// src/pages/api/ai/tasks/assist.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getTask } from "@/server/db";
 
 // Simple rule-based assistant (no external calls).
 // Generates a short "AI summary" and "next steps" based on task content.
-function handler(req: NextApiRequest, res: NextApiResponse) {
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") return res.setHeader("Allow", "POST").status(405).end();
 
   const { id } = req.body || {};

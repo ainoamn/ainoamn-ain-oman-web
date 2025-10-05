@@ -1,8 +1,9 @@
-﻿import TaskStatusPill from "./TaskStatusPill";
+import TaskStatusPill from "./TaskStatusPill";
 import TaskQuickActions from "./TaskQuickActions";
 import TaskExportButtons from "./TaskExportButtons";
 import PriorityTint from "./PriorityTint";
-function TaskBoardCard({
+
+export default function TaskBoardCard({
   task,
   onChanged,
 }: {
@@ -39,4 +40,4 @@ function TaskBoardCard({
     </PriorityTint>
   );
 }
-//5) صفحة كانبان وإدارة المهام (كاملة)
+5) صفحة كانبان وإدارة المهام (كاملة)

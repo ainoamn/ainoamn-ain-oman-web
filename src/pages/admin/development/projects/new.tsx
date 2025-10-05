@@ -1,4 +1,4 @@
-﻿/**
+/**
  * /admin/development/projects/new — إضافة مشروع (Baseline Restored From Docs)
  */
 import React, { useState } from "react";
@@ -18,7 +18,9 @@ async function safeJson(url: string, fallback: any) {
   } catch { return fallback; }
 }
 function cls(...xs: (string|false|undefined|null)[]) { return xs.filter(Boolean).join(" "); }
-function AdminNewProjectPage() {
+
+
+export default function AdminNewProjectPage() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [city, setCity] = useState("");

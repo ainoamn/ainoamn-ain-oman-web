@@ -1,4 +1,4 @@
-﻿// src/context/AuthContext.tsx
+// src/context/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '@/services/authService';
 import { paymentService } from '@/services/paymentService';
@@ -38,7 +38,7 @@ function writeLS(u: User | null) {
       localStorage.removeItem(AUTH_TOKEN_KEY);
     }
     window.dispatchEvent(new CustomEvent(AUTH_EVENT));
-  } catch (_e) {}
+  } catch {}
 }
 
 /** بديل آمن عند غياب authService.getCurrentUser */
@@ -49,7 +49,7 @@ async function fetchCurrentUserFallback(): Promise<User | null> {
     // أرسل التوكن كـ Bearer إن وُجد
     const raw = localStorage.getItem(AUTH_TOKEN_KEY);
     let token: string | null = null;
-    try { token = raw && raw.startsWith('"') ? JSON.parse(raw) : raw; } catch (_e) {}
+    try { token = raw && raw.startsWith('"') ? JSON.parse(raw) : raw; } catch {}
     if (token) headers['Authorization'] = `Bearer ${token}`;
     const r = await fetch(endpoint, { credentials: "include", headers });
     if (!r.ok) return null;
@@ -119,7 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    try { authService.logout(); } catch (_e) {}
+    try { authService.logout(); } catch {}
     setUser(null);
     writeLS(null);
   };

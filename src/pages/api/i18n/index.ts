@@ -1,4 +1,4 @@
-﻿// src/pages/api/i18n/index.ts  (يحفظ/يقرأ desc أيضًا)
+// src/pages/api/i18n/index.ts  (يحفظ/يقرأ desc أيضًا)
 import type { NextApiRequest, NextApiResponse } from "next";
 import { addLang, readDicts, readMeta, unionKeys, writeAll, getLangs } from "@/server/i18n-admin";
 

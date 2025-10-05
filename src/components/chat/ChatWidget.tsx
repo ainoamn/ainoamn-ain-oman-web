@@ -1,4 +1,4 @@
-﻿// src/components/chat/ChatWidget.tsx
+// src/components/chat/ChatWidget.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useChat, ChatTarget } from "../../context/ChatContext";
 import { FaTimes, FaPaperPlane, FaUserShield, FaUserTie } from "react-icons/fa";
@@ -7,7 +7,8 @@ type Message = { id: string; from: "user"|"owner"|"system"|"admin"; text: string
 type Thread = { id: string; subject?: string; pageUrl?: string; propertyId?: number; target: ChatTarget; createdAt: string; messages: Message[] };
 
 const LS_KEY = (t: ChatTarget, propertyId?: number) => t === "admin" ? "ao_chat_admin" : `ao_chat_owner_${propertyId ?? "none"}`;
-function ChatWidget() {
+
+export default function ChatWidget() {
   const { isOpen, closeChat, target, setTarget, propertyId, subject } = useChat();
   const [thread, setThread] = useState<Thread | null>(null);
   const [loading, setLoading] = useState(false);

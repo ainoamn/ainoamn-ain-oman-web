@@ -1,4 +1,4 @@
-﻿// src/lib/i18n.ts
+// src/lib/i18n.ts
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 export type Lang = "ar" | "en" | "fr" | "hi" | "fa" | "ur";
@@ -749,7 +749,7 @@ export function I18nProvider({ children, initialLang }: { children: React.ReactN
 
   useEffect(() => {
     applyHtml(lang);
-    if (isBrowser()) try { localStorage.setItem("lang", lang); } catch (_e) {}
+    if (isBrowser()) try { localStorage.setItem("lang", lang); } catch {}
   }, [lang]);
 
   const t = useMemo(() => (k: string, vars?: Record<string, string | number>) => translate(lang, k, vars), [lang]);

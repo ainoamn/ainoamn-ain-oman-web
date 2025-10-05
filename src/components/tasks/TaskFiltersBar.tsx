@@ -1,4 +1,4 @@
-﻿/**
+/**
  * TaskFiltersBar — فلاتر متقدّمة + حفظ آخر اختيار في localStorage
  * الاستخدام:
  * <TaskFiltersBar initial={saved} onChange={(filters)=>loadTasks(filters)} />
@@ -17,7 +17,7 @@ export type TaskFilters = {
 const LS_KEY = "ao_task_filters_v1";
 const BTN = "rounded-lg px-2 py-1 text-xs ring-1 ring-gray-200 hover:bg-gray-50";
 
-function TaskFiltersBar(
+export default function TaskFiltersBar({
   initial,
   onChange,
   options,
@@ -36,12 +36,12 @@ function TaskFiltersBar(
     try {
       const raw = localStorage.getItem(LS_KEY);
       if (raw) setF(JSON.parse(raw));
-    } catch (_e) {}
+    } catch {}
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(()=>{
     onChange(f);
-    try { localStorage.setItem(LS_KEY, JSON.stringify(f)); } catch (_e) {}
+    try { localStorage.setItem(LS_KEY, JSON.stringify(f)); } catch {}
   }, [f, onChange]);
 
   const toggle = (key: keyof TaskFilters, value: string) => {
@@ -258,7 +258,8 @@ function readAttachmentsForTask(t: any): any[] {
   // إن كنت تخزنها في t.attachments أو في ملف .data/task-attachments.json عدّل هذه الدالة
   return Array.isArray(t?.attachments) ? t.attachments : [];
 }
-function handler(req: NextApiRequest, res: NextApiResponse) {
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method !== "GET") { res.setHeader("Allow","GET"); return res.status(405).json({ error:"Method not allowed" }); }
 

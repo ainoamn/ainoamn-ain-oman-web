@@ -1,8 +1,9 @@
-﻿import React from "react";
+import React from "react";
 import Link from "next/link";
 
 type Case = { id: string; title: string; status: string; stage: string; clientId: string; primaryLawyerId: string; updatedAt: string };
-function CaseGrid({ items }: { items: Case[] }) {
+
+export default function CaseGrid({ items }: { items: Case[] }) {
   return (
     <div className="grid md:grid-cols-2 gap-3">
       {items.map(c=>(

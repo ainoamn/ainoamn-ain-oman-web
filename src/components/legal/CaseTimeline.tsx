@@ -1,8 +1,9 @@
-﻿import React from "react";
+import React from "react";
 
 type Stage = { id: string; caseId: string; from?: string; to: string; at: string; note?: string; by?: string; voided?: boolean; voidReason?: string };
 type Person = { id: string; name: string; subscriptionNo: string };
-function CaseTimeline({ caseId }: { caseId: string }) {
+
+export default function CaseTimeline({ caseId }: { caseId: string }) {
   const [items, setItems] = React.useState<Stage[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [note, setNote] = React.useState("");

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * API Route: /api/admin/settings/actions
  * Methods:
  *  - GET: return current ActionsSettings
@@ -52,7 +52,8 @@ function writeSettings(s: ActionsSettings) {
   ensureDataFile();
   fs.writeFileSync(dataFile, JSON.stringify(s, null, 2), "utf8");
 }
-function handler(req: NextApiRequest, res: NextApiResponse) {
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method === "GET") {
       const s = readSettings();

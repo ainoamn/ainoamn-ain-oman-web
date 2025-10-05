@@ -1,4 +1,4 @@
-﻿import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 type Unit = {
   id: string;
@@ -14,7 +14,8 @@ const sample: Unit[] = [
   { id: "U-101", buildingId: "B-001", name: "الدور 1 - شقة 1", owner: "أحمد", area: 120, balance: 0 },
   { id: "U-102", buildingId: "B-001", name: "الدور 1 - شقة 2", owner: "سمية", area: 115, balance: 72.5 },
 ];
-function handler(req: NextApiRequest, res: NextApiResponse) {
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method === "GET") {
       const { buildingId } = req.query as { buildingId?: string };

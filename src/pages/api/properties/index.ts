@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import path from "path";
 import fs from "fs";
 import formidable, { File as FormFile } from "formidable";
-import { readAll, upsert, type Property } from "@/server/properties/store";
+import { getAll, upsert, type Property } from "@/server/properties/store";
 import { normalizeUsage } from "@/lib/property";
 
 export const config = { api: { bodyParser: false } };
@@ -48,7 +48,33 @@ async function readJSON(req: NextApiRequest): Promise<any> {
   for await (const c of req) chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c));
   const raw = Buffer.concat(chunks).toString("utf8");
   if (!raw) return {};
-  try { return JSON.parse(raw); } catch { return {}; }
+  try { 
+    const parsed = JSON.parse(raw);
+    // إصلاح مشكلة الترميز للنصوص العربية
+    return fixEncoding(parsed);
+  } catch { return {}; }
+}
+
+function fixEncoding(obj: any): any {
+  if (typeof obj === 'string') {
+    // محاولة إصلاح الترميز المشوه
+    try {
+      return decodeURIComponent(escape(obj));
+    } catch {
+      return obj;
+    }
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(fixEncoding);
+  }
+  if (obj && typeof obj === 'object') {
+    const fixed: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      fixed[key] = fixEncoding(value);
+    }
+    return fixed;
+  }
+  return obj;
 }
 function isDataUrl(s: string) { return /^data:image\/(png|jpe?g|webp);base64,/i.test(s); }
 function saveDataUrl(dataUrl: string, dir: string, idx: number): string {
@@ -91,9 +117,25 @@ function moveFilesToUrls(files: FormFile[], folder: string): string[] {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
+  // منع أي كاش للـ API لضمان ظهور التحديثات فورًا
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
 
   if (req.method === "GET") {
-    return res.status(200).json({ items: readAll() });
+    const items = getAll();
+    // تنظيف البيانات القديمة التي تأتي كـ arrays
+    const cleanedItems = items.map(item => {
+      const cleaned: any = {};
+      for (const [key, value] of Object.entries(item)) {
+        if (Array.isArray(value) && value.length === 1) {
+          // إذا كان array يحتوي على عنصر واحد، استخرجه
+          cleaned[key] = value[0];
+        } else {
+          cleaned[key] = value;
+        }
+      }
+      return cleaned;
+    });
+    return res.status(200).json({ items: cleanedItems });
   }
 
   if (req.method === "POST") {
@@ -106,7 +148,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (ctype.includes("multipart/form-data")) {
         const { fields, files } = await parseMultipart(req);
         folder = (fields as any).__folder || folder;
-        for (const k of Object.keys(fields)) (fields as any)[k] = parseMaybeJSON((fields as any)[k]);
+        for (const k of Object.keys(fields)) {
+          const value = (fields as any)[k];
+          if (Array.isArray(value) && value.length === 1) {
+            (fields as any)[k] = parseMaybeJSON(value[0]);
+          } else {
+            (fields as any)[k] = parseMaybeJSON(value);
+          }
+        }
         body = fields;
         const fileBuckets = ["file", "files", "images", "photos", "media"]
           .flatMap((k) => toArray(files[k]).filter(Boolean));
@@ -160,7 +209,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         createdAt: now,
         updatedAt: now,
         ...body,
-        id,
         images: Array.isArray(images) && images.length ? images : (Array.isArray(body.images) ? body.images : []),
       };
 

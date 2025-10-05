@@ -1,4 +1,4 @@
-﻿// src/pages/admin/billing/invoices.tsx
+// src/pages/admin/billing/invoices.tsx
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -20,7 +20,7 @@ async function runtimeListInvoices(): Promise<Invoice[]> {
   try {
     const mod: any = await import("@/lib/billingClient");
     if (typeof mod.listInvoices === "function") return await mod.listInvoices();
-  } catch (_e) {}
+  } catch {}
   try {
     const r = await fetch("/api/billing/invoices");
     const j = await r.json().catch(() => []);
@@ -35,14 +35,15 @@ async function runtimePayInvoice(id: string, amount: number) {
   try {
     const mod: any = await import("@/lib/billingClient");
     if (typeof mod.payInvoice === "function") return await mod.payInvoice(id, amount, "cash");
-  } catch (_e) {}
+  } catch {}
   await fetch("/api/billing/invoices/pay", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id, amount, method: "cash" }),
   }).catch(() => {});
 }
-function InvoicesAdminPage() {
+
+export default function InvoicesAdminPage() {
   const { t, dir } = useTranslation();
   const [items, setItems] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);

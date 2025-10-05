@@ -1,4 +1,4 @@
-﻿// src/lib/admin/widgets-registry.ts
+// src/lib/admin/widgets-registry.ts
 // Registry maps widget keys to components for DynamicWidgets.
 
 import dynamic from "next/dynamic";

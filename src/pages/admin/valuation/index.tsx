@@ -1,4 +1,4 @@
-﻿// src/pages/admin/valuation/index.tsx
+// src/pages/admin/valuation/index.tsx
 import type { GetServerSideProps } from "next";
 export const getServerSideProps: GetServerSideProps = async () => ({ redirect: { destination: "/admin/dashboard?section=valuation", permanent: false }});
-function RedirectValuation(){ return null; }
+export default function RedirectValuation(){ return null; }

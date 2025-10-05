@@ -1,5 +1,6 @@
-﻿import React from "react";
-function DocumentUploader({ onSelect }: { onSelect: (file: File) => void }) {
+import React from "react";
+
+export default function DocumentUploader({ onSelect }: { onSelect: (file: File) => void }) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   return (
     <div className="flex items-center gap-2">

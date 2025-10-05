@@ -1,4 +1,4 @@
-﻿// src/pages/admin/actions.tsx
+// src/pages/admin/actions.tsx
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import Layout from "@/components/layout/Layout";
@@ -10,7 +10,8 @@ type ActionDef = { id: string; label: string; visible: boolean; order: number; a
 
 const ACTION_OPTIONS: ActionId[] = ["chat_owner", "chat_admin", "book_visit", "negotiate", "book_unit", "link"];
 const ALLOWED_ROLES = ["admin", "manager", "owner", "superadmin"];
-function AdminActionsPage() {
+
+export default function AdminActionsPage() {
   const router = useRouter();
   const [items, setItems] = useState<ActionDef[]>([]);
   const [loading, setLoading] = useState(true);

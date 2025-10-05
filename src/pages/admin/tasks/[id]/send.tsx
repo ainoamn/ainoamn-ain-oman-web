@@ -1,8 +1,9 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Layout from "@/components/layout/Layout";
-function TaskSendPage() {
+
+export default function TaskSendPage() {
   const router = useRouter();
   const { id } = router.query;
   const [recipients, setRecipients] = useState("");

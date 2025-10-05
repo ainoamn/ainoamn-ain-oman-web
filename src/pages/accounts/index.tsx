@@ -1,4 +1,4 @@
-﻿import Head from "next/head";
+import Head from "next/head";
     import Header from "@/components/layout/Header";
     import Footer from "@/components/layout/Footer";
     import { useI18n } from "@/lib/i18n";
@@ -46,7 +46,8 @@ export function Content(){
     </section>
   );
 }
-function Page() {
+
+    export default function Page() {
       const { dir } = useI18n();
       return (
         <main dir={dir} className="min-h-screen bg-slate-50 flex flex-col">

@@ -1,4 +1,4 @@
-﻿// src/components/layout/EnhancedFooter.tsx
+// src/components/layout/EnhancedFooter.tsx
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -7,7 +7,8 @@ import { useCustomization } from "@/contexts/CustomizationContext";
 import { useLayoutScope } from "@/contexts/LayoutScope";
 
 type Props = { force?: boolean };
-function EnhancedFooter({ force = false }: Props) {
+
+export default function EnhancedFooter({ force = false }: Props) {
   // حارس منع التكرار
   const scope = useLayoutScope();
   if (scope?.global && !force) return null;
@@ -21,7 +22,7 @@ function EnhancedFooter({ force = false }: Props) {
     try {
       const first = header?.backgroundColor || readCssBrand() || "#0d9488";
       setBrand(first);
-    } catch (_e) {}
+    } catch {}
   }, [header?.backgroundColor]);
 
   useEffect(() => {

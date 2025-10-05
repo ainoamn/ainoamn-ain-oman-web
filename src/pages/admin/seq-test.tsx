@@ -1,4 +1,4 @@
-﻿// src/pages/admin/seq-test.tsx
+// src/pages/admin/seq-test.tsx
 import { useState } from "react";
 import Head from "next/head";
 import { issueSerial, type EntityKey } from "@/lib/seqClient";
@@ -12,7 +12,8 @@ const ENTITIES: EntityKey[] = [
   "TASK",
   "TICKET",
 ];
-function SeqTestPage() {
+
+export default function SeqTestPage() {
   const [entity, setEntity] = useState<EntityKey>("PROPERTY");
   const [year, setYear] = useState<number | "">("");
   const [width, setWidth] = useState<number>(6);

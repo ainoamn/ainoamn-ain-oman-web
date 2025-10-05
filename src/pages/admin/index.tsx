@@ -1,4 +1,4 @@
-﻿// src/pages/admin/index.tsx
+// src/pages/admin/index.tsx
 import type { GetServerSideProps } from "next";
 
 export const getServerSideProps: GetServerSideProps = async () => {
@@ -6,4 +6,5 @@ export const getServerSideProps: GetServerSideProps = async () => {
     redirect: { destination: "/admin/dashboard", permanent: false },
   };
 };
-function AdminIndex() { return null; }
+
+export default function AdminIndex() { return null; }

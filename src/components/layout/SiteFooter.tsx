@@ -1,9 +1,10 @@
-﻿// src/components/layout/SiteFooter.tsx
+// src/components/layout/SiteFooter.tsx
 import React from "react";
 import { useLayoutScope } from "@/contexts/LayoutScope";
 
 type Props = { force?: boolean };
-function SiteFooter({ force = false }: Props) {
+
+export default function SiteFooter({ force = false }: Props) {
   const scope = useLayoutScope();
   if (scope?.global && !force) return null;
 

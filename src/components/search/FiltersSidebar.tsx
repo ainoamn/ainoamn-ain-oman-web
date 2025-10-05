@@ -1,4 +1,4 @@
-﻿// src/components/search/FiltersSidebar.tsx
+// src/components/search/FiltersSidebar.tsx
 import { useMemo } from "react";
 
 export type SiteClass =
@@ -37,7 +37,8 @@ export type FiltersCounts = {
   amenities?: Record<string, number>;      // {"مصعد": n, ...}
   attractions?: Record<string, number>;    // {"قريب من البحر": n, ...}
 };
-function FiltersSidebar({
+
+export default function FiltersSidebar({
   value,
   onChange,
   onResetAll,

@@ -1,9 +1,10 @@
-﻿// src/pages/admin/i18n/index.tsx
+// src/pages/admin/i18n/index.tsx
 import { useEffect, useMemo, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import Head from "next/head";
 import { useTranslation } from "@/hooks/useTranslation";
-function I18nAdmin(){
+
+export default function I18nAdmin(){
   const { t, dir, lang } = useTranslation();
   const [missing,setMissing]=useState<any>({});
   const [over,setOver]=useState<Record<string,string>>({});

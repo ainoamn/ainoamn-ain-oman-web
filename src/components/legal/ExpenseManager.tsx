@@ -1,7 +1,8 @@
-﻿import React from "react";
+import React from "react";
 
 type Exp = { id:string; label:string; amount:number; at:string; voided?:boolean; voidReason?:string };
-function ExpenseManager({ caseId }: { caseId: string }) {
+
+export default function ExpenseManager({ caseId }: { caseId: string }) {
   const hdrs = { "Content-Type":"application/json","x-tenant-id":"TENANT-1","x-user-id":"U1","x-roles":"LAWYER" };
   const [items, setItems] = React.useState<Exp[]>([]);
   const [label, setLabel] = React.useState("");

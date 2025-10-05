@@ -1,4 +1,4 @@
-﻿import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import path from "path";
 
@@ -8,7 +8,8 @@ function ensure() { if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursi
 function readAll(): any[] { ensure(); return JSON.parse(fs.readFileSync(file, "utf8")); }
 function writeAll(arr: any[]) { ensure(); fs.writeFileSync(file, JSON.stringify(arr, null, 2), "utf8"); }
 function uuid() { return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => { const r=(Math.random()*16)|0, v=c==="x"?r:(r&0x3)|0x8; return v.toString(16); }); }
-function handler(req: NextApiRequest, res: NextApiResponse) {
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method !== "GET") { res.setHeader("Allow","GET"); return res.status(405).json({ error:"Method not allowed" }); }
     const arr = readAll();

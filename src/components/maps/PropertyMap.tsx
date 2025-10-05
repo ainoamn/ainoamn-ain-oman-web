@@ -1,10 +1,11 @@
-﻿// src/components/maps/PropertyMap.tsx
+// src/components/maps/PropertyMap.tsx
 import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 import { useMemo, useState } from "react";
 import { useGoogleMaps } from "./GoogleMapsProvider";
 
 type P = { id: number|string; title: string; image?: string; lat: number; lng: number; location?: string };
-function PropertyMap({ properties }: { properties: P[] }) {
+
+export default function PropertyMap({ properties }: { properties: P[] }) {
   const { isLoaded, error } = useGoogleMaps();
 
   const valid = properties.filter(p => Number(p.lat) && Number(p.lng));

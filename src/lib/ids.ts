@@ -1,4 +1,4 @@
-﻿const memoryCounters: Record<string, number> = {};
+const memoryCounters: Record<string, number> = {};
 
 export function nextId(prefix: string): string {
   if (typeof window !== "undefined") {

@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 
 export function RatingStars({ value = 0, size = 16 }: { value?: number; size?: number }) {
   const rounded = Math.round(value * 2) / 2;

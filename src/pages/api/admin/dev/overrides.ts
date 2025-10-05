@@ -1,4 +1,4 @@
-﻿// src/pages/api/admin/dev/overrides.ts
+// src/pages/api/admin/dev/overrides.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs"; import path from "path";
 
@@ -11,7 +11,8 @@ function readOverrides(): Override[] { try { return JSON.parse(fs.readFileSync(f
 function writeOverrides(v: Override[]){ if(!fs.existsSync(dir)) fs.mkdirSync(dir,{recursive:true}); fs.writeFileSync(file, JSON.stringify(v,null,2),"utf8"); }
 function readOrder(): string[] { try { const j=JSON.parse(fs.readFileSync(orderFile,"utf8")); return Array.isArray(j?.order)? j.order: []; } catch { return []; } }
 function writeOrder(order: string[]){ if(!fs.existsSync(dir)) fs.mkdirSync(dir,{recursive:true}); fs.writeFileSync(orderFile, JSON.stringify({order},null,2),"utf8"); }
-function handler(req:NextApiRequest,res:NextApiResponse){
+
+export default function handler(req:NextApiRequest,res:NextApiResponse){
   if(req.method==="GET")  return res.status(200).json({ overrides: readOverrides(), order: readOrder() });
   if(req.method==="PUT"||req.method==="POST"){
     const id = String(req.query.id || req.body?.id || "").trim(); if(!id) return res.status(400).json({error:"id required"});

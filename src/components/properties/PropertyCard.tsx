@@ -1,4 +1,4 @@
-﻿import { useCurrency } from "@/context/CurrencyContext";
+import { useCurrency } from "@/context/CurrencyContext";
 import { Property } from "@/types/property";
 import Link from "next/link";
 import { FaBed, FaBath, FaRulerCombined, FaStar, FaBolt } from "react-icons/fa";
@@ -6,7 +6,8 @@ import { FaBed, FaBath, FaRulerCombined, FaStar, FaBolt } from "react-icons/fa";
 interface PropertyCardProps {
   property: Property;
 }
-function PropertyCard({ property }: PropertyCardProps) {
+
+export default function PropertyCard({ property }: PropertyCardProps) {
   const { format } = useCurrency();
   
   return (

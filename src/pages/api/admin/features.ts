@@ -1,8 +1,9 @@
-﻿import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import path from "path";
 const DATA_PATH = path.join(process.cwd(), "data", "config.json");
-function handler(req: NextApiRequest, res: NextApiResponse) {
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method === "GET") {
       const cfg = JSON.parse(fs.readFileSync(DATA_PATH, "utf-8") || "{}");

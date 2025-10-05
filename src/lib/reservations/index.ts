@@ -1,4 +1,4 @@
-﻿/**
+/**
  * API: GET/POST /api/reservations
  * Location: src/pages/api/reservations/index.ts
  */
@@ -42,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       upsert<Reservation>(FILE, item);
 
       // (اختياري) فتح مهمة متابعة — تجاهل الخطأ إن وجد
-      // try { await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/tasks`, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ title:`حجز جديد ${item.id}`, description:`عقار: ${item.propertyId} | عميل: ${item.customerName}`, priority:"متوسطة", category:"الحجوزات" }) }); } catch (_e) {}
+      // try { await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/tasks`, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ title:`حجز جديد ${item.id}`, description:`عقار: ${item.propertyId} | عميل: ${item.customerName}`, priority:"متوسطة", category:"الحجوزات" }) }); } catch {}
 
       return res.status(201).json(item);
     }

@@ -1,10 +1,11 @@
-﻿// src/components/maps/MapPicker.tsx
+// src/components/maps/MapPicker.tsx
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useGoogleMaps } from "./GoogleMapsProvider";
 import { useMemo } from "react";
 
 type Point = { lat: number; lng: number };
-function MapPicker({
+
+export default function MapPicker({
   center,
   height = 320,
   point,

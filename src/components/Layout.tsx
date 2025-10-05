@@ -1,11 +1,7 @@
-﻿// src/components/Layout.tsx
+// src/components/Layout.tsx
 import React from "react";
-
-// Compatibility import: works whether Header/Footer are default or named exports
-import * as HeaderMod from "@/components/layout/Header";
-import * as FooterMod from "@/components/layout/Footer";
-const Header: React.ComponentType<any> = (HeaderMod as any).default ?? (HeaderMod as any).Header;
-const Footer: React.ComponentType<any> = (FooterMod as any).default ?? (FooterMod as any).Footer;
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 
 type Props = { children: React.ReactNode };
 

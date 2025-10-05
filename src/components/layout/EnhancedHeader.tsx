@@ -1,4 +1,4 @@
-﻿// src/components/layout/EnhancedHeader.tsx
+// src/components/layout/EnhancedHeader.tsx
 "use client";
 
 import Link from "next/link";
@@ -11,7 +11,8 @@ type Theme = "light" | "dark";
 type Currency = "OMR" | "AED" | "SAR" | "USD";
 
 type Props = { force?: boolean };
-function EnhancedHeader({ force = false }: Props) {
+
+export default function EnhancedHeader({ force = false }: Props) {
   // حارس منع التكرار
   const scope = useLayoutScope();
   if (scope?.global && !force) return null;
@@ -39,7 +40,7 @@ function EnhancedHeader({ force = false }: Props) {
 
       const savedCurrency = (typeof window !== "undefined" ? localStorage.getItem("currency") : null) as Currency | null;
       if (savedCurrency) setCurrency(savedCurrency);
-    } catch (_e) {}
+    } catch {}
   }, []);
 
   const toggleTheme = () => {
@@ -52,7 +53,7 @@ function EnhancedHeader({ force = false }: Props) {
       if (typeof window !== "undefined") {
         localStorage.setItem("theme", next);
       }
-    } catch (_e) {}
+    } catch {}
   };
 
   const onChangeCurrency = (val: string) => {
@@ -60,7 +61,7 @@ function EnhancedHeader({ force = false }: Props) {
     setCurrency(v);
     try {
       if (typeof window !== "undefined") localStorage.setItem("currency", v);
-    } catch (_e) {}
+    } catch {}
   };
 
   const visibleNotifications = Array.isArray(header?.notifications)

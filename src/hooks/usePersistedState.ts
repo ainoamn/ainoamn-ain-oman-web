@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from "react";
-function usePersistedState<T>(key: string, initial: T) {
+import { useEffect, useState } from "react";
+
+export default function usePersistedState<T>(key: string, initial: T) {
   const [state, setState] = useState<T>(() => {
     if (typeof window === "undefined") return initial;
     const raw = window.localStorage.getItem(key);

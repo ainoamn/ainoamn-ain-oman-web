@@ -1,6 +1,7 @@
-﻿import React from "react";
+import React from "react";
 import Link from "next/link";
-function Layout({ children }: { children: React.ReactNode }) {
+
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <header className="bg-white shadow">

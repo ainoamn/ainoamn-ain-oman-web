@@ -1,4 +1,4 @@
-﻿// src/components/admin/AdminSidebar.tsx  (استبدل بالمحتوى أدناه إن لم تكن قد دمجت سابقًا)
+// src/components/admin/AdminSidebar.tsx  (استبدل بالمحتوى أدناه إن لم تكن قد دمجت سابقًا)
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
@@ -7,7 +7,8 @@ import { useTranslation } from "@/hooks/useTranslation";
 
 type CustomSection = { id:string; title:string; href?:string; group?:string; useCentral?:boolean };
 type Override = { id:string; title?:string; titleKey?:string; href?:string; group?:string; hidden?:boolean; useCentral?:boolean };
-function AdminSidebar(){
+
+export default function AdminSidebar(){
   const { t, dir } = useTranslation();
   const r = useRouter();
   const [open,setOpen]=useState(true);

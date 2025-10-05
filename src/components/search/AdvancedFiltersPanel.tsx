@@ -1,13 +1,14 @@
-﻿// src/components/search/AdvancedFiltersPanel.tsx
+// src/components/search/AdvancedFiltersPanel.tsx
 import { useState } from "react";
 
 export type AdvancedFilters = {
   priceMin?: number; priceMax?: number;
   bedsMin?: number; bathsMin?: number;
   areaMin?: number; areaMax?: number;
- sortBy?: "newest" | "priceAsc" | "priceDesc" | "rating" | "views" | "";
+  sortBy?: "newest" | "priceAsc" | "priceDesc" | "rating" | "views";
 };
-function AdvancedFiltersPanel({
+
+export default function AdvancedFiltersPanel({
   open, onClose, onApply, initial
 }: {
   open: boolean;

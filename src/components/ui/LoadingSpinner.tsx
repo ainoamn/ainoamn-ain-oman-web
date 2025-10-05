@@ -1,6 +1,7 @@
-﻿// src/components/ui/LoadingSpinner.tsx
+// src/components/ui/LoadingSpinner.tsx
 import { motion } from 'framer-motion';
-function LoadingSpinner() {
+
+export default function LoadingSpinner() {
   return (
     <div className="flex justify-center items-center p-4">
       <motion.div

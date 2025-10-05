@@ -1,4 +1,4 @@
-﻿import { useI18n as useI18nRaw } from "@/lib/i18n";
+import { useI18n as useI18nRaw } from "@/lib/i18n";
 
 type TFn = (key: string, fallback?: string, vars?: Record<string, any>) => string;
 

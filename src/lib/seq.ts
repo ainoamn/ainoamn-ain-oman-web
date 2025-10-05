@@ -1,4 +1,4 @@
-﻿const BASE = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+const BASE = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 function pad(n: number, w = 6) { return String(n).padStart(w, "0"); }
 
@@ -13,7 +13,7 @@ export async function nextSerial(entity: "TASK"): Promise<string> {
       const j = await r.json();
       if (j?.serial) return j.serial;
     }
-  } catch (_e) {}
+  } catch {}
   // Fallback محلي
   if (typeof window !== "undefined") {
     const k = "__ao_seq_task";

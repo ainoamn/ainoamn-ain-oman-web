@@ -1,7 +1,8 @@
-﻿import React from "react";
+import React from "react";
 
 type Props = { onFilter: (f: { q?: string; status?: string; lawyerId?: string; clientId?: string; from?: string; to?: string; }) => void; lawyers: { id:string; subscriptionNo:string; name:string }[]; clients: { id:string; subscriptionNo:string; name:string }[]; };
-function AdvancedSearch({ onFilter, lawyers, clients }: Props) {
+
+export default function AdvancedSearch({ onFilter, lawyers, clients }: Props) {
   const [q, setQ] = React.useState(""); const [status, setStatus] = React.useState(""); const [lawyerId, setLawyerId] = React.useState(""); const [clientId, setClientId] = React.useState(""); const [from, setFrom] = React.useState(""); const [to, setTo] = React.useState("");
   const apply = () => onFilter({ q:q||undefined, status: status||undefined, lawyerId: lawyerId||undefined, clientId: clientId||undefined, from: from||undefined, to: to||undefined });
   return (

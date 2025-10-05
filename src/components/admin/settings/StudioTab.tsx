@@ -1,4 +1,4 @@
-﻿// src/components/admin/settings/StudioTab.tsx  (استبدل بالمحتوى)
+// src/components/admin/settings/StudioTab.tsx  (استبدل بالمحتوى)
 import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -7,7 +7,8 @@ import ModuleCard from "@/components/admin/ModuleCard";
 import NewLinkDialog from "@/components/admin/NewLinkDialog";
 
 type Section = { id:string; title:string; titleKey?:string; href:string; group?:string; useCentral?:boolean; _type:"builtin"|"custom" };
-function StudioTab(){
+
+export default function StudioTab(){
   const { t, dir } = useTranslation();
   const [open,setOpen]=useState(false);
   const [flags,setFlags]=useState<Record<string,boolean>>({});

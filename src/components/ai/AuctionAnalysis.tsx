@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { AIAnalysis } from '@/types/auction';
 import { useI18n } from '@/lib/i18n';
 
@@ -48,7 +48,7 @@ const AuctionAnalysis: React.FC<AuctionAnalysisProps> = ({ analysis, loading = f
         
         <div className="rounded-xl border bg-white p-4">
           <div className="text-xs text-slate-500">{t('ai.risk')}</div>
-          <div className={`text-lg font-semibold ${riskColors[analysis.risk]}`}>
+          <div className={`text-lg font-semibold ${riskColors[analysis.risk as keyof typeof riskColors] || 'text-gray-600'}`}>
             {t(`ai.riskLevel.${analysis.risk}`)}
           </div>
         </div>

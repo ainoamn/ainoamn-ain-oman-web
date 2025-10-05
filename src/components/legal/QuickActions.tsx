@@ -1,6 +1,7 @@
-﻿// src/components/legal/QuickActions.tsx
+// src/components/legal/QuickActions.tsx
 import React from "react";
-function QuickActions({
+
+export default function QuickActions({
   onNew,
   onDirectory,
   onExport,

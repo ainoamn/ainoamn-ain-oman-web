@@ -1,4 +1,4 @@
-﻿// src/server/db.ts
+// src/server/db.ts
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
@@ -180,7 +180,7 @@ export function removeAttachment(id: string, attId: string) {
   if (idx >= 0) {
     const a = t.attachments[idx];
     const p = path.join(ATTACH_DIR, safeName(id), a.file);
-    if (fs.existsSync(p)) try { fs.unlinkSync(p); } catch (_e) {}
+    if (fs.existsSync(p)) try { fs.unlinkSync(p); } catch {}
     t.attachments.splice(idx, 1);
     t.updatedAt = nowISO();
     saveStore();

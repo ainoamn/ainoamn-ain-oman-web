@@ -1,5 +1,5 @@
-﻿import React from "react";
-function PrintExport({ caseId }: { caseId: string }) {
+import React from "react";
+export default function PrintExport({ caseId }: { caseId: string }) {
   const hdrs = { "x-tenant-id":"TENANT-1","x-user-id":"U1","x-roles":"LAWYER" };
   const [busy, setBusy] = React.useState(false);
 

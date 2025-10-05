@@ -1,4 +1,4 @@
-﻿// src/pages/api/i18n/all.ts
+// src/pages/api/i18n/all.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs/promises";
 import path from "path";

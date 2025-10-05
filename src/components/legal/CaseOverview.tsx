@@ -1,6 +1,7 @@
-﻿import React from "react";
+import React from "react";
 import DocumentManager from "./DocumentManager";
-function CaseOverview({ caseId }: { caseId: string }) {
+
+export default function CaseOverview({ caseId }: { caseId: string }) {
   const [summary, setSummary] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [savedAt, setSavedAt] = React.useState<string>("");

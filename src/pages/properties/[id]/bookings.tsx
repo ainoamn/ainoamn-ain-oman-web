@@ -1,162 +1,181 @@
-// root: src/pages/properties/[id]/bookings.tsx
-import Head from "next/head";
+//c/pages/property/[id]/bookings.tsx
 import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
-import Layout from "@/components/layout/Layout";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { FaCalendarAlt, FaClock, FaCheckCircle, FaTimesCircle, FaFileContract, FaEye } from "react-icons/fa";
+import { FaClock } from "react-icons/fa";
 
+/** نوع مرن ليستوعب اختلافات الحقول بين APIs موجودة لديك */
 type Booking = {
   id: string;
-  bookingNumber: string;
-  propertyId: string;
-  propertyTitle?: string;
-  propertyReference?: string;
-  startDate: string;
-  endDate?: string;
-  duration: number;
-  totalAmount: number;
-  status: 'pending' | 'reserved' | 'leased' | 'cancelled';
-  createdAt: string;
-  contractSigned?: boolean;
-  customerInfo: { name?: string; phone?: string; email?: string; };
+  propertyId?: string;
+  unitId?: string;
+  status?: string; // pending | confirmed | cancelled ...
+  totalAmount?: number | string; // قد تأتي نصًّا
+  createdAt?: string;
+  customerInfo?: { name?: string; phone?: string; email?: string };
+  meta?: Record<string, any>;
+  [k: string]: any;
+};
+
+const fmtAmount = (v: unknown) => {
+  const n = Number.parseFloat(String(v ?? "0"));
+  return Number.isFinite(n) ? n.toFixed(3) : "0.000";
+};
+const fmtDate = (v: unknown) => {
+  const d = v ? new Date(String(v)) : new Date();
+  return isNaN(d.getTime()) ? "-" : d.toLocaleDateString("ar-OM");
 };
 
 export default function PropertyBookingsPage() {
   const router = useRouter();
-  const { id } = router.query;
+  const id = String(router.query.id || "");
+
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [property, setProperty] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!id) return;
-    const fetchProperty = async () => {
-      try {
-        const response = await fetch(`/api/properties/${encodeURIComponent(String(id))}`);
-        if (response.ok) {
-          const data = await response.json();
-          setProperty(data.item);
-        }
-      } catch {}
-    };
-    const fetchBookings = async () => {
-      try {
-        const r = await fetch(`/api/bookings?propertyId=${encodeURIComponent(String(id))}`);
-        const j = await r.json();
-        setBookings(Array.isArray(j?.items) ? j.items : []);
-      } catch {}
-      setLoading(false);
-    };
-    fetchProperty(); fetchBookings();
-  }, [id]);
-
-  const updateBookingStatus = async (bookingId: string, newStatus: Booking['status']) => {
-    try {
-      const body: any = newStatus === "leased" ? { action: "lease" }
-                   : newStatus === "reserved" ? { action: "confirm" }
-                   : newStatus === "cancelled" ? { action: "cancel" }
-                   : { status: newStatus };
-      const r = await fetch(`/api/bookings/${encodeURIComponent(bookingId)}`, { method:"PUT", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) });
-      if (!r.ok) throw new Error("update_failed");
-      const rr = await fetch(`/api/bookings?propertyId=${encodeURIComponent(String(id))}`);
-      const jj = await rr.json();
-      setBookings(Array.isArray(jj?.items) ? jj.items : []);
-      alert('تم تحديث حالة الحجز بنجاح');
-    } catch {
-      alert('فشل في تحديث حالة الحجز');
-    }
-  };
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="max-w-6xl mx-auto p-6">
-          <div className="text-center py-10">جاري تحميل الحجوزات...</div>
-        </div>
-      </Layout>
-    );
+  // محاولات متعددة لمصادر البيانات مع نفس الشكل النهائي
+  async function fetchFrom(url: string) {
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+    const j = await r.json();
+    // دعم صيغ متعددة: {items:[]}, {data:[]}, [] مباشر
+    const arr: any[] = Array.isArray(j) ? j : (j.items || j.data || []);
+    return Array.isArray(arr) ? arr : [];
   }
 
-  return (
-    <Layout>
-      <Head><title>حجوزات العقار | عين عمان</title></Head>
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold">حجوزات العقار</h1>
-            {property && (
-              <p className="text-gray-600">
-                {typeof property.title === 'object' ? property.title.ar || property.title.en : property.title}
-                {property.referenceNo && ` - الرقم المرجعي: ${property.referenceNo}`}
-              </p>
-            )}
+  async function load() {
+    if (!id) return;
+    setLoading(true);
+    setError(null);
+    try {
+      // 1) المفضّل: نظام الحجوزات لديك
+      let list =
+        (await fetchFrom(`/api/reservations?propertyId=${encodeURIComponent(id)}`).catch(() => [])) as Booking[];
+
+      // 2) بديل: الطلبات المعلّمة كحجز
+      if (!list.length) {
+        const alt = (await fetchFrom(
+          `/api/requests?propertyId=${encodeURIComponent(id)}&type=booking`
+        ).catch(() => [])) as Booking[];
+        list = alt;
+      }
+
+      // 3) بديل أخير: نقطة عامة للحجوزات إن وُجدت
+      if (!list.length) {
+        const alt2 = (await fetchFrom(`/api/bookings?propertyId=${encodeURIComponent(id)}`).catch(() => [])) as Booking[];
+        list = alt2;
+      }
+
+      // تطبيع خفيف ومنع أعطال العرض
+      const normalized = (list || []).map((b: any) => ({
+        id: String(b.id ?? b.bookingId ?? `${Date.now()}`),
+        propertyId: b.propertyId ?? id,
+        unitId: b.unitId,
+        status: b.status ?? b.state ?? "pending",
+        totalAmount: b.totalAmount ?? b.total ?? b.amount ?? 0,
+        createdAt: b.createdAt ?? b.created_at ?? b.date ?? new Date().toISOString(),
+        customerInfo: b.customerInfo ?? b.customer ?? { name: b.name, phone: b.phone, email: b.email },
+        meta: b.meta ?? {},
+        ...b,
+      }));
+
+      setBookings(normalized);
+    } catch (e: any) {
+      setError(e?.message || "Failed to load");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  const count = bookings?.length || 0;
+
+  const content = useMemo(() => {
+    if (loading) return <div className="p-6">جار التحميل…</div>;
+    if (error) {
+      return (
+        <div className="p-6">
+          <div className="mb-4">
+            <Link href={`/properties/${encodeURIComponent(id)}`} className="text-blue-600 underline">
+              عودة إلى القائمة
+            </Link>
           </div>
-          <Link href={`/properties/${id}`} className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 flex items-center">
-            <FaEye className="ml-2" /> عرض العقار
-          </Link>
+          <div className="rounded-xl border border-red-300 bg-red-50 p-4 text-red-700">
+            تعذّر جلب البيانات: {error}
+          </div>
         </div>
-        {bookings.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-md p-8 text-center">
-            <FaCalendarAlt className="text-gray-400 text-5xl mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">لا توجد حجوزات</h2>
-            <p className="text-gray-600">لم يتم حجز هذا العقار حتى الآن.</p>
+      );
+    }
+    if (!Array.isArray(bookings) || bookings.length === 0) {
+      return (
+        <div className="p-6">
+          <div className="mb-4">
+            <Link href={`/properties/${encodeURIComponent(id)}`} className="text-blue-600 underline">
+              عودة إلى القائمة
+            </Link>
           </div>
-        ) : (
-          <div className="grid gap-6">
-            {bookings.map(booking => (
-              <div key={booking.id} className="bg-white rounded-xl shadow-md overflow-hidden">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h2 className="text-xl font-semibold">الحجز رقم: {booking.bookingNumber}</h2>
-                      <p className="text-gray-600">المستأجر: {booking.customerInfo?.name || '-'}</p>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      booking.status === 'leased' ? 'bg-green-100 text-green-800' :
-                      booking.status === 'reserved' ? 'bg-blue-100 text-blue-800' :
-                      booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {booking.status === 'leased' ? 'مؤجر' :
-                       booking.status === 'reserved' ? 'محجوز' :
-                       booking.status === 'pending' ? 'قيد المراجعة' : 'ملغي'}
+          <div className="rounded-xl border p-4">لا توجد حجوزات لهذا العقار.</div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <Link href={`/properties/${encodeURIComponent(id)}`} className="text-blue-600 underline">
+            عودة إلى القائمة
+          </Link>
+          <div className="text-sm text-gray-500">عدد الحجوزات: {count}</div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          {Array.isArray(bookings)
+            ? bookings.map((booking) => (
+                <div key={booking.id} className="rounded-2xl border p-4 shadow-sm">
+                  <div className="mb-2 flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">حجز #{booking.id}</h3>
+                    <span className="rounded-full border px-3 py-1 text-xs">
+                      {String(booking.status ?? "pending")}
                     </span>
                   </div>
-                  <div className="grid md:grid-cols-2 gap-4 mb-4">
+
+                  <div className="grid gap-2 md:grid-cols-2">
                     <div>
-                      <p className="text-gray-600 flex items-center"><FaCalendarAlt className="ml-2" />تاريخ البدء: {new Date(booking.startDate).toLocaleDateString('ar-OM')}</p>
-                      <p className="text-gray-600">المدة: {booking.duration} أشهر</p>
+                      <p className="text-gray-600">الوحدة: {booking.unitId ?? "-"}</p>
+                      <p className="text-gray-600">الاسم: {booking.customerInfo?.name || "-"}</p>
+                      <p className="text-gray-600">البريد: {booking.customerInfo?.email || "-"}</p>
                     </div>
                     <div>
-                      <p className="text-gray-600">المبلغ الإجمالي: {booking.totalAmount.toFixed(3)} ر.ع</p>
-                      <p className="text-gray-600 flex items-center"><FaClock className="ml-2" />تاريخ الحجز: {new Date(booking.createdAt).toLocaleDateString('ar-OM')}</p>
-                      <p className="text-gray-600">الهاتف: {booking.customerInfo?.phone || '-'}</p>
+                      <p className="text-gray-600">
+                        المبلغ الإجمالي: {fmtAmount(booking?.totalAmount)} ر.ع
+                      </p>
+                      <p className="text-gray-600 flex items-center">
+                        <FaClock className="ml-2" />
+                        تاريخ الحجز: {fmtDate(booking?.createdAt)}
+                      </p>
+                      <p className="text-gray-600">الهاتف: {booking.customerInfo?.phone || "-"}</p>
                     </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div className="flex gap-2">
-                      {booking.status === 'reserved' && (
-                        <>
-                          <button onClick={() => updateBookingStatus(booking.id, 'leased')} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center">
-                            <FaFileContract className="ml-2" /> تأكيد التأجير
-                          </button>
-                          <button onClick={() => updateBookingStatus(booking.id, 'cancelled')} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                            إلغاء الحجز
-                          </button>
-                        </>
-                      )}
-                      {booking.status === 'leased' && <span className="text-green-600 flex items-center"><FaCheckCircle className="ml-2" />تم تأجير العقار</span>}
-                      {booking.status === 'cancelled' && <span className="text-red-600 flex items-center"><FaTimesCircle className="ml-2" />تم إلغاء الحجز</span>}
-                    </div>
-                    <Link href={`/profile/bookings/${booking.id}`} className="text-blue-600 hover:underline">عرض تفاصيل الحجز</Link>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))
+            : null}
+        </div>
       </div>
-    </Layout>
+    );
+  }, [loading, error, bookings, id, count]);
+
+  return (
+    <div className="max-w-6xl mx-auto">
+      <header className="p-6">
+        <h1 className="text-2xl font-semibold">حجوزات العقار</h1>
+        <p className="text-sm text-gray-500">المسار: /properties/{id}/bookings</p>
+      </header>
+      {content}
+    </div>
   );
 }

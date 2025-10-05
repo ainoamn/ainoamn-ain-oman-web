@@ -1,4 +1,4 @@
-﻿// src/hooks/useOptimizedImage.ts
+// src/hooks/useOptimizedImage.ts
 export const useOptimizedImage = (src: string, size: { width: number; height: number }) => {
   const [optimizedSrc, setOptimizedSrc] = useState('');
   

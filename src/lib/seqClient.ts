@@ -1,4 +1,4 @@
-﻿// src/lib/seqClient.ts
+// src/lib/seqClient.ts
 /**
  * Client-safe helper to request a new serial from the API route.
  * Usage in client pages/components:

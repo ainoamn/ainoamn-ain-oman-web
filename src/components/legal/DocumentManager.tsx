@@ -1,8 +1,9 @@
-﻿import React from "react";
+import React from "react";
 import DocumentUploader from "./DocumentUploader";
 
 type Doc = { id: string; name: string; mime: string; size: number; url?: string; dataUrl?: string; version: number; createdAt: string; uploadedBy: string; voided?: boolean; voidReason?: string; };
-function DocumentManager({ caseId, category }: { caseId: string; category?: string }) {
+
+export default function DocumentManager({ caseId, category }: { caseId: string; category?: string }) {
   const [docs, setDocs] = React.useState<Doc[]>([]);
   const [busy, setBusy] = React.useState(false);
   const hdrs = { "x-tenant-id": "TENANT-1", "x-user-id": "U1", "x-roles": "LAWYER" };

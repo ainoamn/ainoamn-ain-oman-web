@@ -1,4 +1,4 @@
-﻿// src/hooks/useRecommendations.ts
+// src/hooks/useRecommendations.ts
 export const useRecommendations = (auctionId: string, userId?: string) => {
   const [recommendations, setRecommendations] = useState<Property[]>([]);
   

@@ -1,4 +1,4 @@
-﻿// =============================================
+// =============================================
 // src/pages/api/admin/links.ts
 // =============================================
 
@@ -33,7 +33,8 @@ function writeLinks(links: Link[]) {
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
   fs.writeFileSync(dataFile, JSON.stringify(links, null, 2), "utf8");
 }
-function handler(req: NextApiRequest, res: NextApiResponse) {
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
     return res.status(200).json({ links: readLinks() });
   }

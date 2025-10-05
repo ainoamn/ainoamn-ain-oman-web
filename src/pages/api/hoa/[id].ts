@@ -1,5 +1,6 @@
-﻿import type { NextApiRequest, NextApiResponse } from "next";
-function handler(req: NextApiRequest, res: NextApiResponse) {
+import type { NextApiRequest, NextApiResponse } from "next";
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const { id } = req.query as { id?: string };
     if (req.method === "GET") {

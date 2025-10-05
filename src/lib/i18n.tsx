@@ -1,4 +1,4 @@
-﻿// src/lib/i18n.tsx
+// src/lib/i18n.tsx
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 type Lang = "ar" | "en";

@@ -1,4 +1,4 @@
-﻿// جذر الصفحة: src/pages/api/files/[...path].ts
+// جذر الصفحة: src/pages/api/files/[...path].ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import path from "path";
@@ -20,7 +20,8 @@ function mimeFromExt(p: string) {
   };
   return map[ext] || "application/octet-stream";
 }
-function handler(req: NextApiRequest, res: NextApiResponse) {
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const parts = req.query.path;
   const rel = Array.isArray(parts) ? parts.join("/") : String(parts || "");
   const abs = path.join(root, rel);

@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
@@ -100,7 +100,8 @@ interface PaymentGatewayProps {
   onSuccess: (paymentIntentId: string) => void;
   onError: (error: string) => void;
 }
-function PaymentGateway({ amount, onSuccess, onError }: PaymentGatewayProps) {
+
+export default function PaymentGateway({ amount, onSuccess, onError }: PaymentGatewayProps) {
   return (
     <Elements stripe={stripePromise}>
       <PaymentForm amount={amount} onSuccess={onSuccess} onError={onError} />

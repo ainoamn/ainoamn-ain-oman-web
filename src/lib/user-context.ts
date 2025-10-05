@@ -1,4 +1,4 @@
-﻿import type { NextApiRequest } from "next";
+import type { NextApiRequest } from "next";
 
 export type Ctx = { userId: string; tenantId: string; roles: string[] };
 

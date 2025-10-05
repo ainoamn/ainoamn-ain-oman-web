@@ -1,6 +1,7 @@
-﻿// src/components/partners/PartnerCard.tsx
+// src/components/partners/PartnerCard.tsx
 import RatingStars from "../ratings/RatingStars";
-function PartnerCard({ partner }: { partner:any }) {
+
+export default function PartnerCard({ partner }: { partner:any }) {
   return (
     <div className="rounded-2xl border p-4 shadow-sm">
       <div className="flex items-center gap-3">

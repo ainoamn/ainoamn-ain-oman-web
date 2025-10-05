@@ -1,11 +1,12 @@
-﻿/**
+/**
  * Reservation quick form (drop-in for property page)
  * Location: src/components/reservations/ReservationQuickForm.tsx
  */
 import { useState } from "react";
 import { createReservation } from "@/lib/billingClient";
 import type { Currency } from "@/types/billing";
-function ReservationQuickForm({ propertyId, defaultAmount = 60, defaultCurrency = "OMR" as Currency }) {
+
+export default function ReservationQuickForm({ propertyId, defaultAmount = 60, defaultCurrency = "OMR" as Currency }) {
   const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");

@@ -1,8 +1,9 @@
-﻿// src/components/admin/widgets/QuickActions.tsx
+// src/components/admin/widgets/QuickActions.tsx
 // Client widget: quick links to common admin actions.
 import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
-function QuickActions() {
+
+export default function QuickActions() {
   const { t, dir } = useTranslation();
   const actions = [
     { label: t("admin.quick.createTask", "إنشاء مهمة"), href: "/admin/tasks" },

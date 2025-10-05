@@ -1,4 +1,4 @@
-﻿// src/pages/api/i18n/mt.ts
+// src/pages/api/i18n/mt.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const LIBRE = process.env.LIBRETRANSLATE_URL || ""; // مثل: https://libretranslate.com/translate

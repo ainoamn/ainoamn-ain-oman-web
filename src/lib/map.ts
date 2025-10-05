@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Generic lazy map initializer.
  * You can plug your favorite map lib inside `init()`; the helper ensures
  * re-init when container becomes visible (e.g., after tab switch).

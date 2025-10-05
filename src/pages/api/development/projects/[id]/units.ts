@@ -1,4 +1,4 @@
-﻿import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import path from "path";
 
@@ -9,7 +9,8 @@ function readAll(): Project[] {
   if (!fs.existsSync(DATA_PATH)) return [];
   return JSON.parse(fs.readFileSync(DATA_PATH, "utf-8") || "[]");
 }
-function handler(req: NextApiRequest, res: NextApiResponse) {
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method !== "GET") {
       res.setHeader("Allow", "GET");

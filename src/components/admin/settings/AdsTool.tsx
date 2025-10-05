@@ -1,8 +1,9 @@
-﻿// src/components/admin/settings/AdsTool.tsx
+// src/components/admin/settings/AdsTool.tsx
 import { useEffect, useState } from "react";
 type Placement = { html?: string; imageUrl?: string; link?: string; enabled?: boolean };
 type Ads = { bannerTop?: Placement; sidebar?: Placement; modal?: Placement };
-function AdsTool(){
+
+export default function AdsTool(){
   const [v,setV]=useState<Ads>({ bannerTop:{}, sidebar:{}, modal:{} });
   const [saving,setSaving]=useState(false);
 

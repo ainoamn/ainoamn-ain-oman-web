@@ -1,4 +1,4 @@
-﻿// src/pages/admin/subscriptions/index.tsx
+// src/pages/admin/subscriptions/index.tsx
 import Head from "next/head";
 import React, { useEffect, useMemo, useState } from "react";
 
@@ -20,14 +20,14 @@ function loadJSON<T>(key: string, fallback: T, validate?: (v:any)=>boolean): T {
     if (validate && !validate(v)) throw new Error("invalid");
     return v as T;
   } catch {
-    try { localStorage.removeItem(key); } catch (_e) {}
+    try { localStorage.removeItem(key); } catch {}
     return fallback;
   }
 }
 function saveJSON<T>(key:string, v:T){ if (typeof window !== "undefined") localStorage.setItem(key, JSON.stringify(v)); }
 
 /* مكوّن */
-function AdminSubscriptionsPage(){
+export default function AdminSubscriptionsPage(){
   const [features, setFeatures] = useState<Feature[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [newName, setNewName] = useState(""); const [newPrice, setNewPrice] = useState("");

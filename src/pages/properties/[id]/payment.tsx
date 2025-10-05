@@ -341,7 +341,7 @@ export default function PaymentPage() {
               <div className="border-b border-gray-200 pb-4 mb-4">
                 <div className="flex justify-between mb-2">
                   <span>سعر الشهر</span>
-                  <span>{property.priceOMR?.toFixed(3)} ر.ع</span>
+                  <span>{Number(property.priceOMR || 0).toFixed(3)} ر.ع</span>
                 </div>
                 <div className="flex justify-between mb-2">
                   <span>مدة الحجز</span>
@@ -349,7 +349,7 @@ export default function PaymentPage() {
                 </div>
                 <div className="flex justify-between font-semibold">
                   <span>المجموع</span>
-                  <span>{(property.priceOMR ? property.priceOMR * bookingInfo.duration : 0).toFixed(3)} ر.ع</span>
+                  <span>{(Number(property.priceOMR || 0) * bookingInfo.duration).toFixed(3)} ر.ع</span>
                 </div>
               </div>
               

@@ -1,4 +1,4 @@
-﻿// src/lib/prisma.ts
+// src/lib/prisma.ts
 import { PrismaClient } from "@prisma/client";
 
 declare global {

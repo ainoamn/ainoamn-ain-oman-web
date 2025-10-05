@@ -1,4 +1,4 @@
-﻿// src/components/search/SmartSearch.tsx
+// src/components/search/SmartSearch.tsx
 import { useMemo, useRef, useState } from "react";
 import locationData from "../../lib/locationData";
 import { FaSearch } from "react-icons/fa";
@@ -10,7 +10,8 @@ export type SmartSearchPayload = {
   province?: string; state?: string; village?: string;
   keyword?: string;
 };
-function SmartSearch({
+
+export default function SmartSearch({
   onSearch, showFiltersButton = false, onOpenFilters
 }: {
   onSearch?: (payload: SmartSearchPayload) => void;

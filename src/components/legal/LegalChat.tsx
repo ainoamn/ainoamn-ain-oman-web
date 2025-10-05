@@ -1,7 +1,8 @@
-﻿import React from "react";
+import React from "react";
 
 type Msg = { id:string; text:string; at:string; by:string; voided?:boolean; voidReason?:string };
-function LegalChat({ caseId }: { caseId: string }) {
+
+export default function LegalChat({ caseId }: { caseId: string }) {
   const hdrs = { "Content-Type":"application/json","x-tenant-id":"TENANT-1","x-user-id":"U1","x-roles":"LAWYER" };
   const [items, setItems] = React.useState<Msg[]>([]);
   const [text, setText] = React.useState("");

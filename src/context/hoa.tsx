@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { HOA, Building, Unit, Ticket, Investor, Alert, Doc } from "@/types/hoa";
 
 type Store = {
@@ -39,13 +39,13 @@ export function HoaProvider({ children }: { children: React.ReactNode }) {
     try {
       const raw = typeof window !== "undefined" ? localStorage.getItem(KEY) : null;
       if (raw) setStore(JSON.parse(raw));
-    } catch (_e) {}
+    } catch {}
   }, []);
 
   useEffect(() => {
     try {
       if (typeof window !== "undefined") localStorage.setItem(KEY, JSON.stringify(store));
-    } catch (_e) {}
+    } catch {}
   }, [store]);
 
   const api: Ctx = useMemo(() => ({

@@ -1,4 +1,4 @@
-﻿// src/components/ui/Icon.tsx
+// src/components/ui/Icon.tsx
 import React from "react";
 
 type Props = React.SVGProps<SVGSVGElement> & { name: string; stroke?: number };
@@ -28,7 +28,8 @@ const MAP: Record<string, (p: any)=>JSX.Element> = {
   "code": (p)=>(<svg viewBox="0 0 24 24" {...p}><path d="M16 18l6-6-6-6"/><path d="M8 6L2 12l6 6"/></svg>),
   "user-cog": (p)=>(<svg viewBox="0 0 24 24" {...p}><circle cx="8" cy="8" r="4"/><path d="M2 22a6 6 0 0 1 12 0"/><path d="M19.4 15a2 2 0 0 0 .33 2.18"/><path d="M22 12h-2"/></svg>)
 };
-function Icon({ name, stroke = 1.8, className = "h-5 w-5", ...rest }: Props) {
+
+export default function Icon({ name, stroke = 1.8, className = "h-5 w-5", ...rest }: Props) {
   const common = { fill: "none", stroke: "currentColor", strokeWidth: stroke, strokeLinecap: "round", strokeLinejoin: "round", className, ...rest };
   const render = MAP[name];
   if (render) return render(common);

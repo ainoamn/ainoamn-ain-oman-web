@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Minimal client for reservations/invoices
  * Location: src/lib/billingClient.ts
  */

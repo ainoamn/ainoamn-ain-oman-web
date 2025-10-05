@@ -1,4 +1,4 @@
-﻿/**
+/**
  * API: GET/DELETE /api/admin/notifications/log
  * - GET: ?page=1&pageSize=50
  * Location: src/pages/api/admin/notifications/log.ts
@@ -25,7 +25,8 @@ function writeLog(items: SendLogItem[]) {
   ensure();
   fs.writeFileSync(logFile, JSON.stringify(items, null, 2), "utf8");
 }
-function handler(req: NextApiRequest, res: NextApiResponse) {
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method === "GET") {
       const page = Math.max(1, parseInt(String(req.query.page || "1"), 10) || 1);

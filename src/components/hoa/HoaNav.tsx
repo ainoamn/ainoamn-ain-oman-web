@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useTSafe } from "@/lib/i18n-safe";
@@ -37,7 +37,8 @@ const items: Array<{
   { href: "/owners-association/investors", icon: FiUsers, key: "hoa.investors.title", label: "المستثمرون" },
   { href: "/owners-association/management", icon: FiSettings, key: "hoa.mgmt.title", label: "الإدارة" },
 ];
-function HoaNav() {
+
+export default function HoaNav() {
   const { t, dir } = useTSafe();
 
   // يعمل مع Pages Router وApp Router بدون هوكات الراوتر

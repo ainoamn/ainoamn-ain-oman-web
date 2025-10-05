@@ -1,4 +1,4 @@
-﻿// src/lib/admin/dashboards.ts
+// src/lib/admin/dashboards.ts
 import dynamic from "next/dynamic";
 
 export type WidgetKey =

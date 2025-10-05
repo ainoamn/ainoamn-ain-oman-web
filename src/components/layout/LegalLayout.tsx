@@ -1,9 +1,10 @@
-﻿// src/components/layout/LegalLayout.tsx
+// src/components/layout/LegalLayout.tsx
 import React from "react";
 import EnhancedHeader from "./EnhancedHeader";
 import EnhancedFooter from "./EnhancedFooter";
 import { LayoutScopeProvider } from "@/contexts/LayoutScope";
-function LegalLayout({ children }: { children: React.ReactNode }) {
+
+export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
     <LayoutScopeProvider value={{ global: true }}>
       <div className="flex flex-col min-h-screen">

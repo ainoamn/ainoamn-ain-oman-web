@@ -1,5 +1,6 @@
-﻿import type { NextApiRequest, NextApiResponse } from "next";
-function handler(req: NextApiRequest, res: NextApiResponse) {
+import type { NextApiRequest, NextApiResponse } from "next";
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method === "GET") {
       return res.status(200).json([

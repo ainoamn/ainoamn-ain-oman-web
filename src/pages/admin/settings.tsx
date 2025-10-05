@@ -1,4 +1,4 @@
-﻿// src/pages/admin/settings.tsx
+// src/pages/admin/settings.tsx
 import Head from "next/head";
 import { useRouter } from "next/router";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -9,7 +9,8 @@ import AdsTool from "@/components/admin/settings/AdsTool";
 import StudioTab from "@/components/admin/settings/StudioTab";
 
 type Tab = "general" | "dev" | "hf" | "ads" | "studio";
-function AdminSettings() {
+
+export default function AdminSettings() {
   const { t, dir } = useTranslation();
   const r = useRouter();
   const tab = (r.query.tab as Tab) || "dev";

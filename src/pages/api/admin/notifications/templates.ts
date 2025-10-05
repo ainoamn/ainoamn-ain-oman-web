@@ -1,4 +1,4 @@
-﻿/**
+/**
  * API: GET/PUT /api/admin/notifications/templates
  * Stores templates in .data/notifications-templates.json
  * Location: src/pages/api/admin/notifications/templates.ts
@@ -97,7 +97,8 @@ function sanitize(tpls: any[]): NotificationTemplate[] {
     }))
     .filter((t) => t.name && t.body);
 }
-function handler(req: NextApiRequest, res: NextApiResponse) {
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method === "GET") {
       return res.status(200).json(readAll());

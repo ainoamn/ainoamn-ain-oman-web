@@ -1,9 +1,10 @@
-﻿// src/components/admin/widgets/AlertsBanner.tsx
+// src/components/admin/widgets/AlertsBanner.tsx
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 type Alert = { id: string; text: string; level?: "info" | "warning" | "error" | "success" };
-function AlertsBanner() {
+
+export default function AlertsBanner() {
   const { t } = useTranslation();
   const [alerts, setAlerts] = useState<Alert[]>([]);
 

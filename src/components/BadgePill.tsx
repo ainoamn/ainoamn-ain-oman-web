@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 
 export function BadgePill({ label, tone = "emerald" }: { label: string; tone?: "emerald" | "sky" | "amber" | "violet" }) {
   const toneMap: Record<string, string> = {

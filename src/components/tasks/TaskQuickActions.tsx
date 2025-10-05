@@ -1,4 +1,4 @@
-﻿/**
+/**
  * TaskQuickActions
  * أزرار سريعة لتحديث الحالة والأولوية للمهمة.
  * الاستخدام: <TaskQuickActions taskId={task.id} status={task.status} priority={task.priority} onChanged={reload} />
@@ -28,7 +28,8 @@ async function updateTask(taskId: string, patch: Record<string, any>) {
     if (!alt.ok) throw new Error("تعذر تحديث المهمة");
   }
 }
-function TaskQuickActions({ taskId, status, priority, onChanged }: Props) {
+
+export default function TaskQuickActions({ taskId, status, priority, onChanged }: Props) {
   const [busy, setBusy] = useState(false);
 
   const setStatus = async (s: string) => {

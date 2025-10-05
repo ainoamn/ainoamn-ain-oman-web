@@ -1,141 +1,225 @@
-﻿// src/lib/api/propertiesCrud.ts
-import path from "path";
-// نستخدم نفس مُولِّد التسلسل المستخدم في /api/seq/next
-import { issueNextSerial } from "@/lib/serialNumbers";
+/* واجهة عميل موحّدة وشاملة لإدارة العقارات والوحدات والربط مع بقية الوحدات.
+   لا تعتمد على أي تغيير في الصفحات الحالية.
+   تعمل مع /api/properties و/api/properties/[id] و/api/property/featured.
+*/
+export type Id = string;
 
-export type PropertyRecord = {
-  id: string;                 // معرف داخلي
-  referenceNo: string;        // الرقم المتسلسل الرسمي
+export type Unit = {
+  id?: Id;
   title?: string;
-  city?: string;
+  ref?: string;
+  bedrooms?: number;
+  bathrooms?: number;
   area?: number;
-  beds?: number;
-  baths?: number;
-  price?: number;
-  image?: string;
-  type?: string;              // سكني/تجاري/...
-  featured?: boolean;
-  createdAt: string;          // ISO
-  updatedAt: string;          // ISO
-  [k: string]: any;           // أي حقول إضافية
+  rent?: number;
+  salePrice?: number;
+  status?: string; // available | rented | sold | maintenance | ...
+  images?: string[];
+  coverIndex?: number;
+  meta?: Record<string, any>;
 };
 
-// دالة مساعدة للحصول على مسار البيانات - تعمل على الخادم فقط
-function getDataDirectory() {
-  if (typeof window !== 'undefined') {
-    throw new Error('لا يمكن استخدام هذه الدالة على جانب العميل');
+export type PropertyPayload = {
+  id?: Id;
+  referenceNo?: string;
+  title?: string;
+  description?: string;
+  type?: string;
+  category?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  location?: { lat?: number; lng?: number; label?: string };
+  tags?: string[];
+  featured?: boolean;
+  status?: string;
+  coverIndex?: number;
+  images?: (string | File)[];
+  units?: Unit[];
+  ownerId?: string;
+  meta?: Record<string, any>;
+};
+
+export type ListOptions = {
+  q?: string;
+  limit?: number;
+  tag?: string;
+};
+
+async function json<T>(res: Response): Promise<T> {
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`HTTP ${res.status} ${res.statusText}: ${txt}`);
   }
-  return path.join(process.cwd(), "data", ".data");
+  return res.json();
 }
 
-// دالة مساعدة لضمان وجود ملف البيانات - تعمل على الخادم فقط
-async function ensureDataFile() {
-  if (typeof window !== 'undefined') {
-    throw new Error('لا يمكن استخدام هذه الدالة على جانب العميل');
-  }
-  
-  const { promises: fs } = await import("fs");
-  const DATA_DIR = getDataDirectory();
-  const FILE_PATH = path.join(DATA_DIR, "properties.json");
-  
-  await fs.mkdir(DATA_DIR, { recursive: true });
+/** ========== Properties ========== */
+export async function listProperties(opts: ListOptions = {}) {
+  const u = new URL("/api/properties", window.location.origin);
+  if (opts.q) u.searchParams.set("q", opts.q);
+  if (opts.limit) u.searchParams.set("limit", String(opts.limit));
+  const res = await fetch(u.toString(), { cache: "no-store" });
+  const data = await json<{ items: any[] }>(res);
+  return data.items;
+}
+
+export async function listFeatured(limit = 8, tag = "featured") {
+  const u1 = new URL("/api/properties/featured", window.location.origin);
+  u1.searchParams.set("limit", String(limit));
+  u1.searchParams.set("tag", tag);
+  // دعم المسار القديم /api/property/featured
+  const u2 = new URL("/api/property/featured", window.location.origin);
+  u2.searchParams.set("limit", String(limit));
+  u2.searchParams.set("tag", tag);
+
+  // جرّب الجديد ثم القديم للتوافق
   try {
-    await fs.access(FILE_PATH);
+    const res = await fetch(u1.toString(), { cache: "no-store" });
+    const j = await json<{ items: any[] }>(res);
+    return j.items;
   } catch {
-    await fs.writeFile(FILE_PATH, "[]", "utf8");
-  }
-  
-  return FILE_PATH;
-}
-
-export async function listProperties(): Promise<PropertyRecord[]> {
-  // إذا كنا على العميل، نستخدم API route
-  if (typeof window !== 'undefined') {
-    try {
-      const response = await fetch('/api/properties');
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching properties from API:', error);
-      return [];
-    }
-  }
-  
-  // إذا كنا على الخادم، نستخدم fs مباشرة
-  try {
-    const { promises: fs } = await import("fs");
-    const FILE_PATH = await ensureDataFile();
-    const raw = await fs.readFile(FILE_PATH, "utf8");
-    const arr = (raw ? JSON.parse(raw) : []) as PropertyRecord[];
-    return arr.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  } catch (error) {
-    console.error('Error reading properties data:', error);
-    return [];
+    const res = await fetch(u2.toString(), { cache: "no-store" });
+    const j = await json<{ items: any[] }>(res);
+    return j.items;
   }
 }
 
-export async function getFeaturedProperties(): Promise<PropertyRecord[]> {
-  try {
-    const properties = await listProperties();
-    return properties.filter(prop => prop.featured).slice(0, 6);
-  } catch (error) {
-    console.error('Error getting featured properties:', error);
-    return [];
+export async function getProperty(id: Id) {
+  const res = await fetch(`/api/properties/${encodeURIComponent(id)}`, { cache: "no-store" });
+  const j = await json<{ item: any }>(res);
+  return j.item;
+}
+
+export async function createProperty(data: PropertyPayload) {
+  const hasFiles =
+    Array.isArray(data.images) && data.images.some((x) => typeof x !== "string" && x instanceof File);
+  const hasDataUrls =
+    Array.isArray(data.images) && data.images.some((x) => typeof x === "string" && x.startsWith("data:image/"));
+
+  if (hasFiles || hasDataUrls) {
+    const form = new FormData();
+    Object.entries(data).forEach(([k, v]) => {
+      if (k === "images") return;
+      form.append(k, typeof v === "string" ? v : JSON.stringify(v));
+    });
+    (data.images || []).forEach((img) => {
+      if (typeof img === "string") form.append("images", img); // DataURL سيُعالَج في API
+      else form.append("images", img as File);
+    });
+    const res = await fetch("/api/properties", { method: "POST", body: form });
+    const j = await json<{ item: any }>(res);
+    return j.item;
+  } else {
+    const res = await fetch("/api/properties", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data || {}),
+    });
+    const j = await json<{ item: any }>(res);
+    return j.item;
   }
 }
 
-export async function createProperty(
-  payload: Record<string, any>
-): Promise<PropertyRecord> {
-  // إذا كنا على العميل، نستخدم API route
-  if (typeof window !== 'undefined') {
-    try {
-      const response = await fetch('/api/properties', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      return await response.json();
-    } catch (error) {
-      console.error('Error creating property via API:', error);
-      throw error;
-    }
+export async function updateProperty(id: Id, data: Partial<PropertyPayload>) {
+  const hasFiles =
+    Array.isArray(data.images) && data.images.some((x) => typeof x !== "string" && x instanceof File);
+  const hasDataUrls =
+    Array.isArray(data.images) && data.images.some((x) => typeof x === "string" && x.startsWith("data:image/"));
+
+  if (hasFiles || hasDataUrls) {
+    const form = new FormData();
+    Object.entries(data).forEach(([k, v]) => {
+      if (k === "images") return;
+      form.append(k, typeof v === "string" ? v : JSON.stringify(v));
+    });
+    (data.images || []).forEach((img) => {
+      if (typeof img === "string") form.append("images", img);
+      else form.append("images", img as File);
+    });
+    const res = await fetch(`/api/properties/${encodeURIComponent(id)}`, { method: "PUT", body: form });
+    const j = await json<{ item: any }>(res);
+    return j.item;
+  } else {
+    const res = await fetch(`/api/properties/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data || {}),
+    });
+    const j = await json<{ item: any }>(res);
+    return j.item;
   }
-  
-  // إذا كنا على الخادم، نستخدم fs مباشرة
-  try {
-    const { promises: fs } = await import("fs");
-    await ensureDataFile();
-    
-    // 1) توليد رقم مرجعي رسمي للكيان PROPERTY
-    const seq = await issueNextSerial("PROPERTY");
-    if (!seq?.ok || !seq.serial) {
-      throw new Error(seq?.error || "Failed to issue serial");
-    }
+}
 
-    // 2) بناء السجل
-    const id = `prop_${Date.now()}`;
-    const now = new Date().toISOString();
-    const rec: PropertyRecord = {
-      id,
-      referenceNo: seq.serial, // مثل PR-2025-000001
-      createdAt: now,
-      updatedAt: now,
-      ...payload,
-    };
+export async function deleteProperty(id: Id) {
+  const res = await fetch(`/api/properties/${encodeURIComponent(id)}`, { method: "DELETE" });
+  await json<any>(res);
+  return true;
+}
 
-    // 3) كتابة إلى الملف
-    const FILE_PATH = await ensureDataFile();
-    const items = await listProperties();
-    items.unshift(rec);
-    await fs.writeFile(FILE_PATH, JSON.stringify(items, null, 2), "utf8");
+/** ========== Units helpers ========== */
+export async function addUnit(propertyId: Id, unit: Unit) {
+  const p = await getProperty(propertyId);
+  const units = Array.isArray(p.units) ? [...p.units] : [];
+  const id = unit.id || `U-${Date.now()}`;
+  units.push({ ...unit, id });
+  return updateProperty(propertyId, { units });
+}
 
-    return rec;
-  } catch (error) {
-    console.error('Error creating property:', error);
-    throw error;
+export async function updateUnit(propertyId: Id, unitId: Id, patch: Partial<Unit>) {
+  const p = await getProperty(propertyId);
+  const units = (p.units || []).map((u: Unit) => (u.id === unitId ? { ...u, ...patch } : u));
+  return updateProperty(propertyId, { units });
+}
+
+export async function removeUnit(propertyId: Id, unitId: Id) {
+  const p = await getProperty(propertyId);
+  const units = (p.units || []).filter((u: Unit) => u.id !== unitId);
+  return updateProperty(propertyId, { units });
+}
+
+export async function setCover(propertyId: Id, idx: number) {
+  return updateProperty(propertyId, { coverIndex: idx });
+}
+
+/** ========== Cross-module linking via propertyId ========== */
+export async function createTaskForProperty(propertyId: Id, payload: any) {
+  const res = await fetch("/api/tasks", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...payload, propertyId }),
+  });
+  const j = await json<{ item: any }>(res);
+  return j.item;
+}
+
+export async function referToLegal(propertyId: Id, payload: any) {
+  const res = await fetch("/api/legal/cases", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...payload, propertyId }),
+  });
+  const j = await json<{ item: any }>(res);
+  return j.item;
+}
+
+export async function createInvoiceForProperty(propertyId: Id, invoice: any) {
+  const res = await fetch("/api/invoices", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...invoice, propertyId }),
+  });
+  const j = await json<{ item: any }>(res);
+  return j.item;
+}
+
+/** ========== Utilities ========== */
+export function toFormData(obj: Record<string, any>): FormData {
+  const f = new FormData();
+  for (const [k, v] of Object.entries(obj || {})) {
+    if (v instanceof File) f.append(k, v);
+    else if (Array.isArray(v) || typeof v === "object") f.append(k, JSON.stringify(v));
+    else f.append(k, String(v));
   }
+  return f;
 }

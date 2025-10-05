@@ -1,4 +1,4 @@
-﻿// src/context/ChatContext.tsx
+// src/context/ChatContext.tsx
 import { createContext, useContext, useMemo, useState, ReactNode } from "react";
 
 export type ChatTarget = "owner" | "admin";

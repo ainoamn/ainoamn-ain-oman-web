@@ -1,4 +1,4 @@
-﻿// src/components/layout/Header.tsx
+// src/components/layout/Header.tsx
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -18,7 +18,8 @@ const K = { header: "hf.header.v1", userColor: "hf.userColor.v1" };
 type SessionUser = { id?: string; name?: string; role?: string; features?: string[] } | null;
 const AUTH_KEY = "ain_auth";
 const AUTH_EVENT = "ain_auth:change";
-function Header() {
+
+export default function Header() {
   // إذا الصفحة داخل تخطيط عالمي، ألغِ العرض لتجنّب التكرار
   const scope = useLayoutScope();
   if (scope?.global) return null;
@@ -61,10 +62,10 @@ function Header() {
     try {
       localStorage.removeItem(AUTH_KEY);
       localStorage.removeItem("auth_token");
-    } catch (_e) {}
+    } catch {}
     try {
       window.dispatchEvent(new CustomEvent(AUTH_EVENT));
-    } catch (_e) {}
+    } catch {}
     setUser(null);
   }
 
@@ -72,7 +73,7 @@ function Header() {
     try {
       const h = localStorage.getItem(K.header);
       if (h) setCfg((o) => ({ ...o, ...JSON.parse(h) }));
-    } catch (_e) {}
+    } catch {}
     (async () => {
       try {
         const r = await fetch("/api/header-footer");
@@ -80,7 +81,7 @@ function Header() {
           const j = await r.json();
           if (j?.header) setCfg((o) => ({ ...o, ...j.header }));
         }
-      } catch (_e) {}
+      } catch {}
     })();
   }, []);
 
@@ -128,7 +129,7 @@ function Header() {
   const chooseColor = (hex: string) => {
     try {
       localStorage.setItem(K.userColor, hex);
-    } catch (_e) {}
+    } catch {}
     setBrand(hex);
     applyTheme(hex);
     setPaletteOpen(false);
@@ -200,6 +201,37 @@ function Header() {
             </nav>
 
             <div className="hidden lg:flex items-center gap-3">
+              {/* البحث الذكي */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="البحث في العقارات..."
+                  className="px-4 py-2 rounded-xl border border-white/25 bg-white/10 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/30 w-64"
+                />
+                <button className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70">
+                  🔍
+                </button>
+              </div>
+
+              {/* الإشعارات */}
+              <div className="relative">
+                <button className="p-2 rounded-xl border border-white/25 text-white hover:ring-2 hover:ring-white/30 relative">
+                  🔔
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    3
+                  </span>
+                </button>
+              </div>
+
+              {/* المفضلة */}
+              <Link
+                href="/favorites"
+                className="p-2 rounded-xl border border-white/25 text-white hover:ring-2 hover:ring-white/30"
+                title="المفضلة"
+              >
+                ❤️
+              </Link>
+
               {cfg.showUserColorPicker && (
                 <div className="relative" ref={paletteRef}>
                   <button
@@ -246,9 +278,14 @@ function Header() {
                   </button>
                 </div>
               ) : (
-                <Link href="/login" className="btn btn-primary" title="الدخول">
-                  الدخول
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link href="/register" className="px-3 py-1.5 rounded-xl border border-white/25 text-white hover:ring-2 hover:ring-white/30">
+                    تسجيل
+                  </Link>
+                  <Link href="/login" className="btn btn-primary" title="الدخول">
+                    الدخول
+                  </Link>
+                </div>
               )}
             </div>
 
@@ -271,7 +308,7 @@ function applyTheme(hex: string) {
   root.style.setProperty("--btn-text", btnText);
   try {
     window.dispatchEvent(new CustomEvent("brand:changed", { detail: { color: hex } }));
-  } catch (_e) {}
+  } catch {}
 }
 function shade(hex: string, percent: number) {
   const clean = hex.replace("#", "");

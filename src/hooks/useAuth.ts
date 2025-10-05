@@ -1,4 +1,4 @@
-﻿// src/hooks/useAuth.ts
+// src/hooks/useAuth.ts
 import { useMemo } from "react";
 import { RolePermissions, type Role, type Permission, can } from "@/lib/authz/permissions";
 

@@ -1,4 +1,4 @@
-﻿// root: src/lib/react-sanitize-children.tsx
+// root: src/lib/react-sanitize-children.tsx
 import React, { isValidElement, cloneElement, ReactNode } from "react";
 
 type Localized = { ar?: string; en?: string; [k: string]: unknown };
@@ -45,7 +45,8 @@ function sanitizeElement(el: React.ReactElement, prefer: Lang) {
 function sanitizeNode(node: any, prefer: Lang): any {
   return sanitizeValue(node, prefer);
 }
-function Sanitize({
+
+export default function Sanitize({
   children,
   locale = "ar",
 }: {

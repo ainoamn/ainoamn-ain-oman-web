@@ -1,7 +1,8 @@
-﻿// src/components/admin/ModuleDashboard.tsx
+// src/components/admin/ModuleDashboard.tsx
 import { Widgets, DASHBOARDS, type WidgetKey } from "@/lib/admin/dashboards";
 import SectionToolbar from "@/components/admin/SectionToolbar";
-function ModuleDashboard({ section }: { section: string }) {
+
+export default function ModuleDashboard({ section }: { section: string }) {
   const layout =
     DASHBOARDS[section] ||
     { left: ["alerts-banner","stats-overview","recent-activity"] as WidgetKey[], right: ["notifications","quick-actions","system-health"] as WidgetKey[] };

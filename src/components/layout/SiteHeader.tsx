@@ -1,9 +1,10 @@
-﻿// src/components/layout/SiteHeader.tsx
+// src/components/layout/SiteHeader.tsx
 import React from "react";
 import { useLayoutScope } from "@/contexts/LayoutScope";
 
 type Props = { force?: boolean };
-function SiteHeader({ force = false }: Props) {
+
+export default function SiteHeader({ force = false }: Props) {
   const scope = useLayoutScope();
   if (scope?.global && !force) return null;
 
