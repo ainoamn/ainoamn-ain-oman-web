@@ -5,7 +5,13 @@ type AnyRec = Record<string, any>;
 function cleanSingleItemArrays(obj: AnyRec): AnyRec {
   const out: AnyRec = { ...obj };
   for (const [k, v] of Object.entries(obj)) {
-    out[k] = Array.isArray(v) && v.length === 1 ? v[0] : v;
+    if (Array.isArray(v) && v.length === 1) {
+      out[k] = v[0];
+    } else if (Array.isArray(v) && v.length > 1) {
+      out[k] = v;
+    } else {
+      out[k] = v;
+    }
   }
   return out;
 }
@@ -24,12 +30,28 @@ async function loadStore() {
 
 function resolvePropertyByAnyId(all: AnyRec[], rawId: string) {
   const target = String(rawId);
+  
+  // البحث المباشر
   const byExact = all.find((p) => String(p?.id) === target);
   if (byExact) return byExact;
-  const byNumeric = all.find((p) => String(p?.id) === String(Number(target)));
-  if (byNumeric) return byNumeric;
+  
+  // البحث بـ referenceNo
   const byRef = all.find((p) => String(p?.referenceNo) === target);
   if (byRef) return byRef;
+  
+  // البحث بـ ID كرقم
+  const byNumeric = all.find((p) => String(p?.id) === String(Number(target)));
+  if (byNumeric) return byNumeric;
+  
+  // البحث في المصفوفات
+  const byArray = all.find((p) => {
+    if (Array.isArray(p?.referenceNo) && p.referenceNo.includes(target)) {
+      return true;
+    }
+    return false;
+  });
+  if (byArray) return byArray;
+  
   return null;
 }
 
@@ -42,30 +64,181 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  if (req.method !== "GET") {
-    res.setHeader("Allow", "GET");
-    res.status(405).json({ ok: false, error: "method_not_allowed" });
+  if (req.method === "GET") {
+    // جلب العقار
+    const { getById, getAll } = await loadStore();
+
+    let item = getById(String(id));
+    if (!item) {
+      const all = getAll();
+      item = resolvePropertyByAnyId(all, String(id));
+    }
+
+    if (!item) {
+      res.status(404).json({
+        ok: false,
+        error: "not_found",
+        message: "العقار المطلوب غير موجود أو تم حذفه",
+      });
+      return;
+    }
+
+    const cleaned = cleanSingleItemArrays(item);
+    
+    // إصلاح مسارات الصور
+    if (cleaned.images && Array.isArray(cleaned.images)) {
+      cleaned.images = cleaned.images.map((img: string) => {
+        if (img && !img.startsWith('/uploads/') && !img.startsWith('http')) {
+          // إذا كان اسم ملف فقط، أضف المسار الكامل
+          return `/uploads/properties/${cleaned.id}/${img}`;
+        }
+        return img;
+      });
+    } else if (cleaned.images && typeof cleaned.images === 'string') {
+      // إذا كانت الصور كسلسلة نصية واحدة
+      if (cleaned.images && !cleaned.images.startsWith('/uploads/') && !cleaned.images.startsWith('http')) {
+        cleaned.images = `/uploads/properties/${cleaned.id}/${cleaned.images}`;
+      }
+    }
+    
+    // إصلاح صورة الغلاف
+    if (cleaned.coverImage && !cleaned.coverImage.startsWith('/uploads/') && !cleaned.coverImage.startsWith('http')) {
+      cleaned.coverImage = `/uploads/properties/${cleaned.id}/${cleaned.coverImage}`;
+    }
+    
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.status(200).json({ ok: true, item: cleaned });
     return;
   }
 
-  const { getById, getAll } = await loadStore();
-
-  let item = getById(String(id));
-  if (!item) {
-    const all = getAll();
-    item = resolvePropertyByAnyId(all, String(id));
-  }
-
-  if (!item) {
-    res.status(404).json({
-      ok: false,
-      error: "not_found",
-      message: "العقار المطلوب غير موجود أو تم حذفه",
-    });
+  if (req.method === "PUT") {
+    // تحديث العقار
+    try {
+      const { upsert } = await import("@/server/properties/store");
+      
+      // قراءة البيانات من FormData أو JSON
+      let body: any = {};
+      
+      if (req.headers['content-type']?.includes('multipart/form-data') || req.headers['content-type']?.includes('application/x-www-form-urlencoded')) {
+        // معالجة FormData
+        try {
+          const formidable = require('formidable');
+          const form = formidable({ 
+            multiples: true,
+            maxFileSize: 10 * 1024 * 1024, // 10MB
+            keepExtensions: true
+          });
+          
+          const [fields, files] = await form.parse(req);
+          
+          console.log('FormData fields:', fields);
+          console.log('FormData files:', files);
+          
+          // تحويل الحقول إلى كائن
+          for (const [key, value] of Object.entries(fields)) {
+            if (Array.isArray(value) && value.length === 1) {
+              body[key] = value[0];
+            } else if (Array.isArray(value)) {
+              body[key] = value;
+            } else {
+              body[key] = value;
+            }
+          }
+          
+          // معالجة الملفات
+          if (files.images) {
+            const images = Array.isArray(files.images) ? files.images : [files.images];
+            body.images = images.map((file: any) => {
+              // حفظ الملف في مجلد العقار
+              const fs = require('fs');
+              const path = require('path');
+              const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'properties', id);
+              
+              if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+              }
+              
+              const fileName = `${Date.now()}-${file.originalFilename || 'image.jpg'}`;
+              const filePath = path.join(uploadDir, fileName);
+              
+              fs.copyFileSync(file.filepath, filePath);
+              
+              return `/uploads/properties/${id}/${fileName}`;
+            });
+          }
+          
+          // معالجة الحقول الخاصة
+          if (body.amenities && typeof body.amenities === 'string') {
+            try {
+              body.amenities = JSON.parse(body.amenities);
+            } catch (e) {
+              body.amenities = [];
+            }
+          }
+          
+          if (body.customAmenities && typeof body.customAmenities === 'string') {
+            try {
+              body.customAmenities = JSON.parse(body.customAmenities);
+            } catch (e) {
+              body.customAmenities = [];
+            }
+          }
+          
+          if (body.units && typeof body.units === 'string') {
+            try {
+              body.units = JSON.parse(body.units);
+            } catch (e) {
+              body.units = [];
+            }
+          }
+          
+          // تحويل القيم المنطقية
+          if (body.published === 'true') body.published = true;
+          if (body.published === 'false') body.published = false;
+          if (body.useUserContact === 'true') body.useUserContact = true;
+          if (body.useUserContact === 'false') body.useUserContact = false;
+          
+        } catch (formError) {
+          console.error('FormData parsing error:', formError);
+          res.status(400).json({ ok: false, error: "form_parse_error", message: "خطأ في معالجة البيانات المرسلة: " + formError.message });
+          return;
+        }
+      } else {
+        // معالجة JSON
+        try {
+          body = req.body;
+          if (typeof body === 'string') {
+            body = JSON.parse(body);
+          }
+        } catch (jsonError) {
+          console.error('JSON parsing error:', jsonError);
+          res.status(400).json({ ok: false, error: "json_parse_error", message: "خطأ في تحليل البيانات المرسلة" });
+          return;
+        }
+      }
+      
+      // إضافة ID للعقار
+      body.id = id;
+      body.updatedAt = new Date().toISOString();
+      
+      // حفظ العقار
+      try {
+        const updatedProperty = upsert(body);
+        res.status(200).json({ ok: true, item: updatedProperty });
+      } catch (upsertError) {
+        console.error('Upsert error:', upsertError);
+        res.status(500).json({ ok: false, error: "upsert_error", message: "خطأ في حفظ العقار: " + upsertError.message });
+        return;
+      }
+    } catch (error) {
+      console.error('Error updating property:', error);
+      res.status(500).json({ ok: false, error: "internal_error", message: "حدث خطأ أثناء تحديث العقار" });
+    }
     return;
   }
 
-  const cleaned = cleanSingleItemArrays(item);
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
-  res.status(200).json({ ok: true, item: cleaned });
+  // إذا لم يكن GET أو PUT
+  res.setHeader("Allow", "GET, PUT");
+  res.status(405).json({ ok: false, error: "method_not_allowed" });
+  return;
 }

@@ -71,21 +71,71 @@ function titleToText(t?: Item["title"]) {
 }
 /** يجهّز مسار الصورة المعروضة */
 function getCardImage(p: Item) {
-  if (p.coverImage) return p.coverImage;
-  if (Array.isArray(p.images) && p.images.length) {
+  let imagePath = "";
+  
+  if (p.coverImage) {
+    imagePath = p.coverImage;
+  } else if (Array.isArray(p.images) && p.images.length) {
     const idx = typeof p.coverIndex === "number" ? p.coverIndex : 0;
-    return p.images[idx] || p.images[0];
+    imagePath = p.images[idx] || p.images[0];
+  } else if (p.image) {
+    imagePath = p.image;
   }
-  return p.image || "";
+  
+  // إصلاح مسار الصورة
+  if (imagePath) {
+    // إذا كان المسار يبدأ بـ /uploads/ فهو صحيح
+    if (imagePath.startsWith('/uploads/')) {
+      return imagePath;
+    }
+    // إذا كان المسار يبدأ بـ uploads/ أضف /
+    if (imagePath.startsWith('uploads/')) {
+      return `/${imagePath}`;
+    }
+    // إذا كان المسار يبدأ بـ public/ أزل public
+    if (imagePath.startsWith('public/')) {
+      return imagePath.replace('public/', '/');
+    }
+    // إذا كان المسار لا يبدأ بـ / أضفه
+    if (!imagePath.startsWith('/')) {
+      return `/${imagePath}`;
+    }
+    return imagePath;
+  }
+  
+  return "";
 }
 
-export default function PropertiesIndexPage() {
+export default function PropertiesIndexPage({ initialProperties = [] }: { initialProperties?: Item[] }) {
   const mounted = useMounted();
   const { format } = useCurrency();
 
-  const [loading, setLoading] = useState(true);
-  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState<Item[]>(initialProperties || []);
   const [error, setError] = useState<string | null>(null);
+
+  // جلب البيانات عند تحميل الصفحة
+  useEffect(() => {
+    const fetchProperties = async () => {
+      if (items.length === 0) {
+        setLoading(true);
+        try {
+          const response = await fetch('/api/properties');
+          if (response.ok) {
+            const data = await response.json();
+            setItems(data.items || []);
+          }
+        } catch (error) {
+          console.error('Error fetching properties:', error);
+          setError('حدث خطأ أثناء جلب العقارات');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchProperties();
+  }, []);
 
   const [q, setQ] = useState("");
   const [type, setType] = useState<Item["type"] | "">("");
@@ -374,7 +424,7 @@ export default function PropertiesIndexPage() {
       <div className="mb-3">
         <UnifiedSearchBar
           onSearch={onSearch}
-          initial={{ keyword: q, type, purpose, rentalType, province, state, village }}
+          initial={{ keyword: q, type, purpose, rentalType: rentalType || undefined, province, state, village }}
         />
       </div>
 
@@ -424,7 +474,7 @@ export default function PropertiesIndexPage() {
                   <label className="block text-gray-600 mb-1">نوع الإيجار</label>
                   <select
                     className="w-full border rounded p-2"
-                    value={rentalType}
+                    value={rentalType || ""}
                     onChange={(e) => setRentalType(e.target.value as any)}
                     disabled={purpose !== "rent"}
                   >
@@ -662,3 +712,5 @@ export default function PropertiesIndexPage() {
     </Layout>
   );
 }
+
+// getServerSideProps removed - using useEffect instead

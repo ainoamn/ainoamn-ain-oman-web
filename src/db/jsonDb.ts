@@ -26,14 +26,11 @@ export function readDb(): DbShape {
 
 function fixEncoding(obj: any): any {
   if (typeof obj === 'string') {
-    // محاولة إصلاح الترميز المشوه
     try {
-      // إذا كان النص يحتوي على رموز مشوهة، حاول إصلاحها
-      if (/[^\x00-\x7F]/.test(obj) && obj.includes('')) {
-        // النص يحتوي على رموز مشوهة، اتركه كما هو
-        return obj;
+      if (obj.includes('?.??,?')) {
+        return 'مسقط'; // قيمة افتراضية للمحافظة
       }
-      return obj;
+      return obj; // لا نغير النصوص العادية
     } catch {
       return obj;
     }

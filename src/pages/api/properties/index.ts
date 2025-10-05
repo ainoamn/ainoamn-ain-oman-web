@@ -122,7 +122,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === "GET") {
     const items = getAll();
-    // تنظيف البيانات القديمة التي تأتي كـ arrays
+    // تنظيف البيانات القديمة التي تأتي كـ arrays وإصلاح مسارات الصور
     const cleanedItems = items.map(item => {
       const cleaned: any = {};
       for (const [key, value] of Object.entries(item)) {
@@ -133,6 +133,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           cleaned[key] = value;
         }
       }
+      
+      // إصلاح مسارات الصور
+      if (cleaned.images && Array.isArray(cleaned.images)) {
+        cleaned.images = cleaned.images.map((img: string) => {
+          if (img && !img.startsWith('/uploads/') && !img.startsWith('http')) {
+            // إذا كان اسم ملف فقط، أضف المسار الكامل
+            return `/uploads/properties/${cleaned.id}/${img}`;
+          }
+          return img;
+        });
+      } else if (cleaned.images && typeof cleaned.images === 'string') {
+        // إذا كانت الصور كسلسلة نصية واحدة
+        if (cleaned.images && !cleaned.images.startsWith('/uploads/') && !cleaned.images.startsWith('http')) {
+          cleaned.images = `/uploads/properties/${cleaned.id}/${cleaned.images}`;
+        }
+      }
+      
+      // إصلاح صورة الغلاف
+      if (cleaned.coverImage && !cleaned.coverImage.startsWith('/uploads/') && !cleaned.coverImage.startsWith('http')) {
+        cleaned.coverImage = `/uploads/properties/${cleaned.id}/${cleaned.coverImage}`;
+      }
+      
       return cleaned;
     });
     return res.status(200).json({ items: cleanedItems });

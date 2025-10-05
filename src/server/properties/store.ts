@@ -31,7 +31,57 @@ export function getAll(): Property[] {
 }
 
 export function getById(id: string): Property | null {
-  return getAll().find((x) => x.id === id) || null;
+  const all = getAll();
+  console.log('getById: Looking for ID:', id);
+  console.log('getById: Available IDs:', all.map(p => p.id));
+  console.log('getById: Total properties:', all.length);
+
+  // البحث المباشر
+  let property = all.find((x) => x.id === id);
+  if (property) {
+    console.log('getById: Found by direct match');
+    return property;
+  }
+
+  // البحث بـ referenceNo
+  property = all.find((x) => x.referenceNo === id);
+  if (property) {
+    console.log('getById: Found by referenceNo');
+    return property;
+  }
+
+  // البحث في المصفوفات
+  property = all.find((x) => {
+    if (Array.isArray(x.referenceNo) && x.referenceNo.includes(id)) {
+      return true;
+    }
+    return false;
+  });
+
+  if (property) {
+    console.log('getById: Found in referenceNo array');
+    return property;
+  }
+
+  // البحث بـ ID كرقم (للتوافق مع الأرقام)
+  const numericId = String(Number(id));
+  if (numericId !== 'NaN') {
+    property = all.find((x) => String(x.id) === numericId);
+    if (property) {
+      console.log('getById: Found by numeric ID match');
+      return property;
+    }
+  }
+
+  // البحث الجزئي
+  property = all.find((x) => String(x.id).includes(id) || id.includes(String(x.id)));
+  if (property) {
+    console.log('getById: Found by partial match');
+    return property;
+  }
+
+  console.log('getById: Not found');
+  return null;
 }
 
 export function upsert(doc: Partial<Property>): Property {

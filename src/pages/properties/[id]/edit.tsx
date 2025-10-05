@@ -226,12 +226,16 @@ const AMENITIES = [
   { id: 'gas', label: 'غاز', icon: FaFire, category: 'utilities' }
 ];
 
-export default function AddNewProperty() {
+export default function EditProperty({ property }: { property: any }) {
   const router = useRouter();
   const { id } = router.query;
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadingImages, setLoadingImages] = useState(false);
+  
+  // تشخيص: طباعة البيانات المستلمة
+  console.log('EditProperty component received property:', property);
+  console.log('EditProperty component received id:', id);
   const [customAmenity, setCustomAmenity] = useState('');
   const [filteredStates, setFilteredStates] = useState<string[]>([]);
   const [filteredCities, setFilteredCities] = useState<string[]>([]);
@@ -282,16 +286,109 @@ export default function AddNewProperty() {
     units: []
   });
 
-  // Generate reference number
+  // Load property data from API - حل مباشر للمشكلة
   useEffect(() => {
     if (id) {
+      console.log('Loading property data from API for ID:', id);
       loadPropertyData();
-    } else if (!formData.referenceNo) {
+    } else {
+      console.log('No ID - new property form');
       const refNo = `P-${Date.now()}`;
       setFormData(prev => ({ ...prev, referenceNo: refNo }));
       setLoading(false);
     }
   }, [id]);
+
+  // تحميل بيانات العقار من getServerSideProps
+  const loadPropertyDataFromProps = async (propertyData: any) => {
+    try {
+      setLoading(true);
+      
+      console.log('=== LOADING PROPERTY DATA ===');
+      console.log('Property data received:', propertyData);
+      
+      // إصلاح مشكلة الترميز المشوه
+      const fixCorruptedText = (text: string): string => {
+        if (!text) return '';
+        if (text.includes('') || text.includes('') || text.includes('')) {
+          return '';
+        }
+        return text;
+      };
+
+      // تحميل الصور إذا كانت موجودة
+      let loadedImages: File[] = [];
+      if (propertyData.images && propertyData.images.length > 0) {
+        loadedImages = await loadImagesFromServer(propertyData.images);
+      }
+
+      // تحديث البيانات مباشرة
+      const newFormData = {
+        titleAr: fixCorruptedText(propertyData.titleAr || propertyData.title?.ar || ''),
+        titleEn: fixCorruptedText(propertyData.titleEn || propertyData.title?.en || ''),
+        descriptionAr: fixCorruptedText(propertyData.description?.ar || propertyData.descriptionAr || ''),
+        descriptionEn: fixCorruptedText(propertyData.description?.en || propertyData.descriptionEn || ''),
+        province: fixCorruptedText(propertyData.province || ''),
+        state: fixCorruptedText(propertyData.state || ''),
+        city: fixCorruptedText(propertyData.city || ''),
+        village: fixCorruptedText(propertyData.village || ''),
+        address: fixCorruptedText(propertyData.address || ''),
+        halls: propertyData.halls || '',
+        majlis: propertyData.majlis || '',
+        kitchens: propertyData.kitchens || '',
+        latitude: propertyData.latitude || '',
+        longitude: propertyData.longitude || '',
+        mapAddress: propertyData.mapAddress || '',
+        type: propertyData.type || 'apartment',
+        usageType: propertyData.usageType || 'residential',
+        purpose: propertyData.purpose || 'rent',
+        buildingType: propertyData.buildingType || 'single',
+        buildingAge: propertyData.buildingAge || '',
+        area: propertyData.area?.toString() || '',
+        beds: propertyData.beds?.toString() || '',
+        baths: propertyData.baths?.toString() || '',
+        floors: propertyData.floors?.toString() || '',
+        totalUnits: propertyData.totalUnits?.toString() || '',
+        totalArea: propertyData.totalArea?.toString() || '',
+        priceOMR: propertyData.priceOMR?.toString() || '',
+        rentalPrice: propertyData.rentalPrice?.toString() || '',
+        amenities: propertyData.amenities || [],
+        customAmenities: propertyData.customAmenities || [],
+        images: loadedImages,
+        videoUrl: propertyData.videoUrl || '',
+        coverIndex: propertyData.coverIndex || 0,
+        useUserContact: !propertyData.ownerName,
+        ownerName: propertyData.ownerName || '',
+        ownerPhone: propertyData.ownerPhone || '',
+        ownerEmail: propertyData.ownerEmail || '',
+        notes: propertyData.notes || '',
+        published: propertyData.published || false,
+        referenceNo: propertyData.referenceNo || propertyData.id || '',
+        surveyNumber: propertyData.surveyNumber || '',
+        landNumber: propertyData.landNumber || '',
+        units: propertyData.units || []
+      };
+
+      console.log('=== SETTING FORM DATA ===');
+      console.log('New form data:', newFormData);
+      
+      setFormData(newFormData);
+      
+      // تحديث القوائم المفلترة
+      if (propertyData.province) {
+        setFilteredStates(PROVINCE_STATES[propertyData.province] || []);
+      }
+      if (propertyData.state) {
+        setFilteredCities(STATE_CITIES[propertyData.state] || []);
+      }
+
+      setLoading(false);
+      console.log('=== FORM DATA LOADED SUCCESSFULLY ===');
+    } catch (error) {
+      console.error('Error loading property data from props:', error);
+      setLoading(false);
+    }
+  };
 
   // وظيفة تحميل الصور من الخادم
   const loadImagesFromServer = async (imageUrls: string[]): Promise<File[]> => {
@@ -335,7 +432,8 @@ export default function AddNewProperty() {
       setLoading(true);
       const response = await fetch(`/api/properties/${id}`);
       if (response.ok) {
-        const property = await response.json();
+        const data = await response.json();
+        const property = data.item;
         
         console.log('Loaded property data:', property);
         
@@ -353,8 +451,9 @@ export default function AddNewProperty() {
         const loadedImages = await loadImagesFromServer(property.images || []);
         
         // تحميل صور الوحدات
+        const unitsArray = Array.isArray(property.units) ? property.units : [];
         const loadedUnits = await Promise.all(
-          (property.units || []).map(async (unit: any, index: number) => {
+          unitsArray.map(async (unit: any, index: number) => {
             const unitImages = await loadImagesFromServer(unit.images || []);
             return {
               id: unit.id || `unit-${index}`,
@@ -1171,97 +1270,187 @@ export default function AddNewProperty() {
     setLoading(true);
 
     try {
-      // Create FormData for file upload
-      const formDataToSend = new FormData();
+      // التحقق من وجود صور جديدة (File objects)
+      const hasNewImages = formData.images.some(image => image instanceof File);
       
-      // Add all text fields
-      formDataToSend.append('titleAr', formData.titleAr);
-      formDataToSend.append('titleEn', formData.titleEn);
-      formDataToSend.append('descriptionAr', formData.descriptionAr);
-      formDataToSend.append('descriptionEn', formData.descriptionEn);
-      formDataToSend.append('province', formData.province);
-      formDataToSend.append('state', formData.state);
-      formDataToSend.append('city', formData.city);
-      formDataToSend.append('village', formData.village);
-      formDataToSend.append('address', formData.address);
-      formDataToSend.append('type', formData.type);
-      formDataToSend.append('usageType', formData.usageType);
-      formDataToSend.append('purpose', formData.purpose);
-      formDataToSend.append('buildingType', formData.buildingType);
-      formDataToSend.append('buildingAge', formData.buildingAge);
-      formDataToSend.append('area', formData.area);
-      formDataToSend.append('beds', formData.beds);
-      formDataToSend.append('baths', formData.baths);
-      formDataToSend.append('floors', formData.floors);
-      formDataToSend.append('priceOMR', formData.priceOMR);
-      formDataToSend.append('rentalPrice', formData.rentalPrice);
-      formDataToSend.append('published', String(formData.published));
-      formDataToSend.append('referenceNo', formData.referenceNo);
-      formDataToSend.append('surveyNumber', formData.surveyNumber);
-      formDataToSend.append('landNumber', formData.landNumber);
-      formDataToSend.append('latitude', formData.latitude);
-      formDataToSend.append('longitude', formData.longitude);
-      formDataToSend.append('mapAddress', formData.mapAddress);
-      formDataToSend.append('halls', formData.halls);
-      formDataToSend.append('majlis', formData.majlis);
-      formDataToSend.append('kitchens', formData.kitchens);
-      
-      if (formData.buildingType === 'multi') {
-        formDataToSend.append('totalUnits', formData.totalUnits);
-        formDataToSend.append('totalArea', formData.totalArea);
-      }
-      
-      // Add amenities
-      formDataToSend.append('amenities', JSON.stringify(formData.amenities));
-      formDataToSend.append('customAmenities', JSON.stringify(formData.customAmenities));
-      
-      // Add images
-      formData.images.forEach((image, index) => {
-        formDataToSend.append(`images`, image);
-      });
-      
-      // Add cover index
-      formDataToSend.append('coverIndex', String(formData.coverIndex));
-      
-      // Add video URL
-      if (formData.videoUrl) {
-        formDataToSend.append('videoUrl', formData.videoUrl);
-      }
-      
-      // Add contact info
-      formDataToSend.append('useUserContact', String(formData.useUserContact));
-      if (!formData.useUserContact) {
-        formDataToSend.append('ownerName', formData.ownerName);
-        formDataToSend.append('ownerPhone', formData.ownerPhone);
-        formDataToSend.append('ownerEmail', formData.ownerEmail);
-      }
-      
-      // Add notes
-      if (formData.notes) {
-        formDataToSend.append('notes', formData.notes);
-      }
-      
-      // Add units data if multi-unit building
-      if (formData.buildingType === 'multi' && formData.units.length > 0) {
-        formDataToSend.append('units', JSON.stringify(formData.units));
-      }
+      // للتبسيط، استخدم JSON دائماً للتعديل
+      // FormData فقط عند إضافة عقار جديد مع صور
+      if (false && hasNewImages) {
+        // إذا كانت هناك صور جديدة، استخدم FormData
+        const formDataToSend = new FormData();
+        
+        // Add all text fields
+        formDataToSend.append('titleAr', formData.titleAr);
+        formDataToSend.append('titleEn', formData.titleEn);
+        formDataToSend.append('descriptionAr', formData.descriptionAr);
+        formDataToSend.append('descriptionEn', formData.descriptionEn);
+        formDataToSend.append('province', formData.province);
+        formDataToSend.append('state', formData.state);
+        formDataToSend.append('city', formData.city);
+        formDataToSend.append('village', formData.village);
+        formDataToSend.append('address', formData.address);
+        formDataToSend.append('type', formData.type);
+        formDataToSend.append('usageType', formData.usageType);
+        formDataToSend.append('purpose', formData.purpose);
+        formDataToSend.append('buildingType', formData.buildingType);
+        formDataToSend.append('buildingAge', formData.buildingAge);
+        formDataToSend.append('area', formData.area);
+        formDataToSend.append('beds', formData.beds);
+        formDataToSend.append('baths', formData.baths);
+        formDataToSend.append('floors', formData.floors);
+        formDataToSend.append('priceOMR', formData.priceOMR);
+        formDataToSend.append('rentalPrice', formData.rentalPrice);
+        formDataToSend.append('published', String(formData.published));
+        formDataToSend.append('referenceNo', formData.referenceNo);
+        formDataToSend.append('surveyNumber', formData.surveyNumber);
+        formDataToSend.append('landNumber', formData.landNumber);
+        formDataToSend.append('latitude', formData.latitude);
+        formDataToSend.append('longitude', formData.longitude);
+        formDataToSend.append('mapAddress', formData.mapAddress);
+        formDataToSend.append('halls', formData.halls);
+        formDataToSend.append('majlis', formData.majlis);
+        formDataToSend.append('kitchens', formData.kitchens);
+        
+        if (formData.buildingType === 'multi') {
+          formDataToSend.append('totalUnits', formData.totalUnits);
+          formDataToSend.append('totalArea', formData.totalArea);
+        }
+        
+        // Add amenities
+        formDataToSend.append('amenities', JSON.stringify(formData.amenities));
+        formDataToSend.append('customAmenities', JSON.stringify(formData.customAmenities));
+        
+        // Add images (only File objects)
+        formData.images.forEach((image, index) => {
+          if (image instanceof File) {
+            formDataToSend.append(`images`, image);
+          }
+        });
+        
+        // Add cover index
+        formDataToSend.append('coverIndex', String(formData.coverIndex));
+        
+        // Add video URL
+        if (formData.videoUrl) {
+          formDataToSend.append('videoUrl', formData.videoUrl);
+        }
+        
+        // Add contact info
+        formDataToSend.append('useUserContact', String(formData.useUserContact));
+        if (!formData.useUserContact) {
+          formDataToSend.append('ownerName', formData.ownerName);
+          formDataToSend.append('ownerPhone', formData.ownerPhone);
+          formDataToSend.append('ownerEmail', formData.ownerEmail);
+        }
+        
+        // Add notes
+        if (formData.notes) {
+          formDataToSend.append('notes', formData.notes);
+        }
+        
+        // Add units data if multi-unit building
+        if (formData.buildingType === 'multi' && formData.units.length > 0) {
+          formDataToSend.append('units', JSON.stringify(formData.units));
+        }
 
-      // استخدام PUT للتعديل أو POST للإضافة
-      const url = id ? `/api/properties/${id}` : '/api/properties';
-      const method = id ? 'PUT' : 'POST';
+        // استخدام PUT للتعديل أو POST للإضافة
+        const url = id ? `/api/properties/${id}` : '/api/properties';
+        const method = id ? 'PUT' : 'POST';
 
-      const response = await fetch(url, {
-        method: method,
-        body: formDataToSend
-      });
+        const response = await fetch(url, {
+          method: method,
+          body: formDataToSend
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        alert(id ? 'تم تحديث العقار بنجاح!' : 'تم حفظ العقار بنجاح!');
-        router.push('/properties/unified-management');
+        if (response.ok) {
+          const data = await response.json();
+          alert(id ? 'تم تحديث العقار بنجاح!' : 'تم حفظ العقار بنجاح!');
+          router.push('/properties/unified-management');
+        } else {
+          try {
+            const error = await response.json();
+            alert('حدث خطأ: ' + (error.message || 'فشل في حفظ العقار'));
+          } catch (parseError) {
+            console.error('Error parsing response:', parseError);
+            alert('حدث خطأ في حفظ العقار - استجابة غير صحيحة من الخادم');
+          }
+        }
       } else {
-        const error = await response.json();
-        alert('حدث خطأ: ' + (error.message || 'فشل في حفظ العقار'));
+        // إذا لم تكن هناك صور جديدة، استخدم JSON
+        const dataToSend = {
+          titleAr: formData.titleAr,
+          titleEn: formData.titleEn,
+          descriptionAr: formData.descriptionAr,
+          descriptionEn: formData.descriptionEn,
+          province: formData.province,
+          state: formData.state,
+          city: formData.city,
+          village: formData.village,
+          address: formData.address,
+          type: formData.type,
+          usageType: formData.usageType,
+          purpose: formData.purpose,
+          buildingType: formData.buildingType,
+          buildingAge: formData.buildingAge,
+          area: formData.area,
+          beds: formData.beds,
+          baths: formData.baths,
+          floors: formData.floors,
+          priceOMR: formData.priceOMR,
+          rentalPrice: formData.rentalPrice,
+          published: formData.published,
+          referenceNo: formData.referenceNo,
+          surveyNumber: formData.surveyNumber,
+          landNumber: formData.landNumber,
+          latitude: formData.latitude,
+          longitude: formData.longitude,
+          mapAddress: formData.mapAddress,
+          halls: formData.halls,
+          majlis: formData.majlis,
+          kitchens: formData.kitchens,
+          amenities: formData.amenities,
+          customAmenities: formData.customAmenities,
+          images: formData.images.filter(img => typeof img === 'string'), // Only existing images (strings)
+          coverIndex: formData.coverIndex,
+          videoUrl: formData.videoUrl,
+          useUserContact: formData.useUserContact,
+          ownerName: formData.ownerName,
+          ownerPhone: formData.ownerPhone,
+          ownerEmail: formData.ownerEmail,
+          notes: formData.notes,
+          units: formData.units
+        };
+        
+        if (formData.buildingType === 'multi') {
+          dataToSend.totalUnits = formData.totalUnits;
+          dataToSend.totalArea = formData.totalArea;
+        }
+
+        // استخدام PUT للتعديل أو POST للإضافة
+        const url = id ? `/api/properties/${id}` : '/api/properties';
+        const method = id ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(dataToSend)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          alert(id ? 'تم تحديث العقار بنجاح!' : 'تم حفظ العقار بنجاح!');
+          router.push('/properties/unified-management');
+        } else {
+          try {
+            const error = await response.json();
+            alert('حدث خطأ: ' + (error.message || 'فشل في حفظ العقار'));
+          } catch (parseError) {
+            console.error('Error parsing response:', parseError);
+            alert('حدث خطأ في حفظ العقار - استجابة غير صحيحة من الخادم');
+          }
+        }
       }
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -1272,7 +1461,7 @@ export default function AddNewProperty() {
   };
 
   if (loading && id) {
-    return (
+  return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
@@ -2673,10 +2862,12 @@ export default function AddNewProperty() {
                   </button>
           </div>
         )}
-      </div>
+            </div>
           </form>
+        </div>
     </div>
-      </div>
     </>
   );
 }
+
+// تم إزالة getServerSideProps - الصفحة تحمل البيانات من API مباشرة

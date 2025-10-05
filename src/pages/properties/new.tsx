@@ -1014,10 +1014,27 @@ export default function AddNewProperty() {
     setLoading(true);
     
     try {
-      // Here you would implement the actual submission logic
-      console.log('Form submitted:', formData);
-      alert('تم حفظ العقار بنجاح!');
-      router.push('/properties/unified-management');
+      // إرسال البيانات إلى API
+      const response = await fetch('/api/properties', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          published: formData.published,
+          status: formData.published ? 'vacant' : 'draft'
+        })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Property saved successfully:', result);
+        alert('تم حفظ العقار بنجاح!');
+        router.push('/properties/unified-management');
+      } else {
+        const error = await response.json();
+        console.error('Error saving property:', error);
+        alert('حدث خطأ أثناء حفظ العقار: ' + (error.error || 'خطأ غير معروف'));
+      }
     } catch (error) {
       console.error('Error submitting form:', error);
       alert('حدث خطأ أثناء حفظ العقار');
@@ -2381,9 +2398,37 @@ export default function AddNewProperty() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       setFormData(prev => ({ ...prev, published: false }));
-                      handleSubmit(new Event('submit') as any);
+                      setLoading(true);
+                      
+                      try {
+                        const response = await fetch('/api/properties', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            ...formData,
+                            published: false,
+                            status: 'draft'
+                          })
+                        });
+                        
+                        if (response.ok) {
+                          const result = await response.json();
+                          console.log('Property saved as draft:', result);
+                          alert('تم حفظ العقار كمسودة!');
+                          router.push('/properties/unified-management');
+                        } else {
+                          const error = await response.json();
+                          console.error('Error saving draft:', error);
+                          alert('حدث خطأ أثناء حفظ المسودة: ' + (error.error || 'خطأ غير معروف'));
+                        }
+                      } catch (error) {
+                        console.error('Error saving draft:', error);
+                        alert('حدث خطأ أثناء حفظ المسودة');
+                      } finally {
+                        setLoading(false);
+                      }
                     }}
                     className="px-4 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors"
                   >
