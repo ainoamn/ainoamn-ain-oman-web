@@ -1189,7 +1189,7 @@ export default function UnifiedPropertyManagement() {
                                 <div className="flex-1">
                                   <div className="text-sm font-medium text-gray-900">
                                     <Link 
-                                      href={`/properties/${property.id}`}
+                                      href={`/properties/${property.referenceNo || property.id}`}
                                       className="hover:text-blue-600 transition-colors"
                                       title="عرض تفاصيل العقار"
                                     >
@@ -1258,21 +1258,21 @@ export default function UnifiedPropertyManagement() {
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                               <div className="flex items-center space-x-2">
                                 <Link
-                                  href={`/properties/${property.id}`}
+                                  href={`/properties/${property.referenceNo || property.id}`}
                                   className="text-blue-600 hover:text-blue-900 p-1 rounded transition-colors"
                                   title="عرض تفاصيل العقار"
                                 >
                                   <FaEye />
                                 </Link>
                                 <Link
-                                  href={`/properties/${property.id}/edit`}
+                                  href={`/properties/${property.referenceNo || property.id}/edit`}
                                   className="text-green-600 hover:text-green-900 p-1 rounded transition-colors"
                                   title="تعديل العقار"
                                 >
                                   <FaEdit />
                                 </Link>
                                 <Link
-                                  href={`/property/${property.id}/admin`}
+                                  href={`/property/${property.referenceNo || property.id}/admin`}
                                   className="text-purple-600 hover:text-purple-900 p-1 rounded transition-colors"
                                   title="إدارة العقار"
                                 >
@@ -1384,7 +1384,7 @@ export default function UnifiedPropertyManagement() {
                           <div className="flex-1">
                             <h3 className="text-lg font-semibold text-gray-900 mb-1">
                               <Link 
-                                href={`/properties/${property.id}`}
+                                href={`/properties/${property.referenceNo || property.id}`}
                                 className="hover:text-blue-600 transition-colors"
                                 title="عرض تفاصيل العقار"
                               >
@@ -1455,7 +1455,7 @@ export default function UnifiedPropertyManagement() {
                         {/* Actions */}
                         <div className="flex space-x-2">
                           <Link
-                            href={`/properties/${property.id}`}
+                            href={`/properties/${property.referenceNo || property.id}`}
                             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
                             title="عرض تفاصيل العقار"
                           >
@@ -1463,7 +1463,7 @@ export default function UnifiedPropertyManagement() {
                             عرض
                           </Link>
                           <Link
-                            href={`/properties/${property.id}/edit`}
+                            href={`/properties/${property.referenceNo || property.id}/edit`}
                             className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
                             title="تعديل العقار"
                           >
@@ -1471,7 +1471,7 @@ export default function UnifiedPropertyManagement() {
                             تعديل
                           </Link>
                           <Link
-                            href={`/property/${property.id}/admin`}
+                            href={`/property/${property.referenceNo || property.id}/admin`}
                             className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
                             title="إدارة العقار"
                           >
