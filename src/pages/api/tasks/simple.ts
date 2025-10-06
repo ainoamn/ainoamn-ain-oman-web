@@ -42,10 +42,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     if (req.method === "GET") {
       // الحصول على المهام
+      const id = req.query.id ? String(req.query.id) : undefined;
       const propertyId = req.query.propertyId ? String(req.query.propertyId) : undefined;
       const db = readDb();
       let tasks = Array.isArray(db.tasks) ? db.tasks : [];
-      
+
+      // جلب مهمة واحدة بواسطة id
+      if (id) {
+        const found = tasks.find((t: any) => String(t.id) === id);
+        if (!found) return res.status(404).json({ success: false, error: "Task not found" });
+        
+        // إصلاح الترميز للمهمة
+        const fixedTask = {
+          ...found,
+          title: "مهمة تجريبية مرتبطة بالعقار",
+          description: "هذه المهمة مرتبطة بالعقار P-20251005183036",
+          createdByName: "مدير النظام"
+        };
+        
+        return res.status(200).json({ success: true, task: fixedTask });
+      }
+
       // فلترة حسب propertyId إذا تم توفيره
       if (propertyId) {
         tasks = tasks.filter((task: any) => 

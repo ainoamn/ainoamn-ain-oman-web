@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+// Header and Footer are now handled by MainLayout in _app.tsx
 import { FaBed, FaBath, FaRulerCombined, FaStar, FaBolt, FaMapMarkerAlt, FaHeart, FaEye, FaSearch, FaMoneyBillWave, FaBuilding, FaHouseUser } from 'react-icons/fa';
 
 // ---- i18n fallback ----
@@ -335,8 +334,6 @@ export default function HomePage() {
         <title>عين عمان - بوابة العقارات الأولى في سلطنة عمان</title>
         <meta name="description" content="اكتشف أفضل العقارات في سلطنة عمان. ابحث عن شقق، فلل، مكاتب، وأراضي للبيع والإيجار." />
       </Head>
-
-      <Header />
       
       {/* Hero Section مع شريط البحث المتقدم */}
       <section className="relative py-20 lg:py-32" style={heroStyles}>
@@ -642,7 +639,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

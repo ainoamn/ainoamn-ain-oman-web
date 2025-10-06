@@ -27,8 +27,13 @@ export function readDb(): DbShape {
 function fixEncoding(obj: any): any {
   if (typeof obj === 'string') {
     try {
+      // إصلاح النصوص المشوهة
       if (obj.includes('?.??,?')) {
         return 'مسقط'; // قيمة افتراضية للمحافظة
+      }
+      // إصلاح النصوص المشوهة الأخرى
+      if (obj.includes('') || obj.includes('ꩢ') || obj.includes('矩')) {
+        return obj.replace(/[^\u0000-\u007F\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g, '');
       }
       return obj; // لا نغير النصوص العادية
     } catch {

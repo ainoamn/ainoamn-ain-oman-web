@@ -10,10 +10,10 @@ export default function TaskStatusPill({
   priority: "low" | "medium" | "high" | "urgent" | string;
 }) {
   const color =
-    priority === "urgent" ? "bg-red-100 text-red-700 ring-red-200" :
-    priority === "high"   ? "bg-orange-100 text-orange-700 ring-orange-200" :
-    priority === "medium" ? "bg-amber-100 text-amber-700 ring-amber-200" :
-                            "bg-emerald-100 text-emerald-700 ring-emerald-200"; // low
+    priority === "urgent" ? "bg-red-100/80 text-red-700 ring-red-200" :
+    priority === "high"   ? "bg-orange-100/80 text-orange-700 ring-orange-200" :
+    priority === "medium" ? "bg-amber-100/80 text-amber-700 ring-amber-200" :
+                            "bg-emerald-100/80 text-emerald-700 ring-emerald-200"; // low
 
   const labelStatus =
     status === "done" ? "منجزة" :
@@ -25,17 +25,12 @@ export default function TaskStatusPill({
     priority === "medium" ? "متوسطة" : "منخفضة";
 
   return (
-    <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs ring-1 ${color}`}>
+    <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] ring-1 ${color} backdrop-blur`}
+      title={`الحالة: ${labelStatus} • الأولوية: ${labelPriority}`}>
+      <span className="inline-flex w-1.5 h-1.5 rounded-full bg-current opacity-60" />
       <span>{labelStatus}</span>
-      <span className="opacity-60">•</span>
-      <span>{labelPriority}</span>
+      <span className="opacity-50">•</span>
+      <span className="font-medium">{labelPriority}</span>
     </span>
   );
 }
-ضعها بجانب عنوان المهمة في محرّر /admin/tasks، مثال:
-
-<h1 className="text-xl font-bold">{task.title}</h1>
-<div className="mt-1">
-  <TaskStatusPill status={task.status} priority={task.priority} />
-</div>
-3) شريط فلاتر متقدّم مع حفظ محلي

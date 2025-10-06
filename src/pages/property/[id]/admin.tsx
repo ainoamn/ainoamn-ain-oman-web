@@ -150,6 +150,8 @@ export default function PropertyAdminPage() {
 
   const [activeTab, setActiveTab] = useState('overview');
 
+  const hdrs = { "x-tenant-id":"TENANT-1","x-user-id":"U1","x-roles":"LAWYER" };
+
   const [property, setProperty] = useState<PropertyDetails | null>(null);
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [invoices, setInvoices] = useState<InvoiceItem[]>([]);
@@ -196,7 +198,7 @@ export default function PropertyAdminPage() {
           fetch(`/api/reviews?${qs}`),
           fetch(`/api/admin/kpis?${qs}`),
           fetch(`/api/ai/valuation?${qs}`),
-          fetch(`/api/legal/cases?${qs}`),
+          fetch(`/api/legal/cases?propertyId=${id}`, { headers: hdrs }),
           fetch(`/api/contracts?${qs}`),
           fetch(`/api/requests?${qs}`),
           fetch(`/api/notifications?${qs}`),
@@ -249,14 +251,28 @@ export default function PropertyAdminPage() {
     const maintenanceTasks = tasks.filter(t => (t.category || '').toLowerCase().includes('maintenance'));
     const legalTasks = tasks.filter(t => (t.category || '').toLowerCase().includes('legal'));
     const avgRating = reviews.length ? (reviews.reduce((a, r) => a + (r.rating || 0), 0) / reviews.length) : 0;
+    
+    // Legal cases statistics
+    const openLegalCases = legalCases.filter(c => c.status === 'OPEN' || c.status === 'IN_PROGRESS');
+    const closedLegalCases = legalCases.filter(c => c.status === 'CLOSED' || c.status === 'RESOLVED');
+    const urgentLegalCases = legalCases.filter(c => c.priority === 'URGENT' || c.priority === 'CRITICAL');
+    const rentalDisputes = legalCases.filter(c => c.type === 'RENTAL_DISPUTE');
+    
     return {
       invoices: { total: invoices.length, unpaid: unpaid.length, paid: paid.length, overdue: overdue.length },
       tasks: { total: tasks.length, open: openTasks.length, maintenance: maintenanceTasks.length, legal: legalTasks.length },
       rentals: { total: rentals.length },
       reservations: { total: reservations.length },
       reviews: { total: reviews.length, avgRating },
+      legal: { 
+        total: legalCases.length, 
+        open: openLegalCases.length, 
+        closed: closedLegalCases.length, 
+        urgent: urgentLegalCases.length,
+        rentalDisputes: rentalDisputes.length
+      },
     };
-  }, [invoices, tasks, rentals, reservations, reviews]);
+  }, [invoices, tasks, rentals, reservations, reviews, legalCases]);
 
   const TABS: { id: string; label: string; icon: any }[] = [
     { id: 'overview', label: 'نظرة عامة', icon: FaChartLine },
@@ -412,7 +428,7 @@ export default function PropertyAdminPage() {
                 {/* KPIs */}
                 <div className="lg:col-span-2 space-y-6">
                   <SectionCard title="المؤشرات الرئيسية" icon={<FaChartLine />}>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                       <div className="bg-blue-50 rounded-lg p-4">
                         <div className="text-sm text-gray-600 mb-1">فواتير غير مدفوعة</div>
                         <div className="text-2xl font-extrabold text-blue-700">{stats.invoices.unpaid}</div>
@@ -437,10 +453,22 @@ export default function PropertyAdminPage() {
                         <div className="text-sm text-gray-600 mb-1">متوسط التقييم</div>
                         <div className="text-2xl font-extrabold text-indigo-700">{stats.reviews.avgRating.toFixed(1)}</div>
                       </div>
+                      <div className="bg-red-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600 mb-1">القضايا القانونية</div>
+                        <div className="text-2xl font-extrabold text-red-700">{stats.legal.total}</div>
+                      </div>
+                      <div className="bg-orange-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600 mb-1">قضايا عاجلة</div>
+                        <div className="text-2xl font-extrabold text-orange-700">{stats.legal.urgent}</div>
+                      </div>
+                      <div className="bg-teal-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600 mb-1">نزاعات إيجار</div>
+                        <div className="text-2xl font-extrabold text-teal-700">{stats.legal.rentalDisputes}</div>
+                      </div>
                     </div>
                   </SectionCard>
 
-                  <SectionCard title="المهام الأخيرة" icon={<FaTasks />} action={<Link href={`/properties/${id}/edit`} className="text-blue-700 hover:underline">إدارة العقار</Link>}>
+                  <SectionCard title="المهام الأخيرة" icon={<FaTasks />} action={<Link href={`/admin/tasks?propertyId=${id}`} className="text-blue-700 hover:underline">عرض كل المهام</Link>}>
                     {tasks.length === 0 ? (
                       <div className="text-gray-500">لا توجد مهام حاليا</div>
                     ) : (
@@ -453,6 +481,7 @@ export default function PropertyAdminPage() {
                               <th className="py-2 text-right">الأولوية</th>
                               <th className="py-2 text-right">الفئة</th>
                               <th className="py-2 text-right">تحديث</th>
+                              <th className="py-2 text-right">إجراءات</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -463,10 +492,84 @@ export default function PropertyAdminPage() {
                                 <td className="py-2">{t.priority || '-'}</td>
                                 <td className="py-2">{t.category || '-'}</td>
                                 <td className="py-2 text-gray-500">{t.updatedAt || t.createdAt || '-'}</td>
+                                <td className="py-2">
+                                  <Link href={`/admin/tasks/${encodeURIComponent(t.id)}`} className="text-blue-600 hover:underline">فتح</Link>
+                                </td>
                               </tr>
                             ))}
                           </tbody>
                         </table>
+                      </div>
+                    )}
+                  </SectionCard>
+
+                  <SectionCard title="القضايا القانونية" icon={<FaBalanceScale />} action={<Link href={`/legal?propertyId=${id}`} className="text-blue-700 hover:underline">عرض كل القضايا</Link>}>
+                    {legalCases.length === 0 ? (
+                      <div className="text-center py-4">
+                        <div className="text-gray-500 mb-3">لا توجد قضايا قانونية</div>
+                        <Link href={`/legal/new?propertyId=${id}`} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                          <FaBalanceScale />
+                          إضافة قضية جديدة
+                        </Link>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {legalCases.slice(0, 5).map((case_: any) => (
+                          <div key={case_.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-medium text-gray-900">{case_.title}</h4>
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  case_.status === 'OPEN' ? 'bg-green-100 text-green-800' :
+                                  case_.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
+                                  case_.status === 'CLOSED' ? 'bg-gray-100 text-gray-800' :
+                                  'bg-yellow-100 text-yellow-800'
+                                }`}>
+                                  {case_.status === 'OPEN' ? 'مفتوحة' :
+                                   case_.status === 'IN_PROGRESS' ? 'قيد العمل' :
+                                   case_.status === 'CLOSED' ? 'مغلقة' : case_.status}
+                                </span>
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  case_.priority === 'URGENT' ? 'bg-red-100 text-red-800' :
+                                  case_.priority === 'HIGH' ? 'bg-orange-100 text-orange-800' :
+                                  case_.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {case_.priority === 'URGENT' ? 'عاجلة' :
+                                   case_.priority === 'HIGH' ? 'عالية' :
+                                   case_.priority === 'MEDIUM' ? 'متوسطة' : 'منخفضة'}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600">
+                                {case_.type === 'RENTAL_DISPUTE' ? 'نزاع إيجار' : 
+                                 case_.type === 'PAYMENT_DISPUTE' ? 'نزاع دفع' :
+                                 case_.type === 'CONTRACT_BREACH' ? 'خرق عقد' :
+                                 case_.type === 'PROPERTY_DAMAGE' ? 'تلف عقار' :
+                                 case_.type === 'EVICTION' ? 'إخلاء' :
+                                 case_.type === 'MAINTENANCE' ? 'صيانة' :
+                                 case_.type === 'INSURANCE' ? 'تأمين' : 'أخرى'}
+                                - {case_.stage}
+                              </p>
+                              {case_.aiInsights && (
+                                <div className="mt-2 flex items-center gap-2 text-xs text-blue-600">
+                                  <FaBrain />
+                                  <span>تحليل ذكي متاح</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Link href={`/legal/${case_.id}`} className="text-blue-600 hover:underline text-sm font-medium">
+                                فتح
+                              </Link>
+                            </div>
+                          </div>
+                        ))}
+                        <div className="pt-3 border-t">
+                          <Link href={`/legal/new?propertyId=${id}`} className="inline-flex items-center gap-2 text-blue-600 hover:underline text-sm font-medium">
+                            <FaBalanceScale />
+                            إضافة قضية جديدة
+                          </Link>
+                        </div>
                       </div>
                     )}
                   </SectionCard>
@@ -549,6 +652,7 @@ export default function PropertyAdminPage() {
                         <th className="py-2 text-right">الحالة</th>
                         <th className="py-2 text-right">الفئة</th>
                         <th className="py-2 text-right">تحديث</th>
+                        <th className="py-2 text-right">إجراءات</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -558,6 +662,9 @@ export default function PropertyAdminPage() {
                           <td className="py-2">{t.status || 'open'}</td>
                           <td className="py-2">{t.category || '-'}</td>
                           <td className="py-2 text-gray-500">{t.updatedAt || t.createdAt || '-'}</td>
+                          <td className="py-2">
+                            <Link href={`/admin/tasks/${encodeURIComponent(t.id)}`} className="text-blue-600 hover:underline">فتح</Link>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -678,20 +785,110 @@ export default function PropertyAdminPage() {
             )}
 
             {activeTab === 'legal' && (
-              <SectionCard title="الشؤون القانونية" icon={<FaBalanceScale />}>
-                {tasks.filter(t => (t.category || '').toLowerCase().includes('legal')).length === 0 ? (
-                  <div className="text-gray-500">لا توجد مواضيع قانونية</div>
-                ) : (
-                  <ul className="space-y-2">
-                    {tasks.filter(t => (t.category || '').toLowerCase().includes('legal')).map(t => (
-                      <li key={t.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="font-medium text-gray-900">{t.title}</div>
-                        <div className="text-sm text-gray-600">{t.status || 'open'}</div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </SectionCard>
+              <div className="space-y-6">
+                <SectionCard title="القضايا القانونية" icon={<FaBalanceScale />} action={<Link href={`/legal?propertyId=${id}`} className="text-blue-700 hover:underline">عرض جميع القضايا</Link>}>
+                  {legalCases.length === 0 ? (
+                    <div className="text-center py-8">
+                      <div className="text-gray-500 mb-4">لا توجد قضايا قانونية لهذا العقار</div>
+                      <Link href={`/legal/new?propertyId=${id}`} className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <FaBalanceScale />
+                        إضافة قضية جديدة
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {legalCases.map((case_: any) => (
+                        <div key={case_.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-gray-900 mb-2">{case_.title}</h3>
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  case_.status === 'OPEN' ? 'bg-green-100 text-green-800' :
+                                  case_.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
+                                  case_.status === 'CLOSED' ? 'bg-gray-100 text-gray-800' :
+                                  'bg-yellow-100 text-yellow-800'
+                                }`}>
+                                  {case_.status === 'OPEN' ? 'مفتوحة' :
+                                   case_.status === 'IN_PROGRESS' ? 'قيد العمل' :
+                                   case_.status === 'CLOSED' ? 'مغلقة' : case_.status}
+                                </span>
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  case_.priority === 'URGENT' ? 'bg-red-100 text-red-800' :
+                                  case_.priority === 'HIGH' ? 'bg-orange-100 text-orange-800' :
+                                  case_.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {case_.priority === 'URGENT' ? 'عاجلة' :
+                                   case_.priority === 'HIGH' ? 'عالية' :
+                                   case_.priority === 'MEDIUM' ? 'متوسطة' : 'منخفضة'}
+                                </span>
+                                <span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                  {case_.type === 'RENTAL_DISPUTE' ? 'نزاع إيجار' : 
+                                   case_.type === 'PAYMENT_DISPUTE' ? 'نزاع دفع' :
+                                   case_.type === 'CONTRACT_BREACH' ? 'خرق عقد' :
+                                   case_.type === 'PROPERTY_DAMAGE' ? 'تلف عقار' :
+                                   case_.type === 'EVICTION' ? 'إخلاء' :
+                                   case_.type === 'MAINTENANCE' ? 'صيانة' :
+                                   case_.type === 'INSURANCE' ? 'تأمين' : 'أخرى'}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600 mb-2">
+                                المرحلة: {case_.stage} • تاريخ الإنشاء: {new Date(case_.createdAt).toLocaleDateString('ar-SA')}
+                              </p>
+                              {case_.description && (
+                                <p className="text-sm text-gray-700 mb-3">{case_.description}</p>
+                              )}
+                              {case_.aiInsights && (
+                                <div className="flex items-center gap-2 text-sm text-blue-600 mb-2">
+                                  <FaBrain />
+                                  <span>تحليل ذكي متاح - احتمالية النجاح: {case_.aiInsights.successProbability}%</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Link href={`/legal/${case_.id}`} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                فتح القضية
+                              </Link>
+                            </div>
+                          </div>
+                          {case_.propertyReference && (
+                            <div className="border-t pt-3 mt-3">
+                              <div className="text-sm text-gray-600">
+                                <strong>العقار المرتبط:</strong> {case_.propertyReference.propertyTitle || case_.propertyReference.propertyId}
+                                {case_.propertyReference.address && (
+                                  <span className="ml-2">• {case_.propertyReference.address}</span>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </SectionCard>
+
+                <SectionCard title="إحصائيات القضايا" icon={<FaChartLine />}>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-blue-50 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-blue-700">{stats.legal.total}</div>
+                      <div className="text-sm text-gray-600">إجمالي القضايا</div>
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-green-700">{stats.legal.open}</div>
+                      <div className="text-sm text-gray-600">قضايا مفتوحة</div>
+                    </div>
+                    <div className="bg-orange-50 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-orange-700">{stats.legal.urgent}</div>
+                      <div className="text-sm text-gray-600">قضايا عاجلة</div>
+                    </div>
+                    <div className="bg-teal-50 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-teal-700">{stats.legal.rentalDisputes}</div>
+                      <div className="text-sm text-gray-600">نزاعات إيجار</div>
+                    </div>
+                  </div>
+                </SectionCard>
+              </div>
             )}
 
             {activeTab === 'alerts' && (

@@ -42,7 +42,7 @@ export default function TaskQuickActions({ taskId, status, priority, onChanged }
     finally { setBusy(false); }
   };
 
-  const btn = "rounded-lg px-3 py-1.5 text-xs ring-1 ring-gray-200 hover:bg-gray-50 disabled:opacity-60";
+  const btn = "rounded-lg px-3 py-1.5 text-xs ring-1 ring-gray-200 hover:bg-gray-50 active:scale-[0.99] transition disabled:opacity-60";
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -65,4 +65,3 @@ export default function TaskQuickActions({ taskId, status, priority, onChanged }
     </div>
   );
 }
-2) أزرار التصدير (PDF + ICS)

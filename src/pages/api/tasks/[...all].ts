@@ -5,6 +5,7 @@ import {
   getTask, patchTask, appendThread, addParticipant,
   addAttachment, getAttachmentPath, removeAttachment, transferTask, Person, listTasks
 } from "../../../server/db";
+import path from "path";
 
 export const config = { api: { bodyParser: { sizeLimit: "12mb" } } };
 
@@ -70,8 +71,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (slug.length === 1) {
       const id = slug[0];
       if (req.method === "GET") {
-        const t = getTask(id); if (!t) return bad(res,"Not found",404);
-        return ok(res, t);
+        // جرّب قاعدة البيانات المتقدمة أولًا
+        const t = getTask(id);
+        if (t) return ok(res, t);
+        // توافق: قراءة من قاعدة المهام المبسطة (.data/db.json)
+        try {
+          const dbFile = path.join(process.cwd(), ".data", "db.json");
+          if (fs.existsSync(dbFile)) {
+            const raw = fs.readFileSync(dbFile, "utf8");
+            const db = JSON.parse(raw || "{}");
+            const items: any[] = Array.isArray(db.tasks) ? db.tasks : [];
+            const found = items.find((x:any) => String(x.id) === String(id));
+            if (found) {
+              return ok(res, found);
+            }
+          }
+        } catch {}
+        return bad(res, "Not found", 404);
       }
       if (req.method === "PUT" || req.method === "PATCH") {
         const body = (req.body || {}) as any;

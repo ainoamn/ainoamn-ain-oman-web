@@ -30,6 +30,18 @@ export default function NewTaskPage() {
     setSaving(true);
     setError("");
     try {
+      // جلب بيانات المستخدم لإسناد منشئ المهمة
+      let createdById: string | undefined = undefined;
+      let createdByName: string | undefined = undefined;
+      try {
+        const me = await fetch("/api/auth/me", { cache: "no-store" });
+        if (me.ok) {
+          const j = await me.json();
+          createdById = j?.user?.id || j?.id;
+          createdByName = j?.user?.name || j?.name || j?.email;
+        }
+      } catch {}
+
       const body = {
         title: title || "مهمة جديدة",
         description: description || undefined,
@@ -40,6 +52,8 @@ export default function NewTaskPage() {
         type: "followup",
         propertyId: typeof propertyId === "string" ? propertyId : undefined,
         link: propertyId ? { type: "property", id: propertyId } : undefined,
+        createdById,
+        createdByName,
       };
 
       const res = await fetch("/api/tasks/simple", {

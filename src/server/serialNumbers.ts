@@ -63,3 +63,23 @@ export async function getNextSerialNumber(type: string): Promise<string> {
 export async function getNextSequenceNumber(): Promise<string> {
   return nextSerial("AO-T", "AO-T-");
 }
+
+/** توليد رقم تسلسلي للقضايا القانونية بصيغة LEGAL-000001 */
+export async function getNextLegalCaseNumber(): Promise<string> {
+  return nextSerial("LEGAL", "LEGAL-");
+}
+
+/** توليد رقم تسلسلي للشكاوى بصيغة COMPLAINT-000001 */
+export async function getNextComplaintNumber(): Promise<string> {
+  return nextSerial("COMPLAINT", "COMPLAINT-");
+}
+
+/** توليد رقم تسلسلي للدعاوى القضائية بصيغة CASE-000001 */
+export async function getNextCourtCaseNumber(): Promise<string> {
+  return nextSerial("COURT-CASE", "CASE-");
+}
+
+/** توليد رقم تسلسلي للتحويلات بصيغة TRANSFER-000001 */
+export async function getNextTransferNumber(): Promise<string> {
+  return nextSerial("TRANSFER", "TRANSFER-");
+}

@@ -1,4 +1,3 @@
-// src/components/layout/Header.tsx - Ultra Header Component
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
@@ -102,7 +101,7 @@ interface NotificationItem {
 }
 
 // Main Component
-export default function Header() {
+export default function UltraHeader() {
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -155,6 +154,40 @@ export default function Header() {
         { id: 'commercial', label: 'تجاري', href: '/properties?type=commercial' }
       ]
     },
+    {
+      id: 'legal',
+      label: 'القضايا القانونية',
+      href: '/legal',
+      icon: ScaleIcon,
+      iconSolid: ScaleIconSolid,
+      description: 'إدارة القضايا',
+      badge: 'محدث',
+      isHot: true
+    },
+    {
+      id: 'analytics',
+      label: 'التحليلات',
+      href: '/analytics',
+      icon: ChartBarIcon,
+      iconSolid: ChartBarIconSolid,
+      description: 'تقارير وإحصائيات'
+    },
+    {
+      id: 'users',
+      label: 'المستخدمين',
+      href: '/users',
+      icon: UserGroupIcon,
+      iconSolid: UserGroupIconSolid,
+      description: 'إدارة المستخدمين'
+    },
+    {
+      id: 'documents',
+      label: 'المستندات',
+      href: '/documents',
+      icon: DocumentTextIcon,
+      iconSolid: DocumentTextIconSolid,
+      description: 'إدارة المستندات'
+    }
   ];
 
   // Mock data
