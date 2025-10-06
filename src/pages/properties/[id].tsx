@@ -567,7 +567,7 @@ function PropertyDetailsPage() {
 
   const handleBookAppointment = () => {
     // ربط مع نظام المواعيد
-    router.push(`/appointments/new?propertyId=${id}`);
+    router.push(`/tasks/new?propertyId=${id}`);
   };
 
   const handleBookUnit = () => {

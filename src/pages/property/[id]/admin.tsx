@@ -1,143 +1,880 @@
-import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import React, { useEffect, useMemo, useState } from 'react';
+import Head from 'next/head';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import Layout from '@/components/layout/Layout';
 import {
-  getProperty,
-  createTaskForProperty,
-  referToLegal,
-  createInvoiceForProperty,
-} from "@/lib/api/propertiesCrud";
+  FaChartLine,
+  FaTasks,
+  FaFileInvoiceDollar,
+  FaTools,
+  FaBalanceScale,
+  FaHandHoldingUsd,
+  FaMoneyCheckAlt,
+  FaBell,
+  FaComments,
+  FaBrain,
+  FaChevronRight,
+  FaCalendarAlt,
+  FaHome,
+  FaCog,
+  FaUserShield,
+  FaFileAlt,
+  FaQrcode,
+  FaBuilding,
+  FaMapMarkerAlt,
+  FaIdCard,
+  FaClipboardList,
+  FaUserCheck,
+  FaExclamationTriangle,
+  FaCheckCircle,
+  FaClock,
+  FaDollarSign,
+  FaFileContract,
+  FaEnvelope,
+  FaPhone,
+  FaWhatsapp,
+  FaShareAlt,
+  FaPrint,
+  FaDownload,
+} from 'react-icons/fa';
 
-type T = any;
+type ListResponse<T> = { items: T[] };
 
-export default function PropertyAdmin() {
-  const router = useRouter();
-  const id = String(router.query.id || "");
-  const [item, setItem] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
+type TaskItem = {
+  id: string;
+  title: string;
+  status?: string;
+  priority?: string;
+  category?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
 
-  useEffect(() => {
-    if (!id) return;
-    setLoading(true);
-    getProperty(id)
-      .then((p) => setItem(p))
-      .catch((e) => setErr(String(e?.message || e)))
-      .finally(() => setLoading(false));
-  }, [id]);
+type InvoiceItem = {
+  id: string;
+  serial?: string;
+  propertyId: string;
+  amount: number;
+  status: 'unpaid' | 'paid' | 'canceled';
+  issuedAt?: string;
+  dueAt?: string;
+};
 
-  const title = useMemo(() => {
-    if (item?.title) {
-      if (typeof item.title === 'string') return item.title;
-      if (typeof item.title === 'object' && item.title.ar) return item.title.ar;
-      if (typeof item.title === 'object' && item.title.en) return item.title.en;
-    }
-    return item?.referenceNo || id;
-  }, [item, id]);
+type RentalItem = {
+  id: string;
+  propertyId: string;
+  tenantId: string;
+  amount: number;
+  currency: string;
+  state: string;
+  createdAt: number;
+  updatedAt: number;
+};
 
-  async function quickTask() {
-    const i = prompt("عنوان المهمة؟");
-    if (!i) return;
-    await createTaskForProperty(id, { title: i, status: "open" });
-    alert("تم إنشاء المهمة وربطها بالعقار");
-    router.push(`/tasks?propertyId=${encodeURIComponent(id)}`);
-  }
+type ReservationItem = {
+  id: string;
+  propertyId: string;
+  status?: string;
+  createdAt?: string | number;
+};
 
-  async function quickLegal() {
-    const t = prompt("عنوان القضية/الإحالة؟");
-    if (!t) return;
-    await referToLegal(id, { title: t, status: "OPEN", stage: "NEW" });
-    alert("تم إحالة العقار إلى النظام القانوني");
-    router.push(`/legal?propertyId=${encodeURIComponent(id)}`);
-  }
+type ReviewItem = {
+  id: string;
+  propertyId: string;
+  rating: number;
+  userName?: string;
+  comment?: string;
+  date?: string;
+};
 
-  async function quickInvoice() {
-    const totalStr = prompt("المبلغ الإجمالي للفاتورة؟");
-    if (!totalStr) return;
-    const total = Number(totalStr);
-    if (!Number.isFinite(total)) return alert("قيمة غير صالحة");
-    await createInvoiceForProperty(id, { kind: "service", total, currency: "OMR", paid: false });
-    alert("تم إنشاء الفاتورة وربطها بالعقار");
-    router.push(`/billing/invoices?propertyId=${encodeURIComponent(id)}`);
-  }
+type KpiResponse = {
+  ok?: boolean;
+  items?: { id: string; title: string; value: number | string; trend?: number; unit?: string }[];
+};
 
-  if (!id) return <div className="p-6">لا يوجد معرف عقار</div>;
-  if (loading) return <div className="p-6">جار التحميل…</div>;
-  if (err) return <div className="p-6 text-red-600">خطأ: {err}</div>;
-  if (!item) return <div className="p-6">غير موجود</div>;
+type AiValuation = {
+  ok?: boolean;
+  value?: number;
+  pricePerSqm?: number;
+  confidence?: number;
+  notes?: string[];
+};
 
+type PropertyDetails = {
+  id: string;
+  referenceNo?: string;
+  title?: { ar?: string; en?: string } | string;
+  buildingNumber?: string;
+  landNumber?: string;
+  province?: string;
+  state?: string;
+  village?: string;
+  address?: string;
+  coordinates?: { lat?: number; lng?: number };
+  ownerInfo?: {
+    name?: string;
+    phone?: string;
+    email?: string;
+    whatsapp?: string;
+  };
+  qrCode?: string;
+};
+
+const numberFmt = (n: number | string | undefined) => {
+  const v = typeof n === 'string' ? parseFloat(n) : (n ?? 0);
+  if (!isFinite(v)) return '0';
+  return v.toLocaleString();
+};
+
+function SectionCard(props: { title: string; icon: React.ReactNode; action?: React.ReactNode; children?: React.ReactNode }) {
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">إدارة العقار: {title}</h1>
-        <Link href={`/property/${encodeURIComponent(id)}`} className="underline">
-          عرض صفحة العقار
-        </Link>
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+      <div className="flex items-center justify-between p-4 border-b border-gray-100">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+            {props.icon}
+          </div>
+          <h3 className="font-bold text-gray-900">{props.title}</h3>
+        </div>
+        {props.action}
       </div>
-
-      <div className="grid md:grid-cols-3 gap-4">
-        <button onClick={quickTask} className="px-4 py-3 rounded-xl shadow border">
-          + مهمة مرتبطة
-        </button>
-        <button onClick={quickLegal} className="px-4 py-3 rounded-xl shadow border">
-          إحالة للمحاماة
-        </button>
-        <button onClick={quickInvoice} className="px-4 py-3 rounded-xl shadow border">
-          إنشاء فاتورة مرتبطة
-        </button>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6">
-        <Section
-          title="المهام"
-          links={[
-            { href: `/tasks?propertyId=${id}`, label: "كل المهام" },
-            { href: `/tasks/new?propertyId=${id}`, label: "مهمة جديدة" },
-          ]}
-        />
-        <Section
-          title="القضايا القانونية"
-          links={[
-            { href: `/legal?propertyId=${id}`, label: "كل القضايا" },
-            { href: `/legal/new?propertyId=${id}`, label: "قضية جديدة" },
-          ]}
-        />
-        <Section
-          title="الفوترة والحسابات"
-          links={[
-            { href: `/billing/invoices?propertyId=${id}`, label: "فواتير العقار" },
-          ]}
-        />
-        <Section
-          title="المستندات"
-          links={[
-            { href: `/property/${id}/documents`, label: "مستندات العقار" },
-            { href: `/legal/upload?propertyId=${id}`, label: "رفع مستند قانوني" },
-          ]}
-        />
-        <Section
-          title="الطلبات والحجوزات"
-          links={[
-            { href: `/manage-requests?propertyId=${id}`, label: "طلبات الإدارة" },
-            { href: `/reservations?propertyId=${id}`, label: "الحجوزات" },
-          ]}
-        />
-      </div>
+      <div className="p-4">{props.children}</div>
     </div>
   );
 }
 
-function Section({ title, links }: { title: string; links: { href: string; label: string }[] }) {
+export default function PropertyAdminPage() {
+  const router = useRouter();
+  const { id } = router.query;
+
+  const [activeTab, setActiveTab] = useState('overview');
+
+  const [property, setProperty] = useState<PropertyDetails | null>(null);
+  const [tasks, setTasks] = useState<TaskItem[]>([]);
+  const [invoices, setInvoices] = useState<InvoiceItem[]>([]);
+  const [rentals, setRentals] = useState<RentalItem[]>([]);
+  const [reservations, setReservations] = useState<ReservationItem[]>([]);
+  const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [kpis, setKpis] = useState<KpiResponse | null>(null);
+  const [valuation, setValuation] = useState<AiValuation | null>(null);
+  const [legalCases, setLegalCases] = useState<any[]>([]);
+  const [contracts, setContracts] = useState<any[]>([]);
+  const [requests, setRequests] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showQRCode, setShowQRCode] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    (async () => {
+      try {
+        const qs = `propertyId=${encodeURIComponent(String(id))}`;
+
+        // جلب بيانات العقار الأساسية
+        const propertyRes = await fetch(`/api/properties/${id}`);
+        if (propertyRes.ok) {
+          const propertyData = await propertyRes.json();
+          setProperty(propertyData.item || propertyData);
+        }
+
+        const [
+          tasksRes, invoicesRes, rentalsRes, reservationsRes, reviewsRes, 
+          kpisRes, valRes, legalRes, contractsRes, requestsRes, 
+          notificationsRes, calendarRes
+        ] = await Promise.all([
+          fetch(`/api/tasks?${qs}`),
+          fetch(`/api/invoices?${qs}`),
+          fetch(`/api/rentals?${qs}`),
+          fetch(`/api/reservations?${qs}`),
+          fetch(`/api/reviews?${qs}`),
+          fetch(`/api/admin/kpis?${qs}`),
+          fetch(`/api/ai/valuation?${qs}`),
+          fetch(`/api/legal/cases?${qs}`),
+          fetch(`/api/contracts?${qs}`),
+          fetch(`/api/requests?${qs}`),
+          fetch(`/api/notifications?${qs}`),
+          fetch(`/api/calendar/events?${qs}`),
+        ]);
+
+        if (cancelled) return;
+
+        const tasksJson: ListResponse<TaskItem> = await tasksRes.json();
+        const invoicesJson: ListResponse<InvoiceItem> = await invoicesRes.json();
+        const rentalsJson: { items: RentalItem[] } = await rentalsRes.json();
+        const reservationsJson: { items: ReservationItem[] } = await reservationsRes.json();
+        const reviewsJson: { items: ReviewItem[] } = await reviewsRes.json();
+        const kpisJson: KpiResponse = await kpisRes.json();
+        const valJson: AiValuation = await valRes.json();
+        const legalJson = await legalRes.json();
+        const contractsJson = await contractsRes.json();
+        const requestsJson = await requestsRes.json();
+        const notificationsJson = await notificationsRes.json();
+        const calendarJson = await calendarRes.json();
+
+        setTasks(Array.isArray(tasksJson.items) ? tasksJson.items : []);
+        setInvoices(Array.isArray(invoicesJson.items) ? invoicesJson.items : []);
+        setRentals(Array.isArray(rentalsJson.items) ? rentalsJson.items : []);
+        setReservations(Array.isArray(reservationsJson.items) ? reservationsJson.items : []);
+        setReviews(Array.isArray(reviewsJson.items) ? reviewsJson.items : []);
+        setKpis(kpisJson || null);
+        setValuation(valJson || null);
+        setLegalCases(Array.isArray(legalJson) ? legalJson : []);
+        setContracts(Array.isArray(contractsJson.items) ? contractsJson.items : []);
+        setRequests(Array.isArray(requestsJson.items) ? requestsJson.items : []);
+        setNotifications(Array.isArray(notificationsJson.items) ? notificationsJson.items : []);
+        setCalendarEvents(Array.isArray(calendarJson.events) ? calendarJson.events : []);
+      } catch (e: any) {
+        setError(e?.message || 'Load error');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  const stats = useMemo(() => {
+    const unpaid = invoices.filter(i => i.status === 'unpaid');
+    const paid = invoices.filter(i => i.status === 'paid');
+    const overdue = invoices.filter(i => i.status === 'unpaid' && i.dueAt && new Date(i.dueAt) < new Date());
+    const openTasks = tasks.filter(t => (t.status || 'open') !== 'done' && (t.status || '') !== 'canceled');
+    const maintenanceTasks = tasks.filter(t => (t.category || '').toLowerCase().includes('maintenance'));
+    const legalTasks = tasks.filter(t => (t.category || '').toLowerCase().includes('legal'));
+    const avgRating = reviews.length ? (reviews.reduce((a, r) => a + (r.rating || 0), 0) / reviews.length) : 0;
+    return {
+      invoices: { total: invoices.length, unpaid: unpaid.length, paid: paid.length, overdue: overdue.length },
+      tasks: { total: tasks.length, open: openTasks.length, maintenance: maintenanceTasks.length, legal: legalTasks.length },
+      rentals: { total: rentals.length },
+      reservations: { total: reservations.length },
+      reviews: { total: reviews.length, avgRating },
+    };
+  }, [invoices, tasks, rentals, reservations, reviews]);
+
+  const TABS: { id: string; label: string; icon: any }[] = [
+    { id: 'overview', label: 'نظرة عامة', icon: FaChartLine },
+    { id: 'tasks', label: 'المهام', icon: FaTasks },
+    { id: 'rentals', label: 'عقود الإيجار', icon: FaHandHoldingUsd },
+    { id: 'invoices', label: 'الفواتير والمدفوعات', icon: FaFileInvoiceDollar },
+    { id: 'maintenance', label: 'الصيانة', icon: FaTools },
+    { id: 'legal', label: 'الشؤون القانونية', icon: FaBalanceScale },
+    { id: 'contracts', label: 'العقود', icon: FaFileContract },
+    { id: 'requests', label: 'الطلبات', icon: FaClipboardList },
+    { id: 'calendar', label: 'التقويم', icon: FaCalendarAlt },
+    { id: 'alerts', label: 'التنبيهات', icon: FaBell },
+    { id: 'reviews', label: 'التقييمات', icon: FaComments },
+    { id: 'ai', label: 'التنبؤات والذكاء', icon: FaBrain },
+  ];
+
+  const getPropertyTitle = () => {
+    if (!property) return String(id);
+    if (typeof property.title === 'string') return property.title;
+    if (property.title?.ar) return property.title.ar;
+    if (property.title?.en) return property.title.en;
+    return property.referenceNo || String(id);
+  };
+
+  const getPropertyLocation = () => {
+    if (!property) return '';
+    const parts = [property.province, property.state, property.village].filter(Boolean);
+    return parts.join(' - ');
+  };
+
   return (
-    <div className="rounded-2xl border p-4 shadow-sm">
-      <h2 className="font-semibold mb-3">{title}</h2>
+    <Layout>
+      <Head>
+        <title>إدارة العقار | {id}</title>
+      </Head>
+
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex items-center justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-white/90 text-sm">
+                <Link href="/" className="hover:underline flex items-center gap-1">
+                  <FaHome /> الرئيسية
+                </Link>
+                <FaChevronRight className="opacity-60" />
+                <Link href={`/properties/${id}`} className="hover:underline">العقار {String(id)}</Link>
+                <FaChevronRight className="opacity-60" />
+                <span className="font-semibold">إدارة العقار</span>
+              </div>
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">لوحة تحكم إدارة العقار</h1>
+              <p className="text-white/80">متابعة شاملة للمهام، العقود، الفواتير، الصيانة، القانونية، والتنبيهات مع تحليلات ذكية.</p>
+              
+              {/* معلومات العقار */}
+              {property && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center gap-2 text-white/90 text-sm">
+                      <FaIdCard />
+                      <span>رقم العقار:</span>
+                    </div>
+                    <div className="font-semibold text-white">{property.referenceNo || String(id)}</div>
+                  </div>
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center gap-2 text-white/90 text-sm">
+                      <FaBuilding />
+                      <span>رقم المبنى:</span>
+                    </div>
+                    <div className="font-semibold text-white">{property.buildingNumber || 'غير محدد'}</div>
+                  </div>
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center gap-2 text-white/90 text-sm">
+                      <FaMapMarkerAlt />
+                      <span>رقم الأرض:</span>
+                    </div>
+                    <div className="font-semibold text-white">{property.landNumber || 'غير محدد'}</div>
+                  </div>
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center gap-2 text-white/90 text-sm">
+                      <FaQrcode />
+                      <span>الباركود:</span>
+                    </div>
+                    <button 
+                      onClick={() => setShowQRCode(!showQRCode)}
+                      className="font-semibold text-white hover:text-yellow-300 transition-colors"
+                    >
+                      {showQRCode ? 'إخفاء' : 'عرض'}
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {/* عنوان العقار والموقع */}
+              {property && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center gap-2 text-white/90 text-sm mb-1">
+                      <FaFileAlt />
+                      <span>عنوان العقار:</span>
+                    </div>
+                    <div className="font-semibold text-white">{getPropertyTitle()}</div>
+                  </div>
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center gap-2 text-white/90 text-sm mb-1">
+                      <FaMapMarkerAlt />
+                      <span>الموقع:</span>
+                    </div>
+                    <div className="font-semibold text-white">{getPropertyLocation() || 'غير محدد'}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Link href={`/properties/${id}/edit`} className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-semibold flex items-center gap-2">
+                <FaCog /> إعدادات العقار
+              </Link>
+              <Link href={`/properties/${id}`} className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg font-semibold flex items-center gap-2">
+                <FaFileAlt /> صفحة العرض
+        </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Tabs */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+          <nav className="flex gap-2 overflow-x-auto px-4">
+            {TABS.map(t => {
+              const Icon = t.icon;
+              const active = activeTab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setActiveTab(t.id)}
+                  className={`py-3 px-3 border-b-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap min-w-fit ${active ? 'border-blue-600 text-blue-700' : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300'}`}
+                >
+                  <Icon className="text-sm" /> {t.label}
+        </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Content */}
+        {loading ? (
+          <div className="text-center py-16 text-gray-600">جاري تحميل البيانات...</div>
+        ) : error ? (
+          <div className="text-center py-16 text-red-600">حدث خطأ: {error}</div>
+        ) : (
+          <div className="mt-6 space-y-6">
+            {activeTab === 'overview' && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* KPIs */}
+                <div className="lg:col-span-2 space-y-6">
+                  <SectionCard title="المؤشرات الرئيسية" icon={<FaChartLine />}>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <div className="bg-blue-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600 mb-1">فواتير غير مدفوعة</div>
+                        <div className="text-2xl font-extrabold text-blue-700">{stats.invoices.unpaid}</div>
+                      </div>
+                      <div className="bg-green-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600 mb-1">المهام المفتوحة</div>
+                        <div className="text-2xl font-extrabold text-green-700">{stats.tasks.open}</div>
+                      </div>
+                      <div className="bg-purple-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600 mb-1">العقود</div>
+                        <div className="text-2xl font-extrabold text-purple-700">{stats.rentals.total}</div>
+                      </div>
+                      <div className="bg-yellow-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600 mb-1">حجوزات</div>
+                        <div className="text-2xl font-extrabold text-yellow-700">{stats.reservations.total}</div>
+                      </div>
+                      <div className="bg-rose-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600 mb-1">متأخرات</div>
+                        <div className="text-2xl font-extrabold text-rose-700">{stats.invoices.overdue}</div>
+                      </div>
+                      <div className="bg-indigo-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600 mb-1">متوسط التقييم</div>
+                        <div className="text-2xl font-extrabold text-indigo-700">{stats.reviews.avgRating.toFixed(1)}</div>
+                      </div>
+                    </div>
+                  </SectionCard>
+
+                  <SectionCard title="المهام الأخيرة" icon={<FaTasks />} action={<Link href={`/properties/${id}/edit`} className="text-blue-700 hover:underline">إدارة العقار</Link>}>
+                    {tasks.length === 0 ? (
+                      <div className="text-gray-500">لا توجد مهام حاليا</div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full text-sm">
+                          <thead>
+                            <tr className="text-gray-500">
+                              <th className="py-2 text-right">العنوان</th>
+                              <th className="py-2 text-right">الحالة</th>
+                              <th className="py-2 text-right">الأولوية</th>
+                              <th className="py-2 text-right">الفئة</th>
+                              <th className="py-2 text-right">تحديث</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {tasks.slice(0, 6).map(t => (
+                              <tr key={t.id} className="border-t">
+                                <td className="py-2 font-medium text-gray-900">{t.title}</td>
+                                <td className="py-2">{t.status || 'open'}</td>
+                                <td className="py-2">{t.priority || '-'}</td>
+                                <td className="py-2">{t.category || '-'}</td>
+                                <td className="py-2 text-gray-500">{t.updatedAt || t.createdAt || '-'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </SectionCard>
+
+                  <SectionCard title="الفواتير" icon={<FaFileInvoiceDollar />} action={<Link href={`/properties/${id}`} className="text-blue-700 hover:underline">عرض العقار</Link>}>
+                    {invoices.length === 0 ? (
+                      <div className="text-gray-500">لا توجد فواتير</div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full text-sm">
+                          <thead>
+                            <tr className="text-gray-500">
+                              <th className="py-2 text-right">الرقم</th>
+                              <th className="py-2 text-right">الحالة</th>
+                              <th className="py-2 text-right">القيمة</th>
+                              <th className="py-2 text-right">تاريخ الإصدار</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {invoices.slice(0, 6).map(inv => (
+                              <tr key={inv.id} className="border-t">
+                                <td className="py-2 font-medium text-gray-900">{inv.serial || inv.id}</td>
+                                <td className="py-2">{inv.status}</td>
+                                <td className="py-2">{numberFmt(inv.amount)} ريال</td>
+                                <td className="py-2 text-gray-500">{inv.issuedAt || '-'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </SectionCard>
+      </div>
+
+                {/* AI + Shortcuts */}
+                <div className="space-y-6">
+                  <SectionCard title="تقييم السوق بالذكاء الاصطناعي" icon={<FaBrain />}>
+                    {valuation && (valuation.value || valuation.pricePerSqm) ? (
+                      <div className="space-y-2">
+                        <div className="flex justify-between"><span className="text-gray-600">القيمة التقديرية:</span><span className="font-bold text-blue-700">{numberFmt(valuation.value)} ريال</span></div>
+                        <div className="flex justify-between"><span className="text-gray-600">سعر المتر:</span><span className="font-bold text-green-700">{numberFmt(valuation.pricePerSqm)} ريال/م²</span></div>
+                        {valuation.confidence !== undefined && (
+                          <div className="text-sm text-gray-600">الثقة: {(valuation.confidence * 100).toFixed(0)}%</div>
+                        )}
+                        {Array.isArray(valuation.notes) && valuation.notes.length > 0 && (
+                          <ul className="list-disc pr-5 text-sm text-gray-600">
+                            {valuation.notes.map((n, i) => <li key={i}>{n}</li>)}
+                          </ul>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-gray-500">لا تتوفر بيانات كافية للتقييم الآن</div>
+                    )}
+                  </SectionCard>
+
+                  <SectionCard title="اختصارات سريعة" icon={<FaCalendarAlt />}>
+                    <div className="grid grid-cols-1 gap-2">
+                      <Link href={`/properties/${id}/edit`} className="px-3 py-2 bg-blue-50 hover:bg-blue-100 rounded-lg text-blue-700 font-medium flex items-center gap-2"><FaCog /> تعديل بيانات العقار</Link>
+                      <Link href={`/properties/${id}`} className="px-3 py-2 bg-purple-50 hover:bg-purple-100 rounded-lg text-purple-700 font-medium flex items-center gap-2"><FaFileAlt /> صفحة عرض العقار</Link>
+                               <Link href={`/tasks/new?propertyId=${id}`} className="px-3 py-2 bg-green-50 hover:bg-green-100 rounded-lg text-green-700 font-medium flex items-center gap-2"><FaCalendarAlt /> إنشاء مهمة متابعة</Link>
+                      <Link href={`/booking/new?propertyId=${id}`} className="px-3 py-2 bg-rose-50 hover:bg-rose-100 rounded-lg text-rose-700 font-medium flex items-center gap-2"><FaHandHoldingUsd /> إنشاء حجز/عقد</Link>
+                    </div>
+                  </SectionCard>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'tasks' && (
+              <SectionCard title="إدارة المهام" icon={<FaTasks />}
+                action={<Link href={`/properties/${id}`} className="text-blue-700 hover:underline">عودة للعقار</Link>}>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-gray-600">إجمالي: {tasks.length} • مفتوحة: {stats.tasks.open} • صيانة: {stats.tasks.maintenance} • قانونية: {stats.tasks.legal}</div>
+                  <Link href={`/tasks/new?propertyId=${id}`} className="text-sm text-blue-700 hover:underline">إنشاء مهمة متابعة</Link>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="text-gray-500">
+                        <th className="py-2 text-right">العنوان</th>
+                        <th className="py-2 text-right">الحالة</th>
+                        <th className="py-2 text-right">الفئة</th>
+                        <th className="py-2 text-right">تحديث</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tasks.map(t => (
+                        <tr key={t.id} className="border-t">
+                          <td className="py-2 font-medium text-gray-900">{t.title}</td>
+                          <td className="py-2">{t.status || 'open'}</td>
+                          <td className="py-2">{t.category || '-'}</td>
+                          <td className="py-2 text-gray-500">{t.updatedAt || t.createdAt || '-'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </SectionCard>
+            )}
+
+            {activeTab === 'rentals' && (
+              <SectionCard title="عقود الإيجار والحجوزات" icon={<FaHandHoldingUsd />}>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <div className="font-semibold mb-2">عقود الإيجار</div>
+                    {rentals.length === 0 ? (
+                      <div className="text-gray-500">لا توجد عقود</div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full text-sm">
+                          <thead>
+                            <tr className="text-gray-500">
+                              <th className="py-2 text-right">المستأجر</th>
+                              <th className="py-2 text-right">القيمة</th>
+                              <th className="py-2 text-right">الحالة</th>
+                              <th className="py-2 text-right">تاريخ</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {rentals.map(r => (
+                              <tr key={r.id} className="border-t">
+                                <td className="py-2">{r.tenantId}</td>
+                                <td className="py-2">{numberFmt(r.amount)} {r.currency}</td>
+                                <td className="py-2">{r.state}</td>
+                                <td className="py-2 text-gray-500">{new Date(r.createdAt).toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <div className="font-semibold mb-2">الحجوزات</div>
+                    {reservations.length === 0 ? (
+                      <div className="text-gray-500">لا توجد حجوزات</div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full text-sm">
+                          <thead>
+                            <tr className="text-gray-500">
+                              <th className="py-2 text-right">الرقم</th>
+                              <th className="py-2 text-right">الحالة</th>
+                              <th className="py-2 text-right">تاريخ</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {reservations.map(r => (
+                              <tr key={r.id} className="border-t">
+                                <td className="py-2">{r.id}</td>
+                                <td className="py-2">{r.status || '-'}</td>
+                                <td className="py-2 text-gray-500">{r.createdAt ? new Date(r.createdAt).toLocaleString() : '-'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+      </div>
+    </div>
+              </SectionCard>
+            )}
+
+            {activeTab === 'invoices' && (
+              <SectionCard title="الفواتير والمدفوعات" icon={<FaFileInvoiceDollar />}>
+                {invoices.length === 0 ? (
+                  <div className="text-gray-500">لا توجد فواتير</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm">
+                      <thead>
+                        <tr className="text-gray-500">
+                          <th className="py-2 text-right">الرقم</th>
+                          <th className="py-2 text-right">الحالة</th>
+                          <th className="py-2 text-right">القيمة</th>
+                          <th className="py-2 text-right">إصدار</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {invoices.map(inv => (
+                          <tr key={inv.id} className="border-t">
+                            <td className="py-2 font-medium text-gray-900">{inv.serial || inv.id}</td>
+                            <td className="py-2">{inv.status}</td>
+                            <td className="py-2">{numberFmt(inv.amount)} ريال</td>
+                            <td className="py-2 text-gray-500">{inv.issuedAt || '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </SectionCard>
+            )}
+
+            {activeTab === 'maintenance' && (
+              <SectionCard title="طلبات الصيانة" icon={<FaTools />}>
+                {tasks.filter(t => (t.category || '').toLowerCase().includes('maintenance')).length === 0 ? (
+                  <div className="text-gray-500">لا توجد مهام صيانة</div>
+                ) : (
+                  <ul className="space-y-2">
+                    {tasks.filter(t => (t.category || '').toLowerCase().includes('maintenance')).map(t => (
+                      <li key={t.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="font-medium text-gray-900">{t.title}</div>
+                        <div className="text-sm text-gray-600">{t.status || 'open'}</div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </SectionCard>
+            )}
+
+            {activeTab === 'legal' && (
+              <SectionCard title="الشؤون القانونية" icon={<FaBalanceScale />}>
+                {tasks.filter(t => (t.category || '').toLowerCase().includes('legal')).length === 0 ? (
+                  <div className="text-gray-500">لا توجد مواضيع قانونية</div>
+                ) : (
+                  <ul className="space-y-2">
+                    {tasks.filter(t => (t.category || '').toLowerCase().includes('legal')).map(t => (
+                      <li key={t.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="font-medium text-gray-900">{t.title}</div>
+                        <div className="text-sm text-gray-600">{t.status || 'open'}</div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </SectionCard>
+            )}
+
+            {activeTab === 'alerts' && (
+              <SectionCard title="التنبيهات" icon={<FaBell />}>
+                <div className="text-gray-500">سيتم عرض تنبيهات الفواتير المستحقة والمهام المتأخرة هنا.</div>
+              </SectionCard>
+            )}
+
+            {activeTab === 'reviews' && (
+              <SectionCard title="التقييمات" icon={<FaComments />}>
+                {reviews.length === 0 ? (
+                  <div className="text-gray-500">لا توجد تقييمات</div>
+                ) : (
       <ul className="space-y-2">
-        {links.map((l) => (
-          <li key={l.href}>
-            <a className="underline" href={l.href}>{l.label}</a>
+                    {reviews.map(r => (
+                      <li key={r.id} className="p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="font-medium text-gray-900">{r.userName || 'مستخدم'}</div>
+                          <div className="text-yellow-600 font-semibold">{r.rating} / 5</div>
+                        </div>
+                        {r.comment && <div className="text-sm text-gray-700 mt-1">{r.comment}</div>}
           </li>
         ))}
       </ul>
+                )}
+              </SectionCard>
+            )}
+
+            {activeTab === 'contracts' && (
+              <SectionCard title="العقود" icon={<FaFileContract />} action={<Link href={`/contracts?propertyId=${id}`} className="text-blue-700 hover:underline">عرض جميع العقود</Link>}>
+                {contracts.length === 0 ? (
+                  <div className="text-gray-500">لا توجد عقود</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm">
+                      <thead>
+                        <tr className="text-gray-500">
+                          <th className="py-2 text-right">رقم العقد</th>
+                          <th className="py-2 text-right">النوع</th>
+                          <th className="py-2 text-right">الحالة</th>
+                          <th className="py-2 text-right">تاريخ الإنشاء</th>
+                          <th className="py-2 text-right">إجراءات</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {contracts.map(contract => (
+                          <tr key={contract.id} className="border-t">
+                            <td className="py-2 font-medium text-gray-900">{contract.id}</td>
+                            <td className="py-2">{contract.type || 'إيجار'}</td>
+                            <td className="py-2">{contract.status || 'نشط'}</td>
+                            <td className="py-2 text-gray-500">{contract.createdAt || '-'}</td>
+                            <td className="py-2">
+                              <Link href={`/contracts/${contract.id}`} className="text-blue-600 hover:underline">عرض</Link>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </SectionCard>
+            )}
+
+            {activeTab === 'requests' && (
+              <SectionCard title="الطلبات" icon={<FaClipboardList />} action={<Link href={`/manage-requests?propertyId=${id}`} className="text-blue-700 hover:underline">عرض جميع الطلبات</Link>}>
+                {requests.length === 0 ? (
+                  <div className="text-gray-500">لا توجد طلبات</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm">
+                      <thead>
+                        <tr className="text-gray-500">
+                          <th className="py-2 text-right">رقم الطلب</th>
+                          <th className="py-2 text-right">النوع</th>
+                          <th className="py-2 text-right">العميل</th>
+                          <th className="py-2 text-right">الحالة</th>
+                          <th className="py-2 text-right">التاريخ</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {requests.map(request => (
+                          <tr key={request.id} className="border-t">
+                            <td className="py-2 font-medium text-gray-900">{request.id}</td>
+                            <td className="py-2">{request.type === 'viewing' ? 'معاينة' : 'حجز'}</td>
+                            <td className="py-2">{request.name}</td>
+                            <td className="py-2">{request.status}</td>
+                            <td className="py-2 text-gray-500">{request.createdAt || '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </SectionCard>
+            )}
+
+            {activeTab === 'calendar' && (
+              <SectionCard title="التقويم والأحداث" icon={<FaCalendarAlt />} action={<Link href={`/calendar?propertyId=${id}`} className="text-blue-700 hover:underline">عرض التقويم الكامل</Link>}>
+                {calendarEvents.length === 0 ? (
+                  <div className="text-gray-500">لا توجد أحداث مجدولة</div>
+                ) : (
+                  <div className="space-y-3">
+                    {calendarEvents.map(event => (
+                      <div key={event.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-3 h-3 rounded-full ${
+                            event.type === 'booking' ? 'bg-blue-500' :
+                            event.type === 'maintenance' ? 'bg-yellow-500' :
+                            event.type === 'inspection' ? 'bg-green-500' :
+                            'bg-purple-500'
+                          }`}></div>
+                          <div>
+                            <div className="font-medium text-gray-900">{event.title}</div>
+                            <div className="text-sm text-gray-600">{event.description}</div>
+                          </div>
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {new Date(event.startDate).toLocaleDateString('ar-OM')}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </SectionCard>
+            )}
+
+            {activeTab === 'ai' && (
+              <SectionCard title="التنبؤات والذكاء الاصطناعي" icon={<FaBrain />}>
+                {valuation ? (
+                  <div className="space-y-2">
+                    <div>القيمة المتوقعة: <span className="font-bold text-blue-700">{numberFmt(valuation.value)} ريال</span></div>
+                    <div>سعر المتر المتوقع: <span className="font-bold text-green-700">{numberFmt(valuation.pricePerSqm)} ريال/م²</span></div>
+                    {valuation.notes && valuation.notes.length > 0 && (
+                      <ul className="list-disc pr-5 text-sm text-gray-600">
+                        {valuation.notes.map((n, i) => <li key={i}>{n}</li>)}
+                      </ul>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-gray-500">لا تتوفر بيانات كافية</div>
+                )}
+              </SectionCard>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* نافذة الباركود */}
+      {showQRCode && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">باركود العقار</h3>
+              <button 
+                onClick={() => setShowQRCode(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="text-center">
+              <div className="bg-gray-100 rounded-lg p-8 mb-4">
+                <div className="text-6xl mb-2">📱</div>
+                <div className="text-sm text-gray-600">باركود العقار</div>
+                <div className="font-mono text-lg font-bold mt-2">{property?.referenceNo || String(id)}</div>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
+                عند مسح هذا الباركود سيتم تحميل ملف PDF للعقار مع جميع التفاصيل
+              </p>
+              <div className="flex gap-2">
+                <button className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                  <FaDownload className="inline ml-2" />
+                  تحميل PDF
+                </button>
+                <button className="flex-1 bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700">
+                  <FaShareAlt className="inline ml-2" />
+                  مشاركة
+                </button>
+              </div>
+            </div>
+          </div>
     </div>
+      )}
+    </Layout>
   );
 }

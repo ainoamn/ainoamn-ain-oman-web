@@ -58,3 +58,8 @@ export async function getNextSerialNumber(type: string): Promise<string> {
   const random = Math.floor(Math.random() * 1000);
   return `${prefix}-${timestamp}-${random}`;
 }
+
+/** توليد رقم تسلسلي لمهام النظام بصيغة AO-T-000001 */
+export async function getNextSequenceNumber(): Promise<string> {
+  return nextSerial("AO-T", "AO-T-");
+}
