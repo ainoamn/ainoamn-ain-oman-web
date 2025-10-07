@@ -114,11 +114,11 @@ export default function UserProfilePage() {
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'booking': return <FiCalendar className="w-4 h-4" />;
-      case 'payment': return <FiDollarSign className="w-4 h-4" />;
-      case 'review': return <FiStar className="w-4 h-4" />;
-      case 'property_view': return <FiEye className="w-4 h-4" />;
-      default: return <FiUser className="w-4 h-4" />;
+      case 'booking': return React.createElement(FiCalendar, { className: "w-4 h-4" });
+      case 'payment': return React.createElement(FiDollarSign, { className: "w-4 h-4" });
+      case 'review': return React.createElement(FiStar, { className: "w-4 h-4" });
+      case 'property_view': return React.createElement(FiEye, { className: "w-4 h-4" });
+      default: return React.createElement(FiUser, { className: "w-4 h-4" });
     }
   };
 
@@ -142,16 +142,14 @@ export default function UserProfilePage() {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      </Layout>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
     );
   }
 
   return (
-    <Layout>
+    <React.Fragment>
       <Head>
         <title>ملفي الشخصي - عين عُمان</title>
       </Head>
@@ -470,6 +468,6 @@ export default function UserProfilePage() {
           </div>
         </div>
       </div>
-    </Layout>
+    </React.Fragment>
   );
 }
