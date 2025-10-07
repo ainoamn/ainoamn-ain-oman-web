@@ -103,13 +103,9 @@ export default function Header() {
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchSuggestions, setSearchSuggestions] = useState<SearchSuggestion[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
   const [language, setLanguage] = useState('ar');
   const [currency, setCurrency] = useState('OMR');
@@ -118,7 +114,6 @@ export default function Header() {
   const [isOnline, setIsOnline] = useState(true);
 
   // Refs
-  const searchRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const themeMenuRef = useRef<HTMLDivElement>(null);
@@ -150,6 +145,36 @@ export default function Header() {
         { id: 'shops', label: 'محلات', href: '/properties?type=shop' },
         { id: 'land', label: 'أراضي', href: '/properties?type=land' },
         { id: 'commercial', label: 'تجاري', href: '/properties?type=commercial' }
+      ]
+    },
+    {
+      id: 'auctions',
+      label: 'المزادات',
+      href: '/auctions',
+      icon: ScaleIcon,
+      iconSolid: ScaleIconSolid,
+      description: 'المزادات العقارية',
+      badge: 'مميز',
+      isHot: true,
+      children: [
+        { id: 'active-auctions', label: 'المزادات الحالية', href: '/auctions' },
+        { id: 'upcoming-auctions', label: 'مزادات قادمة', href: '/auctions?status=upcoming' },
+        { id: 'my-auctions', label: 'مزاداتي', href: '/auctions/my-auctions' },
+        { id: 'new-auction', label: 'إنشاء مزاد', href: '/auctions/new' }
+      ]
+    },
+    {
+      id: 'development',
+      label: 'التطوير العقاري',
+      href: '/development',
+      icon: ChartBarIcon,
+      iconSolid: ChartBarIconSolid,
+      description: 'المشاريع العقارية',
+      children: [
+        { id: 'projects', label: 'المشاريع', href: '/development/projects' },
+        { id: 'opportunities', label: 'الفرص الاستثمارية', href: '/development/opportunities' },
+        { id: 'financing', label: 'التمويل', href: '/development/financing' },
+        { id: 'partners', label: 'الشركاء', href: '/partners' }
       ]
     },
   ];
@@ -269,31 +294,6 @@ export default function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Search functionality
-  const handleSearch = useCallback(async (query: string) => {
-    if (query.length < 2) {
-      setSearchSuggestions([]);
-      return;
-    }
-
-    setIsSearching(true);
-    // Simulate API call
-    setTimeout(() => {
-      setSearchSuggestions(mockSearchSuggestions.filter(item => 
-        item.title.toLowerCase().includes(query.toLowerCase()) ||
-        item.subtitle?.toLowerCase().includes(query.toLowerCase())
-      ));
-      setIsSearching(false);
-    }, 300);
-  }, []);
-
-  useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      handleSearch(searchQuery);
-    }, 300);
-
-    return () => clearTimeout(debounceTimer);
-  }, [searchQuery, handleSearch]);
 
   // Theme handling
   const handleThemeChange = (newTheme: 'light' | 'dark' | 'auto') => {
@@ -609,21 +609,14 @@ export default function Header() {
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-2">
-            {/* Search */}
-            <div className="relative" ref={searchRef}>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="البحث في العقارات..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setIsSearchOpen(true)}
-                  className="w-64 pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              </div>
-              {isSearchOpen && renderSearchSuggestions()}
-            </div>
+            {/* Search Button - Redirects to properties page */}
+            <button
+              onClick={() => router.push('/properties')}
+              className="p-2 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+              title="البحث"
+            >
+              <MagnifyingGlassIcon className="w-5 h-5" />
+            </button>
 
             {/* Quick Actions */}
             <div className="hidden lg:flex items-center gap-1">
