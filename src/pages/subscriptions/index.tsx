@@ -171,7 +171,9 @@ export default function SubscriptionsPage() {
                 </div>
                 <div>
                   <div className="text-sm opacity-90 mb-1">اشتراكك الحالي</div>
-                  <div className="text-2xl font-bold">{userSubscription.planName}</div>
+                  <div className="text-2xl font-bold">
+                    {SUBSCRIPTION_PLANS.find(p => p.id === userSubscription.planId)?.nameAr || 'باقة غير معروفة'}
+                  </div>
                   <div className="text-sm opacity-90 mt-1">
                     {userSubscription.status === 'active' 
                       ? `✓ نشط - ${userSubscription.remainingDays} يوم متبقي` 

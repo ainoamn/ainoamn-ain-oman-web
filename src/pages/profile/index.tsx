@@ -4,8 +4,8 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { 
   FiHome, FiCalendar, FiDollarSign, FiActivity, FiTrendingUp, FiAlertCircle, 
-  FiCheckCircle, FiSettings, FiBell, FiClock, FiBarChart2, FiUsers,
-  FiFileText, FiTool, FiAward, FiTarget, FiZap, FiShield
+  FiCheckCircle, FiSettings, FiBell, FiClock, FiBarChart2,
+  FiFileText, FiTool, FiAward, FiTarget, FiZap, FiShield, FiChevronDown, FiChevronUp
 } from 'react-icons/fi';
 import { subscriptionManager } from '@/lib/subscriptionSystem';
 
@@ -24,6 +24,14 @@ export default function UserProfileDashboard() {
   const [overdueItems, setOverdueItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('overview');
+  const [expandedSections, setExpandedSections] = useState<{[key: string]: boolean}>({
+    quickActions: true,
+    notifications: true,
+    tasks: false,
+    legal: false,
+    properties: false,
+    rentals: false
+  });
 
   useEffect(() => {
     loadAllData();
@@ -251,6 +259,13 @@ export default function UserProfileDashboard() {
     }).format(amount || 0);
   };
 
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   const getUsagePercentage = (used: number, limit: number) => {
     if (limit === -1) return 0;
     return Math.min((used / limit) * 100, 100);
@@ -297,7 +312,7 @@ export default function UserProfileDashboard() {
   }
 
   if (!user) {
-    return (
+  return (
       <div className="min-h-screen bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center p-4">
         <div className="text-center bg-white rounded-3xl shadow-2xl p-12 max-w-md">
           <span className="text-8xl block mb-6">🔐</span>
@@ -360,11 +375,11 @@ export default function UserProfileDashboard() {
               className="px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-lg rounded-xl transition-all border border-white/30 font-medium"
             >
               <FiSettings className="w-5 h-5 inline-block ml-2" />
-              الإعدادات
+                  الإعدادات
             </button>
+              </div>
             </div>
           </div>
-        </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-12 gap-8">
@@ -376,7 +391,7 @@ export default function UserProfileDashboard() {
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
                     <FiZap className="w-6 h-6" />
-                  </div>
+        </div>
                   <div>
                     <h3 className="font-bold text-lg">مساعد AI</h3>
                     <p className="text-xs opacity-90">ذكاء اصطناعي</p>
@@ -414,7 +429,7 @@ export default function UserProfileDashboard() {
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-gray-900">📦 اشتراكك</h3>
                   <FiCheckCircle className="w-6 h-6 text-green-600" />
-                </div>
+                  </div>
                 
                 <div className="space-y-4">
                   <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4">
@@ -423,7 +438,7 @@ export default function UserProfileDashboard() {
                     {subscription.price && (
                       <div className="text-sm text-gray-600 mt-1">
                         {formatCurrency(subscription.price)} / {subscription.duration === 'monthly' ? 'شهرياً' : 'سنوياً'}
-                      </div>
+                    </div>
                     )}
                   </div>
 
@@ -469,9 +484,9 @@ export default function UserProfileDashboard() {
                                 : 'bg-gradient-to-r from-blue-500 to-blue-600'
                           }`}
                           style={{ width: `${getUsagePercentage(myProperties.length, subscription.limits?.properties)}%` }}
-                        ></div>
+                      ></div>
+                    </div>
                   </div>
-                </div>
 
                     {/* Bookings */}
                     <div>
@@ -480,15 +495,15 @@ export default function UserProfileDashboard() {
                         <span className="font-bold text-gray-900">
                           {myBookings.length} / {subscription.limits?.bookings === -1 ? '∞' : subscription.limits?.bookings}
                         </span>
-                      </div>
+                    </div>
                       <div className="w-full bg-gray-200 rounded-full h-2.5 shadow-inner">
                         <div 
                           className="bg-gradient-to-r from-green-500 to-emerald-600 h-2.5 rounded-full transition-all shadow-sm"
                           style={{ width: `${getUsagePercentage(myBookings.length, subscription.limits?.bookings)}%` }}
                         ></div>
                     </div>
+                    </div>
                   </div>
-                </div>
 
                   <button 
                     onClick={() => router.push('/subscriptions')}
@@ -505,7 +520,7 @@ export default function UserProfileDashboard() {
                     <FiFileText className="inline-block w-4 h-4 ml-2" />
                     عرض الفواتير
                   </button>
-                </div>
+                    </div>
                     </div>
             ) : (
               <div className="bg-gradient-to-br from-yellow-400 via-orange-400 to-red-400 text-white rounded-2xl shadow-2xl p-6">
@@ -554,8 +569,8 @@ export default function UserProfileDashboard() {
                   </button>
                 ))}
               </nav>
-            </div>
-                      </div>
+                    </div>
+                </div>
 
           {/* Main Content Area */}
           <div className="col-span-12 lg:col-span-9 space-y-6">
@@ -574,80 +589,296 @@ export default function UserProfileDashboard() {
                       <div className="flex items-center justify-between mb-4">
                         <div className={`p-3 ${stat.bg} bg-opacity-10 rounded-xl`}>
                           <stat.icon className={`w-8 h-8 text-${stat.color}-600`} />
-                      </div>
-                      </div>
+                    </div>
+                    </div>
                       <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
                       <p className="text-4xl font-bold text-gray-900">{stat.value}</p>
                   </div>
                   ))}
                 </div>
 
-                {/* Quick Actions */}
-                <div className="bg-white rounded-2xl shadow-lg p-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                    <FiTarget className="w-7 h-7 text-blue-600" />
-                    الإجراءات السريعة
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                    {[
-                      { 
-                        label: 'إضافة عقار', 
-                        desc: 'انشر عقارك الآن', 
-                        icon: '➕', 
-                        color: 'from-blue-500 to-cyan-500',
-                        action: () => checkLimitAndNavigate(myProperties.length, subscription?.limits?.properties || 0, '/properties/new', 'إضافة عقار')
-                      },
-                      { 
-                        label: 'تصفح العقارات', 
-                        desc: 'ابحث عن عقار', 
-                        icon: '🔍', 
-                        color: 'from-green-500 to-emerald-500',
-                        action: () => router.push('/properties')
-                      },
-                      { 
-                        label: 'إنشاء مهمة', 
-                        desc: 'أضف مهمة جديدة', 
-                        icon: '✅', 
-                        color: 'from-purple-500 to-pink-500',
-                        action: () => router.push('/tasks/new')
-                      },
-                      { 
-                        label: 'إدارة المهام', 
-                        desc: 'تابع مهامك', 
-                        icon: '📋', 
-                        color: 'from-orange-500 to-red-500',
-                        action: () => router.push('/tasks')
-                      },
-                      { 
-                        label: 'التقويم', 
-                        desc: 'أحداثك القادمة', 
-                        icon: '📆', 
-                        color: 'from-indigo-500 to-purple-500',
-                        action: () => router.push('/calendar')
-                      },
-                      { 
-                        label: 'الفواتير', 
-                        desc: 'إدارة المدفوعات', 
-                        icon: '💰', 
-                        color: 'from-yellow-500 to-orange-500',
-                        action: () => router.push('/invoices')
-                      },
-                    ].map((action, idx) => (
-                      <button
-                        key={idx}
-                        onClick={action.action}
-                        className={`group relative overflow-hidden bg-gradient-to-br ${action.color} text-white p-6 rounded-xl transition-all transform hover:scale-105 shadow-lg hover:shadow-2xl`}
-                      >
-                        <div className="relative z-10">
-                          <div className="text-5xl mb-3">{action.icon}</div>
-                          <div className="font-bold text-lg mb-1">{action.label}</div>
-                          <div className="text-sm opacity-90">{action.desc}</div>
+                {/* Quick Actions - قابل للطي */}
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                  <button
+                    onClick={() => toggleSection('quickActions')}
+                    className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                  >
+                    <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                      <FiTarget className="w-7 h-7 text-blue-600" />
+                      الإجراءات السريعة
+                      <span className="text-sm font-normal text-gray-500">(6)</span>
+                    </h3>
+                    {expandedSections.quickActions ? (
+                      <FiChevronUp className="w-6 h-6 text-gray-600" />
+                    ) : (
+                      <FiChevronDown className="w-6 h-6 text-gray-600" />
+                    )}
+                  </button>
+                  
+                  {expandedSections.quickActions && (
+                    <div className="p-6 pt-0 border-t">
+                      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                        {[
+                          { 
+                            label: 'إضافة عقار', 
+                            desc: 'انشر عقارك', 
+                            icon: '➕', 
+                            color: 'from-blue-500 to-cyan-500',
+                            action: () => checkLimitAndNavigate(myProperties.length, subscription?.limits?.properties || 0, '/properties/new', 'إضافة عقار')
+                          },
+                          { 
+                            label: 'تصفح العقارات', 
+                            desc: 'ابحث', 
+                            icon: '🔍', 
+                            color: 'from-green-500 to-emerald-500',
+                            action: () => router.push('/properties')
+                          },
+                          { 
+                            label: 'إنشاء مهمة', 
+                            desc: 'مهمة جديدة', 
+                            icon: '✅', 
+                            color: 'from-purple-500 to-pink-500',
+                            action: () => router.push('/tasks/new')
+                          },
+                          { 
+                            label: 'المهام', 
+                            desc: 'تابع مهامك', 
+                            icon: '📋', 
+                            color: 'from-orange-500 to-red-500',
+                            action: () => router.push('/tasks')
+                          },
+                          { 
+                            label: 'التقويم', 
+                            desc: 'المواعيد', 
+                            icon: '📆', 
+                            color: 'from-indigo-500 to-purple-500',
+                            action: () => router.push('/calendar')
+                          },
+                          { 
+                            label: 'الفواتير', 
+                            desc: 'المدفوعات', 
+                            icon: '💰', 
+                            color: 'from-yellow-500 to-orange-500',
+                            action: () => router.push('/invoices')
+                          },
+                        ].map((action, idx) => (
+                          <button
+                            key={idx}
+                            onClick={action.action}
+                            className={`group relative overflow-hidden bg-gradient-to-br ${action.color} text-white p-4 rounded-xl transition-all transform hover:scale-105 shadow-md hover:shadow-lg`}
+                          >
+                            <div className="relative z-10 text-center">
+                              <div className="text-3xl mb-2">{action.icon}</div>
+                              <div className="font-bold text-sm mb-1">{action.label}</div>
+                              <div className="text-xs opacity-80">{action.desc}</div>
+                            </div>
+                            <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-white opacity-10 rounded-full group-hover:scale-150 transition-transform"></div>
+                          </button>
+                        ))}
                       </div>
-                        <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-white opacity-10 rounded-full group-hover:scale-150 transition-transform"></div>
-                      </button>
-                    ))}
+                    </div>
+                  )}
+              </div>
+
+              {/* التنبيهات والإشعارات - قابل للطي */}
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <button
+                  onClick={() => toggleSection('notifications')}
+                  className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                >
+                  <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                    <FiBell className="w-7 h-7 text-purple-600" />
+                    التنبيهات والإشعارات
+                    <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-bold">
+                      {stats.pendingTasks + stats.upcomingEvents + stats.unpaidInvoices}
+                    </span>
+                  </h3>
+                  {expandedSections.notifications ? (
+                    <FiChevronUp className="w-6 h-6 text-gray-600" />
+                  ) : (
+                    <FiChevronDown className="w-6 h-6 text-gray-600" />
+                  )}
+                </button>
+
+                {expandedSections.notifications && (
+                  <div className="p-6 pt-0 border-t space-y-3">
+                    {stats.unpaidInvoices > 0 && (
+                      <div className="bg-red-50 border-r-4 border-red-500 rounded-lg p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                            <FiDollarSign className="w-6 h-6 text-red-600" />
+                  </div>
+                          <div>
+                            <div className="font-bold text-red-900">فواتير غير مدفوعة</div>
+                            <div className="text-sm text-red-700">لديك {stats.unpaidInvoices} فاتورة متأخرة</div>
                 </div>
               </div>
+                        <button
+                          onClick={() => router.push('/invoices')}
+                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium"
+                        >
+                          عرض
+                        </button>
+                      </div>
+                    )}
+
+                    {stats.pendingTasks > 0 && (
+                      <div className="bg-orange-50 border-r-4 border-orange-500 rounded-lg p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                            <FiTool className="w-6 h-6 text-orange-600" />
+                          </div>
+                          <div>
+                            <div className="font-bold text-orange-900">مهام معلقة</div>
+                            <div className="text-sm text-orange-700">لديك {stats.pendingTasks} مهمة تحتاج إلى متابعة</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => router.push('/tasks')}
+                          className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm font-medium"
+                        >
+                          عرض
+                        </button>
+                </div>
+                    )}
+
+                    {stats.upcomingEvents > 0 && (
+                      <div className="bg-blue-50 border-r-4 border-blue-500 rounded-lg p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <FiCalendar className="w-6 h-6 text-blue-600" />
+                          </div>
+                          <div>
+                            <div className="font-bold text-blue-900">مواعيد قادمة</div>
+                            <div className="text-sm text-blue-700">لديك {stats.upcomingEvents} موعد في الأيام القادمة</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => router.push('/calendar')}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+                        >
+                          عرض
+                        </button>
+                      </div>
+                    )}
+
+                    {myBookings.filter(b => b.status === 'pending').length > 0 && (
+                      <div className="bg-green-50 border-r-4 border-green-500 rounded-lg p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <FiCheckCircle className="w-6 h-6 text-green-600" />
+                          </div>
+                          <div>
+                            <div className="font-bold text-green-900">حجوزات في الانتظار</div>
+                            <div className="text-sm text-green-700">
+                              لديك {myBookings.filter(b => b.status === 'pending').length} حجز في انتظار التأكيد
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => router.push('/bookings')}
+                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
+                        >
+                          عرض
+                        </button>
+                      </div>
+                    )}
+
+                    {(stats.unpaidInvoices === 0 && stats.pendingTasks === 0 && stats.upcomingEvents === 0) && (
+                      <div className="text-center py-8 text-gray-500">
+                        <FiCheckCircle className="mx-auto h-12 w-12 text-green-500 mb-3" />
+                        <p className="font-medium">لا توجد تنبيهات جديدة</p>
+                        <p className="text-sm mt-1">أنت على اطلاع بكل شيء! 🎉</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* المهام - قابل للطي */}
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <button
+                  onClick={() => toggleSection('tasks')}
+                  className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                >
+                  <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                    <FiTool className="w-7 h-7 text-orange-600" />
+                    مهامي
+                    <span className="text-sm font-normal text-gray-500">({myTasks.length})</span>
+                  </h3>
+                  {expandedSections.tasks ? (
+                    <FiChevronUp className="w-6 h-6 text-gray-600" />
+                  ) : (
+                    <FiChevronDown className="w-6 h-6 text-gray-600" />
+                  )}
+                </button>
+
+                {expandedSections.tasks && (
+                  <div className="p-6 pt-0 border-t">
+                    {myTasks.length > 0 ? (
+                <div className="space-y-3">
+                        {myTasks.slice(0, 5).map((task: any, idx: number) => (
+                          <div 
+                            key={idx}
+                            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                            onClick={() => router.push(`/admin/tasks/${task.id}`)}
+                          >
+                            <div className="flex items-center gap-3 flex-1">
+                              <div className={`w-3 h-3 rounded-full ${
+                                task.status === 'done' ? 'bg-green-500' :
+                                task.status === 'in_progress' ? 'bg-blue-500' :
+                                'bg-gray-400'
+                              }`}></div>
+                        <div className="flex-1">
+                                <div className="font-medium text-gray-900">{task.title}</div>
+                                <div className="text-sm text-gray-600 flex items-center gap-2">
+                                  <span className={`px-2 py-0.5 rounded text-xs ${
+                                    task.priority === 'urgent' ? 'bg-red-100 text-red-700' :
+                                    task.priority === 'high' ? 'bg-orange-100 text-orange-700' :
+                                    'bg-gray-100 text-gray-700'
+                                  }`}>
+                                    {task.priority === 'urgent' ? '🔥 عاجل' : 
+                                     task.priority === 'high' ? '⚠️ عالي' : '• عادي'}
+                                  </span>
+                                  {task.category && <span>• {task.category}</span>}
+                        </div>
+                      </div>
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/admin/tasks/${task.id}`);
+                              }}
+                              className="px-4 py-2 text-sm bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg transition-colors font-medium"
+                            >
+                              فتح
+                            </button>
+                    </div>
+                  ))}
+                        {myTasks.length > 5 && (
+                          <button
+                            onClick={() => router.push('/tasks')}
+                            className="w-full px-4 py-3 text-center text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
+                          >
+                            عرض جميع المهام ({myTasks.length})
+                          </button>
+                        )}
+                </div>
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <FiTool className="mx-auto h-12 w-12 text-gray-400 mb-3" />
+                        <p>لا توجد مهام حالياً</p>
+                        <button
+                          onClick={() => router.push('/tasks/new')}
+                          className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        >
+                          إنشاء مهمة جديدة
+                        </button>
+              </div>
+                    )}
+                  </div>
+                )}
+            </div>
 
               {/* تنبيهات حرجة - المتأخرات */}
               {stats.totalOverdueItems > 0 && (
@@ -657,7 +888,7 @@ export default function UserProfileDashboard() {
                       <div className="flex items-center gap-3 mb-4">
                         <FiAlertCircle className="w-10 h-10 animate-pulse" />
                         <h3 className="text-3xl font-bold">⚠️ تنبيه: لديك متأخرات!</h3>
-                      </div>
+                    </div>
                       <p className="text-lg opacity-95 mb-6">
                         لديك {stats.totalOverdueItems} متأخر - المبلغ الإجمالي: {formatCurrency(stats.totalOverdueAmount)}
                       </p>
@@ -665,7 +896,7 @@ export default function UserProfileDashboard() {
                         <div className="bg-white/20 backdrop-blur-lg rounded-xl p-4">
                           <div className="text-3xl font-bold mb-1">{overdueItems.filter(i => i.type === 'invoice').length}</div>
                           <div className="text-sm opacity-90">فواتير متأخرة</div>
-                        </div>
+                    </div>
                         <div className="bg-white/20 backdrop-blur-lg rounded-xl p-4">
                           <div className="text-3xl font-bold mb-1">{overdueItems.filter(i => i.type === 'rental').length}</div>
                           <div className="text-sm opacity-90">إيجارات متأخرة</div>
@@ -673,9 +904,9 @@ export default function UserProfileDashboard() {
                         <div className="bg-white/20 backdrop-blur-lg rounded-xl p-4">
                           <div className="text-3xl font-bold mb-1">{overdueItems.filter(i => i.type === 'bounced_check').length}</div>
                           <div className="text-sm opacity-90">شيكات مرتجعة</div>
-                        </div>
-                      </div>
-                      
+                  </div>
+                </div>
+
                       {/* قائمة المتأخرات الحرجة */}
                       <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4">
                         <h4 className="font-bold text-lg mb-3">المتأخرات الحرجة:</h4>
@@ -687,13 +918,13 @@ export default function UserProfileDashboard() {
                                 <div className="text-sm opacity-90">
                                   {item.type === 'bounced_check' ? `شيك رقم: ${item.checkNumber}` : `رقم: ${item.serial || item.id}`}
                                   {item.daysOverdue && ` - متأخر ${item.daysOverdue} يوم`}
-                                </div>
-                              </div>
+                    </div>
+                    </div>
                               <div className="text-2xl font-bold">{formatCurrency(item.amount)}</div>
-                            </div>
+                  </div>
                           ))}
-                        </div>
-                      </div>
+                </div>
+                    </div>
                     </div>
                   </div>
                   <div className="flex gap-3">
@@ -709,26 +940,40 @@ export default function UserProfileDashboard() {
                     >
                       ⚖️ اتخاذ إجراء قانوني
                     </button>
-                  </div>
+                </div>
                 </div>
               )}
 
-              {/* القضايا القانونية */}
+              {/* القضايا القانونية - قابل للطي */}
               {stats.totalLegalCases > 0 && (
-                <div className="bg-white rounded-2xl shadow-lg p-8">
-                  <div className="flex items-center justify-between mb-6">
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                  <button
+                    onClick={() => toggleSection('legal')}
+                    className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                  >
                     <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
                       <span className="text-3xl">⚖️</span>
-                      القضايا القانونية ({stats.totalLegalCases})
+                      القضايا القانونية
+                      <span className="text-sm font-normal text-gray-500">({stats.totalLegalCases})</span>
                     </h3>
-                    <button
-                      onClick={() => router.push('/legal')}
-                      className="text-sm text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-2"
-                    >
-                      عرض الكل
-                      <span className="text-xl">→</span>
-                    </button>
-                  </div>
+                    {expandedSections.legal ? (
+                      <FiChevronUp className="w-6 h-6 text-gray-600" />
+                    ) : (
+                      <FiChevronDown className="w-6 h-6 text-gray-600" />
+                    )}
+                  </button>
+
+                  {expandedSections.legal && (
+                    <div className="p-6 pt-0 border-t">
+                      <div className="flex items-center justify-end mb-4">
+                        <button
+                          onClick={() => router.push('/legal')}
+                          className="text-sm text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-2"
+                        >
+                          عرض الكل
+                          <span className="text-xl">→</span>
+                        </button>
+                    </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border-l-4 border-blue-500">
@@ -738,15 +983,15 @@ export default function UserProfileDashboard() {
                     <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border-l-4 border-yellow-500">
                       <div className="text-3xl font-bold text-yellow-600 mb-1">{stats.openLegalCases}</div>
                       <div className="text-sm text-gray-700">قضايا مفتوحة</div>
-                    </div>
+                  </div>
                     <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border-l-4 border-green-500">
                       <div className="text-3xl font-bold text-green-600 mb-1">{stats.totalLegalCases - stats.openLegalCases}</div>
                       <div className="text-sm text-gray-700">قضايا مغلقة</div>
-                    </div>
-                  </div>
+                </div>
+              </div>
 
                   {myLegalCases.length > 0 ? (
-                    <div className="space-y-3">
+                  <div className="space-y-3">
                       {myLegalCases.slice(0, 3).map((legalCase: any, idx: number) => (
                         <div 
                           key={idx}
@@ -777,8 +1022,8 @@ export default function UserProfileDashboard() {
                                  legalCase.priority === 'CRITICAL' ? '⚠️ حرجة' : 
                                  legalCase.priority}
                               </span>
-                            </div>
-                          </div>
+                      </div>
+                      </div>
                           <p className="text-sm text-gray-600 mb-3">
                             النوع: {legalCase.type === 'RENTAL_DISPUTE' ? 'نزاع إيجار' : 
                                    legalCase.type === 'PAYMENT_DISPUTE' ? 'نزاع دفع' : 
@@ -798,44 +1043,60 @@ export default function UserProfileDashboard() {
                           >
                             🔍 عرض التفاصيل
                           </button>
-                        </div>
+                      </div>
                       ))}
-                    </div>
+                  </div>
                   ) : (
                     <div className="text-center py-12 text-gray-500">
                       <div className="text-6xl mb-4">⚖️</div>
                       <p>لا توجد قضايا قانونية حالياً</p>
-                    </div>
+                </div>
                   )}
 
-                  <div className="mt-6 pt-6 border-t">
-                    <button
-                      onClick={() => router.push('/legal/new')}
-                      className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-2xl font-bold text-lg transform hover:scale-105 transition-all"
-                    >
-                      ➕ إضافة قضية قانونية جديدة
-                    </button>
-                  </div>
+                      <div className="mt-6 pt-6 border-t">
+                        <button
+                          onClick={() => router.push('/legal/new')}
+                          className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-2xl font-bold text-lg transform hover:scale-105 transition-all"
+                        >
+                          ➕ إضافة قضية قانونية جديدة
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
-                {/* My Published Properties */}
-                <div className="bg-white rounded-2xl shadow-lg p-8">
-                <div className="flex items-center justify-between mb-6">
+                {/* My Published Properties - قابل للطي */}
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                  <button
+                    onClick={() => toggleSection('properties')}
+                    className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                  >
                     <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
                       <FiHome className="w-7 h-7 text-blue-600" />
-                      عقاراتي المنشورة ({myProperties.length})
+                      عقاراتي المنشورة
+                      <span className="text-sm font-normal text-gray-500">({myProperties.length})</span>
                     </h3>
-                    {myProperties.length > 0 && (
-                      <button
-                        onClick={() => router.push('/properties/unified-management')}
-                        className="text-sm text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-2"
-                  >
-                    عرض الكل
-                        <span className="text-xl">→</span>
-                      </button>
+                    {expandedSections.properties ? (
+                      <FiChevronUp className="w-6 h-6 text-gray-600" />
+                    ) : (
+                      <FiChevronDown className="w-6 h-6 text-gray-600" />
                     )}
-                  </div>
+                  </button>
+
+                  {expandedSections.properties && (
+                    <div className="p-6 pt-0 border-t">
+                      {myProperties.length > 0 && (
+                        <div className="flex justify-end mb-4">
+                          <button
+                            onClick={() => router.push('/properties/unified-management')}
+                            className="text-sm text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-2"
+                          >
+                            عرض الكل
+                            <span className="text-xl">→</span>
+                          </button>
+                        </div>
+                      )}
 
                   {myProperties.length > 0 ? (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -856,7 +1117,7 @@ export default function UserProfileDashboard() {
                             }`}>
                               {property.published ? '✓ منشور' : '📝 مسودة'}
                             </span>
-                          </div>
+                      </div>
                           <p className="text-sm text-gray-600 mb-3 flex items-center gap-2">
                             <span>📍</span>
                             {property.governorate} - {property.state}
@@ -885,10 +1146,10 @@ export default function UserProfileDashboard() {
                             >
                               ⚙️ إدارة
                             </button>
-                          </div>
-                        </div>
+                  </div>
+                </div>
                       ))}
-                    </div>
+              </div>
                   ) : (
                     <div className="text-center py-16 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl border-2 border-dashed border-blue-300">
                       <span className="text-9xl block mb-6 animate-bounce">🏠</span>
@@ -909,21 +1170,37 @@ export default function UserProfileDashboard() {
                       </button>
                     </div>
                   )}
+                    </div>
+                  )}
                 </div>
 
-                {/* My Rented Properties */}
-                <div className="bg-white rounded-2xl shadow-lg p-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                    <FiCalendar className="w-7 h-7 text-green-600" />
-                    العقارات المستأجرة ({myRentals.length})
-                  </h3>
+                {/* My Rented Properties - قابل للطي */}
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                  <button
+                    onClick={() => toggleSection('rentals')}
+                    className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                  >
+                    <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                      <FiCalendar className="w-7 h-7 text-green-600" />
+                      العقارات المستأجرة
+                      <span className="text-sm font-normal text-gray-500">({myRentals.length})</span>
+                    </h3>
+                    {expandedSections.rentals ? (
+                      <FiChevronUp className="w-6 h-6 text-gray-600" />
+                    ) : (
+                      <FiChevronDown className="w-6 h-6 text-gray-600" />
+                    )}
+                  </button>
+
+                  {expandedSections.rentals && (
+                    <div className="p-6 pt-0 border-t">
 
                   {myRentals.length > 0 ? (
                 <div className="space-y-4">
                       {myRentals.slice(0, 3).map((rental) => (
                         <div key={rental.id} className="border-2 border-gray-200 rounded-xl p-5 hover:shadow-xl hover:border-green-400 transition-all bg-gradient-to-r from-white to-green-50">
                           <div className="flex items-start justify-between">
-                            <div className="flex-1">
+                      <div className="flex-1">
                               <h4 className="font-bold text-gray-900 text-lg mb-3">
                                 {rental.propertyTitle || 'عقار مستأجر'}
                               </h4>
@@ -963,6 +1240,8 @@ export default function UserProfileDashboard() {
                       >
                         🔍 تصفح العقارات المتاحة
                       </button>
+                      </div>
+                    )}
                     </div>
                   )}
                 </div>
@@ -977,9 +1256,9 @@ export default function UserProfileDashboard() {
                 <p className="text-gray-600">هذا القسم قيد التطوير وسيتم إضافته قريباً</p>
               </div>
             )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
   );
 }

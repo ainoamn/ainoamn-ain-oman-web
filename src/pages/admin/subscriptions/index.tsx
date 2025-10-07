@@ -602,7 +602,7 @@ export default function AdminSubscriptionsManagement() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {plans.map((plan) => {
-                const isSelected = selectedPlan === plan.id;
+                const isSelected = selectedPlan && typeof selectedPlan === 'object' ? selectedPlan.id === plan.id : selectedPlan === plan.id;
                         return (
                   <button
                     key={plan.id}
@@ -667,6 +667,320 @@ export default function AdminSubscriptionsManagement() {
               >
                 <FiCheck className="inline-block w-5 h-5 ml-2" />
                 تعيين الباقة
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Plan Modal */}
+      {showEditPlanModal && selectedPlan && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <h3 className="text-3xl font-bold text-gray-900 mb-6">
+              تعديل باقة: {selectedPlan.nameAr}
+            </h3>
+
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">الاسم بالعربي</label>
+                  <input
+                    type="text"
+                    value={selectedPlan.nameAr}
+                    onChange={(e) => setSelectedPlan({...selectedPlan, nameAr: e.target.value})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">الاسم بالإنجليزي</label>
+                  <input
+                    type="text"
+                    value={selectedPlan.name}
+                    onChange={(e) => setSelectedPlan({...selectedPlan, name: e.target.value})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">الوصف بالعربي</label>
+                <textarea
+                  value={selectedPlan.descriptionAr}
+                  onChange={(e) => setSelectedPlan({...selectedPlan, descriptionAr: e.target.value})}
+                  className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={2}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">السعر (OMR)</label>
+                  <input
+                    type="number"
+                    value={selectedPlan.price}
+                    onChange={(e) => setSelectedPlan({...selectedPlan, price: parseFloat(e.target.value)})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">المدة</label>
+                  <select
+                    value={selectedPlan.duration}
+                    onChange={(e) => setSelectedPlan({...selectedPlan, duration: e.target.value as 'monthly' | 'yearly'})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="monthly">شهري</option>
+                    <option value="yearly">سنوي</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">الأولوية</label>
+                  <select
+                    value={selectedPlan.priority}
+                    onChange={(e) => setSelectedPlan({...selectedPlan, priority: e.target.value as any})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="basic">Basic</option>
+                    <option value="standard">Standard</option>
+                    <option value="premium">Premium</option>
+                    <option value="enterprise">Enterprise</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">العقارات</label>
+                  <input
+                    type="number"
+                    value={selectedPlan.maxProperties}
+                    onChange={(e) => setSelectedPlan({...selectedPlan, maxProperties: parseInt(e.target.value)})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="-1 للا محدود"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">الوحدات</label>
+                  <input
+                    type="number"
+                    value={selectedPlan.maxUnits}
+                    onChange={(e) => setSelectedPlan({...selectedPlan, maxUnits: parseInt(e.target.value)})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">الحجوزات</label>
+                  <input
+                    type="number"
+                    value={selectedPlan.maxBookings}
+                    onChange={(e) => setSelectedPlan({...selectedPlan, maxBookings: parseInt(e.target.value)})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">المستخدمون</label>
+                  <input
+                    type="number"
+                    value={selectedPlan.maxUsers}
+                    onChange={(e) => setSelectedPlan({...selectedPlan, maxUsers: parseInt(e.target.value)})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">التخزين GB</label>
+                  <input
+                    type="number"
+                    value={selectedPlan.storageGB}
+                    onChange={(e) => setSelectedPlan({...selectedPlan, storageGB: parseInt(e.target.value)})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+                <div className="text-sm font-bold text-blue-900 mb-2">💡 ملاحظة</div>
+                <div className="text-xs text-blue-800">
+                  • استخدم -1 للحصول على عدد غير محدود<br/>
+                  • التغييرات ستؤثر على الباقة الحالية فقط<br/>
+                  • لن تتأثر الاشتراكات الحالية تلقائياً
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-4 mt-8">
+              <button
+                onClick={() => {
+                  setShowEditPlanModal(false);
+                  setSelectedPlan(null);
+                }}
+                className="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-bold text-lg transition-all"
+              >
+                <FiX className="inline-block w-5 h-5 ml-2" />
+                إلغاء
+              </button>
+              <button
+                onClick={savePlanChanges}
+                className="flex-1 px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-2xl font-bold text-lg transform hover:scale-105 transition-all"
+              >
+                <FiSave className="inline-block w-5 h-5 ml-2" />
+                حفظ التغييرات
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New Plan Modal */}
+      {showNewPlanModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <h3 className="text-3xl font-bold text-gray-900 mb-6">
+              إضافة باقة جديدة
+            </h3>
+
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">الاسم بالعربي *</label>
+                  <input
+                    type="text"
+                    value={newPlan.nameAr}
+                    onChange={(e) => setNewPlan({...newPlan, nameAr: e.target.value})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="مثال: الباقة الذهبية"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">الاسم بالإنجليزي *</label>
+                  <input
+                    type="text"
+                    value={newPlan.name}
+                    onChange={(e) => setNewPlan({...newPlan, name: e.target.value})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Example: Gold Plan"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">الوصف بالعربي</label>
+                <textarea
+                  value={newPlan.descriptionAr}
+                  onChange={(e) => setNewPlan({...newPlan, descriptionAr: e.target.value})}
+                  className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={2}
+                  placeholder="وصف مختصر للباقة"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">السعر (OMR) *</label>
+                  <input
+                    type="number"
+                    value={newPlan.price}
+                    onChange={(e) => setNewPlan({...newPlan, price: parseFloat(e.target.value)})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">المدة</label>
+                  <select
+                    value={newPlan.duration}
+                    onChange={(e) => setNewPlan({...newPlan, duration: e.target.value as 'monthly' | 'yearly'})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="monthly">شهري</option>
+                    <option value="yearly">سنوي</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">الأولوية</label>
+                  <select
+                    value={newPlan.priority}
+                    onChange={(e) => setNewPlan({...newPlan, priority: e.target.value as any})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="basic">Basic</option>
+                    <option value="standard">Standard</option>
+                    <option value="premium">Premium</option>
+                    <option value="enterprise">Enterprise</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">العقارات</label>
+                  <input
+                    type="number"
+                    value={newPlan.maxProperties}
+                    onChange={(e) => setNewPlan({...newPlan, maxProperties: parseInt(e.target.value)})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="-1 للا محدود"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">الوحدات</label>
+                  <input
+                    type="number"
+                    value={newPlan.maxUnits}
+                    onChange={(e) => setNewPlan({...newPlan, maxUnits: parseInt(e.target.value)})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">الحجوزات</label>
+                  <input
+                    type="number"
+                    value={newPlan.maxBookings}
+                    onChange={(e) => setNewPlan({...newPlan, maxBookings: parseInt(e.target.value)})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">المستخدمون</label>
+                  <input
+                    type="number"
+                    value={newPlan.maxUsers}
+                    onChange={(e) => setNewPlan({...newPlan, maxUsers: parseInt(e.target.value)})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">التخزين GB</label>
+                  <input
+                    type="number"
+                    value={newPlan.storageGB}
+                    onChange={(e) => setNewPlan({...newPlan, storageGB: parseInt(e.target.value)})}
+                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-4 mt-8">
+              <button
+                onClick={() => {
+                  setShowNewPlanModal(false);
+                }}
+                className="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-bold text-lg transition-all"
+              >
+                <FiX className="inline-block w-5 h-5 ml-2" />
+                إلغاء
+              </button>
+              <button
+                onClick={addNewPlan}
+                className="flex-1 px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:shadow-2xl font-bold text-lg transform hover:scale-105 transition-all"
+              >
+                <FiPlus className="inline-block w-5 h-5 ml-2" />
+                إضافة الباقة
               </button>
             </div>
           </div>
