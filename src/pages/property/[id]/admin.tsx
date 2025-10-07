@@ -3,6 +3,8 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Layout from '@/components/layout/Layout';
+import { usePermissions } from '@/hooks/usePermissions';
+import PermissionGate, { FeatureLock } from '@/components/PermissionGate';
 import {
   FaChartLine,
   FaTasks,
@@ -147,6 +149,7 @@ function SectionCard(props: { title: string; icon: React.ReactNode; action?: Rea
 export default function PropertyAdminPage() {
   const router = useRouter();
   const { id } = router.query;
+  const { checkPermission, requirePermission, canAccess, isAdmin, hasActiveSubscription } = usePermissions();
 
   const [activeTab, setActiveTab] = useState('overview');
 
