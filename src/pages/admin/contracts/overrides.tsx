@@ -1,7 +1,7 @@
-// src/pages/admin/contracts/overrides.tsx
+﻿// src/pages/admin/contracts/overrides.tsx
 import Head from "next/head";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header is now handled by MainLayout in _app.tsx
+
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
@@ -79,7 +79,7 @@ export default function OverridesPage(){
   return (
     <div className="min-h-screen flex flex-col">
       <Head><title>تخصيصات العقود</title></Head>
-      <Header />
+      
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">تخصيصات العقود للوحدات/المباني</h1>
@@ -162,7 +162,7 @@ export default function OverridesPage(){
           </div>
         )}
       </main>
-      <Footer />
+      
     </div>
   );
 }

@@ -2,8 +2,7 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer are now handled by MainLayout in _app.tsx
 
 type Contract = { id:string; contractNumber:string; startDate?:string; endDate?:string; status:string; totals?:{amount:number;currency?:string}; };
 
@@ -26,7 +25,6 @@ export default function ProfileContracts(){
   return (
     <div className="min-h-screen flex flex-col">
       <Head><title>عقودي</title></Head>
-      <Header />
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <h1 className="text-xl font-semibold">عقودي</h1>
         {loading? <div>جارٍ التحميل…</div> :
@@ -52,7 +50,6 @@ export default function ProfileContracts(){
           </div>
         }
       </main>
-      <Footer />
     </div>
   );
 }

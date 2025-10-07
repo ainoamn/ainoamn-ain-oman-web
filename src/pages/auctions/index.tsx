@@ -1,9 +1,9 @@
-import Head from "next/head";
+﻿import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header is now handled by MainLayout in _app.tsx
+
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -452,7 +452,7 @@ export default function AuctionsPage() {
   return (
     <main dir={dir} className={isDark ? "bg-gray-900 min-h-screen flex flex-col" : "bg-gray-50 min-h-screen flex flex-col"}>
       <Head><title>{t("auctions.title")} | Ain Oman</title></Head>
-      <Header />
+      
 
       <div className="flex-1">
         <div className="container mx-auto px-4 py-8">
@@ -958,7 +958,7 @@ export default function AuctionsPage() {
         </div>
       </div>
 
-      <Footer />
+      
     </main>
   );
 }

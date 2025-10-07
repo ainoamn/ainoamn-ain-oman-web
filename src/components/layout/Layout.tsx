@@ -268,7 +268,7 @@ export default function Layout({
   const [isAnnouncementBarOpen, setIsAnnouncementBarOpen] = useState(true);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(() => new Date());
   const [isBackToTopVisible, setIsBackToTopVisible] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState<'online' | 'offline' | 'slow'>('online');
@@ -278,8 +278,13 @@ export default function Layout({
   const [networkSpeed, setNetworkSpeed] = useState(0);
   const [batteryLevel, setBatteryLevel] = useState(100);
   const [isCharging, setIsCharging] = useState(false);
-  const [deviceInfo, setDeviceInfo] = useState({
-    type: 'desktop' as const,
+  const [deviceInfo, setDeviceInfo] = useState<{
+    type: 'mobile' | 'tablet' | 'desktop';
+    os: string;
+    browser: string;
+    version: string;
+  }>({
+    type: 'desktop',
     os: 'Unknown',
     browser: 'Unknown',
     version: 'Unknown'
@@ -359,7 +364,7 @@ export default function Layout({
       else if (userAgent.includes('Safari')) browser = 'Safari';
       else if (userAgent.includes('Edge')) browser = 'Edge';
 
-      setDeviceInfo({ type: deviceType as 'mobile' | 'tablet' | 'desktop', os, browser, version: 'Unknown' });
+      setDeviceInfo({ type: deviceType, os, browser, version: 'Unknown' });
     };
 
     window.addEventListener('scroll', handleScroll);

@@ -6,9 +6,8 @@ import {
   FiUser, FiSettings, FiBell, FiHeart, FiCalendar, FiDollarSign,
   FiTrendingUp, FiTrendingDown, FiEye, FiEdit, FiShare2, FiDownload,
   FiStar, FiAward, FiShield, FiCheckCircle, FiClock, FiMessageSquare,
-  FiHome, FiBuilding, FiCreditCard, FiFileText, FiTool, FiMapPin
+  FiHome, FiBuilding, FiCreditCard, FiFileText, FiTool, FiMapPin, FiActivity
 } from 'react-icons/fi';
-import Layout from '@/components/layout/Layout';
 
 interface UserStats {
   totalProperties: number;

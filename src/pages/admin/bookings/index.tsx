@@ -1,8 +1,8 @@
-import Head from "next/head";
+﻿import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header is now handled by MainLayout in _app.tsx
+
 import AdvancedFilterSystem from "@/components/admin/AdvancedFilterSystem";
 import AdvancedDataTable from "@/components/admin/AdvancedDataTable";
 import SmartAnalytics from "@/components/admin/SmartAnalytics";
@@ -116,7 +116,7 @@ export default function AdminBookingsListPage(){
   return (
     <div className="min-h-screen flex flex-col">
       <Head><title>الحجوزات</title></Head>
-      <Header />
+      
       <main className="container mx-auto p-6 flex-1 space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -155,7 +155,7 @@ export default function AdminBookingsListPage(){
           <AdvancedDataTable data={filteredItems} loading={loading} />
         )}
       </main>
-      <Footer />
+      
     </div>
   );
 }

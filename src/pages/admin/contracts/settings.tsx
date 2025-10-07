@@ -1,7 +1,7 @@
-// src/pages/admin/contracts/settings.tsx
+﻿// src/pages/admin/contracts/settings.tsx
 import Head from "next/head";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header is now handled by MainLayout in _app.tsx
+
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
@@ -87,7 +87,7 @@ export default function ContractSettingsPage(){
   return (
     <div className="min-h-screen flex flex-col">
       <Head><title>إعداد العقد الموحّد</title></Head>
-      <Header />
+      
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">إعداد العقد الموحّد</h1>
@@ -137,7 +137,7 @@ export default function ContractSettingsPage(){
           </div>
         )}
       </main>
-      <Footer />
+      
     </div>
   );
 }

@@ -68,19 +68,6 @@ export function generateMenuItems(): MenuItem[] {
       ]
     },
     {
-      id: 'legal',
-      label: 'القضايا القانونية',
-      href: '/legal',
-      icon: ScaleIcon,
-      description: 'إدارة القضايا القانونية',
-      children: [
-        { id: 'all-cases', label: 'جميع القضايا', href: '/legal' },
-        { id: 'new-case', label: 'قضية جديدة', href: '/legal/new' },
-        { id: 'directory', label: 'دليل المحامين', href: '/legal/directory' },
-        { id: 'documents', label: 'المستندات', href: '/legal/documents' }
-      ]
-    },
-    {
       id: 'services',
       label: 'الخدمات',
       href: '/services',
@@ -144,19 +131,6 @@ export function generateFooterSections(): FooterSection[] {
         { id: 'land', label: 'أراضي', href: '/properties?type=land', description: 'أراضي للبيع' },
         { id: 'commercial', label: 'تجاري', href: '/properties?type=commercial', description: 'عقارات تجارية' },
         { id: 'map', label: 'الخريطة', href: '/properties/map', description: 'عرض العقارات على الخريطة', isNew: true }
-      ]
-    },
-    {
-      id: 'legal',
-      title: 'القضايا القانونية',
-      icon: ScaleIcon,
-      links: [
-        { id: 'cases', label: 'جميع القضايا', href: '/legal', description: 'إدارة القضايا القانونية' },
-        { id: 'new-case', label: 'قضية جديدة', href: '/legal/new', description: 'إنشاء قضية قانونية جديدة', isNew: true },
-        { id: 'directory', label: 'دليل المحامين', href: '/legal/directory', description: 'دليل المحامين المعتمدين' },
-        { id: 'documents', label: 'المستندات', href: '/legal/documents', description: 'إدارة المستندات القانونية' },
-        { id: 'appointments', label: 'المواعيد', href: '/legal/appointments', description: 'إدارة المواعيد القانونية' },
-        { id: 'analytics', label: 'التحليلات', href: '/legal/analytics', description: 'تحليلات القضايا' }
       ]
     },
     {

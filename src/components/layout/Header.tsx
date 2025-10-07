@@ -1,4 +1,3 @@
-// src/components/layout/Header.tsx - Ultra Header Component
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";

@@ -1,7 +1,7 @@
-// src/pages/admin/properties/index.tsx
+﻿// src/pages/admin/properties/index.tsx
 import Head from "next/head";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header is now handled by MainLayout in _app.tsx
+
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
@@ -86,7 +86,7 @@ export default function AdminPropertiesList(){
   return (
     <div className="min-h-screen flex flex-col">
       <Head><title>إدارة العقارات</title></Head>
-      <Header />
+      
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">العقارات</h1>
@@ -183,7 +183,7 @@ export default function AdminPropertiesList(){
           </div>
         )}
       </main>
-      <Footer />
+      
     </div>
   );
 }

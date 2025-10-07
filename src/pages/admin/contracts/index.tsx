@@ -1,9 +1,9 @@
-// src/pages/admin/contracts/index.tsx
+﻿// src/pages/admin/contracts/index.tsx
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header is now handled by MainLayout in _app.tsx
+
 
 type Contract = {
   id: string; contractNumber: string; scope: "unified"|"per-unit";
@@ -33,7 +33,7 @@ export default function AdminContractsList(){
   return (
     <div className="min-h-screen flex flex-col">
       <Head><title>إدارة العقود</title></Head>
-      <Header />
+      
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">العقود</h1>
@@ -86,7 +86,7 @@ export default function AdminContractsList(){
           </div>
         )}
       </main>
-      <Footer />
+      
     </div>
   );
 }

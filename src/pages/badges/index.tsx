@@ -1,6 +1,5 @@
 import Head from "next/head";
-    import Header from "@/components/layout/Header";
-    import Footer from "@/components/layout/Footer";
+// Header and Footer are now handled by MainLayout in _app.tsx
     import { useI18n } from "@/lib/i18n";
     import React from "react";
     type Badge = { id:string; name:string; tone:"emerald"|"sky"|"amber"|"violet"; desc:string; };
@@ -36,11 +35,9 @@ export function Content(){
       return (
         <main dir={dir} className="min-h-screen bg-slate-50 flex flex-col">
           <Head><title>الشارات | Ain Oman</title></Head>
-          <Header />
           <div className="flex-1">
             <Content />
           </div>
-          <Footer />
         </main>
       );
     }

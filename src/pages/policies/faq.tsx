@@ -1,7 +1,6 @@
 // src/pages/policies/faq.tsx
 import Head from "next/head";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer are now handled by MainLayout in _app.tsx
 import { useState } from "react";
 
 // ---- i18n fallback ----
@@ -88,11 +87,9 @@ export default function Page() {
       <Head>
         <title>الأسئلة الشائعة | Ain Oman</title>
       </Head>
-      <Header />
       <div className="flex-1">
         <Content />
       </div>
-      <Footer />
     </main>
   );
 }

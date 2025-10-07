@@ -3,7 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/router";
-import Layout from "../../components/layout/Layout";
+// Layout is now handled by MainLayout in _app.tsx
 import { useCurrency } from "../../context/CurrencyContext";
 import { getStates, getVillages, OMAN_PROVINCES } from "../../lib/om-locations";
 import { FaFilter, FaBolt, FaBed, FaBath, FaRulerCombined, FaStar } from "react-icons/fa";
@@ -409,7 +409,7 @@ export default function PropertiesIndexPage({ initialProperties = [] }: { initia
   };
 
   return (
-    <Layout>
+    <div>
       <Head>
         <title>العقارات | عين عُمان</title>
       </Head>
@@ -709,7 +709,7 @@ export default function PropertiesIndexPage({ initialProperties = [] }: { initia
           </div>
         </section>
       </div>
-    </Layout>
+    </div>
   );
 }
 

@@ -3,8 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer are now handled by MainLayout in _app.tsx
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/context/ThemeContext";
 

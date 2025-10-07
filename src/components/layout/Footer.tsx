@@ -1,4 +1,3 @@
-// src/components/layout/Footer.tsx - Ultra Footer Component
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -104,7 +103,7 @@ interface LiveStats {
 }
 
 // Main Component
-export default function Footer() {
+export default function UltraFooter() {
   const [isBackToTopVisible, setIsBackToTopVisible] = useState(false);
   const [isNewsletterOpen, setIsNewsletterOpen] = useState(false);
   const [newsletterData, setNewsletterData] = useState<NewsletterData>({
@@ -120,11 +119,21 @@ export default function Footer() {
   });
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(() => new Date());
   const [theme, setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+  const [mounted, setMounted] = useState(false);
 
   const newsletterRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Set mounted on client-side to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Footer sections
   const footerSections: FooterSection[] = [
@@ -310,7 +319,7 @@ export default function Footer() {
           إحصائيات مباشرة
         </h3>
         <div className="text-sm opacity-90">
-          آخر تحديث: {currentTime.toLocaleTimeString('ar-SA')}
+          آخر تحديث: {mounted ? currentTime.toLocaleTimeString('ar-SA') : '--:--:--'}
         </div>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -618,7 +627,7 @@ export default function Footer() {
                       className="group flex items-start gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                     >
                       <ArrowRightIcon className="w-4 h-4 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
-          <div>
+                      <div>
                         <div className="flex items-center gap-2">
                           <span>{link.label}</span>
                           {link.badge && (
@@ -638,10 +647,10 @@ export default function Footer() {
                     </Link>
                   </li>
                 ))}
-            </ul>
+              </ul>
             </div>
           ))}
-          </div>
+        </div>
 
         {/* Additional Sections */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
@@ -649,7 +658,7 @@ export default function Footer() {
           {renderSocialLinks()}
           {renderPaymentMethods()}
           {renderQuickActions()}
-          </div>
+        </div>
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-200 dark:border-gray-700 pt-8">
@@ -685,7 +694,7 @@ export default function Footer() {
                     <option.icon className="w-4 h-4" />
                   </button>
                 ))}
-          </div>
+              </div>
 
               {/* Music Controls */}
               <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
@@ -711,7 +720,7 @@ export default function Footer() {
                     <SpeakerXMarkIcon className="w-4 h-4" />
                   )}
                 </button>
-        </div>
+              </div>
 
               {/* Language Selector */}
               <select className="text-sm bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">

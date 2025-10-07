@@ -1,6 +1,6 @@
-import Head from "next/head";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+﻿import Head from "next/head";
+// Header is now handled by MainLayout in _app.tsx
+
 import { useI18n } from "@/lib/i18n";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -50,7 +50,7 @@ export default function RoleDev(){
   return (
     <main dir={dir} className="min-h-screen bg-slate-50 flex flex-col">
       <Head><title>محاكاة الأدوار</title></Head>
-      <Header />
+      
 
       <div className="container mx-auto px-4 py-10 flex-1">
         <h1 className="text-2xl font-bold mb-6">تجربة لوحات التحكم</h1>
@@ -85,7 +85,7 @@ export default function RoleDev(){
         </div>
       </div>
 
-      <Footer />
+      
     </main>
   );
 }

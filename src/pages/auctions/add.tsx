@@ -1,10 +1,10 @@
-// src/pages/auctions/add.tsx
+﻿// src/pages/auctions/add.tsx
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header is now handled by MainLayout in _app.tsx
+
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -195,14 +195,14 @@ export default function AddAuctionPage() {
     return (
       <main dir={dir} className={isDark ? "bg-gray-900 min-h-screen" : "bg-gray-50 min-h-screen"}>
         <Head><title>إضافة مزاد | Ain Oman</title></Head>
-        <Header />
+        
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-500 mx-auto mb-6"></div>
             <p className={`text-xl ${isDark ? "text-white" : "text-gray-800"}`}>جاري التحميل...</p>
           </div>
         </div>
-        <Footer />
+        
       </main>
     );
   }
@@ -212,7 +212,7 @@ export default function AddAuctionPage() {
       <Head>
         <title>إضافة مزاد جديد | Ain Oman</title>
       </Head>
-      <Header />
+      
 
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="flex items-center mb-6">
@@ -568,7 +568,7 @@ export default function AddAuctionPage() {
         </div>
       </div>
 
-      <Footer />
+      
     </main>
   );
 }

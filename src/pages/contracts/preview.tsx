@@ -1,7 +1,7 @@
-// src/pages/contracts/preview.tsx
+﻿// src/pages/contracts/preview.tsx
 import Head from "next/head";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header is now handled by MainLayout in _app.tsx
+
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 
@@ -31,7 +31,7 @@ export default function EffectiveContractPreview(){
   return (
     <div className="min-h-screen flex flex-col">
       <Head><title>العقد الفعّال</title></Head>
-      <Header />
+      
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <h1 className="text-xl font-semibold">العقد الفعّال</h1>
         {loading? <div>جارٍ التحميل…</div> : err? <div className="text-red-600">{err}</div> : eff ? (
@@ -48,7 +48,7 @@ export default function EffectiveContractPreview(){
           </>
         ) : <div>لا يوجد عقد مهيأ.</div>}
       </main>
-      <Footer />
+      
     </div>
   );
 }

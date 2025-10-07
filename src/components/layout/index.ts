@@ -25,7 +25,7 @@ export type {
   LayoutConfig
 } from './types';
 
-export { useLayout, LayoutContext } from './Layout';
+export { useLayout } from './Layout';
 
 // Re-export utilities
 export { 
