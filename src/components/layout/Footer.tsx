@@ -151,19 +151,6 @@ export default function Footer() {
       ]
     },
     {
-      id: 'legal',
-      title: 'القضايا القانونية',
-      icon: ScaleIcon,
-      links: [
-        { id: 'cases', label: 'جميع القضايا', href: '/legal', description: 'إدارة القضايا القانونية' },
-        { id: 'new-case', label: 'قضية جديدة', href: '/legal/new', description: 'إنشاء قضية قانونية جديدة', isNew: true },
-        { id: 'directory', label: 'دليل المحامين', href: '/legal/directory', description: 'دليل المحامين المعتمدين' },
-        { id: 'documents', label: 'المستندات', href: '/legal/documents', description: 'إدارة المستندات القانونية' },
-        { id: 'appointments', label: 'المواعيد', href: '/legal/appointments', description: 'إدارة المواعيد القانونية' },
-        { id: 'analytics', label: 'التحليلات', href: '/legal/analytics', description: 'تحليلات القضايا' }
-      ]
-    },
-    {
       id: 'services',
       title: 'الخدمات',
       icon: Cog6ToothIcon,
@@ -589,7 +576,7 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-              منصة شاملة لإدارة العقارات والمزادات والقضايا القانونية في سلطنة عُمان. 
+              منصة شاملة لإدارة العقارات والمزادات في سلطنة عُمان. 
               نحن نقدم حلولاً ذكية ومبتكرة لجميع احتياجاتك العقارية.
             </p>
             
