@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { 
@@ -103,7 +101,7 @@ interface LiveStats {
 }
 
 // Main Component
-export default function UltraFooter() {
+export default function Footer() {
   const [isBackToTopVisible, setIsBackToTopVisible] = useState(false);
   const [isNewsletterOpen, setIsNewsletterOpen] = useState(false);
   const [newsletterData, setNewsletterData] = useState<NewsletterData>({
