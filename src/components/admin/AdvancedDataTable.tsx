@@ -1,4 +1,4 @@
-// src/components/admin/AdvancedDataTable.tsx - جدول بيانات متطور مع تأثيرات بصرية
+﻿// src/components/admin/AdvancedDataTable.tsx - جدول بيانات متطور مع تأثيرات بصرية
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { 
@@ -141,7 +141,7 @@ export default function AdvancedDataTable({ data, loading = false }: AdvancedDat
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM', {
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn', 
       year: 'numeric',
       month: 'short',
       day: 'numeric'

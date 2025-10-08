@@ -1,32 +1,59 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Messages, uid, now, Audit, Cases } from "../../../server/legal/store";
+import { Messages, uid, now, Audit } from "../../../server/legal/store";
 import { contextFrom } from "../../../lib/user-context";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const ctx = contextFrom(req);
-  const caseId = (req.query.caseId as string) || (req.body?.caseId as string);
 
-  if (req.method==="GET") {
-    if (!caseId) return res.status(400).json({ error:"caseId required"});
-    return res.status(200).json(Messages.list(ctx.tenantId, caseId));
+  if (req.method === "GET") {
+    try {
+      const { caseId } = req.query;
+      const messages = Messages.list(ctx.tenantId, caseId as string);
+      return res.status(200).json(messages);
+    } catch (error) {
+      console.error('Error getting messages:', error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
   }
 
-  if (req.method==="POST") {
-    const action = String(req.body?.action||"create");
-    if (action==="create") {
-      if (!caseId) return res.status(400).json({ error:"caseId required" });
-      if (!Cases.get(ctx.tenantId, caseId)) Cases.upsertById({ id: caseId, tenantId: ctx.tenantId });
-      const text = String(req.body?.text||"").trim(); if (!text) return res.status(400).json({ error:"invalid" });
-      const m = Messages.add({ id: uid(), tenantId: ctx.tenantId, caseId, by: ctx.userId, text, at: now() });
-      Audit.add({ id: uid(), tenantId: ctx.tenantId, actorId: ctx.userId, action: "message", entity: "message", entityId: m.id, at: now(), meta: { caseId } });
-      return res.status(201).json(m);
+  if (req.method === "POST") {
+    try {
+      const { caseId, content, type = 'update', attachments = [] } = req.body;
+      
+      if (!caseId || !content) {
+        return res.status(400).json({ error: "Case ID and content are required" });
+      }
+
+      const message = Messages.add(ctx.tenantId, caseId, {
+        content,
+        type,
+        attachments,
+        createdBy: ctx.userId,
+        by: ctx.userId,
+        text: content,
+        at: new Date().toISOString()
+      });
+
+      Audit.add({ 
+        id: uid(), 
+        tenantId: ctx.tenantId, 
+        actorId: ctx.userId, 
+        action: "messageAdd", 
+        entity: "message", 
+        entityId: message.id, 
+        at: now(), 
+        meta: { 
+          caseId,
+          messageType: type
+        } 
+      });
+
+      return res.status(201).json(message);
+    } catch (error) {
+      console.error('Error adding message:', error);
+      return res.status(500).json({ error: "Internal server error" });
     }
-    if (action==="void") {
-      const id = String(req.body?.id||""); const reason = String(req.body?.reason||"voided");
-      const m = Messages.update(id, { voided: true, voidReason: reason }); if (!m) return res.status(404).json({ error:"not_found" }); return res.status(200).json(m);
-    }
-    return res.status(400).json({ error:"invalid_action" });
   }
 
-  res.setHeader("Allow","GET,POST"); return res.status(405).end();
+  return res.status(405).json({ error: "Method not allowed" });
 }

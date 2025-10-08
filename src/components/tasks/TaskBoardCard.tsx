@@ -2,6 +2,7 @@ import TaskStatusPill from "./TaskStatusPill";
 import TaskQuickActions from "./TaskQuickActions";
 import TaskExportButtons from "./TaskExportButtons";
 import PriorityTint from "./PriorityTint";
+import PropertyBadge from "./PropertyBadge";
 
 export default function TaskBoardCard({
   task,
@@ -18,6 +19,7 @@ export default function TaskBoardCard({
     labels?: string[];
     createdAt?: string;
     updatedAt?: string;
+    propertyId?: string;
   };
   onChanged?: () => void;
 }) {
@@ -27,6 +29,9 @@ export default function TaskBoardCard({
         <div className="flex items-start justify-between gap-2">
           <div className="text-sm font-semibold leading-5">{task.title}</div>
           <TaskStatusPill status={task.status} priority={task.priority} />
+        </div>
+        <div className="flex items-center gap-2">
+          <PropertyBadge propertyId={(task as any).propertyId} taskId={task.id} />
         </div>
         {task.description && <div className="text-xs text-gray-700 line-clamp-3">{task.description}</div>}
         <div className="flex flex-wrap gap-1">
@@ -40,4 +45,3 @@ export default function TaskBoardCard({
     </PriorityTint>
   );
 }
-5) صفحة كانبان وإدارة المهام (كاملة)

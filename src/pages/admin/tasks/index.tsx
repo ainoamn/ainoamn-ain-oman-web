@@ -75,15 +75,16 @@ export default function TasksIndexPage() {
     setLoading(true);
     setErr("");
     try {
-      // استخدام API المبسط
-      const response = await fetch("/api/tasks/simple", {
+      // استخدام API المبسط مع فلترة اختيارية حسب propertyId
+      const url = pid ? `/api/tasks/simple?propertyId=${encodeURIComponent(pid)}` : "/api/tasks/simple";
+      const response = await fetch(url, {
         cache: "no-store",
         credentials: "include"
       });
       
       if (response.ok) {
         const data = await response.json();
-        console.log("Admin tasks loaded:", data.tasks?.length || 0, "tasks");
+        console.log("Admin tasks loaded:", data.tasks?.length || 0, "tasks", pid ? `(propertyId=${pid})` : "");
         setItems(Array.isArray(data.tasks) ? data.tasks : []);
       } else {
         console.error("Failed to fetch tasks:", response.status);
@@ -99,7 +100,7 @@ export default function TasksIndexPage() {
     }
   }
 
-  useEffect(() => { if (ready) load(""); }, [ready]);
+  useEffect(() => { if (ready) load(propertyId); }, [ready, propertyId]);
 
   // تزامن تلقائي بعد تحديث أي مهمة في صفحة التفاصيل
   useEffect(() => {
@@ -119,7 +120,7 @@ export default function TasksIndexPage() {
           // إعادة تحميل البيانات عند أي تحديث مع تأخير صغير لضمان تحديث البيانات
           setTimeout(() => {
             console.log("Admin tasks reloading after broadcast");
-            load("");
+            load(propertyId);
           }, 100);
         }
       };

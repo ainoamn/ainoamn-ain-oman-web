@@ -4,8 +4,7 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer are now handled by MainLayout in _app.tsx
 import { useI18n } from "@/lib/i18n";
 
 
@@ -20,7 +19,6 @@ return (
 <Head>
 <title>{t("property.requests.title","طلبات العقار")} | Ain Oman</title>
 </Head>
-<Header />
 <main className="flex-1">
 <div className="mx-auto max-w-7xl px-4 py-8">
 <nav className="text-sm text-slate-500 mb-6">
@@ -59,7 +57,6 @@ return (
 </div>
 </div>
 </main>
-<Footer />
 </div>
 );
 }

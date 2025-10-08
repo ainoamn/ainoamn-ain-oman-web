@@ -1,4 +1,4 @@
-// src/pages/manage-properties/requests.tsx - طلبات إدارة العقارات
+﻿// src/pages/manage-properties/requests.tsx - طلبات إدارة العقارات
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -132,7 +132,7 @@ export default function PropertyRequestsPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM');
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' });
   };
 
   const handleApproveRequest = async (requestId: string) => {

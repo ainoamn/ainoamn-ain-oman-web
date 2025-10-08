@@ -1,13 +1,12 @@
-// src/pages/profile/contracts/index.tsx
+﻿// src/pages/profile/contracts/index.tsx
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer are now handled by MainLayout in _app.tsx
 
 type Contract = { id:string; contractNumber:string; startDate?:string; endDate?:string; status:string; totals?:{amount:number;currency?:string}; };
 
-function dstr(s?:string){ if(!s) return "-"; const d=new Date(s); return d.toLocaleDateString("ar-OM",{year:"numeric",month:"2-digit",day:"2-digit"}); }
+function dstr(s?:string){ if(!s) return "-"; const d=new Date(s); return d.toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn', year:"numeric",month:"2-digit",day:"2-digit"}); }
 function money(a?:number,c="OMR"){ return new Intl.NumberFormat("ar-OM",{style:"currency",currency:c,maximumFractionDigits:3}).format(Number(a||0)); }
 
 export default function ProfileContracts(){
@@ -26,7 +25,6 @@ export default function ProfileContracts(){
   return (
     <div className="min-h-screen flex flex-col">
       <Head><title>عقودي</title></Head>
-      <Header />
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <h1 className="text-xl font-semibold">عقودي</h1>
         {loading? <div>جارٍ التحميل…</div> :
@@ -52,7 +50,6 @@ export default function ProfileContracts(){
           </div>
         }
       </main>
-      <Footer />
     </div>
   );
 }

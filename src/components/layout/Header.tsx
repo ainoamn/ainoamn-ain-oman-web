@@ -1,336 +1,776 @@
-// src/components/layout/Header.tsx
-"use client";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { useLayoutScope } from "@/contexts/LayoutScope"; // حارس منع التكرار
+import { useRouter } from "next/router";
+import InstantLink from "@/components/InstantLink";
+import { 
+  MagnifyingGlassIcon, 
+  BellIcon, 
+  HeartIcon, 
+  UserIcon, 
+  Bars3Icon, 
+  XMarkIcon,
+  SunIcon,
+  MoonIcon,
+  GlobeAltIcon,
+  CurrencyDollarIcon,
+  SparklesIcon,
+  ChatBubbleLeftRightIcon,
+  MapPinIcon,
+  Cog6ToothIcon,
+  ArrowRightIcon,
+  ChevronDownIcon,
+  HomeIcon,
+  BuildingOfficeIcon,
+  ScaleIcon,
+  ChartBarIcon,
+  UserGroupIcon,
+  DocumentTextIcon,
+  PhoneIcon,
+  EnvelopeIcon,
+  ShareIcon,
+  BookmarkIcon,
+  EyeIcon,
+  PlusIcon
+} from "@heroicons/react/24/outline";
+import { 
+  MagnifyingGlassIcon as MagnifyingGlassIconSolid,
+  BellIcon as BellIconSolid,
+  HeartIcon as HeartIconSolid,
+  UserIcon as UserIconSolid,
+  HomeIcon as HomeIconSolid,
+  BuildingOfficeIcon as BuildingOfficeIconSolid,
+  ScaleIcon as ScaleIconSolid,
+  ChartBarIcon as ChartBarIconSolid,
+  UserGroupIcon as UserGroupIconSolid,
+  DocumentTextIcon as DocumentTextIconSolid,
+  PhoneIcon as PhoneIconSolid,
+  EnvelopeIcon as EnvelopeIconSolid,
+  ShareIcon as ShareIconSolid,
+  BookmarkIcon as BookmarkIconSolid,
+  EyeIcon as EyeIconSolid,
+  PlusIcon as PlusIconSolid
+} from "@heroicons/react/24/solid";
 
-type MenuItem = { label: string; href: string };
-type HeaderConfig = {
-  backgroundColor: string;
-  textColor: string;
-  logo: string;
-  menuItems: MenuItem[];
-  showUserColorPicker: boolean;
-  availableColors: string[];
-};
-const K = { header: "hf.header.v1", userColor: "hf.userColor.v1" };
+// Types
+interface MenuItem {
+  id: string;
+  label: string;
+  href: string;
+  icon?: React.ComponentType<any>;
+  iconSolid?: React.ComponentType<any>;
+  description?: string;
+  badge?: string;
+  children?: MenuItem[];
+  isNew?: boolean;
+  isHot?: boolean;
+}
 
-type SessionUser = { id?: string; name?: string; role?: string; features?: string[] } | null;
-const AUTH_KEY = "ain_auth";
-const AUTH_EVENT = "ain_auth:change";
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  role: string;
+  notifications: number;
+  favorites: number;
+  isVerified: boolean;
+}
 
+interface SearchSuggestion {
+  id: string;
+  type: 'property' | 'location' | 'service' | 'user';
+  title: string;
+  subtitle?: string;
+  image?: string;
+  price?: string;
+  location?: string;
+  rating?: number;
+  actionUrl?: string;
+}
+
+interface NotificationItem {
+  id: string;
+  type: 'message' | 'property' | 'auction' | 'system';
+  title: string;
+  message: string;
+  time: string;
+  isRead: boolean;
+  actionUrl?: string;
+  icon?: React.ComponentType<any>;
+}
+
+// Main Component
 export default function Header() {
-  // إذا الصفحة داخل تخطيط عالمي، ألغِ العرض لتجنّب التكرار
-  const scope = useLayoutScope();
-  if (scope?.global) return null;
+  const router = useRouter();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+  const [language, setLanguage] = useState('ar');
+  const [currency, setCurrency] = useState('OMR');
+  const [user, setUser] = useState<User | null>(null);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [isOnline, setIsOnline] = useState(true);
 
-  const [brand, setBrand] = useState("#0d9488");
-  const [cfg, setCfg] = useState<HeaderConfig>({
-    backgroundColor: "#0d9488",
-    textColor: "#ffffff",
-    logo: "/logo.png",
-    menuItems: [
-      { label: "الرئيسية", href: "/" },
-      { label: "العقارات", href: "/properties" },
-      { label: "المزادات", href: "/auctions" },
-      { label: "المطورون", href: "/development/projects" },
-      { label: "الاشتراكات", href: "/subscriptions" },
-      { label: "التقييمات", href: "/reviews" },
-      { label: "تواصل معنا", href: "/contact" },
-    ],
-    showUserColorPicker: true,
-    availableColors: ["#0d9488", "#2563eb", "#7c3aed", "#dc2626", "#0f766e"],
-  });
+  // Refs
+  const notificationsRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const themeMenuRef = useRef<HTMLDivElement>(null);
 
-  const [hiddenOnScroll, setHiddenOnScroll] = useState(false);
-  const [paletteOpen, setPaletteOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const lastY = useRef(0);
-  const paletteRef = useRef<HTMLDivElement | null>(null);
-  const moreRef = useRef<HTMLDivElement | null>(null);
-  const [user, setUser] = useState<SessionUser>(null);
+  // Menu Items
+  const menuItems: MenuItem[] = [
+    {
+      id: 'home',
+      label: 'الرئيسية',
+      href: '/',
+      icon: HomeIcon,
+      iconSolid: HomeIconSolid,
+      description: 'الصفحة الرئيسية'
+    },
+    {
+      id: 'properties',
+      label: 'العقارات',
+      href: '/properties',
+      icon: BuildingOfficeIcon,
+      iconSolid: BuildingOfficeIconSolid,
+      description: 'تصفح العقارات',
+      badge: 'جديد',
+      isNew: true,
+      children: [
+        { id: 'all-properties', label: 'جميع العقارات', href: '/properties' },
+        { id: 'apartments', label: 'شقق', href: '/properties?type=apartment' },
+        { id: 'villas', label: 'فيلات', href: '/properties?type=villa' },
+        { id: 'offices', label: 'مكاتب', href: '/properties?type=office' },
+        { id: 'shops', label: 'محلات', href: '/properties?type=shop' },
+        { id: 'land', label: 'أراضي', href: '/properties?type=land' },
+        { id: 'commercial', label: 'تجاري', href: '/properties?type=commercial' }
+      ]
+    },
+    {
+      id: 'auctions',
+      label: 'المزادات',
+      href: '/auctions',
+      icon: ScaleIcon,
+      iconSolid: ScaleIconSolid,
+      description: 'المزادات العقارية',
+      badge: 'مميز',
+      isHot: true,
+      children: [
+        { id: 'active-auctions', label: 'المزادات الحالية', href: '/auctions' },
+        { id: 'upcoming-auctions', label: 'مزادات قادمة', href: '/auctions?status=upcoming' },
+        { id: 'my-auctions', label: 'مزاداتي', href: '/auctions/my-auctions' },
+        { id: 'new-auction', label: 'إنشاء مزاد', href: '/auctions/new' }
+      ]
+    },
+    {
+      id: 'development',
+      label: 'التطوير العقاري',
+      href: '/development',
+      icon: ChartBarIcon,
+      iconSolid: ChartBarIconSolid,
+      description: 'المشاريع العقارية',
+      children: [
+        { id: 'projects', label: 'المشاريع', href: '/development/projects' },
+        { id: 'opportunities', label: 'الفرص الاستثمارية', href: '/development/opportunities' },
+        { id: 'financing', label: 'التمويل', href: '/development/financing' },
+        { id: 'partners', label: 'الشركاء', href: '/partners' }
+      ]
+    },
+  ];
 
-  function readSession(): SessionUser {
-    try {
-      const raw = localStorage.getItem(AUTH_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  }
-  function doLogout() {
-    try {
-      localStorage.removeItem(AUTH_KEY);
-      localStorage.removeItem("auth_token");
-    } catch {}
-    try {
-      window.dispatchEvent(new CustomEvent(AUTH_EVENT));
-    } catch {}
-    setUser(null);
-  }
-
-  useEffect(() => {
-    try {
-      const h = localStorage.getItem(K.header);
-      if (h) setCfg((o) => ({ ...o, ...JSON.parse(h) }));
-    } catch {}
-    (async () => {
-      try {
-        const r = await fetch("/api/header-footer");
-        if (r.ok) {
-          const j = await r.json();
-          if (j?.header) setCfg((o) => ({ ...o, ...j.header }));
-        }
-      } catch {}
-    })();
-  }, []);
-
-  useEffect(() => {
-    const userColor = typeof window !== "undefined" ? localStorage.getItem(K.userColor) : null;
-    const color = userColor || cfg.backgroundColor || "#0d9488";
-    setBrand(color);
-    applyTheme(color);
-  }, [cfg.backgroundColor]);
-
-  useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY;
-      setHiddenOnScroll(y > lastY.current && y > 20);
-      lastY.current = y;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    setUser(readSession());
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === AUTH_KEY) setUser(readSession());
-    };
-    const onCustom = () => setUser(readSession());
-    window.addEventListener("storage", onStorage);
-    window.addEventListener(AUTH_EVENT, onCustom as any);
-    return () => {
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener(AUTH_EVENT, onCustom as any);
-    };
-  }, []);
-
-  useEffect(() => {
-    const onDocClick = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (paletteOpen && paletteRef.current && !paletteRef.current.contains(t)) setPaletteOpen(false);
-      if (moreOpen && moreRef.current && !moreRef.current.contains(t)) setMoreOpen(false);
-    };
-    document.addEventListener("mousedown", onDocClick);
-    return () => document.removeEventListener("mousedown", onDocClick);
-  }, [paletteOpen, moreOpen]);
-
-  const chooseColor = (hex: string) => {
-    try {
-      localStorage.setItem(K.userColor, hex);
-    } catch {}
-    setBrand(hex);
-    applyTheme(hex);
-    setPaletteOpen(false);
+  // Mock data
+  const mockUser: User = {
+    id: '1',
+    name: 'أحمد محمد',
+    email: 'ahmed@example.com',
+    avatar: '/demo/user1.jpg',
+    role: 'مدير',
+    notifications: 5,
+    favorites: 12,
+    isVerified: true
   };
 
-  const topLinks = cfg.menuItems.slice(0, 4);
-  const moreLinks = cfg.menuItems.slice(4);
+  const mockNotifications: NotificationItem[] = [
+    {
+      id: '1',
+      type: 'property',
+      title: 'عقار جديد',
+      message: 'تم إضافة عقار جديد في مسقط',
+      time: 'منذ 5 دقائق',
+      isRead: false,
+      actionUrl: '/properties/new',
+      icon: BuildingOfficeIcon
+    },
+    {
+      id: '2',
+      type: 'message',
+      title: 'رسالة جديدة',
+      message: 'لديك رسالة من العميل محمد',
+      time: 'منذ 15 دقيقة',
+      isRead: false,
+      actionUrl: '/messages',
+      icon: ChatBubbleLeftRightIcon
+    },
+    {
+      id: '3',
+      type: 'system',
+      title: 'تحديث النظام',
+      message: 'تم تحديث النظام بنجاح',
+      time: 'منذ ساعة',
+      isRead: true,
+      icon: Cog6ToothIcon
+    }
+  ];
 
-  return (
-    <div
-      className={`brand-scope sticky top-0 z-50 transition-transform duration-300 ${
-        hiddenOnScroll ? "-translate-y-full" : "translate-y-0"
-      }`}
-    >
-      <header
-        className="border-b"
-        style={{ backgroundColor: brand, color: cfg.textColor, borderColor: "rgba(255,255,255,0.2)" }}
-      >
-        <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6">
-          <div className="flex items-center justify-between py-3">
-            <Link href="/" className="flex items-center gap-2">
-              <img src={cfg.logo} alt="logo" className="w-9 h-9 object-contain" />
-              <span className="text-2xl font-black tracking-tight opacity-90">عين عُمان</span>
-            </Link>
+  const mockSearchSuggestions: SearchSuggestion[] = [
+    {
+      id: '1',
+      type: 'property',
+      title: 'شقة في القرم',
+      subtitle: '3 غرف نوم، 2 حمام',
+      price: '450 ريال',
+      location: 'القرم، مسقط',
+      rating: 4.8,
+      image: '/demo/apartment1.jpg'
+    },
+    {
+      id: '2',
+      type: 'location',
+      title: 'القرم',
+      subtitle: 'منطقة سكنية راقية',
+      location: 'مسقط، سلطنة عمان'
+    },
+    {
+      id: '3',
+      type: 'service',
+      title: 'خدمة التقييم العقاري',
+      subtitle: 'تقييم احترافي للعقارات'
+    }
+  ];
 
-            <nav className="hidden lg:flex items-center gap-1">
-              {topLinks.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="px-3 py-2 rounded-xl font-medium transition-all hover:shadow hover:ring-2 hover:ring-white/30"
-                  style={{ color: cfg.textColor, opacity: 0.9 }}
-                >
-                  {item.label}
-                </Link>
-              ))}
+  // Effects
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
 
-              {moreLinks.length > 0 && (
-                <div className="relative" ref={moreRef}>
-                  <button
-                    className="px-3 py-2 rounded-xl font-medium hover:ring-2 hover:ring-white/30"
-                    style={{ color: cfg.textColor, opacity: 0.9 }}
-                    onClick={() => setMoreOpen((s) => !s)}
-                    aria-haspopup="menu"
-                    aria-expanded={moreOpen}
-                    title="المزيد"
-                  >
-                    المزيد ▾
-                  </button>
-                  {moreLinks && moreOpen && (
-                    <div
-                      className="absolute end-0 mt-2 min-w-56 rounded-xl border border-white/15 bg-white text-gray-800 shadow-lg p-2"
-                      role="menu"
-                    >
-                      {moreLinks.map((c) => (
-                        <Link
-                          key={c.href}
-                          href={c.href}
-                          className="block px-3 py-2 rounded-lg text-sm hover:bg-teal-50 hover:text-teal-700 transition-colors"
-                          onClick={() => setMoreOpen(false)}
-                        >
-                          {c.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </nav>
+    const handleOnlineStatus = () => {
+      setIsOnline(navigator.onLine);
+    };
 
-            <div className="hidden lg:flex items-center gap-3">
-              {/* البحث الذكي */}
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="البحث في العقارات..."
-                  className="px-4 py-2 rounded-xl border border-white/25 bg-white/10 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/30 w-64"
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('online', handleOnlineStatus);
+    window.addEventListener('offline', handleOnlineStatus);
+
+    // Mock user data
+    setUser(mockUser);
+    setNotifications(mockNotifications);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('online', handleOnlineStatus);
+      window.removeEventListener('offline', handleOnlineStatus);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setIsNotificationsOpen(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+      if (themeMenuRef.current && !themeMenuRef.current.contains(event.target as Node)) {
+        setIsThemeMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+
+  // Theme handling
+  const handleThemeChange = (newTheme: 'light' | 'dark' | 'auto') => {
+    setTheme(newTheme);
+    setIsThemeMenuOpen(false);
+    
+    if (newTheme === 'auto') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.toggle('dark', prefersDark);
+    } else {
+      document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    }
+    
+    localStorage.setItem('theme', newTheme);
+  };
+
+  // Notification handling
+  const markNotificationAsRead = (id: string) => {
+    setNotifications(prev => 
+      prev.map(notif => 
+        notif.id === id ? { ...notif, isRead: true } : notif
+      )
+    );
+  };
+
+  const markAllNotificationsAsRead = () => {
+    setNotifications(prev => 
+      prev.map(notif => ({ ...notif, isRead: true }))
+    );
+  };
+
+  // Render functions
+  const renderSearchSuggestions = () => (
+    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto z-50">
+      {isSearching ? (
+        <div className="p-4 text-center">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-sm text-gray-500 mt-2">جاري البحث...</p>
+        </div>
+      ) : searchSuggestions.length > 0 ? (
+        <div className="p-2">
+          {searchSuggestions.map((suggestion) => (
+            <div
+              key={suggestion.id}
+              className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+              onClick={() => {
+                router.push(suggestion.actionUrl || '/');
+                setIsSearchOpen(false);
+                setSearchQuery('');
+              }}
+            >
+              {suggestion.image && (
+                <img
+                  src={suggestion.image}
+                  alt={suggestion.title}
+                  className="w-12 h-12 rounded-lg object-cover"
                 />
-                <button className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70">
-                  🔍
-                </button>
-              </div>
-
-              {/* الإشعارات */}
-              <div className="relative">
-                <button className="p-2 rounded-xl border border-white/25 text-white hover:ring-2 hover:ring-white/30 relative">
-                  🔔
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    3
-                  </span>
-                </button>
-              </div>
-
-              {/* المفضلة */}
-              <Link
-                href="/favorites"
-                className="p-2 rounded-xl border border-white/25 text-white hover:ring-2 hover:ring-white/30"
-                title="المفضلة"
-              >
-                ❤️
-              </Link>
-
-              {cfg.showUserColorPicker && (
-                <div className="relative" ref={paletteRef}>
-                  <button
-                    onClick={() => setPaletteOpen((s) => !s)}
-                    className="p-2 rounded-xl border border-white/25 text-white hover:ring-2 hover:ring-white/30"
-                    aria-haspopup="true"
-                    aria-expanded={paletteOpen}
-                    aria-label="اختيار اللون"
-                    title="اختيار اللون"
-                  >
-                    🎨
-                  </button>
-                  {paletteOpen && (
-                    <div className="absolute end-0 mt-2 rounded-xl border border-white/15 bg-white text-gray-800 shadow-lg p-3">
-                      <div className="flex items-center gap-2">
-                        {cfg.availableColors.slice(0, 5).map((c) => (
-                          <button
-                            key={c}
-                            onClick={() => chooseColor(c)}
-                            className="h-7 w-7 rounded-full border border-black/10 focus:outline-none focus:ring-2 focus:ring-black/20"
-                            style={{ backgroundColor: c }}
-                            title={c}
-                            aria-label={`لون ${c}`}
-                          />
-                        ))}
-                      </div>
-                    </div>
+              )}
+              <div className="flex-1">
+                <h4 className="font-medium text-gray-900 dark:text-white">{suggestion.title}</h4>
+                {suggestion.subtitle && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{suggestion.subtitle}</p>
+                )}
+                <div className="flex items-center gap-2 mt-1">
+                  {suggestion.price && (
+                    <span className="text-sm font-medium text-green-600">{suggestion.price}</span>
+                  )}
+                  {suggestion.location && (
+                    <span className="text-xs text-gray-400 flex items-center gap-1">
+                      <MapPinIcon className="w-3 h-3" />
+                      {suggestion.location}
+                    </span>
                   )}
                 </div>
-              )}
-
-              {user ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm opacity-90">{user.name}</span>
-                  <Link href="/dashboard" className="btn btn-primary" title="لوحتي">
-                    لوحتي
-                  </Link>
-                  <button
-                    onClick={doLogout}
-                    className="px-3 py-1.5 rounded-xl border border-white/25 text-white hover:ring-2 hover:ring-white/30"
-                    title="تسجيل الخروج"
-                  >
-                    خروج
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Link href="/register" className="px-3 py-1.5 rounded-xl border border-white/25 text-white hover:ring-2 hover:ring-white/30">
-                    تسجيل
-                  </Link>
-                  <Link href="/login" className="btn btn-primary" title="الدخول">
-                    الدخول
-                  </Link>
+              </div>
+              {suggestion.rating && (
+                <div className="flex items-center gap-1">
+                  <span className="text-yellow-500">★</span>
+                  <span className="text-sm text-gray-500">{suggestion.rating}</span>
                 </div>
               )}
             </div>
-
-            <div className="lg:hidden" />
-          </div>
+          ))}
         </div>
-      </header>
+      ) : searchQuery.length >= 2 ? (
+        <div className="p-4 text-center text-gray-500">
+          <p>لا توجد نتائج لـ "{searchQuery}"</p>
+        </div>
+      ) : null}
     </div>
   );
-}
 
-/* theme helpers */
-function applyTheme(hex: string) {
-  if (typeof document === "undefined") return;
-  const root = document.documentElement;
-  root.style.setProperty("--brand-600", hex);
-  root.style.setProperty("--brand-700", shade(hex, -8));
-  root.style.setProperty("--brand-800", shade(hex, -16));
-  const btnText = readableTextOn(hex);
-  root.style.setProperty("--btn-text", btnText);
-  try {
-    window.dispatchEvent(new CustomEvent("brand:changed", { detail: { color: hex } }));
-  } catch {}
-}
-function shade(hex: string, percent: number) {
-  const clean = hex.replace("#", "");
-  const p = Math.max(-100, Math.min(100, percent)) / 100;
-  const n = parseInt(clean, 16);
-  const r = n >> 16,
-    g = (n >> 8) & 0xff,
-    b = n & 0xff;
-  const rr = clamp(Math.round(r + (p < 0 ? r : 255 - r) * p));
-  const gg = clamp(Math.round(g + (p < 0 ? g : 255 - g) * p));
-  const bb = clamp(Math.round(b + (p < 0 ? b : 255 - b) * p));
-  return "#" + ((1 << 24) + (rr << 16) + (gg << 8) + bb).toString(16).slice(1);
-}
-function clamp(v: number) {
-  return Math.min(255, Math.max(0, v));
-}
-function readableTextOn(bgHex: string) {
-  const c = bgHex.replace("#", "");
-  const n = parseInt(c.length === 3 ? c.split("").map((x) => x + x).join("") : c, 16);
-  const r = (n >> 16) & 255,
-    g = (n >> 8) & 255,
-    b = n & 255;
-  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-  return yiq >= 140 ? "#111827" : "#ffffff";
+  const renderNotifications = () => (
+    <div className="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-gray-900 dark:text-white">الإشعارات</h3>
+          <button
+            onClick={markAllNotificationsAsRead}
+            className="text-sm text-blue-600 hover:text-blue-700"
+          >
+            تعيين الكل كمقروء
+          </button>
+        </div>
+      </div>
+      <div className="max-h-80 overflow-y-auto">
+        {notifications.length > 0 ? (
+          notifications.map((notification) => (
+            <div
+              key={notification.id}
+              className={`p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors ${
+                !notification.isRead ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+              }`}
+              onClick={() => {
+                markNotificationAsRead(notification.id);
+                if (notification.actionUrl) {
+                  router.push(notification.actionUrl);
+                }
+                setIsNotificationsOpen(false);
+              }}
+            >
+              <div className="flex items-start gap-3">
+                <div className={`p-2 rounded-lg ${
+                  notification.type === 'property' ? 'bg-green-100 text-green-600' :
+                  notification.type === 'message' ? 'bg-blue-100 text-blue-600' :
+                  notification.type === 'system' ? 'bg-purple-100 text-purple-600' :
+                  'bg-gray-100 text-gray-600'
+                }`}>
+                  {notification.icon && <notification.icon className="w-4 h-4" />}
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900 dark:text-white">{notification.title}</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{notification.message}</p>
+                  <p className="text-xs text-gray-400 mt-2">{notification.time}</p>
+                </div>
+                {!notification.isRead && (
+                  <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                )}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="p-8 text-center text-gray-500">
+            <BellIcon className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+            <p>لا توجد إشعارات جديدة</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderUserMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <img
+              src={user?.avatar || '/demo/user1.jpg'}
+              alt={user?.name}
+              className="w-12 h-12 rounded-full object-cover"
+            />
+            {user?.isVerified && (
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                <span className="text-white text-xs">✓</span>
+              </div>
+            )}
+          </div>
+          <div>
+            <h3 className="font-semibold text-gray-900 dark:text-white">{user?.name}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{user?.role}</p>
+          </div>
+        </div>
+      </div>
+      <div className="p-2">
+        <InstantLink
+          href="/profile"
+          className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          onClick={() => setIsUserMenuOpen(false)}
+        >
+          <UserIcon className="w-5 h-5 text-gray-500" />
+          <span>الملف الشخصي</span>
+        </InstantLink>
+        <InstantLink
+          href="/settings"
+          className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          onClick={() => setIsUserMenuOpen(false)}
+        >
+          <Cog6ToothIcon className="w-5 h-5 text-gray-500" />
+          <span>الإعدادات</span>
+        </InstantLink>
+        <InstantLink
+          href="/favorites"
+          className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          onClick={() => setIsUserMenuOpen(false)}
+        >
+          <HeartIcon className="w-5 h-5 text-gray-500" />
+          <span>المفضلة ({user?.favorites})</span>
+        </InstantLink>
+        <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+        <button
+          className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full text-left"
+          onClick={() => {
+            // Handle logout
+            setIsUserMenuOpen(false);
+          }}
+        >
+          <ArrowRightIcon className="w-5 h-5 text-red-500" />
+          <span className="text-red-600">تسجيل الخروج</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderThemeMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50">
+      <div className="p-2">
+        {[
+          { value: 'light', label: 'فاتح', icon: SunIcon },
+          { value: 'dark', label: 'داكن', icon: MoonIcon },
+          { value: 'auto', label: 'تلقائي', icon: Cog6ToothIcon }
+        ].map((option) => (
+          <button
+            key={option.value}
+            onClick={() => handleThemeChange(option.value as any)}
+            className={`flex items-center gap-3 p-3 rounded-xl w-full text-left transition-colors ${
+              theme === option.value
+                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                : 'hover:bg-gray-50 dark:hover:bg-gray-700'
+            }`}
+          >
+            <option.icon className="w-5 h-5" />
+            <span>{option.label}</span>
+            {theme === option.value && (
+              <div className="ml-auto w-2 h-2 bg-blue-600 rounded-full"></div>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <header
+      className={`sticky top-0 z-40 transition-all duration-300 ${
+        isScrolled
+          ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-200 dark:border-gray-700'
+          : 'bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700'
+      }`}
+    >
+      {/* Online Status Indicator */}
+      {!isOnline && (
+        <div className="bg-red-500 text-white text-center py-1 text-sm">
+          <span>⚠️ لا يوجد اتصال بالإنترنت</span>
+        </div>
+      )}
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <InstantLink href="/" className="flex items-center gap-3 group">
+            <div className="relative">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
+                <SparklesIcon className="w-6 h-6 text-white" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">عين عُمان</h1>
+              <p className="text-xs text-gray-500 dark:text-gray-400">منصة العقارات الذكية</p>
+            </div>
+          </InstantLink>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-1">
+            {menuItems.map((item) => (
+              <div key={item.id} className="relative group">
+                <InstantLink
+                  href={item.href}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
+                >
+                  {item.icon && <item.icon className="w-5 h-5" />}
+                  <span>{item.label}</span>
+                  {item.badge && (
+                    <span className={`px-2 py-0.5 text-xs rounded-full ${
+                      item.isNew ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                    }`}>
+                      {item.badge}
+                    </span>
+                  )}
+                  {item.children && <ChevronDownIcon className="w-4 h-4" />}
+                </InstantLink>
+
+                {/* Dropdown Menu */}
+                {item.children && (
+                  <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="p-2">
+                      {item.children.map((child) => (
+                        <InstantLink
+                          key={child.id}
+                          href={child.href}
+                          className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                          <span className="text-gray-700 dark:text-gray-300">{child.label}</span>
+                        </InstantLink>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </nav>
+
+          {/* Right Side Actions */}
+          <div className="flex items-center gap-2">
+            {/* Search Button - Redirects to properties page */}
+            <button
+              onClick={() => router.push('/properties')}
+              className="p-2 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+              title="البحث"
+            >
+              <MagnifyingGlassIcon className="w-5 h-5" />
+            </button>
+
+            {/* Quick Actions */}
+            <div className="hidden lg:flex items-center gap-1">
+              <InstantLink
+                href="/properties/new"
+                className="p-2 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all"
+                title="إضافة عقار"
+              >
+                <PlusIcon className="w-5 h-5" />
+              </InstantLink>
+              <InstantLink
+                href="/favorites"
+                className="p-2 text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all relative"
+                title="المفضلة"
+              >
+                <HeartIcon className="w-5 h-5" />
+                {user?.favorites && user.favorites > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                    {user.favorites}
+                  </span>
+                )}
+              </InstantLink>
+            </div>
+
+            {/* Notifications */}
+            <div className="relative" ref={notificationsRef}>
+              <button
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                className="p-2 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all relative"
+                title="الإشعارات"
+              >
+                <BellIcon className="w-5 h-5" />
+                {user?.notifications && user.notifications > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center">
+                    {user.notifications}
+                  </span>
+                )}
+              </button>
+              {isNotificationsOpen && renderNotifications()}
+            </div>
+
+            {/* Theme Selector */}
+            <div className="relative" ref={themeMenuRef}>
+              <button
+                onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
+                className="p-2 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all"
+                title="السمة"
+              >
+                {theme === 'light' ? (
+                  <SunIcon className="w-5 h-5" />
+                ) : theme === 'dark' ? (
+                  <MoonIcon className="w-5 h-5" />
+                ) : (
+                  <Cog6ToothIcon className="w-5 h-5" />
+                )}
+              </button>
+              {isThemeMenuOpen && renderThemeMenu()}
+            </div>
+
+            {/* Language & Currency */}
+            <div className="hidden lg:flex items-center gap-2">
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="text-sm bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="ar">العربية</option>
+                <option value="en">English</option>
+              </select>
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="text-sm bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="OMR">OMR</option>
+                <option value="AED">AED</option>
+                <option value="SAR">SAR</option>
+                <option value="USD">USD</option>
+              </select>
+            </div>
+
+            {/* User Menu */}
+            {user ? (
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center gap-2 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+                >
+                  <img
+                    src={user.avatar || '/demo/user1.jpg'}
+                    alt={user.name}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                  <span className="hidden lg:block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {user.name}
+                  </span>
+                </button>
+                {isUserMenuOpen && renderUserMenu()}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <InstantLink
+                  href="/login"
+                  className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                >
+                  تسجيل الدخول
+                </InstantLink>
+                <InstantLink
+                  href="/register"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+                >
+                  إنشاء حساب
+                </InstantLink>
+              </div>
+            )}
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-2 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all"
+            >
+              {isMobileMenuOpen ? (
+                <XMarkIcon className="w-6 h-6" />
+              ) : (
+                <Bars3Icon className="w-6 h-6" />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+          <div className="px-4 py-4 space-y-2">
+            {menuItems.map((item) => (
+              <InstantLink
+                key={item.id}
+                href={item.href}
+                className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {item.icon && <item.icon className="w-5 h-5 text-gray-500" />}
+                <span className="text-gray-700 dark:text-gray-300">{item.label}</span>
+                {item.badge && (
+                  <span className={`ml-auto px-2 py-0.5 text-xs rounded-full ${
+                    item.isNew ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
+              </InstantLink>
+            ))}
+          </div>
+        </div>
+      )}
+    </header>
+  );
 }

@@ -1,9 +1,10 @@
 // src/pages/properties/index.tsx
 import Head from "next/head";
 import Link from "next/link";
+import InstantLink from "@/components/InstantLink";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/router";
-import Layout from "../../components/layout/Layout";
+// Layout is now handled by MainLayout in _app.tsx
 import { useCurrency } from "../../context/CurrencyContext";
 import { getStates, getVillages, OMAN_PROVINCES } from "../../lib/om-locations";
 import { FaFilter, FaBolt, FaBed, FaBath, FaRulerCombined, FaStar } from "react-icons/fa";
@@ -63,11 +64,24 @@ function useMounted() {
   return m;
 }
 
-/** يحوّل العنوان إلى نص قابل للعرض */
-function titleToText(t?: Item["title"]) {
+/** يحوّل العنوان إلى نص قابل للعرض - يحل مشكلة Objects في React */
+function titleToText(t?: Item["title"]): string {
   if (!t) return "";
   if (typeof t === "string") return t;
-  return t.ar || t.en || "";
+  if (typeof t === "object" && (t.ar || t.en)) {
+    return t.ar || t.en || "";
+  }
+  return String(t || "");
+}
+
+/** تحويل أي قيمة localized إلى نص */
+function toSafeText(value: any): string {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object" && (value.ar || value.en)) {
+    return value.ar || value.en || "";
+  }
+  return String(value || "");
 }
 /** يجهّز مسار الصورة المعروضة */
 function getCardImage(p: Item) {
@@ -409,7 +423,7 @@ export default function PropertiesIndexPage({ initialProperties = [] }: { initia
   };
 
   return (
-    <Layout>
+    <div>
       <Head>
         <title>العقارات | عين عُمان</title>
       </Head>
@@ -709,7 +723,7 @@ export default function PropertiesIndexPage({ initialProperties = [] }: { initia
           </div>
         </section>
       </div>
-    </Layout>
+    </div>
   );
 }
 

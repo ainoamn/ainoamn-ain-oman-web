@@ -1,7 +1,9 @@
-// src/pages/favorites.tsx - المفضلة
+﻿// src/pages/favorites.tsx - المفضلة
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
+import InstantImage from '@/components/InstantImage';
 import { 
   FiHeart, FiMapPin, FiDollarSign, FiCalendar, FiEye, FiShare2,
   FiFilter, FiSearch, FiSortAsc, FiTrash2, FiDownload, FiPrinter,
@@ -130,7 +132,7 @@ export default function FavoritesPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM', {
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn', 
       year: 'numeric',
       month: 'long',
       day: 'numeric'

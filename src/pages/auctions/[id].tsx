@@ -3,8 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer are now handled by MainLayout in _app.tsx
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -344,7 +343,7 @@ export default function AuctionDetailsPage() {
         <Head>
           <title>Ain Oman | {t("auctions.loading")}</title>
         </Head>
-        <Header />
+        {/* Header and Footer are handled by MainLayout in _app.tsx */}
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-500 mx-auto mb-6"></div>
@@ -353,7 +352,6 @@ export default function AuctionDetailsPage() {
             </p>
           </div>
         </div>
-        <Footer />
       </main>
     );
   }
@@ -364,7 +362,7 @@ export default function AuctionDetailsPage() {
         <Head>
           <title>Ain Oman | {t("auctions.notfound")}</title>
         </Head>
-        <Header />
+        {/* Header and Footer handled by MainLayout */}
         <div className="min-h-screen flex items-center justify-center text-center">
           <div>
             <h2 className={`text-2xl font-bold mb-4 ${isDark ? "text-white" : "text-gray-800"}`}>
@@ -375,7 +373,6 @@ export default function AuctionDetailsPage() {
             </Link>
           </div>
         </div>
-        <Footer />
       </main>
     );
   }
@@ -385,7 +382,7 @@ export default function AuctionDetailsPage() {
       <Head>
         <title>{property.title} | Ain Oman</title>
       </Head>
-      <Header />
+      {/* Header and Footer handled by MainLayout */}
       
       <div className="container mx-auto px-4">
         <Link href="/auctions" className={`${isDark ? "text-gray-300" : "text-gray-700"} inline-block mb-6`}>
@@ -617,7 +614,7 @@ export default function AuctionDetailsPage() {
         </div>
       </div>
       
-      <Footer />
+      {/* Footer handled by MainLayout */}
     </main>
   );
 }

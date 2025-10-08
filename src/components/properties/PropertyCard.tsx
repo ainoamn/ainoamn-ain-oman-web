@@ -1,19 +1,41 @@
 import { useCurrency } from "@/context/CurrencyContext";
 import { Property } from "@/types/property";
-import Link from "next/link";
+import InstantLink from "@/components/InstantLink";
+import InstantImage from "@/components/InstantImage";
+import { toSafeText } from "@/components/SafeText";
 import { FaBed, FaBath, FaRulerCombined, FaStar, FaBolt } from "react-icons/fa";
 
 interface PropertyCardProps {
   property: Property;
 }
 
+/**
+ * PropertyCard - بطاقة عقار محسنة للأداء الفائق ⚡
+ * 
+ * تستخدم InstantLink للتنقل الفوري و InstantImage للصور المحسنة
+ * تحل مشكلة Objects في React باستخدام toSafeText
+ */
 export default function PropertyCard({ property }: PropertyCardProps) {
   const { format } = useCurrency();
   
+  // تحويل title و description إلى نص آمن
+  const safeTitle = toSafeText(property.title || '', 'ar');
+  const safeLocation = toSafeText(property.location || property.province || '', 'ar');
+  
   return (
-    <Link href={`/property/${property.id}`} className="block border rounded-lg overflow-hidden shadow hover:shadow-lg transition">
-      <div className="relative">
-        <img src={property.images?.[0] || "/default-property.jpg"} alt={property.title} className="w-full h-48 object-cover" />
+    <InstantLink 
+      href={`/property/${property.id}`} 
+      className="block border rounded-lg overflow-hidden shadow hover:shadow-lg transition-all duration-300 hover:scale-[1.02] group"
+    >
+      <div className="relative overflow-hidden">
+        <InstantImage 
+          src={property.images?.[0] || "/default-property.jpg"} 
+          alt={property.title} 
+          width={400}
+          height={300}
+          className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+          priority={false}
+        />
         
         {/* شارة الرقم المرجعي */}
         {property.referenceNo && (
@@ -31,9 +53,9 @@ export default function PropertyCard({ property }: PropertyCardProps) {
       </div>
       
       <div className="p-4">
-        <h3 className="font-semibold text-lg mb-1 line-clamp-1">{property.title}</h3>
+        <h3 className="font-semibold text-lg mb-1 line-clamp-1">{safeTitle}</h3>
         <p className="text-gray-600 text-sm mb-2 line-clamp-1">
-          {property.location || `${property.province} - ${property.state}`}
+          {safeLocation || `${property.province || ''} - ${property.state || ''}`}
         </p>
         
         <div className="flex justify-between items-center mb-3">
@@ -57,6 +79,6 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           </div>
         </div>
       </div>
-    </Link>
+    </InstantLink>
   );
 }

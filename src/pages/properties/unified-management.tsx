@@ -1,4 +1,4 @@
-// صفحة موحدة لإدارة العقارات والوحدات - تصميم احترافي مع الذكاء الاصطناعي
+﻿// صفحة موحدة لإدارة العقارات والوحدات - تصميم احترافي مع الذكاء الاصطناعي
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -302,7 +302,7 @@ export default function UnifiedPropertyManagement() {
   // وظيفة تصدير التقرير
   const exportReport = () => {
     const reportData = {
-      generatedAt: new Date().toLocaleString('ar-OM'),
+      generatedAt: new Date().toLocaleString('ar', { calendar: 'gregory', numberingSystem: 'latn' }),
       summary: {
         totalProperties: properties.length,
         publishedProperties: properties.filter(p => p.published).length,
@@ -371,7 +371,7 @@ export default function UnifiedPropertyManagement() {
         <div class="header">
           <h1>قائمة العقارات - عين عُمان</h1>
           <p>تقرير شامل لجميع العقارات</p>
-          <p>تاريخ التقرير: ${new Date().toLocaleString('ar-OM')}</p>
+          <p>تاريخ التقرير: ${new Date().toLocaleString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}</p>
         </div>
         
         <div class="summary">
@@ -622,7 +622,7 @@ export default function UnifiedPropertyManagement() {
 
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM');
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' });
   };
 
   const getTitle = (title: Property['title']) => {

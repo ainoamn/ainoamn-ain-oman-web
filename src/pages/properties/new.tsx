@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import {
@@ -616,7 +616,7 @@ export default function AddNewProperty() {
             <h1>${formData.titleAr || 'تقرير العقار'}</h1>
             <h2 style="color: #4b5563; font-size: 18px; margin: 10px 0;">${formData.titleEn || ''}</h2>
             <p>رقم المرجع: ${formData.referenceNo}</p>
-            <p>تاريخ الإنشاء: ${new Date().toLocaleDateString('ar-SA')}</p>
+            <p>تاريخ الإنشاء: ${new Date().toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}</p>
             ${formData.surveyNumber ? `<p>رقم الرسم المساحي: ${formData.surveyNumber}</p>` : ''}
             ${formData.landNumber ? `<p>رقم الأرض: ${formData.landNumber}</p>` : ''}
           </div>

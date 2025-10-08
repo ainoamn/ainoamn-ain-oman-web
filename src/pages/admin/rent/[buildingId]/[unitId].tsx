@@ -2,11 +2,11 @@
 // نسخة كاملة مع تشديد التحقق: صورة عداد الكهرباء إلزامية دائمًا.
 // صورة عداد الماء إلزامية فقط إذا كانت الوحدة لديها عداد ماء.
 import Head from "next/head";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer handled by MainLayout in _app.tsx
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import InstantLink from "@/components/InstantLink";
 
 type TenantKind = "omani" | "expat" | "company";
 type Cheque = {
@@ -253,7 +253,7 @@ export default function RentUnitPage() {
       <Head>
         <title>إدارة تأجير وحدة</title>
       </Head>
-      <Header />
+      {/* Header handled by MainLayout */}
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">تأجير الوحدة</h1>
@@ -319,7 +319,7 @@ export default function RentUnitPage() {
             <input className="form-input" value={`الإيجار الشهري: ${monthlyRent} ${currency}`} readOnly />
             <input
               className="form-input"
-              value={`ينتهي: ${endDate ? new Date(endDate).toLocaleDateString("ar-OM") : "—"}`}
+              value={`ينتهي: ${endDate ? new Date(endDate).toLocaleDateString("ar", { calendar: 'gregory', numberingSystem: 'latn' }) : "—"}`}
               readOnly
             />
           </div>
@@ -539,7 +539,7 @@ export default function RentUnitPage() {
           إنشاء الحجز وجلب العقد للتوقيع
         </button>
       </main>
-      <Footer />
+      {/* Footer handled by MainLayout */}
     </div>
   );
 }

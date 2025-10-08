@@ -1,10 +1,10 @@
 // src/pages/contracts/sign/[id].tsx
 import Head from "next/head";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer handled by MainLayout in _app.tsx
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import InstantLink from "@/components/InstantLink";
 
 type Booking = {
   id: string;
@@ -92,7 +92,7 @@ export default function SignContractPage() {
       <Head>
         <title>توقيع العقد</title>
       </Head>
-      <Header />
+      {/* Header handled by MainLayout */}
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">توقيع العقد #{b?.bookingNumber || raw}</h1>
@@ -128,7 +128,7 @@ export default function SignContractPage() {
           <div>لا يوجد عقد.</div>
         )}
       </main>
-      <Footer />
+      {/* Footer handled by MainLayout */}
     </div>
   );
 }

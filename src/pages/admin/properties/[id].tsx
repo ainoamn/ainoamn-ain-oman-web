@@ -1,7 +1,7 @@
 import Head from "next/head";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer handled by MainLayout in _app.tsx
 import Link from "next/link";
+import InstantLink from "@/components/InstantLink";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import type { Property, Unit, ExtraRow } from "@/types/property";

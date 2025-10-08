@@ -1,10 +1,10 @@
 // src/pages/admin/customers/[name].tsx - صفحة بيانات العميل
 import Head from "next/head";
+// Header and Footer handled by MainLayout in _app.tsx
 import Link from "next/link";
+import InstantLink from "@/components/InstantLink";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 
 type Customer = {
   name: string;
@@ -80,7 +80,9 @@ export default function CustomerDetailsPage() {
   }, [customerName]);
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM', {
+    return new Date(dateString).toLocaleDateString('ar', {
+      calendar: 'gregory', // ✅ التقويم الميلادي
+      numberingSystem: 'latn', // ✅ الأرقام اللاتينية
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -121,11 +123,10 @@ export default function CustomerDetailsPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <Head><title>بيانات العميل</title></Head>
-        <Header />
+        {/* Header and Footer handled by MainLayout */}
         <main className="container mx-auto p-4 flex-1">
           <div className="text-center py-8">جارٍ التحميل...</div>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -134,7 +135,7 @@ export default function CustomerDetailsPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <Head><title>بيانات العميل</title></Head>
-        <Header />
+        {/* Header and Footer handled by MainLayout */}
         <main className="container mx-auto p-4 flex-1">
           <div className="text-center py-8">
             <div className="text-red-600 mb-4">{error || "العميل غير موجود"}</div>
@@ -143,7 +144,6 @@ export default function CustomerDetailsPage() {
             </Link>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -151,7 +151,7 @@ export default function CustomerDetailsPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Head><title>بيانات العميل - {customer.name}</title></Head>
-      <Header />
+      {/* Header handled by MainLayout */}
 
       <main className="container mx-auto p-4 flex-1 space-y-6">
         <div className="flex items-center justify-between">
@@ -248,7 +248,7 @@ export default function CustomerDetailsPage() {
         </div>
       </main>
 
-      <Footer />
+      {/* Footer handled by MainLayout */}
     </div>
   );
 }

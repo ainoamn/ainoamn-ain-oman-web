@@ -1,4 +1,4 @@
-// src/pages/admin/units/index.tsx - إدارة الوحدات العقارية
+﻿// src/pages/admin/units/index.tsx - إدارة الوحدات العقارية
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -473,7 +473,7 @@ export default function UnitsManagementPage() {
                             </div>
                             {unit.leaseEndDate && (
                               <div className="text-sm text-gray-500">
-                                ينتهي: {new Date(unit.leaseEndDate).toLocaleDateString('ar-OM')}
+                                ينتهي: {new Date(unit.leaseEndDate).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}
                               </div>
                             )}
                           </div>

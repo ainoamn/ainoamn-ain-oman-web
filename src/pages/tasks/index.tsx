@@ -1,9 +1,10 @@
 import Head from "next/head";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer are now handled by MainLayout in _app.tsx
 import { useI18n } from "@/lib/i18n";
 import React from "react";
 import { useMemo, useState, useEffect } from "react";
+import PropertyBadge from "@/components/tasks/PropertyBadge";
+import TaskStatusPill from "@/components/tasks/TaskStatusPill";
 
 type Task = { 
   id: string; 
@@ -93,7 +94,7 @@ export function Content() {
     <section className="py-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-slate-900">المهام</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900">المهام</h1>
           <select value={filter} onChange={e=>setFilter(e.target.value)} className="rounded-xl border px-3 py-2 text-sm">
             <option value="all">الكل</option><option value="open">مفتوحة</option><option value="in_progress">قيد التنفيذ</option><option value="done">منجزة</option>
           </select>
@@ -105,17 +106,17 @@ export function Content() {
         ) : (
           <div className="grid gap-4">
             {list.map(t=> (
-              <div key={t.id} className="rounded-2xl border bg-white p-4">
+              <div key={t.id} className="rounded-2xl border bg-white p-4 hover:shadow-sm transition">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-slate-900">{t.title}</h3>
-                  <span className="text-xs rounded-full px-2 py-0.5 ring-1 ring-slate-200">
-                    {t.status==="done"?"منجزة":t.status==="in_progress"?"قيد التنفيذ":t.status==="cancelled"?"ملغاة":t.status==="archived"?"مؤرشفة":"مفتوحة"}
-                  </span>
+                  <TaskStatusPill status={t.status} priority={t.priority || "medium"} />
                 </div>
-                <p className="text-sm text-slate-600 mt-1">
-                  المسؤول: {t.assignee||"غير محدد"} — الاستحقاق: {t.dueDate || t.due || "—"}
-                  {t.propertyId && <span className="ml-2 text-xs text-blue-600">العقار: {t.propertyId}</span>}
-                </p>
+                <div className="mt-2 flex items-center justify-between">
+                  <p className="text-sm text-slate-600">
+                    المسؤول: {t.assignee||"غير محدد"} — الاستحقاق: {t.dueDate || t.due || "—"}
+                  </p>
+                  <PropertyBadge propertyId={t.propertyId} taskId={t.id} />
+                </div>
               </div>
             ))}
             {list.length === 0 && (
@@ -133,11 +134,9 @@ export function Content() {
       return (
         <main dir={dir} className="min-h-screen bg-slate-50 flex flex-col">
           <Head><title>المهام | Ain Oman</title></Head>
-          <Header />
           <div className="flex-1">
             <Content />
           </div>
-          <Footer />
         </main>
       );
     }

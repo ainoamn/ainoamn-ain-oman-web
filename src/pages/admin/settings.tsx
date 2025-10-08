@@ -1,5 +1,6 @@
 // src/pages/admin/settings.tsx
 import Head from "next/head";
+// Header and Footer handled by MainLayout in _app.tsx
 import { useRouter } from "next/router";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useTranslation } from "@/hooks/useTranslation";

@@ -1,4 +1,4 @@
-// صفحة التقويم المتكاملة
+﻿// صفحة التقويم المتكاملة
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -87,7 +87,7 @@ export default function CalendarPage() {
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('ar-SA', {
+    return date.toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn', 
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -205,7 +205,7 @@ export default function CalendarPage() {
                 {/* Calendar Header */}
                 <div className="flex items-center justify-between p-6 border-b">
                   <h2 className="text-xl font-semibold text-gray-900">
-                    {currentDate.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long' })}
+                    {currentDate.toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn',  year: 'numeric', month: 'long' })}
                   </h2>
                   <div className="flex items-center space-x-2">
                     <button
@@ -311,7 +311,7 @@ export default function CalendarPage() {
                           <h4 className="font-medium text-gray-900">{event.title}</h4>
                         </div>
                         <p className="text-sm text-gray-600">
-                          {new Date(event.startDate).toLocaleTimeString('ar-SA', {
+                          {new Date(event.startDate).toLocaleTimeString('ar', { numberingSystem: 'latn', 
                             hour: '2-digit',
                             minute: '2-digit'
                           })}
@@ -378,8 +378,8 @@ export default function CalendarPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">التاريخ والوقت</label>
                     <p className="text-gray-900">
-                      {new Date(selectedEvent.startDate).toLocaleDateString('ar-SA')} - {' '}
-                      {new Date(selectedEvent.startDate).toLocaleTimeString('ar-SA', {
+                      {new Date(selectedEvent.startDate).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' })} - {' '}
+                      {new Date(selectedEvent.startDate).toLocaleTimeString('ar', { numberingSystem: 'latn', 
                         hour: '2-digit',
                         minute: '2-digit'
                       })}

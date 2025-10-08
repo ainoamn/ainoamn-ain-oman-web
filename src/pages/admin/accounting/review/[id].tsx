@@ -1,10 +1,10 @@
 // src/pages/admin/accounting/review/[id].tsx
 import Head from "next/head";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer handled by MainLayout in _app.tsx
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import InstantLink from "@/components/InstantLink";
 
 type Booking = {
   id:string; bookingNumber:string; status:string;
@@ -46,7 +46,7 @@ export default function AccountingReviewPage(){
   return (
     <div className="min-h-screen flex flex-col">
       <Head><title>مراجعة محاسبية للحجز</title></Head>
-      <Header />
+      {/* Header handled by MainLayout */}
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">مراجعة محاسبية للحجز #{raw}</h1>
@@ -57,7 +57,7 @@ export default function AccountingReviewPage(){
           <div className="border rounded-2xl p-3 space-y-2">
             <div>رقم الحجز: {b.bookingNumber}</div>
             <div>الحالة: {b.status}</div>
-            <div>بداية: {new Date(b.startDate).toLocaleDateString("ar-OM")} • مدة: {b.durationMonths} شهر</div>
+            <div>بداية: {new Date(b.startDate).toLocaleDateString("ar", { calendar: 'gregory', numberingSystem: 'latn' })} • مدة: {b.durationMonths} شهر</div>
             <div>القيمة الإجمالية: {b.totalRent}</div>
             <div className="flex gap-2 pt-2">
               <button className="btn btn-primary" onClick={confirm}>اعتماد محاسبي</button>
@@ -66,7 +66,7 @@ export default function AccountingReviewPage(){
           </div>
         ) : <div>لا يوجد حجز.</div>}
       </main>
-      <Footer />
+      {/* Footer handled by MainLayout */}
     </div>
   );
 }

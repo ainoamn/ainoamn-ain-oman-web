@@ -1,10 +1,10 @@
 // src/pages/admin/contracts/[id].tsx
 import Head from "next/head";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer handled by MainLayout in _app.tsx
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import InstantLink from "@/components/InstantLink";
 
 type Booking = {
   id:string; bookingNumber:string; status:string;
@@ -82,7 +82,7 @@ export default function AdminContractPage(){
   return (
     <div className="min-h-screen flex flex-col">
       <Head><title>عقد #{raw}</title></Head>
-      <Header />
+      {/* Header handled by MainLayout */}
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">عقد #{b?.bookingNumber || raw}</h1>
@@ -98,7 +98,7 @@ export default function AdminContractPage(){
             <section className="border rounded-2xl p-3 space-y-1 text-sm">
               <div className="font-semibold">ملخص العقد</div>
               <div>الحالة: {b.status}</div>
-              <div>بداية: {new Date(b.startDate).toLocaleDateString("ar-OM")} • مدة: {b.durationMonths} شهر</div>
+              <div>بداية: {new Date(b.startDate).toLocaleDateString("ar", { calendar: 'gregory', numberingSystem: 'latn' })} • مدة: {b.durationMonths} شهر</div>
               <div>القيمة الإجمالية: {b.totalRent}</div>
               <div>الرقم: {b.bookingNumber || b.id}</div>
             </section>
@@ -170,7 +170,7 @@ export default function AdminContractPage(){
           </div>
         ) : <div>لا يوجد عقد.</div>}
       </main>
-      <Footer />
+      {/* Footer handled by MainLayout */}
       <style jsx global>{`
         @media print {
           header, footer, nav, .btn, a[href]:after { display: none !important; }

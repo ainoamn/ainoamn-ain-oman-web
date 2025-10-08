@@ -2,8 +2,7 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer are now handled by MainLayout in _app.tsx
 import { useI18n } from "@/lib/i18n";
 
 export default function PropertyFinancePage() {
@@ -17,7 +16,6 @@ export default function PropertyFinancePage() {
         <title>{t("property.finance.title", "حسابات العقار")} | Ain Oman</title>
       </Head>
 
-      <Header />
 
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-4 py-8">
@@ -126,7 +124,6 @@ export default function PropertyFinancePage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

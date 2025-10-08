@@ -1,10 +1,11 @@
 import Head from "next/head";
-    import Header from "@/components/layout/Header";
-    import Footer from "@/components/layout/Footer";
+// Header and Footer are now handled by MainLayout in _app.tsx
     import { useI18n } from "@/lib/i18n";
     import React from "react";
     import Image from "next/image";
 import Link from "next/link";
+import InstantLink from "@/components/InstantLink";
+import InstantImage from "@/components/InstantImage";
 import { useMemo, useState, useEffect } from "react";
 
 type Partner = {
@@ -48,7 +49,7 @@ export function Content(){
             <h1 className="text-2xl font-bold text-slate-900">الشركاء</h1>
             <p className="text-slate-600 mt-1">شركاؤنا الموثوقون في قطاع العقار.</p>
           </div>
-          <Link href="/contact" className="rounded-2xl bg-teal-600 px-4 py-2 text-sm font-semibold text-white">أرسل طلب الانضمام</Link>
+          <InstantLink href="/contact" className="rounded-2xl bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700 transition-colors">أرسل طلب الانضمام</InstantLink>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 mb-6">
@@ -71,7 +72,7 @@ export function Content(){
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="relative h-12 w-12 overflow-hidden rounded-xl ring-1 ring-slate-200">
-                      <Image src={p.logo} alt={p.name} fill sizes="48px" className="object-cover"/>
+                      <InstantImage src={p.logo} alt={p.name} width={48} height={48} className="object-cover"/>
                     </div>
                     <div>
                       <h3 className="text-base font-semibold text-slate-800">{p.name}</h3>
@@ -86,7 +87,7 @@ export function Content(){
                 {p.description && <p className="mt-3 text-sm text-slate-600 line-clamp-3">{p.description}</p>}
                 <div className="mt-4 flex items-center justify-between">
                   <Stars value={p.rating ?? 0} />
-                  <Link href={p.url} className="rounded-xl border px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">زيارة</Link>
+                  <InstantLink href={p.url} className="rounded-xl border px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">زيارة</InstantLink>
                 </div>
               </div>
             ))}
@@ -102,11 +103,9 @@ export function Content(){
       return (
         <main dir={dir} className="min-h-screen bg-slate-50 flex flex-col">
           <Head><title>الشركاء | Ain Oman</title></Head>
-          <Header />
           <div className="flex-1">
             <Content />
           </div>
-          <Footer />
         </main>
       );
     }

@@ -1,4 +1,4 @@
-// src/lib/print.ts - نظام الطباعة والتحميل الذكي
+﻿// src/lib/print.ts - نظام الطباعة والتحميل الذكي
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -151,7 +151,7 @@ export class PrintManager {
         <body>
           <div class="print-header">
             <h1>عين عُمان - إدارة العقارات</h1>
-            <p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-OM')}</p>
+            <p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}</p>
           </div>
           ${element.innerHTML}
           <div class="print-footer">

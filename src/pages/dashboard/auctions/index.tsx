@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
+import InstantLink, { InstantButton } from '@/components/InstantLink';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/context/AuthContext';
 import { auctionService } from '@/services/auctionService';
@@ -57,7 +58,7 @@ export default function AuctionDashboard() {
     // التحقق من الاشتراك النشط
     if (!user.subscription.active) {
       alert('يجب أن يكون لديك اشتراك نشط لإنشاء مزاد');
-      router.push('/subscriptions');
+      await router.push('/subscriptions');
       return;
     }
 
@@ -65,16 +66,16 @@ export default function AuctionDashboard() {
     const listingFee = 100; // رسوم الإدراج
     if (user.balance < listingFee) {
       alert('رصيدك غير كافٍ لدفع رسوم الإدراج');
-      router.push('/dashboard/wallet');
+      await router.push('/dashboard/wallet');
       return;
     }
 
     // خصم رسوم الإدراج وإنشاء المزاد
     try {
       await paymentService.deductListingFee(listingFee);
-      router.push('/dashboard/auctions/create');
+      await router.push('/dashboard/auctions/create');
     } catch (error) {
-      alert('فشل في خصم الرسوم: ' + error.message);
+      alert('فشل في خصم الرسوم: ' + (error as any).message);
     }
   };
 

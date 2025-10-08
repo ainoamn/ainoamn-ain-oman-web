@@ -10,6 +10,8 @@ function isLocalized(v: any): v is Localized {
 
 function pickLocalized(v: any, prefer: Lang) {
   if (isLocalized(v)) return (prefer === "ar" ? v.ar : v.en) ?? v.ar ?? v.en ?? "";
+  // إذا لم يكن الكائن localized، ارجع null لمنع عرض الكائن كما هو
+  if (v && typeof v === "object" && !Array.isArray(v) && !isValidElement(v)) return null;
   return v;
 }
 
@@ -19,11 +21,19 @@ function sanitizeValue(v: any, prefer: Lang): any {
   if (Array.isArray(v)) return v.map((n) => sanitizeValue(n, prefer));
   if (isValidElement(v)) return sanitizeElement(v, prefer);
   if (typeof v === "function") return v; // اترك الدوال كما هي
-  // لا تعدّل style / dangerouslySetInnerHTML لو صادفت كائنًا على مستوى props
-  // عند استخدامه كـ child: ارجعه محليًا أو null لمنع كسر الرندر
-  const picked = pickLocalized(v, prefer);
-  if (picked !== v) return picked;
-  return null; // يمنع تمرير كائن خام كابن لـ React
+  
+  // إذا كان كائناً (ليس array أو element)، حاول استخراج نص محلي أو ارجع null
+  if (v && typeof v === "object") {
+    const picked = pickLocalized(v, prefer);
+    // إذا تم استخراج نص محلي، ارجعه
+    if (picked !== v && (typeof picked === "string" || typeof picked === "number" || picked == null)) {
+      return picked;
+    }
+    // إذا لم يتم استخراج نص محلي، ارجع null لمنع عرض الكائن
+    return null;
+  }
+  
+  return v;
 }
 
 function sanitizeProps(props: Record<string, any>, prefer: Lang) {
@@ -37,8 +47,8 @@ function sanitizeProps(props: Record<string, any>, prefer: Lang) {
 }
 
 function sanitizeElement(el: React.ReactElement, prefer: Lang) {
-  const nextProps = sanitizeProps(el.props, prefer);
-  const nextChildren = sanitizeValue(el.props?.children, prefer);
+  const nextProps = sanitizeProps(el.props as Record<string, any>, prefer);
+  const nextChildren = sanitizeValue((el.props as any)?.children, prefer);
   return cloneElement(el, nextProps, nextChildren as any);
 }
 

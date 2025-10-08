@@ -1,4 +1,4 @@
-// src/pages/reports.tsx - التقارير والإحصائيات
+﻿// src/pages/reports.tsx - التقارير والإحصائيات
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -118,7 +118,7 @@ export default function ReportsPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM', {
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn', 
       year: 'numeric',
       month: 'long',
       day: 'numeric',

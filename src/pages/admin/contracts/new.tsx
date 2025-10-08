@@ -1,9 +1,9 @@
-// src/pages/admin/contracts/new.tsx
+﻿// src/pages/admin/contracts/new.tsx
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header is now handled by MainLayout in _app.tsx
+
 
 type Template = { id:string; name:string; scope:"unified"|"per-unit"; bodyAr:string; bodyEn:string; fields:{key:string;labelAr:string;labelEn:string;required?:boolean}[] };
 type Property = { id:string; referenceNo?:string; title?:string|{ar?:string;en?:string} };
@@ -58,7 +58,7 @@ export default function AdminNewContractPage(){
   return (
     <div className="min-h-screen flex flex-col">
       <Head><title>عقد جديد</title></Head>
-      <Header />
+      
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">إنشاء عقد</h1>
@@ -131,7 +131,7 @@ export default function AdminNewContractPage(){
           </div>
         )}
       </main>
-      <Footer />
+      
     </div>
   );
 }

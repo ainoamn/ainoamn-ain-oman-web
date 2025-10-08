@@ -1,9 +1,8 @@
-// src/pages/profile/bookings.tsx
+﻿// src/pages/profile/bookings.tsx
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useMemo, useState, useCallback } from "react";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer are now handled by MainLayout in _app.tsx
 import SmartSyncIndicator from "@/components/booking/SmartSyncIndicator";
 // import { bookingSyncEngine, Booking, SyncEvent } from "@/lib/bookingSyncEngine";
 
@@ -60,7 +59,7 @@ function toDate(s?: string) {
   if (!s) return "-";
   try {
     const d = new Date(s);
-    return d.toLocaleDateString("ar-OM", { year: "numeric", month: "2-digit", day: "2-digit" });
+    return d.toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn',  year: "numeric", month: "2-digit", day: "2-digit" });
   } catch {
     return s;
   }
@@ -218,7 +217,6 @@ export default function ProfileBookingsPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Head><title>حجوزاتي</title></Head>
-      <Header />
 
       <main className="container mx-auto p-6 flex-1 space-y-6">
         {/* Header مع مؤشر المزامنة الذكي */}
@@ -389,7 +387,6 @@ export default function ProfileBookingsPage() {
         )}
       </main>
 
-      <Footer />
     </div>
   );
 }

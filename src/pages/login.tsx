@@ -1,7 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer are now handled by MainLayout in _app.tsx
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useRouter } from "next/router";
@@ -118,7 +117,6 @@ function LoginPage() {
   return (
     <main dir={dir} className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
       <Head><title>تسجيل الدخول</title></Head>
-      <Header />
 
       <div className="flex-1 container mx-auto px-4 py-12">
         <div className="mx-auto max-w-5xl grid md:grid-cols-2 gap-8">
@@ -193,7 +191,6 @@ function LoginPage() {
         </div>
       </div>
 
-      <Footer />
     </main>
   );
 }

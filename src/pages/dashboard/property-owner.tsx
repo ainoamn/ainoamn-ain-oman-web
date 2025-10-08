@@ -1,4 +1,4 @@
-// src/pages/dashboard/property-owner.tsx - لوحة تحكم إدارة العقار والملاك
+﻿// src/pages/dashboard/property-owner.tsx - لوحة تحكم إدارة العقار والملاك
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import UnifiedDashboard from '@/components/dashboard/UnifiedDashboard';
@@ -76,7 +76,7 @@ export default function PropertyOwnerDashboard() {
   ];
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM');
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' });
   };
 
   const getStatusColor = (status: string) => {

@@ -1,4 +1,4 @@
-// src/pages/admin/maintenance/index.tsx - إدارة الصيانة
+﻿// src/pages/admin/maintenance/index.tsx - إدارة الصيانة
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -171,7 +171,7 @@ export default function MaintenanceManagementPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM');
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' });
   };
 
   const getDaysSinceReported = (reportedDate: string) => {

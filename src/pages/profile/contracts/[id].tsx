@@ -3,8 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer are now handled by MainLayout in _app.tsx
 
 type Contract = {
   id:string; contractNumber:string; templateId:string; fields:Record<string,string>;
@@ -50,7 +49,6 @@ export default function TenantContractView(){
   return (
     <div className="min-h-screen flex flex-col">
       <Head><title>العقد #{c?.contractNumber||""}</title></Head>
-      <Header />
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">العقد #{c?.contractNumber}</h1>
@@ -85,7 +83,6 @@ export default function TenantContractView(){
           </>
         ) : <div>لا يوجد عقد.</div>}
       </main>
-      <Footer />
     </div>
   );
 }

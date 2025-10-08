@@ -1,4 +1,4 @@
-// لوحة التحكم المتكاملة مع التقويم والمهام
+﻿// لوحة التحكم المتكاملة مع التقويم والمهام
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { subscriptionManager, type UserSubscription } from '@/lib/subscriptionSystem';
@@ -319,7 +319,7 @@ export default function IntegratedDashboard({ userType, userId }: IntegratedDash
               <div className="flex-1">
                 <p className="font-medium text-gray-900">{activity.title}</p>
                 <p className="text-sm text-gray-600">
-                  {new Date(activity.time).toLocaleDateString('ar-SA')}
+                  {new Date(activity.time).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}
                 </p>
               </div>
             </div>
