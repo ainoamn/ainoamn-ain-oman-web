@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-  FaChartLine, FaChartBar, FaChartPie, FaTrendingUp, FaTrendingDown,
-  FaCalendar, FaFilter, FaDownload, FaPrint, FaRefresh,
+  FaChartLine, FaChartBar, FaChartPie, FaArrowUp, FaArrowDown,
+  FaCalendar, FaFilter, FaDownload, FaPrint,
   FaEye, FaEyeSlash, FaArrowUp, FaArrowDown, FaEquals,
   FaDollarSign, FaUsers, FaBuilding, FaClock, FaCheckCircle,
   FaExclamationTriangle, FaInfoCircle, FaQuestionCircle
