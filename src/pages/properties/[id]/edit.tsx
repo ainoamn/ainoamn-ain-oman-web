@@ -2863,7 +2863,6 @@ export default function EditProperty({ property }: { property: any }) {
           </div>
         )}
             </div>
-          </form>
         </div>
     </div>
     </>
