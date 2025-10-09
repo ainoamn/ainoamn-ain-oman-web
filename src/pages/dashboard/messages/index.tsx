@@ -1,7 +1,7 @@
 // src/pages/dashboard/messages/index.tsx
 import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
-import Layout from "@/components/layout/Layout";
+// Layout handled by _app.tsx
 
 type Thread = {
   id: string;
@@ -62,7 +62,7 @@ export default function MessagesDashboard() {
   };
 
   return (
-    <Layout>
+    <>
       <Head><title>المراسلات | Ain Oman</title></Head>
       <main className="min-h-screen bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-6">
@@ -112,6 +112,6 @@ export default function MessagesDashboard() {
           </div>
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

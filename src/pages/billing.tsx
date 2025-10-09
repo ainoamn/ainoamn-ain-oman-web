@@ -7,7 +7,7 @@ import {
   FiCalendar, FiDollarSign, FiUser, FiCreditCard, FiCheckCircle,
   FiAlertTriangle, FiClock, FiFilter, FiSearch, FiPlus
 } from 'react-icons/fi';
-import Layout from '@/components/layout/Layout';
+// Layout handled by _app.tsx
 
 interface Invoice {
   id: string;
@@ -248,16 +248,16 @@ export default function BillingPage() {
 
   if (loading) {
     return (
-      <Layout>
+      <>
         <div className="flex justify-center items-center min-h-screen">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>الفواتير والفوترة - عين عُمان</title>
       </Head>
@@ -552,6 +552,6 @@ export default function BillingPage() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

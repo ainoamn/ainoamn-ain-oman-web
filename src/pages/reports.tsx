@@ -7,7 +7,7 @@ import {
   FiPrinter, FiShare2, FiFilter, FiCalendar, FiDollarSign, FiUsers,
   FiHome, FiFileText, FiEye, FiEdit, FiPlus, FiRefreshCw
 } from 'react-icons/fi';
-import Layout from '@/components/layout/Layout';
+// Layout handled by _app.tsx
 
 interface Report {
   id: string;
@@ -243,16 +243,16 @@ export default function ReportsPage() {
 
   if (loading) {
     return (
-      <Layout>
+      <>
         <div className="flex justify-center items-center min-h-screen">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>التقارير والإحصائيات - عين عُمان</title>
       </Head>
@@ -534,6 +534,6 @@ export default function ReportsPage() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

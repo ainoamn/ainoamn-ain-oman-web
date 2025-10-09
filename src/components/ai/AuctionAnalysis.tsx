@@ -56,7 +56,7 @@ const AuctionAnalysis: React.FC<AuctionAnalysisProps> = ({ analysis, loading = f
         <div className="rounded-xl border bg-white p-4">
           <div className="text-xs text-slate-500">{t('ai.marketTrend')}</div>
           <div className="text-lg font-semibold">
-            {trendIcons[analysis.marketTrend]} {t(`ai.trend.${analysis.marketTrend}`)}
+            {trendIcons[analysis.marketTrend as keyof typeof trendIcons]} {t(`ai.trend.${analysis.marketTrend}`)}
           </div>
         </div>
         

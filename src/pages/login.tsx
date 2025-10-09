@@ -1,41 +1,28 @@
 import Head from "next/head";
-import Link from "next/link";
-// Header and Footer are now handled by MainLayout in _app.tsx
-import { useState } from "react";
+import InstantLink from "@/components/InstantLink";
+import { useState, useEffect } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useRouter } from "next/router";
+import { 
+  FaGoogle, FaFacebook, FaTwitter, FaLinkedin, FaApple,
+  FaEnvelope, FaPhone, FaUser, FaLock, FaCheckCircle,
+  FaShieldAlt, FaExclamationCircle
+} from "react-icons/fa";
 
 type AinAuth = { 
   id: string; 
   name: string; 
+  email?: string;
+  phone?: string;
   role: string; 
+  isVerified?: boolean;
   features?: string[]; 
-  plan?: any;
-  subscription?: {
-    planId: string;
-    planName: string;
-    permissions: string[];
-    limits: {
-      properties: number;
-      units: number;
-      bookings: number;
-      users: number;
-      storage: number;
-    };
-    usage: {
-      properties: number;
-      units: number;
-      bookings: number;
-      users: number;
-      storage: number;
-    };
-    remainingDays: number;
-  };
+  subscription?: any;
 };
 
 function setSession(u: AinAuth) {
   localStorage.setItem("ain_auth", JSON.stringify(u));
-  localStorage.setItem("auth_token", JSON.stringify(u)); // توافق مع أكواد أخرى
+  localStorage.setItem("auth_token", JSON.stringify(u));
   try { window.dispatchEvent(new CustomEvent("ain_auth:change")); } catch {}
 }
 
@@ -44,23 +31,108 @@ function getReturn(router: ReturnType<typeof useRouter>) {
   return ret && ret.startsWith("/") ? ret : "/dashboard";
 }
 
+type LoginMethod = "email" | "phone" | "social";
+
 function LoginPage() {
-  const { dir } = useI18n();
+  const { dir, t } = useI18n();
   const router = useRouter();
 
+  const [activeTab, setActiveTab] = useState<LoginMethod>("email");
+  const [oauthError, setOauthError] = useState<string | null>(null);
+
+  // التحقق من أخطاء OAuth في URL
+  useEffect(() => {
+    const { error } = router.query;
+    if (error) {
+      const errorMessages: Record<string, string> = {
+        'invalid_provider': 'مزود الخدمة غير صحيح',
+        'no_code': 'لم يتم استلام كود التحقق',
+        'fetch_failed': 'فشل جلب البيانات من مزود الخدمة',
+        'auth_failed': 'فشل تسجيل الدخول',
+        'invalid_data': 'بيانات غير صحيحة'
+      };
+      setOauthError(errorMessages[error as string] || 'حدث خطأ غير متوقع');
+      
+      // إزالة الخطأ من URL
+      const newUrl = router.pathname;
+      router.replace(newUrl, undefined, { shallow: true });
+    }
+  }, [router.query]);
+  
+  // Email Login
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSignup, setIsSignup] = useState(false);
+  const [name, setName] = useState("");
+  
+  // Phone Login
   const [phone, setPhone] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [code, setCode] = useState("");
-  const [name, setName] = useState("");
-  const [role, setRole] = useState("individual_tenant");
+  
+  // Common
   const [busy, setBusy] = useState(false);
 
-  async function sendOtp() {
+  // Email/Password Login
+  async function handleEmailLogin() {
+    if (!email || !password) return alert("الرجاء إدخال البريد الإلكتروني وكلمة المرور");
+    
     setBusy(true);
     try {
-      const r = await fetch("/api/auth/request-otp", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone }) });
+      const endpoint = isSignup ? "/api/auth/signup" : "/api/auth/login";
+      const body = isSignup 
+        ? { email, password, name: name || email.split('@')[0] }
+        : { email, password };
+
+      const r = await fetch(endpoint, { 
+        method: "POST", 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify(body) 
+      });
       const d = await r.json();
+      
+      if (!r.ok) return alert(d?.error || "فشل تسجيل الدخول");
+      
+      setSession({ 
+        id: d.id || email, 
+        name: d.name || name || email.split('@')[0], 
+        email: email,
+        role: d.role || "user", // النظام سيحدد الدور تلقائياً
+        isVerified: d.isVerified || false,
+        features: d.features || ["DASHBOARD_ACCESS"]
+      });
+
+      // العودة للصفحة الأصلية أو الداشبورد
+      const returnUrl = getReturn(router);
+      
+      // إذا لم يكن موثق، اذهب إلى صفحة التوثيق مع حفظ return URL
+      if (!d.isVerified) {
+        router.replace(`/auth/verify?return=${encodeURIComponent(returnUrl)}`);
+      } else {
+        router.replace(returnUrl);
+      }
+    } catch (error) {
+      alert("حدث خطأ: " + (error as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // Phone OTP Login
+  async function sendOtp() {
+    if (!phone) return alert("الرجاء إدخال رقم الهاتف");
+    
+    setBusy(true);
+    try {
+      const r = await fetch("/api/auth/request-otp", { 
+        method: "POST", 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify({ phone }) 
+      });
+      const d = await r.json();
+      
       if (!r.ok) return alert(d?.error || "فشل إرسال الكود");
+      
       setOtpSent(true);
       if (d?.demoCode) console.log("OTP:", d.demoCode);
       alert("تم إرسال الكود عبر واتساب");
@@ -70,127 +142,406 @@ function LoginPage() {
   }
 
   async function verifyOtp() {
+    if (!code) return alert("الرجاء إدخال الكود");
+    
     setBusy(true);
     try {
-      const r = await fetch("/api/auth/verify-otp", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone, code, name: name || phone, role }) });
+      const r = await fetch("/api/auth/verify-otp", { 
+        method: "POST", 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify({ phone, code, name: name || phone }) 
+      });
       const d = await r.json();
-      if (!r.ok) return alert(d?.error || "فشل التحقق");
       
-      // جلب معلومات الاشتراك
-      let subscription = null;
-      try {
-        const subRes = await fetch(`/api/subscriptions/user?userId=${d.id || phone}`);
-        if (subRes.ok) {
-          const subData = await subRes.json();
-          subscription = subData.stats;
-        }
-      } catch (error) {
-        console.log("No subscription found, using default");
-      }
+      if (!r.ok) return alert(d?.error || "فشل التحقق");
       
       setSession({ 
         id: d.id || phone, 
         name: d.name || name || phone, 
-        role: d.role || role, 
-        features: d.features || ["DASHBOARD_ACCESS"],
-        subscription: subscription
+        phone: phone,
+        role: d.role || "user", // النظام سيحدد الدور تلقائياً
+        isVerified: d.isVerified || false,
+        features: d.features || ["DASHBOARD_ACCESS"]
       });
-      router.replace(getReturn(router));
+
+      // العودة للصفحة الأصلية
+      const returnUrl = getReturn(router);
+      
+      // إذا لم يكن موثق، اذهب إلى صفحة التوثيق مع حفظ return URL
+      if (!d.isVerified) {
+        router.replace(`/auth/verify?return=${encodeURIComponent(returnUrl)}`);
+      } else {
+        router.replace(returnUrl);
+      }
     } finally {
       setBusy(false);
     }
   }
 
-  async function social(provider: "google" | "microsoft") {
+  // Social Login - OAuth Flow
+  function handleSocialLogin(provider: string) {
     setBusy(true);
-    try {
-      const r = await fetch(`/api/auth/login?dev=1&id=${encodeURIComponent(provider + ":demo")}&name=${encodeURIComponent(provider)}&role=${encodeURIComponent(role)}`);
-      const d = await r.json();
-      if (!r.ok) return alert(d?.error || "فشل الدخول الاجتماعي");
-      setSession({ id: d.id || provider + ":demo", name: d.name || provider, role: d.role || role, features: d.features || ["DASHBOARD_ACCESS"] });
-      router.replace(getReturn(router));
-    } finally {
-      setBusy(false);
-    }
+    // حفظ return URL في localStorage قبل OAuth redirect
+    const returnUrl = getReturn(router);
+    localStorage.setItem('oauth_return_url', returnUrl);
+    
+    // إعادة توجيه إلى OAuth authorization endpoint
+    const authUrl = `/api/auth/oauth/${provider}/authorize`;
+    window.location.href = authUrl;
   }
 
   return (
-    <main dir={dir} className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
-      <Head><title>تسجيل الدخول</title></Head>
+    <main dir={dir} className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 flex items-center justify-center p-4">
+      <Head>
+        <title>تسجيل الدخول | Ain Oman</title>
+      </Head>
 
-      <div className="flex-1 container mx-auto px-4 py-12">
-        <div className="mx-auto max-w-5xl grid md:grid-cols-2 gap-8">
-          <div className="bg-white rounded-2xl shadow p-6">
-            <h1 className="text-2xl font-bold mb-4 text-center">تسجيل الدخول</h1>
+      <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
+        {/* Left Side - Branding */}
+        <div className="hidden lg:block">
+          <div className="bg-gradient-to-br from-green-600 to-blue-600 rounded-3xl p-12 text-white shadow-2xl">
+            <div className="mb-8">
+              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6">
+                <FaShieldAlt className="text-4xl text-white" />
+              </div>
+              <h1 className="text-5xl font-bold mb-4">Ain Oman</h1>
+              <p className="text-xl text-green-100">منصة العقارات الذكية</p>
+            </div>
 
-            <label className="block mb-2 text-sm">رقم الهاتف</label>
-            <input value={phone} onChange={(e)=>setPhone(e.target.value)} placeholder="الرقم" className="w-full border rounded px-3 py-2 mb-4" />
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0">
+                  <FaCheckCircle className="text-2xl" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">أمان عالي المستوى</h3>
+                  <p className="text-green-100 text-sm">حماية متقدمة لبياناتك وخصوصيتك</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0">
+                  <FaCheckCircle className="text-2xl" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">سهولة في الاستخدام</h3>
+                  <p className="text-green-100 text-sm">واجهة بسيطة وسريعة</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0">
+                  <FaCheckCircle className="text-2xl" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">دعم متعدد الطرق</h3>
+                  <p className="text-green-100 text-sm">سجل دخول بالطريقة التي تناسبك</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side - Login Form */}
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-green-600 to-blue-600 p-8 text-white text-center">
+            <h2 className="text-3xl font-bold mb-2">مرحباً بك</h2>
+            <p className="text-green-100">سجل دخول للوصول إلى حسابك</p>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex border-b">
+            <button
+              onClick={() => setActiveTab("email")}
+              className={`flex-1 py-4 px-6 text-center font-medium transition-all ${
+                activeTab === "email"
+                  ? "bg-green-50 text-green-600 border-b-2 border-green-600"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              <FaEnvelope className="inline-block ml-2" />
+              البريد الإلكتروني
+            </button>
+            <button
+              onClick={() => setActiveTab("phone")}
+              className={`flex-1 py-4 px-6 text-center font-medium transition-all ${
+                activeTab === "phone"
+                  ? "bg-blue-50 text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              <FaPhone className="inline-block ml-2" />
+              رقم الهاتف
+            </button>
+            <button
+              onClick={() => setActiveTab("social")}
+              className={`flex-1 py-4 px-6 text-center font-medium transition-all ${
+                activeTab === "social"
+                  ? "bg-purple-50 text-purple-600 border-b-2 border-purple-600"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              <FaGoogle className="inline-block ml-2" />
+              وسائل التواصل
+            </button>
+          </div>
+
+          <div className="p-8">
+            {/* OAuth Error Alert */}
+            {oauthError && (
+              <div className="bg-red-50 border-2 border-red-500 rounded-xl p-4 mb-6">
+                <div className="flex items-center gap-3">
+                  <FaExclamationCircle className="text-2xl text-red-600 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold text-red-900">فشل تسجيل الدخول</p>
+                    <p className="text-sm text-red-700">{oauthError}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setOauthError(null)}
+                  className="mt-3 text-sm text-red-600 hover:text-red-700 font-medium"
+                >
+                  إغلاق
+                </button>
+              </div>
+            )}
+
+            {/* Email Tab */}
+            {activeTab === "email" && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FaEnvelope className="inline-block ml-2" />
+                    البريد الإلكتروني
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="example@ainoman.om"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FaLock className="inline-block ml-2" />
+                    كلمة المرور
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  />
+                </div>
+
+                {isSignup && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <FaUser className="inline-block ml-2" />
+                      الاسم الكامل
+                    </label>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="أحمد محمد"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+                )}
+
+                <button
+                  onClick={handleEmailLogin}
+                  disabled={busy || !email || !password}
+                  className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-6 rounded-xl font-semibold hover:from-green-700 hover:to-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
+                >
+                  {busy ? "جاري التحميل..." : isSignup ? "إنشاء حساب" : "تسجيل الدخول"}
+                </button>
+
+                <div className="text-center">
+                  <button
+                    onClick={() => setIsSignup(!isSignup)}
+                    className="text-green-600 hover:text-green-700 font-medium text-sm"
+                  >
+                    {isSignup ? "لديك حساب؟ سجل دخول" : "ليس لديك حساب؟ سجل الآن"}
+                  </button>
+                </div>
+
+                <div className="text-center">
+                  <InstantLink
+                    href="/auth/forgot-password"
+                    className="text-gray-500 hover:text-gray-700 text-sm"
+                  >
+                    نسيت كلمة المرور؟
+                  </InstantLink>
+                </div>
+              </div>
+            )}
+
+            {/* Phone Tab */}
+            {activeTab === "phone" && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FaPhone className="inline-block ml-2" />
+                    رقم الهاتف
+                  </label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+968 9XXX XXXX"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    dir="ltr"
+                  />
+                </div>
 
             {!otpSent ? (
-              <button disabled={!phone || busy} onClick={sendOtp} className="w-full px-4 py-2 rounded bg-slate-800 text-white">إرسال كود</button>
+                  <button
+                    onClick={sendOtp}
+                    disabled={busy || !phone}
+                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
+                  >
+                    {busy ? "جاري الإرسال..." : "إرسال كود التحقق"}
+                  </button>
             ) : (
               <>
-                <label className="block mt-4 mb-2 text-sm">الكود</label>
-                <input value={code} onChange={(e)=>setCode(e.target.value)} placeholder="XXXXXX" className="w-full border rounded px-3 py-2 mb-4" />
-                <label className="block mb-2 text-sm">الاسم</label>
-                <input value={name} onChange={(e)=>setName(e.target.value)} placeholder="اسمك" className="w-full border rounded px-3 py-2 mb-4" />
-                <label className="block mb-2 text-sm">نوع الحساب</label>
-                <select value={role} onChange={(e)=>setRole(e.target.value)} className="w-full border rounded px-3 py-2 mb-4">
-                  <option value="individual_tenant">فرد - مستأجر</option>
-                  <option value="owner">مالك عقار</option>
-                  <option value="broker">وسيط عقاري</option>
-                  <option value="developer">مطور عقاري</option>
-                  <option value="company">شركة إدارة عقارات</option>
-                  <option value="admin">مدير النظام</option>
-                </select>
-                <button disabled={!code || busy} onClick={verifyOtp} className="w-full px-4 py-2 rounded bg-emerald-600 text-white">تحقق</button>
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  <button disabled={busy} onClick={()=>social("google")} className="px-4 py-2 rounded border">Google</button>
-                  <button disabled={busy} onClick={()=>social("microsoft")} className="px-4 py-2 rounded border">Microsoft</button>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        كود التحقق
+                      </label>
+                      <input
+                        type="text"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        placeholder="XXXXXX"
+                        maxLength={6}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-center text-2xl tracking-widest"
+                        dir="ltr"
+                      />
+                      <p className="text-xs text-gray-500 mt-2 text-center">
+                        تم إرسال الكود إلى {phone} عبر واتساب
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <FaUser className="inline-block ml-2" />
+                        الاسم (اختياري)
+                      </label>
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="أحمد محمد"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      />
+                    </div>
+
+                    <button
+                      onClick={verifyOtp}
+                      disabled={busy || !code}
+                      className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
+                    >
+                      {busy ? "جاري التحقق..." : "تحقق من الكود"}
+                    </button>
+
+                    <div className="text-center">
+                      <button
+                        onClick={() => setOtpSent(false)}
+                        className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                      >
+                        إعادة إرسال الكود
+                      </button>
                 </div>
               </>
             )}
+              </div>
+            )}
 
-            <p className="text-xs text-slate-500 mt-4 text-center">سيتم توجيهك تلقائيًا بعد الدخول.</p>
-          </div>
+            {/* Social Tab */}
+            {activeTab === "social" && (
+              <div className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                  <p className="text-center text-sm text-blue-800">
+                    <strong>وضع التطوير:</strong> الأزرار أدناه تحاكي OAuth flow.
+                    في الإنتاج، سيتم توجيهك إلى صفحة تسجيل الدخول الحقيقية لكل منصة.
+                  </p>
+                </div>
 
-          <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="text-lg font-semibold mb-4">خطط الاشتراك</h2>
-            <div className="space-y-3">
-              <div className="border rounded-lg p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-medium text-blue-600">الخطة الأساسية</h3>
-                  <span className="text-sm text-gray-500">29 ر.ع/شهر</span>
+                <p className="text-center text-sm text-gray-600 mb-6">
+                  اختر طريقة تسجيل الدخول المفضلة لديك
+                </p>
+
+                <div className="space-y-3">
+                  <button
+                    onClick={() => handleSocialLogin("google")}
+                    disabled={busy}
+                    className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 py-3 px-6 rounded-xl font-semibold hover:border-red-500 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    <FaGoogle className="text-xl" />
+                    تسجيل الدخول عبر Google
+                  </button>
+
+                  <button
+                    onClick={() => handleSocialLogin("facebook")}
+                    disabled={busy}
+                    className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 py-3 px-6 rounded-xl font-semibold hover:border-blue-600 hover:bg-blue-50 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    <FaFacebook className="text-xl" />
+                    تسجيل الدخول عبر Facebook
+                  </button>
+
+                  <button
+                    onClick={() => handleSocialLogin("twitter")}
+                    disabled={busy}
+                    className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 py-3 px-6 rounded-xl font-semibold hover:border-sky-500 hover:bg-sky-50 hover:text-sky-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    <FaTwitter className="text-xl" />
+                    تسجيل الدخول عبر Twitter
+                  </button>
+
+                  <button
+                    onClick={() => handleSocialLogin("linkedin")}
+                    disabled={busy}
+                    className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 py-3 px-6 rounded-xl font-semibold hover:border-blue-700 hover:bg-blue-50 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    <FaLinkedin className="text-xl" />
+                    تسجيل الدخول عبر LinkedIn
+                  </button>
+
+                  <button
+                    onClick={() => handleSocialLogin("apple")}
+                    disabled={busy}
+                    className="w-full flex items-center justify-center gap-3 bg-black text-white py-3 px-6 rounded-xl font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    <FaApple className="text-xl" />
+                    تسجيل الدخول عبر Apple
+                  </button>
                 </div>
-                <p className="text-xs text-gray-600">حتى 5 عقارات، 20 وحدة</p>
               </div>
-              
-              <div className="border rounded-lg p-3 bg-green-50">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-medium text-green-600">الخطة المعيارية</h3>
-                  <span className="text-sm text-gray-500">79 ر.ع/شهر</span>
-                </div>
-                <p className="text-xs text-gray-600">حتى 25 عقار، 100 وحدة، تقويم ومهام</p>
-              </div>
-              
-              <div className="border rounded-lg p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-medium text-purple-600">الخطة المميزة</h3>
-                  <span className="text-sm text-gray-500">149 ر.ع/شهر</span>
-                </div>
-                <p className="text-xs text-gray-600">حتى 100 عقار، ذكاء اصطناعي</p>
-              </div>
-            </div>
-            
-            <div className="mt-4 pt-4 border-t">
-              <Link href="/subscriptions" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                عرض جميع الخطط →
-              </Link>
+            )}
+
+            {/* Footer */}
+            <div className="mt-8 pt-6 border-t text-center text-sm text-gray-600">
+              <p>
+                بتسجيل الدخول، أنت توافق على{" "}
+                <InstantLink href="/policies/terms" className="text-green-600 hover:text-green-700 font-medium">
+                  الشروط والأحكام
+                </InstantLink>{" "}
+                و{" "}
+                <InstantLink href="/policies/privacy" className="text-green-600 hover:text-green-700 font-medium">
+                  سياسة الخصوصية
+                </InstantLink>
+              </p>
             </div>
           </div>
         </div>
       </div>
-
     </main>
   );
 }

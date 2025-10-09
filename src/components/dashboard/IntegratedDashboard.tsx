@@ -11,10 +11,10 @@ interface IntegratedDashboardProps {
 export default function IntegratedDashboard({ userType, userId }: IntegratedDashboardProps) {
   const [subscription, setSubscription] = useState<UserSubscription | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
-  const [calendarEvents, setCalendarEvents] = useState([]);
-  const [tasks, setTasks] = useState([]);
-  const [properties, setProperties] = useState([]);
-  const [bookings, setBookings] = useState([]);
+  const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [properties, setProperties] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
 
   useEffect(() => {
     // جلب بيانات الاشتراك
@@ -191,7 +191,7 @@ export default function IntegratedDashboard({ userType, userId }: IntegratedDash
   };
 
   const getRecentActivity = () => {
-    const activities = [];
+    const activities: any[] = [];
 
     // إضافة أحداث التقويم الأخيرة
     if (calendarEvents.length > 0) {

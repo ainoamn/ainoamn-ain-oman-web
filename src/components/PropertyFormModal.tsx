@@ -105,11 +105,12 @@ export default function PropertyFormModal({ property, onSave, onClose }: Propert
                     <label className="block text-gray-700 font-semibold mb-2">حالة الوحدة:</label>
                     <select
                       value={unit.status}
-                      onChange={(e) => handleUnitChange(index, "status", e.target.value as "vacant" | "rented")}
+                      onChange={(e) => handleUnitChange(index, "status", e.target.value as "vacant" | "occupied" | "reserved")}
                       className="w-full p-2 border border-gray-300 rounded-md"
                     >
                       <option value="vacant">متاح</option>
-                      <option value="rented">مؤجر</option>
+                      <option value="occupied">مؤجر</option>
+                      <option value="reserved">محجوز</option>
                     </select>
                   </div>
                 </div>

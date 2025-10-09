@@ -1,7 +1,7 @@
 // src/pages/dashboard/requests/index.tsx
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import Layout from "@/components/layout/Layout";
+// Layout handled by _app.tsx
 
 function getSession() {
   if (typeof window === "undefined") return null;
@@ -24,7 +24,7 @@ export default function MyRequests() {
   }, []);
 
   return (
-    <Layout>
+    <>
       <Head><title>طلباتي | Ain Oman</title></Head>
       <main className="min-h-screen bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-6">
@@ -90,6 +90,6 @@ export default function MyRequests() {
           </section>
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

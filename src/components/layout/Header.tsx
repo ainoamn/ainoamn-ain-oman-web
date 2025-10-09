@@ -113,6 +113,9 @@ export default function Header() {
   const [user, setUser] = useState<User | null>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isOnline, setIsOnline] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchSuggestions, setSearchSuggestions] = useState<SearchSuggestion[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Refs
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -264,14 +267,45 @@ export default function Header() {
     window.addEventListener('online', handleOnlineStatus);
     window.addEventListener('offline', handleOnlineStatus);
 
-    // Mock user data
-    setUser(mockUser);
+    // تحميل بيانات المستخدم من localStorage
+    const loadUser = () => {
+      try {
+        const authData = localStorage.getItem("ain_auth");
+        if (authData) {
+          const userData = JSON.parse(authData);
+          setUser({
+            id: userData.id,
+            name: userData.name || 'مستخدم',
+            email: userData.email || userData.phone || '',
+            avatar: userData.picture || userData.avatar || '/demo/user1.jpg',
+            role: userData.role || 'user',
+            notifications: 0,
+            favorites: 0,
+            isVerified: userData.isVerified || false
+          });
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Error loading user:", error);
+        setUser(null);
+      }
+    };
+
+    loadUser();
     setNotifications(mockNotifications);
+
+    // الاستماع لتغييرات الـ auth
+    const handleAuthChange = () => {
+      loadUser();
+    };
+    window.addEventListener('ain_auth:change', handleAuthChange);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('online', handleOnlineStatus);
       window.removeEventListener('offline', handleOnlineStatus);
+      window.removeEventListener('ain_auth:change', handleAuthChange);
     };
   }, []);
 
@@ -339,7 +373,7 @@ export default function Header() {
               className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
               onClick={() => {
                 router.push(suggestion.actionUrl || '/');
-                setIsSearchOpen(false);
+                setIsSearching(false);
                 setSearchQuery('');
               }}
             >
@@ -495,7 +529,12 @@ export default function Header() {
           className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full text-left"
           onClick={() => {
             // Handle logout
+            localStorage.removeItem('ain_auth');
+            localStorage.removeItem('auth_token');
+            setUser(null);
             setIsUserMenuOpen(false);
+            window.dispatchEvent(new CustomEvent('ain_auth:change'));
+            router.push('/login');
           }}
         >
           <ArrowRightIcon className="w-5 h-5 text-red-500" />
@@ -717,14 +756,14 @@ export default function Header() {
             ) : (
               <div className="flex items-center gap-2">
                 <InstantLink
-                  href="/login"
+                  href={`/login?return=${encodeURIComponent(router.asPath)}`}
                   className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                   تسجيل الدخول
                 </InstantLink>
                 <InstantLink
-                  href="/register"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+                  href={`/login?return=${encodeURIComponent(router.asPath)}`}
+                  className="px-4 py-2 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl hover:from-green-700 hover:to-blue-700 transition-all shadow-md"
                 >
                   إنشاء حساب
                 </InstantLink>

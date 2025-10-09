@@ -1,7 +1,7 @@
 // src/pages/manage-messages/index.tsx
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import Layout from "@/components/layout/Layout";
+// Layout handled by _app.tsx
 import Link from "next/link";
 
 type Thread = { threadId:string; propertyId:string; withId:string; lastText:string; lastTs:string };
@@ -51,7 +51,7 @@ export default function ManageMessages(){
   };
 
   return (
-    <Layout>
+    <>
       <Head><title>مراسلاتي | Ain Oman</title></Head>
       <main className="min-h-screen bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 py-8">
@@ -93,6 +93,6 @@ export default function ManageMessages(){
           </div>
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

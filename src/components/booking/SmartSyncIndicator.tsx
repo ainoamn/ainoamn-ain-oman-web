@@ -31,8 +31,8 @@ const bookingSyncEngine = {
     lastSyncTime: new Date().toISOString(),
     retryCount: 0
   }),
-  on: () => {},
-  off: () => {},
+  on: (_event: string, _handler: (...args: any[]) => void) => {},
+  off: (_event: string, _handler: (...args: any[]) => void) => {},
   forceSync: async () => {}
 };
 

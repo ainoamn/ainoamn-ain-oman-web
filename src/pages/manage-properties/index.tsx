@@ -3,7 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/router";
-import Layout from "@/components/layout/Layout";
+// Layout handled by _app.tsx
 
 type Item = {
   id: string;
@@ -89,7 +89,7 @@ export default function ManageProperties() {
   };
 
   return (
-    <Layout>
+    <>
       <Head><title>إدارة عقاراتي | Ain Oman</title></Head>
       <main className="min-h-screen bg-slate-50">
         <div className="mx-auto max-w-7xl px-4 py-8">
@@ -149,6 +149,6 @@ export default function ManageProperties() {
           )}
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import InstantLink, { InstantButton } from '@/components/InstantLink';
-import Layout from '@/components/layout/Layout';
 import { 
   FaBuilding, 
   FaHome, 
@@ -948,7 +947,7 @@ function PropertyDetailsPage() {
   // عرض حالة التحميل
   if (loading) {
     return (
-      <Layout>
+      <>
         <Head>
           <title>جاري التحميل...</title>
         </Head>
@@ -960,14 +959,14 @@ function PropertyDetailsPage() {
             </h1>
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   // إذا لم توجد البيانات، اعرض رسالة خطأ
   if (!property || !property.id || error) {
     return (
-      <Layout>
+      <>
         <Head>
           <title>لم يتم العثور على العقار</title>
         </Head>
@@ -991,13 +990,13 @@ function PropertyDetailsPage() {
             </Link>
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>{getTitle()} - عين عُمان</title>
         <meta name="description" content={getDescription()} />
@@ -2869,7 +2868,7 @@ function PropertyDetailsPage() {
           </div>
         )}
       </main>
-    </Layout>
+    </>
   );
 }
 

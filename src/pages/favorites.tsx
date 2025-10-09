@@ -9,7 +9,7 @@ import {
   FiFilter, FiSearch, FiSortAsc, FiTrash2, FiDownload, FiPrinter,
   FiHome, FiUsers, FiStar, FiTrendingUp, FiTrendingDown
 } from 'react-icons/fi';
-import Layout from '@/components/layout/Layout';
+// Layout handled by _app.tsx
 
 interface Favorite {
   id: string;
@@ -288,16 +288,14 @@ export default function FavoritesPage() {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      </Layout>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
     );
   }
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>المفضلة - عين عُمان</title>
       </Head>
@@ -669,6 +667,6 @@ export default function FavoritesPage() {
           )}
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

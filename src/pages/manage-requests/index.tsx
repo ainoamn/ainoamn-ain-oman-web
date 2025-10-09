@@ -1,7 +1,7 @@
 // src/pages/manage-requests/index.tsx
 import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
-import Layout from "@/components/layout/Layout";
+// Layout handled by _app.tsx
 import Link from "next/link";
 
 type Req = {
@@ -42,7 +42,7 @@ export default function ManageRequests(){
   };
 
   return (
-    <Layout>
+    <>
       <Head><title>طلبات المعاينة والحجز | Ain Oman</title></Head>
       <main className="min-h-screen bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 py-8">
@@ -97,7 +97,7 @@ export default function ManageRequests(){
           )}
         </div>
       </main>
-    </Layout>
+    </>
   );
 }
 

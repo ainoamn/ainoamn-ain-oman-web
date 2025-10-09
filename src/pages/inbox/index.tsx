@@ -1,7 +1,7 @@
 // src/pages/inbox/index.tsx
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import Layout from "@/components/layout/Layout";
+// Layout handled by _app.tsx
 
 type Thread = { id:string; propertyId:string; ownerId:string; customerId:string; lastTs:number; lastText:string };
 type Message = { id:string; conversationId:string; propertyId:string; from:string; to:string; text:string; ts:number };
@@ -47,7 +47,7 @@ export default function Inbox(){
   };
 
   return (
-    <Layout>
+    <>
       <Head><title>صندوق الوارد | Ain Oman</title></Head>
       <main className="min-h-screen bg-slate-50">
         <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-[300px_1fr] gap-4">
@@ -91,6 +91,6 @@ export default function Inbox(){
           </section>
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

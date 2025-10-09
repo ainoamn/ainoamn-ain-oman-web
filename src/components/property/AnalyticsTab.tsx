@@ -2,10 +2,14 @@ import React, { useState, useEffect } from 'react';
 import {
   FaChartLine, FaChartBar, FaChartPie, FaArrowUp, FaArrowDown,
   FaCalendar, FaFilter, FaDownload, FaPrint,
-  FaEye, FaEyeSlash, FaArrowUp, FaArrowDown, FaEquals,
+  FaEye, FaEyeSlash, FaEquals,
   FaDollarSign, FaUsers, FaBuilding, FaClock, FaCheckCircle,
   FaExclamationTriangle, FaInfoCircle, FaQuestionCircle
 } from 'react-icons/fa';
+
+// Aliases for trending icons
+const FaTrendingUp = FaArrowUp;
+const FaTrendingDown = FaArrowDown;
 
 interface AnalyticsData {
   propertyId: string;

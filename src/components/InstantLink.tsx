@@ -48,7 +48,7 @@ export default function InstantLink({
   const router = useRouter();
   const linkRef = useRef<HTMLAnchorElement>(null);
   const [isPrefetched, setIsPrefetched] = useState(false);
-  const prefetchTimeoutRef = useRef<NodeJS.Timeout>();
+  const prefetchTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Prefetch عند التحميل إذا كان الرابط مرئيًا
   useEffect(() => {

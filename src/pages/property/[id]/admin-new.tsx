@@ -16,7 +16,7 @@ import {
   FaInfoCircle, FaQuestionCircle, FaLightbulb, FaMagic,
   FaArrowUp, FaArrowDown, FaEquals, FaClock, FaHistory,
   FaFileInvoice, FaTasks, FaGavel, FaFileContract, FaReceipt,
-  FaBell, FaCalendarAlt, FaUsers, FaChartBar, FaTrendingUp,
+  FaBell, FaCalendarAlt, FaUsers, FaChartBar,
   FaShieldAlt, FaCogs, FaDatabase, FaCloudUpload, FaQrcode,
   FaMapPin, FaMoneyBillWave, FaClipboardList, FaHandshake,
   FaExclamationCircle, FaCheckCircle, FaClock as FaClockIcon,
@@ -31,6 +31,9 @@ import {
   FaStar as FaStarIcon, FaBookmark as FaBookmarkIcon,
   FaFlag as FaFlagIcon, FaLock as FaLockIcon, FaUnlock as FaUnlockIcon
 } from 'react-icons/fa';
+
+// Alias for trending icon
+const FaTrendingUp = FaArrowUp;
 
 interface Property {
   id: string;

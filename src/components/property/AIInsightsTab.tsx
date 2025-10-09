@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {
   FaRobot, FaLightbulb, FaExclamationTriangle, FaChartLine,
-  FaTrendingUp, FaTrendingDown, FaClock, FaCheckCircle,
+  FaArrowUp, FaArrowDown, FaClock, FaCheckCircle,
   FaArrowRight, FaRefresh, FaFilter, FaSearch, FaStar,
   FaThumbsUp, FaThumbsDown, FaShare, FaBookmark, FaEye,
   FaMagic, FaBrain, FaCogs, FaRocket, FaTarget, FaAward
 } from 'react-icons/fa';
+
+// Aliases for trending icons
+const FaTrendingUp = FaArrowUp;
+const FaTrendingDown = FaArrowDown;
 
 interface AIInsight {
   id: string;

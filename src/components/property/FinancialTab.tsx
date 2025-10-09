@@ -3,9 +3,13 @@ import {
   FaMoneyBillWave, FaChartLine, FaReceipt, FaCreditCard,
   FaExclamationTriangle, FaCheckCircle, FaClock, FaCalendar,
   FaDownload, FaPrint, FaPlus, FaFilter, FaSearch,
-  FaArrowUp, FaArrowDown, FaTrendingUp, FaTrendingDown,
+  FaArrowUp, FaArrowDown,
   FaDollarSign, FaPercent, FaCalculator, FaFileInvoice
 } from 'react-icons/fa';
+
+// Aliases for trending icons
+const FaTrendingUp = FaArrowUp;
+const FaTrendingDown = FaArrowDown;
 
 interface Invoice {
   id: string;

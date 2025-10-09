@@ -1,5 +1,6 @@
 import React from 'react';
-import { FaRobot, FaLightbulb, FaExclamationTriangle, FaChartLine, FaTrendingUp } from 'react-icons/fa';
+import { FaRobot, FaLightbulb, FaExclamationTriangle, FaChartLine, FaArrowUp } from 'react-icons/fa';
+const FaTrendingUp = FaArrowUp; // Alias
 
 interface SimpleAIInsightsTabProps {
   insights?: any[];
