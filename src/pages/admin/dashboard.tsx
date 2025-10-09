@@ -6,7 +6,6 @@ import {
   FiBuilding, FiUsers, FiFileText, FiCreditCard, FiTool, FiDollarSign,
   FiTrendingUp, FiCalendar, FiAlertTriangle, FiCheckCircle
 } from 'react-icons/fi';
-import Layout from '@/components/layout/Layout';
 
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
@@ -17,16 +16,14 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      </Layout>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
     );
   }
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>لوحة التحكم الرئيسية - عين عُمان</title>
       </Head>
@@ -169,6 +166,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }
