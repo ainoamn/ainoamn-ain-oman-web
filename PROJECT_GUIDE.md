@@ -60,6 +60,7 @@ components/
 ├── InstantLink.tsx           ⚡ رابط سريع مع prefetching
 ├── InstantImage.tsx          ⚡ صورة محسّنة
 ├── SafeText.tsx              ⚡ نص آمن لمعالجة Objects
+├── FeatureGate.tsx           🔐 التحكم في عرض المحتوى حسب الباقة (جديد!)
 │
 ├── layout/                   # مكونات التخطيط
 │   ├── Header.tsx            # الرأس (Navbar)
@@ -163,25 +164,31 @@ pages/
 
 ```
 context/
-├── PerformanceContext.tsx    ⚡ إدارة الأداء
-├── BookingsContext.tsx       ⚡ إدارة الحجوزات (موحد!)
-├── AuthContext.tsx           # المصادقة
-├── CurrencyContext.tsx       # العملات
-└── ChatContext.tsx           # الدردشة
+├── PerformanceContext.tsx      ⚡ إدارة الأداء
+├── BookingsContext.tsx         ⚡ إدارة الحجوزات (موحد!)
+├── SubscriptionContext.tsx     🔐 إدارة الاشتراكات والصلاحيات (جديد!)
+├── AuthContext.tsx             # المصادقة
+├── CurrencyContext.tsx         # العملات
+└── ChatContext.tsx             # الدردشة
 ```
 
 #### كيفية استخدام Context:
 
 ```typescript
 // في _app.tsx (تم بالفعل):
-<BookingsProvider>
-  <App />
-</BookingsProvider>
+<SubscriptionProvider>
+  <BookingsProvider>
+    <App />
+  </BookingsProvider>
+</SubscriptionProvider>
 
 // في أي صفحة:
 import { useBookings } from '@/context/BookingsContext';
-
 const { bookings, loading, addBooking, updateBooking } = useBookings();
+
+// للاشتراكات والصلاحيات:
+import { useSubscription } from '@/context/SubscriptionContext';
+const { plan, hasFeature, canUseFeature } = useSubscription();
 ```
 
 ---
@@ -1020,6 +1027,72 @@ export default function MyPage() {
 
 ---
 
+## 🔐 نظام الاشتراكات والصلاحيات (Subscription System)
+
+### نظرة عامة
+
+نظام متكامل للتحكم في الصلاحيات بناءً على باقة المستخدم.
+
+### المكونات الأساسية:
+
+#### 1. **SubscriptionContext** (`src/context/SubscriptionContext.tsx`)
+```typescript
+// يوفر الوصول لبيانات الاشتراك من أي مكان
+const { plan, subscription, hasFeature, isWithinLimit } = useSubscription();
+```
+
+#### 2. **FeatureGate** (`src/components/FeatureGate.tsx`)
+```tsx
+// إخفاء/قفل المحتوى حسب الباقة
+<FeatureGate feature="tasks" mode="lock" showUpgrade={true}>
+  <TasksSection />
+</FeatureGate>
+```
+
+### الأوضاع المتاحة:
+- `hide` - إخفاء كامل
+- `lock` - قفل مع رسالة ترقية احترافية
+- `disable` - عرض معطل (grayscale)
+
+### Hooks المتاحة:
+```typescript
+useSubscription()           // الحالة الكاملة
+useFeature(feature)         // التحقق من ميزة
+useFeatureVisibility(key)   // للقوائم والأزرار
+usePermission(permission)   // التحقق من صلاحية
+```
+
+### إضافة ميزة جديدة:
+
+1. في `src/lib/permissionConfig.ts`:
+```typescript
+AUCTIONS_VIEW: 'auction_read',
+```
+
+2. في `src/lib/subscriptionSystem.ts`:
+```typescript
+{ id: 'auction_read', category: 'auctions', level: 'read' }
+```
+
+3. في الصفحة:
+```tsx
+<FeatureGate feature="auctions" mode="lock">
+  <AuctionsPage />
+</FeatureGate>
+```
+
+### إدارة الباقات:
+```
+http://localhost:3000/admin/subscriptions
+```
+
+### التوثيق الشامل:
+- `SUBSCRIPTION_SYSTEM_COMPLETE_GUIDE.md` - دليل كامل
+- `FEATURE_GATE_EXAMPLE.md` - أمثلة عملية
+- `كيف_تستخدم_نظام_الاشتراكات.md` - دليل مبسط
+
+---
+
 <div align="center">
 
 ## 💚 دليل شامل للعمل من أي مكان!
@@ -1030,7 +1103,7 @@ export default function MyPage() {
 
 ---
 
-*آخر تحديث: 8 أكتوبر 2025*  
+*آخر تحديث: 9 أكتوبر 2025*  
 *الحالة: دليل نشط - يُحدّث مع كل تطوير*  
 *الغرض: مرجع شامل للعمل من أي كمبيوتر*
 

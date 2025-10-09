@@ -1224,6 +1224,81 @@ docs/
 ---
 
 *آخر تحديث: 9 أكتوبر 2025*  
-*الحالة: جلسة نشطة - المرحلة 17 مكتملة*  
+---
+
+### المرحلة 1️⃣8️⃣: نظام الاشتراكات والصلاحيات الشامل
+
+**التاريخ:** 9 أكتوبر 2025 - 07:50 صباحاً
+
+**الطلب:**
+> "اريد من خلالها وبحسب الباقة ان انتحكم بصلاحيات المستخدم... سيظهر له الخصائص التي يستطيع ان يستخدمها والذي لا يتضمن باقته سيختفي منها"
+
+**ما تم إنجازه:**
+
+1. **SubscriptionContext (Context API):**
+   - تحميل اشتراك المستخدم من localStorage
+   - Hooks: `useSubscription()`, `useFeature()`, `useFeatureVisibility()`
+   - Auto-refresh عند تغيير المصادقة
+   - Console logs للتشخيص
+
+2. **مكون FeatureGate:**
+   - 3 أوضاع: `hide`, `lock`, `disable`
+   - `<FeatureGate>` - التحكم الرئيسي
+   - `<PermissionGate>` - للصلاحيات المحددة
+   - `<PremiumBadge>` - شارة مميز
+   - `<UpgradePrompt>` - دعوة للترقية
+   - `<LockedFeatureCard>` - بطاقة احترافية
+
+3. **التطبيق العملي:**
+   - دمج `SubscriptionProvider` في `_app.tsx`
+   - تطبيق في `/profile` (المهام، القانونية)
+   - صفحة الإدارة `/admin/subscriptions` موجودة مسبقاً
+
+4. **التوثيق الشامل:**
+   - دليل كامل (12,000+ كلمة)
+   - أمثلة عملية
+   - دليل مبسط بالعربية
+
+**الملفات المُنشأة:**
+- `src/context/SubscriptionContext.tsx`
+- `src/components/FeatureGate.tsx`
+- `SUBSCRIPTION_SYSTEM_COMPLETE_GUIDE.md`
+- `FEATURE_GATE_EXAMPLE.md`
+- `SUBSCRIPTION_SYSTEM_SUCCESS.md`
+- `كيف_تستخدم_نظام_الاشتراكات.md`
+- `SYNC_STATUS_REPORT.md`
+
+**الملفات المُعدّلة:**
+- `src/pages/_app.tsx`
+- `src/pages/profile/index.tsx`
+
+**التقنيات الجديدة:**
+- React Context API للاشتراكات
+- Feature Gating Pattern
+- Subscription-based Permissions
+- Dynamic UI based on Plan
+
+**الميزات:**
+- ✅ إخفاء/إظهار المحتوى حسب الباقة
+- ✅ رسائل ترقية احترافية
+- ✅ تحديث تلقائي عند تغيير الباقة
+- ✅ سهولة إضافة ميزات جديدة
+
+**الاستخدام:**
+```tsx
+<FeatureGate feature="tasks" mode="lock" showUpgrade={true}>
+  <TasksSection />
+</FeatureGate>
+```
+
+**المهام التالية:**
+- تطبيق FeatureGate في باقي الصفحات
+- تكامل نظام دفع حقيقي
+- نظام إشعارات الاشتراك
+- Analytics Dashboard
+
+---
+
+*الحالة: جلسة نشطة - المرحلة 18 مكتملة*  
 *المشروع: Ain Oman Web - منصة العقارات الذكية*
 
