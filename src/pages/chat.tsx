@@ -110,12 +110,14 @@ export default function ChatPage() {
   };
   
   // تحويل البيانات إلى نص آمن
-  const safeTitle = property ? toSafeText(property.title, 'ar', 'العقار') : '';
+  const safeTitle = property ? toSafeText(property.title, 'ar', 'العقار') : 'العقار';
+  const safeType = property ? toSafeText(property.type, 'ar', '') : '';
+  const safeAddress = property ? toSafeText(property.address, 'ar', '') : '';
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Head>
-        <title>الدردشة مع الإدارة | Ain Oman</title>
+        <title>الدردشة - {safeTitle} | Ain Oman</title>
       </Head>
 
       <div className="max-w-5xl mx-auto h-screen flex flex-col">
