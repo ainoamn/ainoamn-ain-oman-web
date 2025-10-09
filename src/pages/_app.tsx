@@ -55,6 +55,13 @@ try {
   BookingsProvider = mod.BookingsProvider || BookingsProvider;
 } catch {}
 
+// Subscription Provider للاشتراكات والصلاحيات 🔐
+let SubscriptionProvider: any = ({ children }: any) => <>{children}</>;
+try {
+  const mod = require("@/context/SubscriptionContext");
+  SubscriptionProvider = mod.SubscriptionProvider || SubscriptionProvider;
+} catch {}
+
 // مزامنة اللغة
 function LangSync() {
   const router = useRouter();
@@ -129,13 +136,15 @@ export default function App({ Component, pageProps }: AppProps) {
 
               <GoogleMapsProvider>
                 <CurrencyProvider>
-                  <BookingsProvider>
-                    <ChatProvider>
-                      {content}
-                      <ChatWidget />
-                      <FloatingButtons />
-                    </ChatProvider>
-                  </BookingsProvider>
+                  <SubscriptionProvider>
+                    <BookingsProvider>
+                      <ChatProvider>
+                        {content}
+                        <ChatWidget />
+                        <FloatingButtons />
+                      </ChatProvider>
+                    </BookingsProvider>
+                  </SubscriptionProvider>
                 </CurrencyProvider>
               </GoogleMapsProvider>
             </AuthProvider>
