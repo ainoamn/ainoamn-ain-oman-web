@@ -1,4 +1,4 @@
-// src/pages/booking/new.tsx
+﻿// src/pages/booking/new.tsx
 // صفحة حجز العقار - محسنة للأداء الفائق ⚡
 
 import { useState, useEffect } from 'react';
@@ -180,7 +180,7 @@ export default function NewBookingPage() {
               <InstantImage src={property.images[0]}
                 alt={safeTitle}
                 className="w-24 h-24 object-cover rounded-lg"
-               loading="lazy"/>
+               loading="lazy" width={96} height={96}/>
             )}
             <div>
               <h2 className="text-xl font-semibold text-gray-900">{safeTitle}</h2>

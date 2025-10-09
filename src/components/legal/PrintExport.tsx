@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import InstantImage from '@/components/InstantImage';
 export default function PrintExport({ caseId }: { caseId: string }) {
   const hdrs = { "x-tenant-id":"TENANT-1","x-user-id":"U1","x-roles":"LAWYER" };
@@ -38,7 +38,7 @@ export default function PrintExport({ caseId }: { caseId: string }) {
       for (const d of docs||[]) {
         if (d.voided) continue;
         html += `<div class="muted">${d.name}</div>`;
-        if (d.dataUrl?.startsWith("data:image")) html += `<InstantImage src="${d.dataUrl}" style="max-width:100%; margin:6px 0" loading="lazy"/>`;
+        if (d.dataUrl?.startsWith("data:image")) html += `<InstantImage src="${d.dataUrl}" style="max-width:100%; margin:6px 0" loading="lazy" width={400} height={300}/>`;
         if (d.dataUrl?.startsWith("data:application/pdf")) html += `<div class="muted">[PDF]</div>`;
       }
       html += `</div></body></html>`;

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 import InstantImage from '@/components/InstantImage';
 import Head from "next/head";
 
@@ -108,7 +108,7 @@ export default function HeaderFooterAdminPage() {
       <header style={stickyHeaderStyle}>
         <div style={{ maxWidth:1120, margin:"0 auto", padding:"12px 16px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            <InstantImage src={header.logo} alt="logo" style={{ width:36, height:36, objectFit:"contain" }} loading="lazy"/>
+            <InstantImage src={header.logo} alt="logo" style={{ width:36, height:36, objectFit:"contain" }} loading="lazy" width={400} height={300}/>
             <strong style={{ opacity:.9 }}>عين عُمان</strong>
           </div>
           <nav style={{ display:"flex", gap:8 }}>

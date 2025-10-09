@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -365,7 +365,7 @@ export default function SettingsPage() {
                       <div className="relative">
                         <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-600 to-blue-600 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
                           {settings.profile.avatar ? (
-                            <InstantImage src={settings.profile.avatar} alt="Avatar" className="w-full h-full object-cover"  loading="lazy"/>
+                            <InstantImage src={settings.profile.avatar} alt="Avatar" className="w-full h-full object-cover"  loading="lazy" width={400} height={300}/>
                           ) : (
                             settings.profile.name.charAt(0).toUpperCase()
                           )}

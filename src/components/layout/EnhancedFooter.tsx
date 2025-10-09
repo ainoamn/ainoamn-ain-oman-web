@@ -1,4 +1,4 @@
-// src/components/layout/EnhancedFooter.tsx
+﻿// src/components/layout/EnhancedFooter.tsx
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -97,7 +97,7 @@ export default function EnhancedFooter({ force = false }: Props) {
                 <div className="flex flex-wrap items-center gap-3">
                   {footer.paymentMethods.map((p, i) => (
                     <span key={i} className="inline-flex items-center gap-2 bg-black/10 px-2 py-1 rounded">
-                      {p.icon ? <InstantImage src={p.icon} alt={p.name} className="h-5 w-auto"  loading="lazy"/> : null}
+                      {p.icon ? <InstantImage src={p.icon} alt={p.name} className="h-5 w-auto"  loading="lazy" width={400} height={300}/> : null}
                       <span className="text-xs">{p.name}</span>
                     </span>
                   ))}

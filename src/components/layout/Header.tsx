@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+﻿import React, { useState, useEffect, useRef, useCallback } from "react";
 import InstantImage from '@/components/InstantImage';
 import InstantLink from '@/components/InstantLink';
 import { useRouter } from "next/router";
@@ -381,7 +381,7 @@ export default function Header() {
                 <InstantImage src={suggestion.image}
                   alt={suggestion.title}
                   className="w-12 h-12 rounded-lg object-cover"
-                 loading="lazy"/>
+                 loading="lazy" width={48} height={48}/>
               )}
               <div className="flex-1">
                 <h4 className="font-medium text-gray-900 dark:text-white">{suggestion.title}</h4>
@@ -481,10 +481,14 @@ export default function Header() {
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <InstantImage src={user?.avatar || '/demo/user1.jpg'}
+            <InstantImage 
+              src={user?.avatar || '/demo/user1.jpg'}
               alt={user?.name}
+              width={48}
+              height={48}
               className="w-12 h-12 rounded-full object-cover"
-             loading="lazy"/>
+              loading="lazy"
+            />
             {user?.isVerified && (
               <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-white text-xs">✓</span>
@@ -740,10 +744,14 @@ export default function Header() {
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center gap-2 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
                 >
-                  <InstantImage src={user.avatar || '/demo/user1.jpg'}
+                  <InstantImage 
+                    src={user.avatar || '/demo/user1.jpg'}
                     alt={user.name}
+                    width={32}
+                    height={32}
                     className="w-8 h-8 rounded-full object-cover"
-                   loading="lazy"/>
+                    loading="lazy"
+                  />
                   <span className="hidden lg:block text-sm font-medium text-gray-700 dark:text-gray-300">
                     {user.name}
                   </span>

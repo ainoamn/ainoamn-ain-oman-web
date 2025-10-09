@@ -1,4 +1,4 @@
-import Head from "next/head";
+﻿import Head from "next/head";
 import InstantImage from '@/components/InstantImage';
 import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState, useCallback } from "react";
@@ -639,7 +639,7 @@ export default function AuctionsPage() {
                       return (
                         <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl transition hover:scale-[1.02] ${isDark ? "bg-gray-800" : "bg-white"}`}>
                           <div className="relative">
-                            <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy"/>
+                            <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy" width={400} height={300}/>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                             <div className="absolute top-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                               مميز
@@ -705,7 +705,7 @@ export default function AuctionsPage() {
                       return (
                         <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl transition hover:scale-[1.02] ${isDark ? "bg-gray-800" : "bg-white"}`}>
                           <div className="relative">
-                            <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy"/>
+                            <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy" width={400} height={300}/>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                             <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                               {p.auctionType}
@@ -770,7 +770,7 @@ export default function AuctionsPage() {
                       return (
                         <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl ${isDark ? "bg-gray-800" : "bg-white"}`}>
                           <div className="relative">
-                            <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy"/>
+                            <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy" width={400} height={300}/>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                             <div className="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                               قادم
@@ -826,7 +826,7 @@ export default function AuctionsPage() {
                     {filteredFeaturedEnded.map((p) => (
                       <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl ${isDark ? "bg-gray-800" : "bg-white"}`}>
                         <div className="relative">
-                          <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy"/>
+                          <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy" width={400} height={300}/>
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                           <div className="absolute top-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                             مميز منتهي
@@ -871,7 +871,7 @@ export default function AuctionsPage() {
                     {filteredEnded.map((p) => (
                       <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl ${isDark ? "bg-gray-800" : "bg-white"}`}>
                         <div className="relative">
-                          <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy"/>
+                          <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy" width={400} height={300}/>
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                           <div className="absolute top-4 right-4 bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                             منتهي

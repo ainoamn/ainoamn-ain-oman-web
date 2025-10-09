@@ -1,4 +1,4 @@
-import Head from "next/head";
+﻿import Head from "next/head";
 import InstantImage from '@/components/InstantImage';
 import InstantLink from "@/components/InstantLink";
 import { useState, useEffect } from "react";
@@ -498,7 +498,7 @@ function VerifyPage() {
                           <InstantImage src={documentPreview}
                             alt="معاينة"
                             className="max-h-64 mx-auto rounded-lg shadow-lg"
-                           loading="lazy"/>
+                           loading="lazy" width={400} height={300}/>
                           <button
                             type="button"
                             className="text-purple-600 hover:text-purple-700 font-medium text-sm"

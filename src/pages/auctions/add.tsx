@@ -1,4 +1,4 @@
-// src/pages/auctions/add.tsx
+﻿// src/pages/auctions/add.tsx
 import Head from "next/head";
 import InstantImage from '@/components/InstantImage';
 import { useRouter } from "next/router";
@@ -433,7 +433,7 @@ export default function AddAuctionPage() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
                     {formData.images.map((image, index) => (
                       <div key={index} className="relative">
-                        <InstantImage src={image} alt={`عقار ${index + 1}`} className="w-full h-24 object-cover rounded-lg"  loading="lazy"/>
+                        <InstantImage src={image} alt={`عقار ${index + 1}`} className="w-full h-24 object-cover rounded-lg"  loading="lazy" width={400} height={300}/>
                         <button
                           type="button"
                           className="absolute top-1 left-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"

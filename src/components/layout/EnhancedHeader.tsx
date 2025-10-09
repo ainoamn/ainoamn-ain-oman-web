@@ -1,4 +1,4 @@
-// src/components/layout/EnhancedHeader.tsx
+﻿// src/components/layout/EnhancedHeader.tsx
 "use client";
 
 import InstantLink from '@/components/InstantLink';
@@ -94,7 +94,7 @@ export default function EnhancedHeader({ force = false }: Props) {
         <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between py-3">
             <InstantLink href="/" className="flex items-center gap-2">
-              <InstantImage src={header?.logo || "/logo.png"} alt="logo" className="w-9 h-9 object-contain"  loading="lazy"/>
+              <InstantImage src={header?.logo || "/logo.png"} alt="logo" className="w-9 h-9 object-contain"  loading="lazy" width={400} height={300}/>
               <span className="text-2xl font-black tracking-tight opacity-90">عين عُمان</span>
             </InstantLink>
 

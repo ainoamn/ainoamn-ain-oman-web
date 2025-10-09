@@ -1,4 +1,4 @@
-// src/pages/admin/properties/index.tsx
+﻿// src/pages/admin/properties/index.tsx
 import Head from "next/head";
 import InstantImage from '@/components/InstantImage';
 // Header is now handled by MainLayout in _app.tsx
@@ -22,13 +22,13 @@ function resolveSrc(name?:string){
 
 function UnitThumb({u}:{u:Unit}){
   const src = resolveSrc(u.image || (u.images?.[0]));
-  return src ? <InstantImage src={src} className="w-8 h-8 object-cover rounded" alt=""  loading="lazy"/> : <div className="w-8 h-8 rounded bg-gray-200" />;
+  return src ? <InstantImage src={src} className="w-8 h-8 object-cover rounded" alt=""  loading="lazy" width={32} height={32}/> : <div className="w-8 h-8 rounded bg-gray-200" />;
 }
 
 function BuildingThumb({b}:{b:Building}){
   const imgs=b.images||[]; const i=typeof b.coverIndex==="number"? b.coverIndex:0;
   const src = resolveSrc(imgs[i]||imgs[0]);
-  return src ? <InstantImage src={src} className="w-10 h-10 object-cover rounded" alt=""  loading="lazy"/> : <div className="w-10 h-10 rounded bg-gray-200" />;
+  return src ? <InstantImage src={src} className="w-10 h-10 object-cover rounded" alt=""  loading="lazy" width={400} height={300}/> : <div className="w-10 h-10 rounded bg-gray-200" />;
 }
 
 export default function AdminPropertiesList(){

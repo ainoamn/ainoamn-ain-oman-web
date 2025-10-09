@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -750,7 +750,7 @@ export default function AddNewProperty() {
             <div class="images-grid">
               ${imageBase64s.map((imageBase64, index) => `
                 <div class="image-item">
-                  <InstantImage src="${imageBase64}" alt="صورة العقار ${index + 1}"  loading="lazy"/>
+                  <InstantImage src="${imageBase64}" alt="صورة العقار ${index + 1}"  loading="lazy" width={400} height={300}/>
                   ${index === formData.coverIndex ? '<div class="cover-badge">صورة الغلاف</div>' : ''}
                 </div>
               `).join('')}
@@ -841,7 +841,7 @@ export default function AddNewProperty() {
                   <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;">
                     ${unitImageBase64s[unitIndex].map((imageBase64, imgIndex) => `
                       <div style="text-align: center; border: 1px solid #e5e7eb; border-radius: 3px; padding: 3px;">
-                        <InstantImage src="${imageBase64}" alt="صورة الوحدة ${imgIndex + 1}" style="width: 100%; height: 50px; object-fit: cover; border-radius: 2px;"  loading="lazy"/>
+                        <InstantImage src="${imageBase64}" alt="صورة الوحدة ${imgIndex + 1}" style="width: 100%; height: 50px; object-fit: cover; border-radius: 2px;"  loading="lazy" width={400} height={300}/>
                       </div>
                     `).join('')}
                   </div>
@@ -1856,7 +1856,7 @@ export default function AddNewProperty() {
                                           <InstantImage src={URL.createObjectURL(image)}
                                             alt={`صورة الوحدة ${imgIndex + 1}`}
                                             className="w-full h-20 object-cover rounded"
-                                           loading="lazy"/>
+                                           loading="lazy" width={400} height={300}/>
                                           <button
                                             type="button"
                                             onClick={() => {
@@ -1978,7 +1978,7 @@ export default function AddNewProperty() {
                             <InstantImage src={URL.createObjectURL(image)}
                               alt={`صورة ${index + 1}`}
                               className="w-full h-24 object-cover rounded-lg"
-                             loading="lazy"/>
+                             loading="lazy" width={400} height={300}/>
                             {index === formData.coverIndex && (
                               <div className="absolute top-1 left-1 bg-green-500 text-white text-xs px-2 py-1 rounded">
                                 غلاف

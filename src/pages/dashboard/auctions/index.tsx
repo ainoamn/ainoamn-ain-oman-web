@@ -1,4 +1,4 @@
-// src/pages/dashboard/auctions/index.tsx
+﻿// src/pages/dashboard/auctions/index.tsx
 import { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import { useRouter } from 'next/router';
@@ -215,7 +215,7 @@ function AuctionRow({ auction, onUpdate }) {
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center">
           <div className="flex-shrink-0 h-10 w-10">
-            <InstantImage className="h-10 w-10 rounded-md object-cover" src={auction.images[0]} alt={auction.title}  loading="lazy"/>
+            <InstantImage className="h-10 w-10 rounded-md object-cover" src={auction.images[0]} alt={auction.title}  loading="lazy" width={400} height={300}/>
           </div>
           <div className="mr-4">
             <div className="text-sm font-medium text-gray-900">{auction.title}</div>

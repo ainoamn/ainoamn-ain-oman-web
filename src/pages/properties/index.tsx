@@ -1,4 +1,4 @@
-// src/pages/properties/index.tsx
+﻿// src/pages/properties/index.tsx
 import Head from "next/head";
 import InstantImage from '@/components/InstantImage';
 import InstantLink from '@/components/InstantLink';
@@ -667,7 +667,7 @@ export default function PropertiesIndexPage({ initialProperties = [] }: { initia
                 >
                   <div className="relative">
                     {cardImg ? (
-                      <InstantImage src={cardImg} alt={title || "Property"} className="w-full h-48 object-cover"  loading="lazy"/>
+                      <InstantImage src={cardImg} alt={title || "Property"} className="w-full h-48 object-cover"  loading="lazy" width={800} height={192}/>
                     ) : (
                       <div className="w-full h-48 bg-gray-100" />
                     )}

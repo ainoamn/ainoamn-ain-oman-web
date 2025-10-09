@@ -1,4 +1,4 @@
-// صفحة موحدة لإدارة العقارات والوحدات - تصميم احترافي مع الذكاء الاصطناعي
+﻿// صفحة موحدة لإدارة العقارات والوحدات - تصميم احترافي مع الذكاء الاصطناعي
 import React, { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import Head from 'next/head';
@@ -1179,7 +1179,7 @@ export default function UnifiedPropertyManagement() {
                                     <InstantImage className="w-full h-full object-cover"
                                       src={getCoverImage(property)}
                                       alt={getTitleFromProperty(property)}
-                                     loading="lazy"/>
+                                     loading="lazy" width={400} height={300}/>
                                   ) : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                                       <FaBuilding className="text-lg" />
@@ -1337,7 +1337,7 @@ export default function UnifiedPropertyManagement() {
                           <InstantImage src={getCoverImage(property)}
                             alt={getTitleFromProperty(property)}
                             className="w-full h-full object-cover"
-                           loading="lazy"/>
+                           loading="lazy" width={400} height={300}/>
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
                             <FaBuilding className="text-4xl" />
