@@ -423,35 +423,36 @@ export default function PropertiesIndexPage({ initialProperties = [] }: { initia
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50">
       <Head>
         <title>العقارات | عين عُمان</title>
       </Head>
 
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <h1 className="text-2xl font-bold">العقارات</h1>
-        <InstantLink href="/properties/new" className="px-4 py-2 rounded bg-[var(--brand-800)] hover:bg-[var(--brand-700)] text-white">
-          نشر عقار جديد
-        </InstantLink>
-      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-between gap-2 mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">العقارات</h1>
+          <InstantLink href="/properties/new" className="px-6 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-medium transition-colors">
+            نشر عقار جديد
+          </InstantLink>
+        </div>
 
-      <div className="mb-3">
-        <UnifiedSearchBar
-          onSearch={onSearch}
-          initial={{ keyword: q, type, purpose, rentalType: rentalType || undefined, province, state, village }}
-        />
-      </div>
+        <div className="mb-6">
+          <UnifiedSearchBar
+            onSearch={onSearch}
+            initial={{ keyword: q, type, purpose, rentalType: rentalType || undefined, province, state, village }}
+          />
+        </div>
 
-      <div className="mb-2 lg:hidden">
-        <button
-          onClick={() => setFiltersOpen((v) => !v)}
-          className="inline-flex items-center justify-center gap-2 px-3 py-2 border rounded"
-        >
-          <FaFilter /> {filtersOpen ? "إخفاء الفلاتر" : "عرض الفلاتر"}
-        </button>
-      </div>
+        <div className="mb-4 lg:hidden">
+          <button
+            onClick={() => setFiltersOpen((v) => !v)}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <FaFilter /> {filtersOpen ? "إخفاء الفلاتر" : "عرض الفلاتر"}
+          </button>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
         <aside className={`${filtersOpen ? "block" : "hidden"} lg:block`}>
           <div className="border rounded-lg p-3 bg-white sticky top-16">
             <div className="flex items-center justify-between mb-2">
@@ -722,6 +723,7 @@ export default function PropertiesIndexPage({ initialProperties = [] }: { initia
             })}
           </div>
         </section>
+      </div>
       </div>
     </div>
   );

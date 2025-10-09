@@ -110,10 +110,10 @@ export default function AdminBookingsListPage(){
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Head><title>الحجوزات</title></Head>
+    <div className="min-h-screen bg-gray-50">
+      <Head><title>الحجوزات | Ain Oman</title></Head>
       
-      <main className="container mx-auto p-6 flex-1 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">
@@ -150,8 +150,7 @@ export default function AdminBookingsListPage(){
         ) : (
           <AdvancedDataTable data={filteredItems} loading={loading} />
         )}
-      </main>
-      
+      </div>
     </div>
   );
 }
