@@ -1,5 +1,5 @@
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState } from "react";
 
 type Project = {
@@ -41,9 +41,9 @@ export default function DevelopmentListPage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
-        <Link href="/admin/development/projects" className="px-3 py-2 rounded-lg border hover:bg-gray-50">
+        <InstantLink href="/admin/development/projects" className="px-3 py-2 rounded-lg border hover:bg-gray-50">
           لوحة التطوير
-        </Link>
+        </InstantLink>
       </div>
 
       {(["selling", "planned", "delivered"] as const).map((k) => (
@@ -53,7 +53,7 @@ export default function DevelopmentListPage() {
           </h2>
           <div className="grid md:grid-cols-3 gap-4">
             {(grouped[k] || []).map((p) => (
-              <Link key={p.id} href={`/development/projects/${p.id}`} className="block border rounded-xl p-4 hover:shadow-md transition">
+              <InstantLink key={p.id} href={`/development/projects/${p.id}`} className="block border rounded-xl p-4 hover:shadow-md transition">
                 <div className="flex items-center justify-between mb-2">
                   <div className="font-semibold">{p.title}</div>
                   <span className="text-xs px-2 py-1 rounded-full border">{p.status}</span>
@@ -64,7 +64,7 @@ export default function DevelopmentListPage() {
                     {p.amenities.slice(0, 4).join(" • ")}{p.amenities.length > 4 ? " …" : ""}
                   </div>
                 )}
-              </Link>
+              </InstantLink>
             ))}
             {!grouped[k]?.length && <div className="text-gray-500">لا يوجد عناصر.</div>}
           </div>

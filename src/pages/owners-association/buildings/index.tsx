@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import Layout from "@/components/layout/Layout";
 import { useTSafe } from "@/lib/i18n-safe";
 import HoaNav from "@/components/hoa/HoaNav";
@@ -56,13 +56,13 @@ export default function BuildingsIndex() {
             </p>
           </div>
           
-          <Link
+          <InstantLink 
             href="/owners-association/buildings/create"
             className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl transition-colors"
           >
             <FiPlus size={16} />
             {t("hoa.buildings.addBuilding", "إضافة مبنى")}
-          </Link>
+          </InstantLink>
         </header>
 
         {/* شريط البحث */}
@@ -93,13 +93,13 @@ export default function BuildingsIndex() {
               ) : (
                 <>
                   <p className="mb-4">{t("hoa.buildings.noBuildings", "لا توجد مباني مسجلة بعد")}</p>
-                  <Link
+                  <InstantLink 
                     href="/owners-association/buildings/create"
                     className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl transition-colors"
                   >
                     <FiPlus size={16} />
                     {t("hoa.buildings.addFirstBuilding", "أضف أول مبنى")}
-                  </Link>
+                  </InstantLink>
                 </>
               )}
             </div>
@@ -124,21 +124,21 @@ export default function BuildingsIndex() {
                   </div>
                   
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <Link
+                    <InstantLink 
                       href={`/owners-association/buildings/${building.id}`}
                       className="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                       title={t("view", "عرض")}
                     >
                       <FiEye size={18} />
-                    </Link>
+                    </InstantLink>
                     
-                    <Link
+                    <InstantLink 
                       href={`/owners-association/buildings/edit/${building.id}`}
                       className="p-2 text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                       title={t("edit", "تعديل")}
                     >
                       <FiEdit size={18} />
-                    </Link>
+                    </InstantLink>
                     
                     <button
                       onClick={() => handleDelete(building.id)}

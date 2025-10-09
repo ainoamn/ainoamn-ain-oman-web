@@ -1,6 +1,6 @@
-﻿import Head from "next/head";
-import Link from "next/link";
-import InstantLink from "@/components/InstantLink";
+import Head from "next/head";
+import InstantImage from '@/components/InstantImage';
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 // Header is now handled by MainLayout in _app.tsx
@@ -58,9 +58,9 @@ function SubscriptionBanner({ needFeature }: { needFeature?: string }) {
   return (
     <div dir={dir} className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-4 mb-6 flex items-center justify-between">
       <div className="text-sm">{t("subs.view.paywall")} — {t("subs.required")}</div>
-      <Link href="/subscriptions" className="btn btn-primary text-sm">
+      <InstantLink href="/subscriptions" className="btn btn-primary text-sm">
         {t("subs.upgrade")}
-      </Link>
+      </InstantLink>
     </div>
   );
 }
@@ -461,18 +461,18 @@ export default function AuctionsPage() {
 
           <div className="mb-4 flex gap-3 justify-end">
             {isManager && (
-              <Link href="/dashboard/auctions" className="btn btn-primary text-sm">
+              <InstantLink href="/dashboard/auctions" className="btn btn-primary text-sm">
                 إدارة المزادات
-              </Link>
+              </InstantLink>
             )}
             {canCreate ? (
-              <Link href="/auctions/sell" className="btn btn-primary text-sm">
+              <InstantLink href="/auctions/sell" className="btn btn-primary text-sm">
                 بيع عبر المزاد
-              </Link>
+              </InstantLink>
             ) : (
-              <Link href="/subscriptions" className="btn btn-primary text-sm">
+              <InstantLink href="/subscriptions" className="btn btn-primary text-sm">
                 بيع عبر المزاد — ترقية الباقة
-              </Link>
+              </InstantLink>
             )}
           </div>
 
@@ -639,7 +639,7 @@ export default function AuctionsPage() {
                       return (
                         <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl transition hover:scale-[1.02] ${isDark ? "bg-gray-800" : "bg-white"}`}>
                           <div className="relative">
-                            <img src={p.image} alt={p.title} className="w-full h-56 object-cover" />
+                            <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy"/>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                             <div className="absolute top-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                               مميز
@@ -677,12 +677,12 @@ export default function AuctionsPage() {
                               </div>
                             </div>
                             <div className="flex gap-3">
-                              <Link href={`/auctions/${p.id}`} className="btn btn-primary flex-1 font-medium text-center">
+                              <InstantLink href={`/auctions/${p.id}`} className="btn btn-primary flex-1 font-medium text-center">
                                 عرض التفاصيل
-                              </Link>
-                              <Link href={`/auctions/${p.id}`} className="btn font-medium text-center px-4">
+                              </InstantLink>
+                              <InstantLink href={`/auctions/${p.id}`} className="btn font-medium text-center px-4">
                                 قدّم مزايدة
-                              </Link>
+                              </InstantLink>
                             </div>
                           </div>
                         </article>
@@ -705,7 +705,7 @@ export default function AuctionsPage() {
                       return (
                         <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl transition hover:scale-[1.02] ${isDark ? "bg-gray-800" : "bg-white"}`}>
                           <div className="relative">
-                            <img src={p.image} alt={p.title} className="w-full h-56 object-cover" />
+                            <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy"/>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                             <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                               {p.auctionType}
@@ -743,12 +743,12 @@ export default function AuctionsPage() {
                               </div>
                             </div>
                             <div className="flex gap-3">
-                              <Link href={`/auctions/${p.id}`} className="btn btn-primary flex-1 font-medium text-center">
+                              <InstantLink href={`/auctions/${p.id}`} className="btn btn-primary flex-1 font-medium text-center">
                                 عرض التفاصيل
-                              </Link>
-                              <Link href={`/auctions/${p.id}`} className="btn font-medium text-center px-4">
+                              </InstantLink>
+                              <InstantLink href={`/auctions/${p.id}`} className="btn font-medium text-center px-4">
                                 قدّم مزايدة
-                              </Link>
+                              </InstantLink>
                             </div>
                           </div>
                         </article>
@@ -770,7 +770,7 @@ export default function AuctionsPage() {
                       return (
                         <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl ${isDark ? "bg-gray-800" : "bg-white"}`}>
                           <div className="relative">
-                            <img src={p.image} alt={p.title} className="w-full h-56 object-cover" />
+                            <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy"/>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                             <div className="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                               قادم
@@ -803,9 +803,9 @@ export default function AuctionsPage() {
                               </div>
                             </div>
                             <div className="flex gap-3">
-                              <Link href={`/auctions/${p.id}`} className="btn btn-primary flex-1 font-medium text-center">
+                              <InstantLink href={`/auctions/${p.id}`} className="btn btn-primary flex-1 font-medium text-center">
                                 عرض التفاصيل
-                              </Link>
+                              </InstantLink>
                               <button className="btn font-medium text-center px-4" disabled>
                                 قريباً
                               </button>
@@ -826,7 +826,7 @@ export default function AuctionsPage() {
                     {filteredFeaturedEnded.map((p) => (
                       <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl ${isDark ? "bg-gray-800" : "bg-white"}`}>
                         <div className="relative">
-                          <img src={p.image} alt={p.title} className="w-full h-56 object-cover" />
+                          <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy"/>
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                           <div className="absolute top-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                             مميز منتهي
@@ -852,9 +852,9 @@ export default function AuctionsPage() {
                             </div>
                           </div>
                           <div className="flex gap-3">
-                            <Link href={`/auctions/${p.id}`} className="btn btn-primary flex-1 font-medium text-center">
+                            <InstantLink href={`/auctions/${p.id}`} className="btn btn-primary flex-1 font-medium text-center">
                               عرض التفاصيل
-                            </Link>
+                            </InstantLink>
                           </div>
                         </div>
                       </article>
@@ -871,7 +871,7 @@ export default function AuctionsPage() {
                     {filteredEnded.map((p) => (
                       <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl ${isDark ? "bg-gray-800" : "bg-white"}`}>
                         <div className="relative">
-                          <img src={p.image} alt={p.title} className="w-full h-56 object-cover" />
+                          <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy"/>
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                           <div className="absolute top-4 right-4 bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                             منتهي
@@ -897,9 +897,9 @@ export default function AuctionsPage() {
                             </div>
                           </div>
                           <div className="flex gap-3">
-                            <Link href={`/auctions/${p.id}`} className="btn btn-primary flex-1 font-medium text-center">
+                            <InstantLink href={`/auctions/${p.id}`} className="btn btn-primary flex-1 font-medium text-center">
                               عرض التفاصيل
-                            </Link>
+                            </InstantLink>
                           </div>
                         </div>
                       </article>
@@ -963,3 +963,4 @@ export default function AuctionsPage() {
     </main>
   );
 }
+

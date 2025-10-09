@@ -1,7 +1,7 @@
-﻿// صفحة التقويم المتكاملة
+// صفحة التقويم المتكاملة
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import { subscriptionManager } from '@/lib/subscriptionSystem';
 
 interface CalendarEvent {

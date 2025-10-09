@@ -1,6 +1,6 @@
 // src/pages/dashboard/admin.tsx - لوحة تحكم إدارة الموقع الكاملة
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import UnifiedDashboard from '@/components/dashboard/UnifiedDashboard';
 // تم استبدال الأيقونات برموز تعبيرية لتجنب مشاكل الاستيراد
 
@@ -255,7 +255,7 @@ export default function AdminDashboard() {
                 <div className="bg-white rounded-xl shadow-sm p-6">
                   <h3 className="text-lg font-semibold mb-4">لوحات التحكم الفرعية</h3>
                   <div className="space-y-3">
-                    <Link 
+                    <InstantLink 
                       href="/dashboard/property-owner" 
                       className="flex items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
                     >
@@ -264,8 +264,8 @@ export default function AdminDashboard() {
                         <h4 className="font-medium text-green-800">لوحة إدارة العقار</h4>
                         <p className="text-sm text-green-600">للملاك وإدارة العقارات</p>
                       </div>
-                    </Link>
-                    <Link 
+                    </InstantLink>
+                    <InstantLink 
                       href="/dashboard/customer" 
                       className="flex items-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                     >
@@ -274,7 +274,7 @@ export default function AdminDashboard() {
                         <h4 className="font-medium text-blue-800">لوحة العميل</h4>
                         <p className="text-sm text-blue-600">للعرض وإدارة الحجوزات</p>
                       </div>
-                    </Link>
+                    </InstantLink>
                   </div>
                 </div>
 
@@ -307,34 +307,34 @@ export default function AdminDashboard() {
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h3 className="text-lg font-semibold mb-4">روابط سريعة</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Link 
+                  <InstantLink 
                     href="/admin/bookings" 
                     className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-center"
                   >
                     <span className="text-blue-600 mx-auto mb-2 text-2xl">📅</span>
                     <span className="text-sm font-medium text-blue-800">إدارة الحجوزات</span>
-                  </Link>
-                  <Link 
+                  </InstantLink>
+                  <InstantLink 
                     href="/admin/tasks" 
                     className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-center"
                   >
                     <span className="text-green-600 mx-auto mb-2 text-2xl">⚡</span>
                     <span className="text-sm font-medium text-green-800">إدارة المهام</span>
-                  </Link>
-                  <Link 
+                  </InstantLink>
+                  <InstantLink 
                     href="/manage-properties" 
                     className="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-center"
                   >
                     <span className="text-purple-600 mx-auto mb-2 text-2xl">🏢</span>
                     <span className="text-sm font-medium text-purple-800">إدارة العقارات</span>
-                  </Link>
-                  <Link 
+                  </InstantLink>
+                  <InstantLink 
                     href="/admin/tasks/sync" 
                     className="p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors text-center"
                   >
                     <span className="text-orange-600 mx-auto mb-2 text-2xl">🗄️</span>
                     <span className="text-sm font-medium text-orange-800">مزامنة البيانات</span>
-                  </Link>
+                  </InstantLink>
                 </div>
               </div>
             </>
@@ -359,12 +359,12 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold">إدارة العقارات</h3>
-                <Link 
+                <InstantLink 
                   href="/manage-properties" 
                   className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   عرض جميع العقارات
-                </Link>
+                </InstantLink>
               </div>
               <p className="text-gray-600">
                 إدارة جميع العقارات في النظام
@@ -376,12 +376,12 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold">إدارة الحجوزات</h3>
-                <Link 
+                <InstantLink 
                   href="/admin/bookings" 
                   className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   عرض جميع الحجوزات
-                </Link>
+                </InstantLink>
               </div>
               <p className="text-gray-600">
                 مراجعة وإدارة جميع الحجوزات في النظام
@@ -393,12 +393,12 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold">إدارة المهام</h3>
-                <Link 
+                <InstantLink 
                   href="/admin/tasks" 
                   className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   عرض جميع المهام
-                </Link>
+                </InstantLink>
               </div>
               <p className="text-gray-600">
                 إدارة جميع المهام والمتابعة

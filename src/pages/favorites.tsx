@@ -1,7 +1,6 @@
-﻿// src/pages/favorites.tsx - المفضلة
+// src/pages/favorites.tsx - المفضلة
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
 import InstantLink from '@/components/InstantLink';
 import InstantImage from '@/components/InstantImage';
 import { 
@@ -458,11 +457,10 @@ export default function FavoritesPage() {
                   {/* صورة العنصر */}
                   <div className="relative h-48 bg-gray-200">
                     {favorite.itemImage ? (
-                      <img
-                        src={favorite.itemImage}
+                      <InstantImage src={favorite.itemImage}
                         alt={favorite.itemName}
                         className="w-full h-full object-cover"
-                      />
+                       loading="lazy"/>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400">
                         {getTypeIcon(favorite.type)}
@@ -595,11 +593,10 @@ export default function FavoritesPage() {
                           <div className="flex items-center">
                             <div className="h-12 w-12 bg-gray-200 rounded-lg flex items-center justify-center ml-4">
                               {favorite.itemImage ? (
-                                <img
-                                  src={favorite.itemImage}
+                                <InstantImage src={favorite.itemImage}
                                   alt={favorite.itemName}
                                   className="h-12 w-12 object-cover rounded-lg"
-                                />
+                                 loading="lazy"/>
                               ) : (
                                 getTypeIcon(favorite.type)
                               )}
@@ -670,3 +667,4 @@ export default function FavoritesPage() {
     </>
   );
 }
+

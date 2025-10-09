@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import InstantImage from '@/components/InstantImage';
 import type { Property, Unit } from "@/types/property";
 import { resolveSrc } from "@/utils/files";
 
@@ -80,9 +81,9 @@ export default function PropertyFormModal({ property, onSave, onClose }: Propert
             <label className="block text-gray-700 font-semibold mb-2">صورة العقار الرئيسية:</label>
             <input type="file" onChange={handleImageFileChange} className="w-full p-2 border border-gray-300 rounded-md" />
             {imageFile ? (
-              <img src={URL.createObjectURL(imageFile)} alt="Property Preview" className="mt-4 w-48 h-48 object-cover rounded-md" />
+              <InstantImage src={URL.createObjectURL(imageFile)} alt="Property Preview" className="mt-4 w-48 h-48 object-cover rounded-md"  loading="lazy"/>
             ) : (
-              formData?.image && <img src={resolveSrc(formData.image)} alt="Property Preview" className="mt-4 w-48 h-48 object-cover rounded-md" />
+              formData?.image && <InstantImage src={resolveSrc(formData.image)} alt="Property Preview" className="mt-4 w-48 h-48 object-cover rounded-md"  loading="lazy"/>
             )}
           </div>
 
@@ -146,3 +147,4 @@ export default function PropertyFormModal({ property, onSave, onClose }: Propert
     </div>
   );
 }
+

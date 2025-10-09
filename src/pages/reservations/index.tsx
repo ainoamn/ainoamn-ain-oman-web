@@ -1,7 +1,7 @@
 // src/pages/reservations/index.tsx
 // إصلاح items.map: تطبيع البيانات + حمايات
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useState } from "react";
 
 type Reservation = { id: string|number; propertyId?: string; userId?: string; date?: string; status?: string };
@@ -44,9 +44,9 @@ export default function ReservationsListPage() {
       <div className="mx-auto max-w-7xl px-4 py-6">
         <div className="mb-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-slate-900">الحجوزات</h1>
-          <Link href="/admin/dashboard?section=reservations" className="rounded-xl border px-3 py-1.5 text-sm hover:bg-slate-50">
+          <InstantLink href="/admin/dashboard?section=reservations" className="rounded-xl border px-3 py-1.5 text-sm hover:bg-slate-50">
             لوحة التحكم
-          </Link>
+          </InstantLink>
         </div>
 
         {loading ? (

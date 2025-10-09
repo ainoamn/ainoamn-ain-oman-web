@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import Layout from "@/components/layout/Layout";
 import { useTSafe } from "@/lib/i18n-safe";
 import HoaNav from "@/components/hoa/HoaNav";
@@ -204,12 +204,12 @@ export default function AlertsPage() {
                     
                     <div className="flex flex-wrap gap-2">
                       {alert.link && (
-                        <Link
+                        <InstantLink 
                           href={alert.link}
                           className="inline-flex items-center gap-1 px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white text-sm rounded-lg transition-colors"
                         >
                           {t("hoa.alerts.viewDetails", "عرض التفاصيل")}
-                        </Link>
+                        </InstantLink>
                       )}
                       
                       {!alert.resolved && (

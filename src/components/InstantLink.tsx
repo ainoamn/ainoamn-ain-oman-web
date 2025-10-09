@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import { useRouter } from 'next/router';
 
 interface InstantLinkProps {
@@ -130,7 +130,7 @@ export default function InstantLink({
   };
 
   return (
-    <Link
+    <InstantLink 
       ref={linkRef}
       href={href}
       className={className}
@@ -143,7 +143,7 @@ export default function InstantLink({
       prefetch={false} // نحن نتحكم في الـ prefetch يدويًا
     >
       {children}
-    </Link>
+    </InstantLink>
   );
 }
 

@@ -1,6 +1,6 @@
-﻿// src/pages/dashboard/customer.tsx - لوحة تحكم العميل
+// src/pages/dashboard/customer.tsx - لوحة تحكم العميل
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import UnifiedDashboard from '@/components/dashboard/UnifiedDashboard';
 import SmartSyncIndicator from '@/components/booking/SmartSyncIndicator';
 import { bookingSyncEngine, Booking } from '@/lib/bookingSyncEngine';
@@ -234,9 +234,9 @@ export default function CustomerDashboard() {
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-lg font-semibold">حجوزاتي الحديثة</h3>
-                  <Link href="/profile/bookings" className="text-blue-600 text-sm hover:underline">
+                  <InstantLink href="/profile/bookings" className="text-blue-600 text-sm hover:underline">
                     عرض الكل
-                  </Link>
+                  </InstantLink>
                 </div>
                 
                 {loading ? (
@@ -278,18 +278,18 @@ export default function CustomerDashboard() {
                             </td>
                             <td className="py-3 px-4">
                               <div className="flex space-x-2">
-                                <Link 
+                                <InstantLink 
                                   href={`/admin/bookings/${booking.id}`}
                                   className="text-blue-600 hover:underline text-xs"
                                 >
                                   <span className="text-sm">👁️</span>
-                                </Link>
-                                <Link 
+                                </InstantLink>
+                                <InstantLink 
                                   href={`/properties/${booking.propertyId}`}
                                   className="text-green-600 hover:underline text-xs"
                                 >
                                   <span className="text-sm">📦</span>
-                                </Link>
+                                </InstantLink>
                               </div>
                             </td>
                           </tr>
@@ -313,12 +313,12 @@ export default function CustomerDashboard() {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold">جميع حجوزاتي</h3>
-                <Link 
+                <InstantLink 
                   href="/profile/bookings" 
                   className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   عرض التفاصيل
-                </Link>
+                </InstantLink>
               </div>
               <p className="text-gray-600">
                 يمكنك عرض وإدارة جميع حجوزاتك من صفحة الحجوزات التفصيلية
@@ -330,12 +330,12 @@ export default function CustomerDashboard() {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold">العقارات المستأجرة</h3>
-                <Link 
+                <InstantLink 
                   href="/properties" 
                   className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   تصفح العقارات
-                </Link>
+                </InstantLink>
               </div>
               <p className="text-gray-600">
                 تصفح العقارات المتاحة أو عرض العقارات التي تستأجرها حالياً

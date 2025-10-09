@@ -1,6 +1,6 @@
 // src/pages/dashboard/widgets.tsx
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import React, { useEffect, useState } from "react";
 import {
   Cog6ToothIcon, HomeIcon, BuildingOfficeIcon, HeartIcon, BellAlertIcon,
@@ -67,9 +67,9 @@ function capsForPlans(userPlans: string[]): PlanCaps {
 /** UI helpers */
 function SidebarLink({ href, icon: Icon, text }:{ href:string; icon:any; text:string }) {
   return (
-    <Link href={href} className="flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-gray-800">
+    <InstantLink href={href} className="flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-gray-800">
       <Icon className="w-4 h-4 text-[var(--brand-700)]" /><span className="text-sm">{text}</span>
-    </Link>
+    </InstantLink>
   );
 }
 function UserShell({ children, sidebar }:{ children:React.ReactNode; sidebar:React.ReactNode; }) {
@@ -144,7 +144,7 @@ export default function DashboardWidgetsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/dashboard" className="btn btn-secondary">رجوع للملخص</Link>
+          <InstantLink href="/dashboard" className="btn btn-secondary">رجوع للملخص</InstantLink>
         </div>
       </div>
 

@@ -1,6 +1,6 @@
-﻿// src/pages/profile/bookings.tsx
+// src/pages/profile/bookings.tsx
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState, useCallback } from "react";
 // Header and Footer are now handled by MainLayout in _app.tsx
 import SmartSyncIndicator from "@/components/booking/SmartSyncIndicator";
@@ -230,12 +230,12 @@ export default function ProfileBookingsPage() {
                 إدارة حجوزاتك مع مزامنة ذكية فورية
               </p>
               <div className="mt-2">
-                <Link 
+                <InstantLink 
                   href="/dashboard/customer" 
                   className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
                 >
                   ← العودة إلى لوحة التحكم
-                </Link>
+                </InstantLink>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -336,18 +336,18 @@ export default function ProfileBookingsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                            <Link 
+                            <InstantLink 
                               href={`/admin/bookings/${encodeURIComponent(b.id)}`} 
                               className="inline-flex items-center px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded-lg transition-colors"
                             >
                               عرض العقد
-                            </Link>
-                            <Link 
+                            </InstantLink>
+                            <InstantLink 
                               href={`/properties/${encodeURIComponent(b.propertyId)}`} 
                               className="inline-flex items-center px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white text-xs font-medium rounded-lg transition-colors"
                             >
                               صفحة العقار
-                            </Link>
+                            </InstantLink>
                           </div>
                         </td>
                       </tr>

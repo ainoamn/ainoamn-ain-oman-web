@@ -1,7 +1,7 @@
 // src/components/auth/withSubscription.tsx
 import React from "react";
 import { useAuth, hasPermission, type CurrentUser, type Permission } from "@/lib/auth";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 
 export default function withSubscription<P extends object>(
   Component: React.ComponentType<P>,
@@ -19,9 +19,9 @@ export default function withSubscription<P extends object>(
             <p className="text-slate-600 mb-6">
               تحتاج إلى ترقية اشتراكك أو تفعيل صلاحية عرض المزادات للوصول إلى هذه الصفحة.
             </p>
-            <Link href="/subscriptions" className="inline-flex items-center justify-center rounded-xl bg-teal-600 px-5 py-3 font-semibold text-white hover:bg-teal-700">
+            <InstantLink href="/subscriptions" className="inline-flex items-center justify-center rounded-xl bg-teal-600 px-5 py-3 font-semibold text-white hover:bg-teal-700">
               عرض الباقات والاشتراك
-            </Link>
+            </InstantLink>
           </div>
         </div>
       );

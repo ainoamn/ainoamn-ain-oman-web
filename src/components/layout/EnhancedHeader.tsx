@@ -1,7 +1,8 @@
 // src/components/layout/EnhancedHeader.tsx
 "use client";
 
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
+import InstantImage from '@/components/InstantImage';
 import { useEffect, useState } from "react";
 import { Bars3Icon, XMarkIcon, MoonIcon, SunIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { useCustomization } from "@/contexts/CustomizationContext";
@@ -92,21 +93,21 @@ export default function EnhancedHeader({ force = false }: Props) {
       >
         <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between py-3">
-            <Link href="/" className="flex items-center gap-2">
-              <img src={header?.logo || "/logo.png"} alt="logo" className="w-9 h-9 object-contain" />
+            <InstantLink href="/" className="flex items-center gap-2">
+              <InstantImage src={header?.logo || "/logo.png"} alt="logo" className="w-9 h-9 object-contain"  loading="lazy"/>
               <span className="text-2xl font-black tracking-tight opacity-90">عين عُمان</span>
-            </Link>
+            </InstantLink>
 
             <nav className="hidden lg:flex items-center gap-1">
               {(header?.menuItems || []).map((item) => (
-                <Link
+                <InstantLink 
                   key={item.href}
                   href={item.href}
                   className="px-3 py-2 rounded-xl font-medium transition-all hover:shadow hover:ring-2 hover:ring-white/30"
                   style={{ opacity: 0.9 }}
                 >
                   {item.label}
-                </Link>
+                </InstantLink>
               ))}
 
               {header?.showSearch && (
@@ -162,14 +163,14 @@ export default function EnhancedHeader({ force = false }: Props) {
           <div className="lg:hidden border-t border-white/20 bg-white text-gray-800">
             <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6 py-3 space-y-1">
               {(header?.menuItems || []).map((item) => (
-                <Link
+                <InstantLink 
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
                   className="block px-3 py-2 rounded-xl font-medium hover:bg-teal-50 hover:text-teal-700"
                 >
                   {item.label}
-                </Link>
+                </InstantLink>
               ))}
             </div>
           </div>
@@ -178,3 +179,4 @@ export default function EnhancedHeader({ force = false }: Props) {
     </div>
   );
 }
+

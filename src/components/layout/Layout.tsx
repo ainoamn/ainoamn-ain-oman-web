@@ -1,9 +1,9 @@
-﻿// src/components/layout/Layout.tsx - Ultra Layout Component
+// src/components/layout/Layout.tsx - Ultra Layout Component
 "use client";
 
 import React, { useState, useEffect, useRef, createContext, useContext } from "react";
 import { useRouter } from "next/router";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { 
   SparklesIcon,
   BellIcon,
@@ -741,7 +741,7 @@ export default function Layout({
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">القائمة</h2>
             <nav className="space-y-2">
               {quickActions.map((action) => (
-                <Link
+                <InstantLink 
                   key={action.id}
                   href={action.href}
                   className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -753,7 +753,7 @@ export default function Layout({
                       {action.badge}
                     </span>
                   )}
-                </Link>
+                </InstantLink>
               ))}
             </nav>
           </div>
@@ -771,13 +771,13 @@ export default function Layout({
       <nav className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-2 text-sm">
-            <Link href="/" className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            <InstantLink href="/" className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
               الرئيسية
-            </Link>
+            </InstantLink>
             {pathSegments.map((segment, index) => (
               <React.Fragment key={index}>
                 <span className="text-gray-400">/</span>
-                <Link
+                <InstantLink 
                   href={`/${pathSegments.slice(0, index + 1).join('/')}`}
                   className={`${
                     index === pathSegments.length - 1
@@ -786,7 +786,7 @@ export default function Layout({
                   }`}
                 >
                   {segment}
-                </Link>
+                </InstantLink>
               </React.Fragment>
             ))}
           </div>
@@ -848,27 +848,27 @@ export default function Layout({
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
             <h3 className="text-xl font-semibold mb-4">قائمة المستخدم</h3>
             <div className="space-y-3">
-              <Link
+              <InstantLink 
                 href="/profile"
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
                 <UserCircleIcon className="w-5 h-5" />
                 <span>الملف الشخصي</span>
-              </Link>
-              <Link
+              </InstantLink>
+              <InstantLink 
                 href="/settings"
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
                 <Cog6ToothIcon className="w-5 h-5" />
                 <span>الإعدادات</span>
-              </Link>
-              <Link
+              </InstantLink>
+              <InstantLink 
                 href="/help"
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
                 <ChatBubbleLeftRightIcon className="w-5 h-5" />
                 <span>المساعدة</span>
-              </Link>
+              </InstantLink>
             </div>
           </div>
         </div>
@@ -936,7 +936,7 @@ export default function Layout({
             <h3 className="text-xl font-semibold mb-4">إجراءات سريعة</h3>
             <div className="grid grid-cols-2 gap-3">
               {quickActions.map((action) => (
-                <Link
+                <InstantLink 
                   key={action.id}
                   href={action.href}
                   className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -946,7 +946,7 @@ export default function Layout({
                     <div className="font-medium text-gray-900 dark:text-white">{action.label}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">{action.description}</div>
                   </div>
-                </Link>
+                </InstantLink>
               ))}
             </div>
           </div>

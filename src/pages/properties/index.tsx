@@ -1,7 +1,7 @@
 // src/pages/properties/index.tsx
 import Head from "next/head";
-import Link from "next/link";
-import InstantLink from "@/components/InstantLink";
+import InstantImage from '@/components/InstantImage';
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/router";
 // Layout is now handled by MainLayout in _app.tsx
@@ -430,9 +430,9 @@ export default function PropertiesIndexPage({ initialProperties = [] }: { initia
 
       <div className="flex items-center justify-between gap-2 mb-3">
         <h1 className="text-2xl font-bold">العقارات</h1>
-        <Link href="/properties/new" className="px-4 py-2 rounded bg-[var(--brand-800)] hover:bg-[var(--brand-700)] text-white">
+        <InstantLink href="/properties/new" className="px-4 py-2 rounded bg-[var(--brand-800)] hover:bg-[var(--brand-700)] text-white">
           نشر عقار جديد
-        </Link>
+        </InstantLink>
       </div>
 
       <div className="mb-3">
@@ -660,14 +660,14 @@ export default function PropertiesIndexPage({ initialProperties = [] }: { initia
               const title = titleToText(p.title);
               const cardImg = getCardImage(p);
               return (
-                <Link
+                <InstantLink 
                   href={`/properties/${p.id}`}
                   key={String(p.id)}
                   className="border rounded-lg overflow-hidden shadow hover:shadow-lg transition block"
                 >
                   <div className="relative">
                     {cardImg ? (
-                      <img src={cardImg} alt={title || "Property"} className="w-full h-48 object-cover" />
+                      <InstantImage src={cardImg} alt={title || "Property"} className="w-full h-48 object-cover"  loading="lazy"/>
                     ) : (
                       <div className="w-full h-48 bg-gray-100" />
                     )}
@@ -717,7 +717,7 @@ export default function PropertiesIndexPage({ initialProperties = [] }: { initia
                       </div>
                     </div>
                   </div>
-                </Link>
+                </InstantLink>
               );
             })}
           </div>
@@ -728,3 +728,4 @@ export default function PropertiesIndexPage({ initialProperties = [] }: { initia
 }
 
 // getServerSideProps removed - using useEffect instead
+

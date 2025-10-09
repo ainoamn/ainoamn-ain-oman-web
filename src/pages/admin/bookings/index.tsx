@@ -1,5 +1,5 @@
-﻿import Head from "next/head";
-import Link from "next/link";
+import Head from "next/head";
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useState, useMemo } from "react";
 // Header is now handled by MainLayout in _app.tsx
 

@@ -1,6 +1,6 @@
-﻿// src/pages/admin/contracts/new.tsx
+// src/pages/admin/contracts/new.tsx
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState } from "react";
 // Header is now handled by MainLayout in _app.tsx
 
@@ -62,7 +62,7 @@ export default function AdminNewContractPage(){
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">إنشاء عقد</h1>
-          <Link href="/admin/contracts" className="btn">رجوع</Link>
+          <InstantLink href="/admin/contracts" className="btn">رجوع</InstantLink>
         </div>
 
         {loading? <div>جارٍ التحميل…</div> : err? <div className="text-red-600">{err}</div> : (

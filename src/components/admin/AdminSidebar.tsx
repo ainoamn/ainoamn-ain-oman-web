@@ -1,5 +1,5 @@
 // src/components/admin/AdminSidebar.tsx  (استبدل بالمحتوى أدناه إن لم تكن قد دمجت سابقًا)
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { ADMIN_MODULES, GROUP_LABELS } from "@/lib/admin/registry";
@@ -68,7 +68,7 @@ export default function AdminSidebar(){
   return (
     <aside dir={dir} className={`border-slate-200 bg-white ${open?"w-72":"w-16"} shrink-0 border-e transition-all`}>
       <div className="flex items-center justify-between p-3">
-        <Link href="/admin/dashboard" className="text-sm font-semibold">Ain Oman Admin</Link>
+        <InstantLink href="/admin/dashboard" className="text-sm font-semibold">Ain Oman Admin</InstantLink>
         <button onClick={()=>setOpen(v=>!v)} className="rounded p-2 text-slate-600 hover:bg-slate-100">{open?"«":"»"}</button>
       </div>
 
@@ -79,12 +79,12 @@ export default function AdminSidebar(){
             <ul className="space-y-1">
               {mods.map((m:any)=>(
                 <li key={`${m._type}-${m.id}`}>
-                  <Link href={m.href}
+                  <InstantLink href={m.href}
                     className={`block rounded-xl px-3 py-2 text-sm border-s-2 ${active(m.href)? "bg-[var(--brand-50,#f0fbfd)] text-[var(--brand-800,#0b8a98)] border-[var(--brand-700,#0ea5b7)]" : "text-slate-700 hover:bg-slate-50 border-transparent"}`}
                     title={m.titleKey? t(m.titleKey,m.title): m.title}
                   >
                     {open ? (m.titleKey? t(m.titleKey,m.title): m.title) : (m.title||"•").charAt(0)}
-                  </Link>
+                  </InstantLink>
                 </li>
               ))}
             </ul>
@@ -93,8 +93,8 @@ export default function AdminSidebar(){
 
         <div className="mt-6 border-t pt-3">
           <ul className="space-y-1">
-            <li><Link href="/admin/studio" className={`block rounded-xl px-3 py-2 text-sm ${active("/admin/studio")? "bg-[var(--brand-50,#f0fbfd)] text-[var(--brand-800,#0b8a98)]":"text-slate-700 hover:bg-slate-50"}`}>الاستوديو</Link></li>
-            <li><Link href="/admin/settings" className={`block rounded-xl px-3 py-2 text-sm ${active("/admin/settings")? "bg-[var(--brand-50,#f0fbfd)] text-[var(--brand-800,#0b8a98)]":"text-slate-700 hover:bg-slate-50"}`}>الإعدادات</Link></li>
+            <li><InstantLink href="/admin/studio" className={`block rounded-xl px-3 py-2 text-sm ${active("/admin/studio")? "bg-[var(--brand-50,#f0fbfd)] text-[var(--brand-800,#0b8a98)]":"text-slate-700 hover:bg-slate-50"}`}>الاستوديو</InstantLink></li>
+            <li><InstantLink href="/admin/settings" className={`block rounded-xl px-3 py-2 text-sm ${active("/admin/settings")? "bg-[var(--brand-50,#f0fbfd)] text-[var(--brand-800,#0b8a98)]":"text-slate-700 hover:bg-slate-50"}`}>الإعدادات</InstantLink></li>
           </ul>
         </div>
       </nav>

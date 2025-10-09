@@ -1,4 +1,5 @@
 import Head from "next/head";
+import InstantImage from '@/components/InstantImage';
 import InstantLink from "@/components/InstantLink";
 import { useState, useEffect } from "react";
 import { useI18n } from "@/lib/i18n";
@@ -494,11 +495,10 @@ function VerifyPage() {
                     <label htmlFor="document-upload" className="cursor-pointer">
                       {documentPreview ? (
                         <div className="space-y-4">
-                          <img
-                            src={documentPreview}
+                          <InstantImage src={documentPreview}
                             alt="معاينة"
                             className="max-h-64 mx-auto rounded-lg shadow-lg"
-                          />
+                           loading="lazy"/>
                           <button
                             type="button"
                             className="text-purple-600 hover:text-purple-700 font-medium text-sm"
@@ -561,3 +561,4 @@ function VerifyPage() {
 }
 
 export default VerifyPage;
+

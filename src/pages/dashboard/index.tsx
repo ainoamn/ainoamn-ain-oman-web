@@ -1,6 +1,6 @@
 // src/pages/dashboard/index.tsx - صفحة اختيار نوع لوحة التحكم
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 // Icons replaced with emoji characters to avoid import issues
 
 // أنواع لوحات التحكم المتاحة
@@ -167,13 +167,13 @@ export default function Dashboard() {
                 </div>
 
                 {/* Action Button */}
-                <Link
+                <InstantLink 
                   href={dashboard.link}
                   className={`${dashboard.color} hover:opacity-90 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center group`}
                 >
                   <span>الانتقال إلى اللوحة</span>
                   <span className="mr-2 group-hover:translate-x-1 transition-transform">➡️</span>
-                </Link>
+                </InstantLink>
                 </div>
               </div>
             ))}
@@ -184,12 +184,12 @@ export default function Dashboard() {
           <div className="mt-12 bg-white rounded-2xl shadow-lg p-8">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-900">إدارة الاشتراك</h3>
-              <Link 
+              <InstantLink 
                 href="/subscriptions"
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
               >
                 إدارة الاشتراك
-              </Link>
+              </InstantLink>
             </div>
             
             {subscription ? (
@@ -212,12 +212,12 @@ export default function Dashboard() {
             ) : (
               <div className="text-center py-8">
                 <p className="text-gray-600 mb-4">لم يتم العثور على اشتراك نشط</p>
-                <Link 
+                <InstantLink 
                   href="/subscriptions"
                   className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                 >
                   اشترك الآن
-                </Link>
+                </InstantLink>
               </div>
             )}
           </div>

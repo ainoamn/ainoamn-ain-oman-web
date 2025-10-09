@@ -1,6 +1,6 @@
 // src/pages/test-dashboards.tsx - صفحة اختبار لوحات التحكم
 import React from 'react';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import { 
   FiShield, FiBuilding, FiUser, FiArrowRight,
   FiBarChart3, FiUsers, FiCalendar, FiActivity,
@@ -119,12 +119,12 @@ export default function TestDashboards() {
               <p className="text-gray-600 mt-1">اختبار شامل لجميع لوحات التحكم والمزامنة</p>
             </div>
             <div className="flex items-center space-x-4">
-              <Link 
+              <InstantLink 
                 href="/dashboard" 
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
               >
                 العودة للوحات التحكم
-              </Link>
+              </InstantLink>
               <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                 <FiBarChart3 size={20} className="text-white" />
               </div>
@@ -197,25 +197,25 @@ export default function TestDashboards() {
                   <h3 className="font-semibold text-gray-800 mb-3">روابط الاختبار:</h3>
                   <div className="space-y-2">
                     {dashboard.testLinks.map((link, index) => (
-                      <Link
+                      <InstantLink 
                         key={index}
                         href={link.url}
                         className="block text-sm text-blue-600 hover:text-blue-800 hover:underline"
                       >
                         • {link.name}
-                      </Link>
+                      </InstantLink>
                     ))}
                   </div>
                 </div>
 
                 {/* Main Action Button */}
-                <Link
+                <InstantLink 
                   href={dashboard.url}
                   className={`${dashboard.color.replace('text-', 'bg-').replace('-600', '-500')} hover:opacity-90 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center group`}
                 >
                   <span>اختبار اللوحة</span>
                   <FiArrowRight size={18} className="mr-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
+                </InstantLink>
               </div>
             </div>
           ))}
@@ -254,34 +254,34 @@ export default function TestDashboards() {
         <div className="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl shadow-lg p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">إجراءات سريعة</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link 
+            <InstantLink 
               href="/admin/bookings" 
               className="p-4 bg-white rounded-lg hover:shadow-md transition-shadow text-center"
             >
               <FiCalendar size={24} className="text-blue-600 mx-auto mb-2" />
               <span className="text-sm font-medium text-gray-800">إدارة الحجوزات</span>
-            </Link>
-            <Link 
+            </InstantLink>
+            <InstantLink 
               href="/admin/tasks" 
               className="p-4 bg-white rounded-lg hover:shadow-md transition-shadow text-center"
             >
               <FiActivity size={24} className="text-green-600 mx-auto mb-2" />
               <span className="text-sm font-medium text-gray-800">إدارة المهام</span>
-            </Link>
-            <Link 
+            </InstantLink>
+            <InstantLink 
               href="/profile/bookings" 
               className="p-4 bg-white rounded-lg hover:shadow-md transition-shadow text-center"
             >
               <FiUser size={24} className="text-purple-600 mx-auto mb-2" />
               <span className="text-sm font-medium text-gray-800">حجوزاتي</span>
-            </Link>
-            <Link 
+            </InstantLink>
+            <InstantLink 
               href="/manage-properties" 
               className="p-4 bg-white rounded-lg hover:shadow-md transition-shadow text-center"
             >
               <FiBuilding size={24} className="text-orange-600 mx-auto mb-2" />
               <span className="text-sm font-medium text-gray-800">إدارة العقارات</span>
-            </Link>
+            </InstantLink>
           </div>
         </div>
       </main>

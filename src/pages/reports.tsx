@@ -1,7 +1,7 @@
-﻿// src/pages/reports.tsx - التقارير والإحصائيات
+// src/pages/reports.tsx - التقارير والإحصائيات
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import { 
   FiBarChart3, FiPieChart, FiTrendingUp, FiTrendingDown, FiDownload,
   FiPrinter, FiShare2, FiFilter, FiCalendar, FiDollarSign, FiUsers,

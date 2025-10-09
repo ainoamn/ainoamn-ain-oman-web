@@ -2,6 +2,7 @@
 // صفحة حجز العقار - محسنة للأداء الفائق ⚡
 
 import { useState, useEffect } from 'react';
+import InstantImage from '@/components/InstantImage';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import InstantLink from '@/components/InstantLink';
@@ -176,11 +177,10 @@ export default function NewBookingPage() {
           {/* Property Info */}
           <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
             {property.images && property.images[0] && (
-              <img
-                src={property.images[0]}
+              <InstantImage src={property.images[0]}
                 alt={safeTitle}
                 className="w-24 h-24 object-cover rounded-lg"
-              />
+               loading="lazy"/>
             )}
             <div>
               <h2 className="text-xl font-semibold text-gray-900">{safeTitle}</h2>
@@ -542,4 +542,5 @@ export default function NewBookingPage() {
     </div>
   );
 }
+
 

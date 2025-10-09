@@ -1,8 +1,9 @@
-﻿// src/pages/auctions/add.tsx
+// src/pages/auctions/add.tsx
 import Head from "next/head";
+import InstantImage from '@/components/InstantImage';
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 // Header is now handled by MainLayout in _app.tsx
 
 import { useI18n } from "@/lib/i18n";
@@ -31,12 +32,12 @@ function SubscriptionBanner({ needFeature }: { needFeature?: string }) {
   return (
     <div dir={dir} className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-4 mb-6 flex items-center justify-between">
       <div className="text-sm">{t("subs.view.paywall")} — {t("subs.required")}</div>
-      <Link
+      <InstantLink 
         href="/subscriptions?return=/auctions/add&need=CREATE_AUCTION"
         className="btn btn-primary text-sm"
       >
         {t("subs.upgrade")}
-      </Link>
+      </InstantLink>
     </div>
   );
 }
@@ -432,7 +433,7 @@ export default function AddAuctionPage() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
                     {formData.images.map((image, index) => (
                       <div key={index} className="relative">
-                        <img src={image} alt={`عقار ${index + 1}`} className="w-full h-24 object-cover rounded-lg" />
+                        <InstantImage src={image} alt={`عقار ${index + 1}`} className="w-full h-24 object-cover rounded-lg"  loading="lazy"/>
                         <button
                           type="button"
                           className="absolute top-1 left-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
@@ -572,3 +573,4 @@ export default function AddAuctionPage() {
     </main>
   );
 }
+

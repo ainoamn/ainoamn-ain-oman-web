@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import Layout from "@/components/layout/Layout";
 import { useTSafe } from "@/lib/i18n-safe";
 import HoaNav from "@/components/hoa/HoaNav";
@@ -75,20 +75,20 @@ export default function OwnersAssociationHome() {
           </div>
           
           <div className="flex flex-wrap gap-2">
-            <Link 
+            <InstantLink 
               href="/owners-association/create" 
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white transition-colors"
             >
               <FiPlus size={16} />
               {t("hoa.home.createAssociation", "إنشاء جمعية")}
-            </Link>
+            </InstantLink>
             
-            <Link 
+            <InstantLink 
               href="/admin/tasks" 
               className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               {t("hoa.home.tasks", "لوحة المهام")}
-            </Link>
+            </InstantLink>
           </div>
         </header>
 
@@ -107,12 +107,12 @@ export default function OwnersAssociationHome() {
               ))}
             </ul>
             {activeAlerts.length > 3 && (
-              <Link 
+              <InstantLink 
                 href="/owners-association/alerts" 
                 className="inline-block mt-2 text-sm text-red-600 dark:text-red-400 hover:underline"
               >
                 {t("hoa.home.viewAllAlerts", "عرض جميع التنبيهات")} ({activeAlerts.length})
-              </Link>
+              </InstantLink>
             )}
           </div>
         )}
@@ -156,12 +156,12 @@ export default function OwnersAssociationHome() {
               </p>
             </div>
             
-            <Link 
+            <InstantLink 
               href="/owners-association/management" 
               className="text-sm text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 underline"
             >
               {t("hoa.home.manage", "الإدارة المتقدمة")}
-            </Link>
+            </InstantLink>
           </div>
           
           <div className="divide-y divide-gray-200 dark:divide-gray-800">
@@ -183,12 +183,12 @@ export default function OwnersAssociationHome() {
               <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                 <FiCheckCircle size={32} className="mx-auto mb-3 text-green-500" />
                 <p>{t("hoa.home.noAssociations", "لا توجد جمعيات مسجلة بعد")}</p>
-                <Link 
+                <InstantLink 
                   href="/owners-association/create" 
                   className="inline-block mt-3 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 underline"
                 >
                   {t("hoa.home.createFirst", "أنشئ جمعيتك الأولى")}
-                </Link>
+                </InstantLink>
               </div>
             )}
             
@@ -279,12 +279,12 @@ function HoaRow({ hoa }: { hoa: HoaSummary }) {
       </div>
       
       <div className="flex-shrink-0">
-        <Link 
+        <InstantLink 
           href={`/owners-association/properties/${hoa.id}`} 
           className="px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm transition-colors"
         >
           {t("hoa.requests.viewDetails", "تفاصيل")}
-        </Link>
+        </InstantLink>
       </div>
     </div>
   );

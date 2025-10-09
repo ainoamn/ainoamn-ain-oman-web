@@ -1,7 +1,7 @@
 // src/pages/admin/dashboard.tsx - لوحة التحكم الرئيسية للإدارة
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import { 
   FiBuilding, FiUsers, FiFileText, FiCreditCard, FiTool, FiDollarSign,
   FiTrendingUp, FiCalendar, FiAlertTriangle, FiCheckCircle
@@ -102,68 +102,68 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">إدارة العقارات</h3>
               <div className="grid grid-cols-2 gap-4">
-                <Link
+                <InstantLink 
                   href="/admin/units"
                   className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-center"
                 >
                   <FiBuilding className="w-8 h-8 text-blue-600 mx-auto mb-2" />
                   <span className="text-sm font-medium text-blue-800">إدارة الوحدات</span>
-                </Link>
-                <Link
+                </InstantLink>
+                <InstantLink 
                   href="/admin/buildings"
                   className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-center"
                 >
                   <FiBuilding className="w-8 h-8 text-green-600 mx-auto mb-2" />
                   <span className="text-sm font-medium text-green-800">إدارة المباني</span>
-                </Link>
-                <Link
+                </InstantLink>
+                <InstantLink 
                   href="/admin/tenants"
                   className="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-center"
                 >
                   <FiUsers className="w-8 h-8 text-purple-600 mx-auto mb-2" />
                   <span className="text-sm font-medium text-purple-800">إدارة المستأجرين</span>
-                </Link>
-                <Link
+                </InstantLink>
+                <InstantLink 
                   href="/admin/bookings"
                   className="p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors text-center"
                 >
                   <FiCalendar className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
                   <span className="text-sm font-medium text-yellow-800">إدارة الحجوزات</span>
-                </Link>
+                </InstantLink>
               </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">المالية والمحاسبة</h3>
               <div className="grid grid-cols-2 gap-4">
-                <Link
+                <InstantLink 
                   href="/admin/invoices"
                   className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-center"
                 >
                   <FiFileText className="w-8 h-8 text-blue-600 mx-auto mb-2" />
                   <span className="text-sm font-medium text-blue-800">إدارة الفواتير</span>
-                </Link>
-                <Link
+                </InstantLink>
+                <InstantLink 
                   href="/admin/checks"
                   className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-center"
                 >
                   <FiCreditCard className="w-8 h-8 text-green-600 mx-auto mb-2" />
                   <span className="text-sm font-medium text-green-800">إدارة الشيكات</span>
-                </Link>
-                <Link
+                </InstantLink>
+                <InstantLink 
                   href="/admin/maintenance"
                   className="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-center"
                 >
                   <FiTool className="w-8 h-8 text-purple-600 mx-auto mb-2" />
                   <span className="text-sm font-medium text-purple-800">إدارة الصيانة</span>
-                </Link>
-                <Link
+                </InstantLink>
+                <InstantLink 
                   href="/admin/tasks"
                   className="p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors text-center"
                 >
                   <FiCheckCircle className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
                   <span className="text-sm font-medium text-yellow-800">إدارة المهام</span>
-                </Link>
+                </InstantLink>
               </div>
             </div>
           </div>

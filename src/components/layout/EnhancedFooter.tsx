@@ -2,7 +2,8 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import InstantImage from '@/components/InstantImage';
+import InstantLink from '@/components/InstantLink';
 import { useCustomization } from "@/contexts/CustomizationContext";
 import { useLayoutScope } from "@/contexts/LayoutScope";
 
@@ -69,9 +70,9 @@ export default function EnhancedFooter({ force = false }: Props) {
               <ul className="mt-3 space-y-2 text-sm">
                 {s.links.map((l, j) => (
                   <li key={j}>
-                    <Link href={l.href} className="hover:underline opacity-90 hover:opacity-100">
+                    <InstantLink href={l.href} className="hover:underline opacity-90 hover:opacity-100">
                       {l.label}
-                    </Link>
+                    </InstantLink>
                   </li>
                 ))}
               </ul>
@@ -96,7 +97,7 @@ export default function EnhancedFooter({ force = false }: Props) {
                 <div className="flex flex-wrap items-center gap-3">
                   {footer.paymentMethods.map((p, i) => (
                     <span key={i} className="inline-flex items-center gap-2 bg-black/10 px-2 py-1 rounded">
-                      {p.icon ? <img src={p.icon} alt={p.name} className="h-5 w-auto" /> : null}
+                      {p.icon ? <InstantImage src={p.icon} alt={p.name} className="h-5 w-auto"  loading="lazy"/> : null}
                       <span className="text-xs">{p.name}</span>
                     </span>
                   ))}
@@ -109,12 +110,12 @@ export default function EnhancedFooter({ force = false }: Props) {
         <div className="mt-8 pt-6 border-t border-white/20 text-xs opacity-80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
           <div>© {new Date().getFullYear()} عين عُمان — جميع الحقوق محفوظة.</div>
           <div className="flex gap-4">
-            <Link href="/terms" className="hover:underline">
+            <InstantLink href="/terms" className="hover:underline">
               الشروط
-            </Link>
-            <Link href="/privacy" className="hover:underline">
+            </InstantLink>
+            <InstantLink href="/privacy" className="hover:underline">
               الخصوصية
-            </Link>
+            </InstantLink>
           </div>
         </div>
       </div>
@@ -142,3 +143,4 @@ function readCssBrand(): string | null {
     return null;
   }
 }
+

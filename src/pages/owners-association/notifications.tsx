@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Head from "next/head"; import Link from "next/link";
+import Head from "next/head"; import InstantLink from '@/components/InstantLink';
 import Layout from "@/components/layout/Layout"; import { useTSafe } from "@/lib/i18n-safe";
 import HoaNav from "@/components/hoa/HoaNav";
 type Item = { id: string; message: string; createdAt: string; read?: boolean };
@@ -18,7 +18,7 @@ export default function NotificationsPage() {
           {!loading && items.length===0 && <div className="p-4 text-neutral-500">{t("empty","لا يوجد إشعارات")}</div>}
           {items.map(it => (<div key={it.id} className="p-4 flex items-center justify-between">
             <div><div className="font-medium">{it.message}</div><div className="text-xs text-neutral-500">{it.createdAt}</div></div>
-            <Link href="/owners-association/alerts" className="text-sm underline">{t("hoa.notifications.view","تفاصيل")}</Link></div>))}
+            <InstantLink href="/owners-association/alerts" className="text-sm underline">{t("hoa.notifications.view","تفاصيل")}</InstantLink></div>))}
         </section>
       </div>
     </Layout>

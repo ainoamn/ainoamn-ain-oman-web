@@ -1,7 +1,7 @@
-﻿// src/pages/admin/checks/index.tsx - إدارة الشيكات
+// src/pages/admin/checks/index.tsx - إدارة الشيكات
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import { 
   FiPlus, FiEdit, FiTrash2, FiEye, FiSearch, FiFilter,
   FiCreditCard, FiDollarSign, FiCalendar, FiUser, FiBuilding,
@@ -186,13 +186,13 @@ export default function ChecksManagementPage() {
                 </p>
               </div>
               <div className="flex space-x-3 rtl:space-x-reverse">
-                <Link
+                <InstantLink 
                   href="/admin/checks/new"
                   className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                 >
                   <FiPlus className="w-4 h-4 ml-2" />
                   إضافة شيك جديد
-                </Link>
+                </InstantLink>
                 <button className="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors">
                   <FiDownload className="w-4 h-4 ml-2" />
                   تصدير البيانات
@@ -407,20 +407,20 @@ export default function ChecksManagementPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                          <Link
+                          <InstantLink 
                             href={`/admin/checks/${check.id}`}
                             className="text-blue-600 hover:text-blue-900 p-1"
                             title="عرض التفاصيل"
                           >
                             <FiEye className="w-4 h-4" />
-                          </Link>
-                          <Link
+                          </InstantLink>
+                          <InstantLink 
                             href={`/admin/checks/${check.id}/edit`}
                             className="text-indigo-600 hover:text-indigo-900 p-1"
                             title="تعديل"
                           >
                             <FiEdit className="w-4 h-4" />
-                          </Link>
+                          </InstantLink>
                           {check.status === 'pending' && (
                             <button
                               className="text-green-600 hover:text-green-900 p-1"
@@ -456,13 +456,13 @@ export default function ChecksManagementPage() {
                     ابدأ بإضافة شيك جديد لإدارة المدفوعات.
                   </p>
                   <div className="mt-6">
-                    <Link
+                    <InstantLink 
                       href="/admin/checks/new"
                       className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                     >
                       <FiPlus className="w-4 h-4 ml-2" />
                       إضافة شيك جديد
-                    </Link>
+                    </InstantLink>
                   </div>
                 </div>
               )}

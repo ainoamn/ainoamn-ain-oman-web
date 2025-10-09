@@ -3,8 +3,7 @@ import Head from "next/head";
     import { useI18n } from "@/lib/i18n";
     import React from "react";
     import Image from "next/image";
-import Link from "next/link";
-import InstantLink from "@/components/InstantLink";
+import InstantLink from '@/components/InstantLink';
 import InstantImage from "@/components/InstantImage";
 import { useMemo, useState, useEffect } from "react";
 

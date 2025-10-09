@@ -1,6 +1,6 @@
-﻿// لوحة التحكم المتكاملة مع التقويم والمهام
+// لوحة التحكم المتكاملة مع التقويم والمهام
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import { subscriptionManager, type UserSubscription } from '@/lib/subscriptionSystem';
 
 interface IntegratedDashboardProps {
@@ -256,12 +256,12 @@ export default function IntegratedDashboard({ userType, userId }: IntegratedDash
               <p className="text-sm text-gray-600">الأيام المتبقية</p>
               <p className="text-2xl font-bold text-gray-900">{subscription.remainingDays}</p>
             </div>
-            <Link 
+            <InstantLink 
               href="/subscriptions"
               className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
             >
               إدارة الاشتراك
-            </Link>
+            </InstantLink>
           </div>
         </div>
       )}
@@ -271,7 +271,7 @@ export default function IntegratedDashboard({ userType, userId }: IntegratedDash
         <h3 className="text-lg font-semibold text-gray-900 mb-4">الإجراءات السريعة</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {getQuickActions().map(action => (
-            <Link
+            <InstantLink 
               key={action.id}
               href={action.href}
               className={`${action.color} hover:opacity-90 text-white p-4 rounded-lg transition-colors`}
@@ -283,7 +283,7 @@ export default function IntegratedDashboard({ userType, userId }: IntegratedDash
                   <p className="text-sm opacity-90">{action.description}</p>
                 </div>
               </div>
-            </Link>
+            </InstantLink>
           ))}
         </div>
       </div>
@@ -291,7 +291,7 @@ export default function IntegratedDashboard({ userType, userId }: IntegratedDash
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {getStats().map(stat => (
-          <Link
+          <InstantLink 
             key={stat.id}
             href={stat.href}
             className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow"
@@ -305,7 +305,7 @@ export default function IntegratedDashboard({ userType, userId }: IntegratedDash
                 <p className="text-gray-600">{stat.title}</p>
               </div>
             </div>
-          </Link>
+          </InstantLink>
         ))}
       </div>
 
@@ -332,12 +332,12 @@ export default function IntegratedDashboard({ userType, userId }: IntegratedDash
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">التقويم</h3>
-            <Link 
+            <InstantLink 
               href="/calendar"
               className="text-blue-600 hover:text-blue-800 font-medium"
             >
               عرض كامل
-            </Link>
+            </InstantLink>
           </div>
           <div className="grid grid-cols-7 gap-2">
             {['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'].map(day => (
@@ -359,12 +359,12 @@ export default function IntegratedDashboard({ userType, userId }: IntegratedDash
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">المهام</h3>
-            <Link 
+            <InstantLink 
               href="/admin/tasks"
               className="text-blue-600 hover:text-blue-800 font-medium"
             >
               عرض كامل
-            </Link>
+            </InstantLink>
           </div>
           <div className="space-y-3">
             {tasks.slice(0, 5).map(task => (

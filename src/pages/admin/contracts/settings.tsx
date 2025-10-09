@@ -1,9 +1,9 @@
-﻿// src/pages/admin/contracts/settings.tsx
+// src/pages/admin/contracts/settings.tsx
 import Head from "next/head";
 // Header is now handled by MainLayout in _app.tsx
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 
 type Template = {
   id:string; name:string; scope:"unified"|"per-unit";
@@ -91,7 +91,7 @@ export default function ContractSettingsPage(){
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">إعداد العقد الموحّد</h1>
-          <Link href="/admin/contracts/overrides" className="btn">تخصيصات مبانٍ/وحدات</Link>
+          <InstantLink href="/admin/contracts/overrides" className="btn">تخصيصات مبانٍ/وحدات</InstantLink>
         </div>
 
         {loading? <div>جارٍ التحميل…</div> : err? <div className="text-red-600">{err}</div> : (

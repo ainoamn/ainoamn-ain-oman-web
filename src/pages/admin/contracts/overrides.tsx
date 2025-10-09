@@ -1,8 +1,8 @@
-﻿// src/pages/admin/contracts/overrides.tsx
+// src/pages/admin/contracts/overrides.tsx
 import Head from "next/head";
 // Header is now handled by MainLayout in _app.tsx
 
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState } from "react";
 
 type Template = { id:string; name:string; scope:"unified"|"per-unit"; bodyAr:string; bodyEn:string; fields:{key:string;labelAr:string;labelEn:string;required?:boolean}[] };
@@ -83,7 +83,7 @@ export default function OverridesPage(){
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">تخصيصات العقود للوحدات/المباني</h1>
-          <Link href="/admin/contracts/settings" className="btn">العقد الموحّد</Link>
+          <InstantLink href="/admin/contracts/settings" className="btn">العقد الموحّد</InstantLink>
         </div>
 
         {loading? <div>جارٍ التحميل…</div> : err? <div className="text-red-600">{err}</div> : (

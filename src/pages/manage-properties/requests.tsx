@@ -1,7 +1,7 @@
-﻿// src/pages/manage-properties/requests.tsx - طلبات إدارة العقارات
+// src/pages/manage-properties/requests.tsx - طلبات إدارة العقارات
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import { 
   FiPlus, FiEdit, FiTrash2, FiEye, FiSearch, FiFilter,
   FiBuilding, FiUser, FiCalendar, FiDollarSign, FiCheck, FiX,
@@ -199,13 +199,13 @@ export default function PropertyRequestsPage() {
                 </p>
               </div>
               <div className="flex space-x-3 rtl:space-x-reverse">
-                <Link
+                <InstantLink 
                   href="/manage-properties/requests/new"
                   className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                 >
                   <FiPlus className="w-4 h-4 ml-2" />
                   طلب جديد
-                </Link>
+                </InstantLink>
               </div>
             </div>
           </div>
@@ -371,13 +371,13 @@ export default function PropertyRequestsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                          <Link
+                          <InstantLink 
                             href={`/manage-properties/requests/${request.id}`}
                             className="text-blue-600 hover:text-blue-900 p-1"
                             title="عرض التفاصيل"
                           >
                             <FiEye className="w-4 h-4" />
-                          </Link>
+                          </InstantLink>
                           {request.status === 'pending' && (
                             <>
                               <button
@@ -396,13 +396,13 @@ export default function PropertyRequestsPage() {
                               </button>
                             </>
                           )}
-                          <Link
+                          <InstantLink 
                             href={`/manage-properties/requests/${request.id}/edit`}
                             className="text-indigo-600 hover:text-indigo-900 p-1"
                             title="تعديل"
                           >
                             <FiEdit className="w-4 h-4" />
-                          </Link>
+                          </InstantLink>
                         </div>
                           </td>
                         </tr>
@@ -418,13 +418,13 @@ export default function PropertyRequestsPage() {
                     ابدأ بإنشاء طلب جديد لإدارة العقارات.
                   </p>
                   <div className="mt-6">
-                    <Link
+                    <InstantLink 
                       href="/manage-properties/requests/new"
                       className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                     >
                       <FiPlus className="w-4 h-4 ml-2" />
                       طلب جديد
-                    </Link>
+                    </InstantLink>
                   </div>
                 </div>
           )}

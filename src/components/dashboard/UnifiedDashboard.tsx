@@ -1,6 +1,6 @@
 // لوحة التحكم الموحدة المحسنة
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import { subscriptionManager } from '@/lib/subscriptionSystem';
 
 interface UnifiedDashboardProps {
@@ -223,12 +223,12 @@ export default function UnifiedDashboard({ userType, userId }: UnifiedDashboardP
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">حالة الاشتراك</h3>
-            <Link 
+            <InstantLink 
               href="/subscriptions"
               className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
             >
               إدارة الاشتراك
-            </Link>
+            </InstantLink>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -265,7 +265,7 @@ export default function UnifiedDashboard({ userType, userId }: UnifiedDashboardP
         <h3 className="text-lg font-semibold text-gray-900 mb-4">الإجراءات السريعة</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {getQuickActions().map(action => (
-            <Link
+            <InstantLink 
               key={action.id}
               href={action.href}
               className={`${action.color} hover:opacity-90 text-white p-4 rounded-lg transition-colors`}
@@ -277,7 +277,7 @@ export default function UnifiedDashboard({ userType, userId }: UnifiedDashboardP
                   <p className="text-sm opacity-90">{action.description}</p>
                 </div>
               </div>
-            </Link>
+            </InstantLink>
           ))}
         </div>
       </div>
@@ -285,7 +285,7 @@ export default function UnifiedDashboard({ userType, userId }: UnifiedDashboardP
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {getStatsCards().map(stat => (
-          <Link
+          <InstantLink 
             key={stat.id}
             href={stat.href}
             className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow"
@@ -304,7 +304,7 @@ export default function UnifiedDashboard({ userType, userId }: UnifiedDashboardP
                 )}
               </div>
             </div>
-          </Link>
+          </InstantLink>
         ))}
       </div>
 

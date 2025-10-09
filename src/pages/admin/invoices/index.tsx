@@ -1,7 +1,7 @@
 // src/pages/admin/invoices/index.tsx - إدارة الفواتير والمحاسبة
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import { FiPlus, FiFileText, FiDollarSign } from 'react-icons/fi';
 import Layout from '@/components/layout/Layout';
 
@@ -39,13 +39,13 @@ export default function InvoicesManagementPage() {
                 </p>
               </div>
               <div className="flex space-x-3 rtl:space-x-reverse">
-                <Link
+                <InstantLink 
                   href="/admin/invoices/new"
                   className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                 >
                   <FiPlus className="w-4 h-4 ml-2" />
                   إضافة فاتورة جديدة
-                </Link>
+                </InstantLink>
               </div>
             </div>
           </div>
@@ -87,13 +87,13 @@ export default function InvoicesManagementPage() {
                 ابدأ بإضافة فاتورة جديدة لإدارة المحاسبة.
               </p>
               <div className="mt-6">
-                <Link
+                <InstantLink 
                   href="/admin/invoices/new"
                   className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                 >
                   <FiPlus className="w-4 h-4 ml-2" />
                   إضافة فاتورة جديدة
-                </Link>
+                </InstantLink>
               </div>
             </div>
           </div>

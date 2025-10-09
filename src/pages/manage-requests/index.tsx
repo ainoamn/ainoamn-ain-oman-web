@@ -2,7 +2,7 @@
 import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
 // Layout handled by _app.tsx
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 
 type Req = {
   id:string; propertyId:string; ownerId?:string|null; userId:string;
@@ -48,7 +48,7 @@ export default function ManageRequests(){
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold">الطلبات</h1>
-            <Link href="/manage-properties" className="text-sm underline">عودة للوحة العقارات</Link>
+            <InstantLink href="/manage-properties" className="text-sm underline">عودة للوحة العقارات</InstantLink>
           </div>
 
           {loading ? <div className="text-gray-500">جارِ التحميل…</div> : (

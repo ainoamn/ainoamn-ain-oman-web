@@ -1,7 +1,7 @@
-﻿// src/pages/admin/units/index.tsx - إدارة الوحدات العقارية
+// src/pages/admin/units/index.tsx - إدارة الوحدات العقارية
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 // استبدال الأيقونات برموز emoji لتجنب مشاكل الاستيراد
 import Layout from '@/components/layout/Layout';
 
@@ -209,13 +209,13 @@ export default function UnitsManagementPage() {
                 </p>
               </div>
               <div className="flex space-x-3 rtl:space-x-reverse">
-                <Link
+                <InstantLink 
                   href="/properties/new"
                   className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                 >
                   <span className="w-4 h-4 ml-2">➕</span>
                   إضافة وحدة جديدة
-                </Link>
+                </InstantLink>
                 <button className="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors">
                   <span className="w-4 h-4 ml-2">📥</span>
                   تصدير البيانات
@@ -488,20 +488,20 @@ export default function UnitsManagementPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                          <Link
+                          <InstantLink 
                             href={`/admin/units/${unit.id}`}
                             className="text-blue-600 hover:text-blue-900 p-1"
                             title="عرض التفاصيل"
                           >
                             <span className="w-4 h-4">👁️</span>
-                          </Link>
-                          <Link
+                          </InstantLink>
+                          <InstantLink 
                             href={`/admin/units/${unit.id}/edit`}
                             className="text-indigo-600 hover:text-indigo-900 p-1"
                             title="تعديل"
                           >
                             <span className="w-4 h-4">✏️</span>
-                          </Link>
+                          </InstantLink>
                           <button
                             onClick={() => handleDeleteUnit(unit.id)}
                             className="text-red-600 hover:text-red-900 p-1"
@@ -524,13 +524,13 @@ export default function UnitsManagementPage() {
                     ابدأ بإضافة وحدة جديدة لإدارة العقارات.
                   </p>
                   <div className="mt-6">
-                    <Link
+                    <InstantLink 
                       href="/properties/new"
                       className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                     >
                       <span className="w-4 h-4 ml-2">➕</span>
                       إضافة وحدة جديدة
-                    </Link>
+                    </InstantLink>
                   </div>
                 </div>
               )}

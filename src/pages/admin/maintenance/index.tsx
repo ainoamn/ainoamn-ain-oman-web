@@ -1,7 +1,7 @@
-﻿// src/pages/admin/maintenance/index.tsx - إدارة الصيانة
+// src/pages/admin/maintenance/index.tsx - إدارة الصيانة
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 // Icons replaced with emoji characters to avoid import issues
 import Layout from '@/components/layout/Layout';
 
@@ -207,13 +207,13 @@ export default function MaintenanceManagementPage() {
                 </p>
               </div>
               <div className="flex space-x-3 rtl:space-x-reverse">
-                <Link
+                <InstantLink 
                   href="/admin/maintenance/new"
                   className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                 >
                   <span className="w-4 h-4 ml-2">➕</span>
                   إضافة طلب صيانة
-                </Link>
+                </InstantLink>
                 <button className="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors">
                   <span className="w-4 h-4 ml-2">📥</span>
                   تصدير البيانات
@@ -457,20 +457,20 @@ export default function MaintenanceManagementPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                          <Link
+                          <InstantLink 
                             href={`/admin/maintenance/${request.id}`}
                             className="text-blue-600 hover:text-blue-900 p-1"
                             title="عرض التفاصيل"
                           >
                             <span className="w-4 h-4">👁️</span>
-                          </Link>
-                          <Link
+                          </InstantLink>
+                          <InstantLink 
                             href={`/admin/maintenance/${request.id}/edit`}
                             className="text-indigo-600 hover:text-indigo-900 p-1"
                             title="تعديل"
                           >
                             <span className="w-4 h-4">✏️</span>
-                          </Link>
+                          </InstantLink>
                           {request.status === 'pending' && (
                             <button
                               className="text-green-600 hover:text-green-900 p-1"
@@ -506,13 +506,13 @@ export default function MaintenanceManagementPage() {
                     ابدأ بإضافة طلب صيانة جديد.
                   </p>
                   <div className="mt-6">
-                    <Link
+                    <InstantLink 
                       href="/admin/maintenance/new"
                       className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                     >
                       <span className="w-4 h-4 ml-2">➕</span>
                       إضافة طلب صيانة
-                    </Link>
+                    </InstantLink>
                   </div>
                 </div>
               )}

@@ -1,6 +1,6 @@
-﻿// src/pages/profile/contracts/index.tsx
+// src/pages/profile/contracts/index.tsx
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useState } from "react";
 // Header and Footer are now handled by MainLayout in _app.tsx
 
@@ -41,7 +41,7 @@ export default function ProfileContracts(){
                     <td className="p-2">{dstr(c.endDate)}</td>
                     <td className="p-2">{money(c.totals?.amount, c.totals?.currency||"OMR")}</td>
                     <td className="p-2">{c.status}</td>
-                    <td className="p-2"><Link href={`/profile/contracts/${encodeURIComponent(c.id)}`} className="btn btn-outline">عرض/اعتماد</Link></td>
+                    <td className="p-2"><InstantLink href={`/profile/contracts/${encodeURIComponent(c.id)}`} className="btn btn-outline">عرض/اعتماد</InstantLink></td>
                   </tr>
                 ))}
                 {items.length===0 && <tr><td className="p-3 text-center text-gray-600" colSpan={6}>لا توجد عقود.</td></tr>}
