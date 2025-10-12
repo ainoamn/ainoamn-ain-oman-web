@@ -1,48 +1,56 @@
-// src/pages/admin/maintenance/new.tsx - إضافة طلب صيانة جديد (ذكي)
+// src/pages/admin/maintenance/new.tsx - إضافة طلب صيانة جديد (ذكي ✨)
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-interface Property {
+interface Unit {
   id: string;
-  title: string | { ar?: string; en?: string };
-}
-
-interface Building {
-  id: string;
-  buildingNo: string;
-  address?: string;
-}
-
-interface Booking {
-  id: string;
-  propertyId: string;
-  customerInfo: {
+  unitNumber: string;
+  buildingId: string;
+  buildingName: string;
+  currentTenant?: {
+    id: string;
     name: string;
     phone: string;
+    email?: string;
+    contractNumber?: string;
+  };
+}
+
+interface Tenant {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  currentUnit?: {
+    unitId: string;
+    unitNumber: string;
+    buildingId: string;
+    buildingName: string;
+    contractNumber: string;
   };
 }
 
 export default function NewMaintenancePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [buildings, setBuildings] = useState<Building[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [units, setUnits] = useState<Unit[]>([]);
+  const [tenants, setTenants] = useState<Tenant[]>([]);
   
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    propertyId: '',
-    propertyTitle: '',
-    buildingId: '',
-    buildingNo: '',
-    unitNumber: '',
     category: 'plumbing',
     priority: 'normal',
+    tenantId: '',
     tenantName: '',
     tenantPhone: '',
+    tenantEmail: '',
+    unitId: '',
+    unitNumber: '',
+    buildingName: '',
+    contractNumber: '',
     estimatedCost: '',
     scheduledDate: ''
   });
@@ -53,75 +61,89 @@ export default function NewMaintenancePage() {
 
   const loadData = async () => {
     try {
-      // تحميل العقارات
-      const propsRes = await fetch('/api/properties');
-      if (propsRes.ok) {
-        const propsData = await propsRes.json();
-        const propsArray = Array.isArray(propsData) ? propsData : propsData.items || [];
-        setProperties(propsArray);
+      // تحميل الوحدات مع المستأجرين
+      const unitsRes = await fetch('/api/admin/units');
+      if (unitsRes.ok) {
+        const unitsData = await unitsRes.json();
+        setUnits(unitsData.units || []);
       }
 
-      // تحميل المباني
-      const buildingsRes = await fetch('/api/admin/buildings');
-      if (buildingsRes.ok) {
-        const buildingsData = await buildingsRes.json();
-        const buildingsArray = Array.isArray(buildingsData) ? buildingsData : buildingsData.items || buildingsData.buildings || [];
-        setBuildings(buildingsArray);
-      }
-
-      // تحميل الحجوزات للمستأجرين
-      const bookingsRes = await fetch('/api/bookings');
-      if (bookingsRes.ok) {
-        const bookingsData = await bookingsRes.json();
-        const bookingsArray = Array.isArray(bookingsData) ? bookingsData : bookingsData.items || [];
-        setBookings(bookingsArray);
+      // تحميل المستأجرين
+      const tenantsRes = await fetch('/api/admin/tenants');
+      if (tenantsRes.ok) {
+        const tenantsData = await tenantsRes.json();
+        setTenants(tenantsData.tenants || []);
       }
     } catch (error) {
       console.error('Error loading data:', error);
     }
   };
 
-  const handlePropertySelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const propertyId = e.target.value;
-    const property = properties.find(p => p.id === propertyId);
+  // ⚡ عند اختيار الوحدة → يتم ملء بيانات المستأجر تلقائياً
+  const handleUnitSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const unitId = e.target.value;
+    const unit = units.find(u => u.id === unitId);
     
-    if (property) {
-      const title = typeof property.title === 'string' 
-        ? property.title 
-        : property.title?.ar || property.title?.en || propertyId;
-      
-      setFormData({
-        ...formData,
-        propertyId: propertyId,
-        propertyTitle: title
-      });
+    if (unit) {
+      if (unit.currentTenant) {
+        setFormData({
+          ...formData,
+          unitId: unit.id,
+          unitNumber: unit.unitNumber,
+          buildingName: unit.buildingName,
+          tenantId: unit.currentTenant.id,
+          tenantName: unit.currentTenant.name,
+          tenantPhone: unit.currentTenant.phone,
+          tenantEmail: unit.currentTenant.email || '',
+          contractNumber: unit.currentTenant.contractNumber || ''
+        });
+      } else {
+        setFormData({
+          ...formData,
+          unitId: unit.id,
+          unitNumber: unit.unitNumber,
+          buildingName: unit.buildingName,
+          tenantId: '',
+          tenantName: '',
+          tenantPhone: '',
+          tenantEmail: '',
+          contractNumber: ''
+        });
+      }
     }
   };
 
-  const handleBuildingSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const buildingId = e.target.value;
-    const building = buildings.find(b => b.id === buildingId);
-    
-    if (building) {
-      setFormData({
-        ...formData,
-        buildingId: buildingId,
-        buildingNo: building.buildingNo
-      });
-    }
-  };
-
+  // ⚡ عند اختيار المستأجر → يتم ملء بيانات الوحدة تلقائياً
   const handleTenantSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const bookingId = e.target.value;
-    const booking = bookings.find(b => b.id === bookingId);
+    const tenantId = e.target.value;
+    const tenant = tenants.find(t => t.id === tenantId);
     
-    if (booking) {
-      setFormData({
-        ...formData,
-        tenantName: booking.customerInfo?.name || '',
-        tenantPhone: booking.customerInfo?.phone || '',
-        propertyId: booking.propertyId || formData.propertyId
-      });
+    if (tenant) {
+      if (tenant.currentUnit) {
+        setFormData({
+          ...formData,
+          tenantId: tenant.id,
+          tenantName: tenant.name,
+          tenantPhone: tenant.phone,
+          tenantEmail: tenant.email || '',
+          unitId: tenant.currentUnit.unitId,
+          unitNumber: tenant.currentUnit.unitNumber,
+          buildingName: tenant.currentUnit.buildingName,
+          contractNumber: tenant.currentUnit.contractNumber
+        });
+      } else {
+        setFormData({
+          ...formData,
+          tenantId: tenant.id,
+          tenantName: tenant.name,
+          tenantPhone: tenant.phone,
+          tenantEmail: tenant.email || '',
+          unitId: '',
+          unitNumber: '',
+          buildingName: '',
+          contractNumber: ''
+        });
+      }
     }
   };
 
@@ -165,7 +187,7 @@ export default function NewMaintenancePage() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">إضافة طلب صيانة جديد</h1>
-              <p className="text-sm text-gray-500 mt-1">اختر العقار والمستأجر من القوائم</p>
+              <p className="text-sm text-gray-500 mt-1">اختر الوحدة أو المستأجر - سيتم ملء البيانات تلقائياً ✨</p>
             </div>
             <Link href="/admin/maintenance" className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
               ← العودة
@@ -178,6 +200,52 @@ export default function NewMaintenancePage() {
         <div className="bg-white rounded-xl shadow p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             
+            {/* 🌟 اختيار ذكي */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl p-5">
+              <h3 className="text-base font-bold text-blue-900 mb-4 flex items-center">
+                <span className="text-2xl ml-2">⚡</span>
+                ملء ذكي تلقائي - اختر الوحدة أو المستأجر
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">🏢 اختر الوحدة</label>
+                  <select
+                    value={formData.unitId}
+                    onChange={handleUnitSelect}
+                    className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white font-medium"
+                  >
+                    <option value="">اختر وحدة...</option>
+                    {units.map(unit => (
+                      <option key={unit.id} value={unit.id}>
+                        {unit.unitNumber} - {unit.buildingName} 
+                        {unit.currentTenant ? ` (${unit.currentTenant.name})` : ' (فارغة)'}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-blue-600 mt-1">✨ سيتم ملء بيانات المستأجر تلقائياً</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">👤 أو اختر المستأجر</label>
+                  <select
+                    value={formData.tenantId}
+                    onChange={handleTenantSelect}
+                    className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white font-medium"
+                  >
+                    <option value="">اختر مستأجر...</option>
+                    {tenants.map(tenant => (
+                      <option key={tenant.id} value={tenant.id}>
+                        {tenant.name} - {tenant.phone}
+                        {tenant.currentUnit ? ` (${tenant.currentUnit.unitNumber})` : ' (بدون وحدة)'}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-blue-600 mt-1">✨ سيتم ملء بيانات الوحدة تلقائياً</p>
+                </div>
+              </div>
+            </div>
+
             {/* معلومات الطلب */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">🔧 معلومات الطلب</h3>
@@ -189,7 +257,7 @@ export default function NewMaintenancePage() {
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="تسرب في الحمام"
+                  placeholder="مثال: تسرب في الحمام"
                 />
               </div>
 
@@ -242,94 +310,18 @@ export default function NewMaintenancePage() {
               </div>
             </div>
 
-            {/* الموقع */}
+            {/* بيانات المستأجر - تُملأ تلقائياً */}
             <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">📍 الموقع</h3>
-              
-              {properties.length > 0 && (
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">العقار</label>
-                  <select
-                    value={formData.propertyId}
-                    onChange={handlePropertySelect}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">اختر عقار...</option>
-                    {properties.map(property => {
-                      const title = typeof property.title === 'string' 
-                        ? property.title 
-                        : property.title?.ar || property.title?.en || property.id;
-                      return (
-                        <option key={property.id} value={property.id}>
-                          {property.id} - {title}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {buildings.length > 0 && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">المبنى</label>
-                    <select
-                      value={formData.buildingId}
-                      onChange={handleBuildingSelect}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">اختر مبنى...</option>
-                      {buildings.map(building => (
-                        <option key={building.id} value={building.id}>
-                          مبنى رقم {building.buildingNo}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">👤 بيانات المستأجر</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">رقم الوحدة</label>
-                  <input
-                    type="text"
-                    value={formData.unitNumber}
-                    onChange={(e) => setFormData({...formData, unitNumber: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="A-101"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* المستأجر */}
-            <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">👤 المستأجر</h3>
-              
-              {bookings.length > 0 && (
-                <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <label className="block text-sm font-bold text-blue-900 mb-2">⚡ اختيار سريع</label>
-                  <select
-                    onChange={handleTenantSelect}
-                    className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
-                  >
-                    <option value="">اختر مستأجر من الحجوزات...</option>
-                    {bookings.map(booking => (
-                      <option key={booking.id} value={booking.id}>
-                        {booking.customerInfo?.name} - {booking.customerInfo?.phone}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">اسم المستأجر</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">الاسم</label>
                   <input
                     type="text"
                     value={formData.tenantName}
+                    readOnly={!!formData.unitId || !!formData.tenantId}
                     onChange={(e) => setFormData({...formData, tenantName: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className={`w-full px-4 py-2 border border-gray-300 rounded-lg ${(formData.unitId || formData.tenantId) ? 'bg-green-50 font-medium' : ''}`}
                     placeholder="أحمد محمد"
                   />
                 </div>
@@ -339,12 +331,70 @@ export default function NewMaintenancePage() {
                   <input
                     type="tel"
                     value={formData.tenantPhone}
+                    readOnly={!!formData.unitId || !!formData.tenantId}
                     onChange={(e) => setFormData({...formData, tenantPhone: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className={`w-full px-4 py-2 border border-gray-300 rounded-lg ${(formData.unitId || formData.tenantId) ? 'bg-green-50 font-medium' : ''}`}
                     placeholder="96812345678"
                   />
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">البريد الإلكتروني</label>
+                  <input
+                    type="email"
+                    value={formData.tenantEmail}
+                    readOnly={!!formData.unitId || !!formData.tenantId}
+                    onChange={(e) => setFormData({...formData, tenantEmail: e.target.value})}
+                    className={`w-full px-4 py-2 border border-gray-300 rounded-lg ${(formData.unitId || formData.tenantId) ? 'bg-green-50' : ''}`}
+                    placeholder="email@example.com"
+                  />
+                </div>
               </div>
+            </div>
+
+            {/* الوحدة - تُملأ تلقائياً */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">🏢 الوحدة والمبنى</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">رقم الوحدة</label>
+                  <input
+                    type="text"
+                    value={formData.unitNumber}
+                    readOnly={!!formData.unitId || !!formData.tenantId}
+                    className={`w-full px-4 py-2 border border-gray-300 rounded-lg ${(formData.unitId || formData.tenantId) ? 'bg-green-50 font-medium' : ''}`}
+                    placeholder="A-101"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">المبنى</label>
+                  <input
+                    type="text"
+                    value={formData.buildingName}
+                    readOnly={!!formData.unitId || !!formData.tenantId}
+                    className={`w-full px-4 py-2 border border-gray-300 rounded-lg ${(formData.unitId || formData.tenantId) ? 'bg-green-50 font-medium' : ''}`}
+                    placeholder="برج المجد"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">رقم العقد</label>
+                  <input
+                    type="text"
+                    value={formData.contractNumber}
+                    readOnly={!!formData.unitId || !!formData.tenantId}
+                    className={`w-full px-4 py-2 border border-gray-300 rounded-lg ${(formData.unitId || formData.tenantId) ? 'bg-green-50 font-medium' : ''}`}
+                    placeholder="C-2025-001"
+                  />
+                </div>
+              </div>
+              {(formData.unitId || formData.tenantId) && (
+                <p className="text-sm text-green-600 mt-2 flex items-center">
+                  <span className="ml-2">✅</span>
+                  تم ملء البيانات تلقائياً من النظام
+                </p>
+              )}
             </div>
 
             {/* التكلفة والموعد */}
@@ -377,37 +427,40 @@ export default function NewMaintenancePage() {
 
             {/* معاينة */}
             {formData.title && (
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <h4 className="font-semibold text-gray-900 mb-3">🔧 معاينة الطلب</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
+              <div className="bg-gradient-to-r from-gray-50 to-orange-50 rounded-xl p-5 border-2 border-orange-200">
+                <h4 className="font-bold text-gray-900 mb-4 text-lg flex items-center">
+                  <span className="text-2xl ml-2">🔧</span>
+                  معاينة طلب الصيانة
+                </h4>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between py-2 border-b border-gray-200">
                     <span className="text-gray-600">العنوان:</span>
-                    <span className="font-medium">{formData.title}</span>
+                    <span className="font-bold text-gray-900">{formData.title}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between py-2 border-b border-gray-200">
                     <span className="text-gray-600">الفئة:</span>
-                    <span className="font-medium">{formData.category}</span>
+                    <span className="font-medium text-gray-900">{formData.category}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between py-2 border-b border-gray-200">
                     <span className="text-gray-600">الأولوية:</span>
-                    <span className="font-medium">{formData.priority}</span>
+                    <span className="font-medium text-gray-900">{formData.priority}</span>
                   </div>
-                  {formData.propertyTitle && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">العقار:</span>
-                      <span className="font-medium">{formData.propertyTitle}</span>
+                  {formData.tenantName && (
+                    <div className="flex justify-between py-2 border-b border-gray-200">
+                      <span className="text-gray-600">المستأجر:</span>
+                      <span className="font-medium text-gray-900">{formData.tenantName}</span>
                     </div>
                   )}
-                  {formData.tenantName && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">المستأجر:</span>
-                      <span className="font-medium">{formData.tenantName}</span>
+                  {formData.unitNumber && (
+                    <div className="flex justify-between py-2 border-b border-gray-200">
+                      <span className="text-gray-600">الوحدة:</span>
+                      <span className="font-medium text-gray-900">{formData.unitNumber} - {formData.buildingName}</span>
                     </div>
                   )}
                   {formData.estimatedCost && (
-                    <div className="flex justify-between text-lg font-bold border-t pt-2 mt-2">
-                      <span>التكلفة المتوقعة:</span>
-                      <span className="text-orange-600">{formData.estimatedCost} ر.ع</span>
+                    <div className="flex justify-between py-3 border-t-2 border-orange-300 mt-3">
+                      <span className="text-lg font-bold text-gray-900">التكلفة المتوقعة:</span>
+                      <span className="text-2xl font-bold text-orange-600">{formData.estimatedCost} ر.ع</span>
                     </div>
                   )}
                 </div>
