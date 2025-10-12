@@ -1,6 +1,6 @@
 // src/pages/admin/billing/invoices.tsx
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -88,9 +88,9 @@ export default function InvoicesAdminPage() {
         <div className="mb-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
           <div className="flex items-center gap-2">
-            <Link href="/admin/dashboard?section=invoices" className="rounded-xl border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50">
+            <InstantLink href="/admin/dashboard?section=invoices" className="rounded-xl border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50">
               {t("common.dashboard", "لوحة التحكم")}
-            </Link>
+            </InstantLink>
             <button onClick={load} className="rounded-xl border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50">
               {t("common.refresh", "تحديث")}
             </button>

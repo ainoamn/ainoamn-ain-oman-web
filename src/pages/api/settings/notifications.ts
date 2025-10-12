@@ -154,7 +154,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     switch (method) {
-      case 'GET':
+      case 'GET': {
         // قراءة إعدادات الإشعارات
         let notificationSettings = readNotificationSettings();
         
@@ -186,8 +186,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           }
         });
         break;
+      }
 
-      case 'POST':
+      case 'POST': {
         // إنشاء إعدادات إشعارات جديدة
         const { 
           userId: newUserId, 
@@ -220,16 +221,17 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         newSettings.channels = channels;
         newSettings.frequency = frequency;
 
-        const updatedSettings = [...existingSettings, newSettings];
-        writeNotificationSettings(updatedSettings);
+        const allSettingsList = [...existingSettings, newSettings];
+        writeNotificationSettings(allSettingsList);
 
         res.status(201).json({
           message: 'Notification settings created successfully',
           notification: newSettings
         });
         break;
+      }
 
-      case 'PUT':
+      case 'PUT': {
         // تحديث إعدادات الإشعارات
         const { id, ...updateData } = req.body;
 
@@ -258,8 +260,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           notification: updatedSettings
         });
         break;
+      }
 
-      case 'DELETE':
+      case 'DELETE': {
         // حذف إعدادات الإشعارات
         const { id: deleteId } = req.query;
 
@@ -281,6 +284,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           message: 'Notification settings deleted successfully'
         });
         break;
+      }
 
       default:
         res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);

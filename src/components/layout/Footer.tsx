@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { 
   HeartIcon,
   ShareIcon,
@@ -506,34 +506,34 @@ export default function Footer() {
     <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 rounded-2xl">
       <h3 className="text-lg font-semibold mb-4">إجراءات سريعة</h3>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Link
+        <InstantLink 
           href="/properties/new"
           className="flex items-center gap-2 p-3 bg-white/20 rounded-xl hover:bg-white/30 transition-colors"
         >
           <PlusIcon className="w-5 h-5" />
           <span className="text-sm">إضافة عقار</span>
-        </Link>
-        <Link
+        </InstantLink>
+        <InstantLink 
           href="/legal/new"
           className="flex items-center gap-2 p-3 bg-white/20 rounded-xl hover:bg-white/30 transition-colors"
         >
           <ScaleIcon className="w-5 h-5" />
           <span className="text-sm">قضية جديدة</span>
-        </Link>
-        <Link
+        </InstantLink>
+        <InstantLink 
           href="/support"
           className="flex items-center gap-2 p-3 bg-white/20 rounded-xl hover:bg-white/30 transition-colors"
         >
           <ChatBubbleLeftRightIcon className="w-5 h-5" />
           <span className="text-sm">الدعم</span>
-        </Link>
-        <Link
+        </InstantLink>
+        <InstantLink 
           href="/reports"
           className="flex items-center gap-2 p-3 bg-white/20 rounded-xl hover:bg-white/30 transition-colors"
         >
           <ChartBarIcon className="w-5 h-5" />
           <span className="text-sm">التقارير</span>
-        </Link>
+        </InstantLink>
       </div>
     </div>
   );
@@ -607,7 +607,7 @@ export default function Footer() {
               <ul className="space-y-3">
                 {section.links.map((link) => (
                   <li key={link.id}>
-                    <Link
+                    <InstantLink 
                       href={link.href}
                       className="group flex items-start gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                     >
@@ -629,7 +629,7 @@ export default function Footer() {
                           <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{link.description}</p>
                         )}
                       </div>
-                    </Link>
+                    </InstantLink>
                   </li>
                 ))}
               </ul>
@@ -651,9 +651,9 @@ export default function Footer() {
             <div className="flex items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
               <span>© {new Date().getFullYear()} عين عُمان. جميع الحقوق محفوظة.</span>
               <div className="flex items-center gap-4">
-                <Link href="/terms" className="hover:text-blue-600 transition-colors">الشروط</Link>
-                <Link href="/privacy" className="hover:text-blue-600 transition-colors">الخصوصية</Link>
-                <Link href="/cookies" className="hover:text-blue-600 transition-colors">ملفات تعريف الارتباط</Link>
+                <InstantLink href="/terms" className="hover:text-blue-600 transition-colors">الشروط</InstantLink>
+                <InstantLink href="/privacy" className="hover:text-blue-600 transition-colors">الخصوصية</InstantLink>
+                <InstantLink href="/cookies" className="hover:text-blue-600 transition-colors">ملفات تعريف الارتباط</InstantLink>
               </div>
             </div>
             

@@ -218,7 +218,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     switch (method) {
-      case 'GET':
+      case 'GET': {
         // قراءة إعدادات المستخدم
         let userSettings = readUserSettings();
         
@@ -246,8 +246,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           userId: userId as string
         });
         break;
+      }
 
-      case 'POST':
+      case 'POST': {
         // إنشاء إعدادات جديدة
         const { userId: newUserId } = req.body;
 
@@ -268,16 +269,17 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         }
 
         const newSettings = createUserSettings(newUserId);
-        const updatedSettings = [...existingSettings, newSettings];
-        writeUserSettings(updatedSettings);
+        const allSettingsList = [...existingSettings, newSettings];
+        writeUserSettings(allSettingsList);
 
         res.status(201).json({
           message: 'User settings created successfully',
           settings: newSettings
         });
         break;
+      }
 
-      case 'PUT':
+      case 'PUT': {
         // تحديث إعدادات المستخدم
         const { id, ...updateData } = req.body;
 
@@ -306,8 +308,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           settings: updatedSettings
         });
         break;
+      }
 
-      case 'DELETE':
+      case 'DELETE': {
         // حذف إعدادات المستخدم
         const { id: deleteId } = req.query;
 
@@ -329,6 +332,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           message: 'Settings deleted successfully'
         });
         break;
+      }
 
       default:
         res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);

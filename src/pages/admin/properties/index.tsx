@@ -1,8 +1,9 @@
 ﻿// src/pages/admin/properties/index.tsx
 import Head from "next/head";
+import InstantImage from '@/components/InstantImage';
 // Header is now handled by MainLayout in _app.tsx
 
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState } from "react";
 
 type Unit = { id:string; unitNo:string; rentAmount?:number; currency?:string; status?:string; published?:boolean; image?:string; images?:string[] };
@@ -21,13 +22,13 @@ function resolveSrc(name?:string){
 
 function UnitThumb({u}:{u:Unit}){
   const src = resolveSrc(u.image || (u.images?.[0]));
-  return src ? <img src={src} className="w-8 h-8 object-cover rounded" alt="" /> : <div className="w-8 h-8 rounded bg-gray-200" />;
+  return src ? <InstantImage src={src} className="w-8 h-8 object-cover rounded" alt=""  loading="lazy" width={32} height={32}/> : <div className="w-8 h-8 rounded bg-gray-200" />;
 }
 
 function BuildingThumb({b}:{b:Building}){
   const imgs=b.images||[]; const i=typeof b.coverIndex==="number"? b.coverIndex:0;
   const src = resolveSrc(imgs[i]||imgs[0]);
-  return src ? <img src={src} className="w-10 h-10 object-cover rounded" alt="" /> : <div className="w-10 h-10 rounded bg-gray-200" />;
+  return src ? <InstantImage src={src} className="w-10 h-10 object-cover rounded" alt=""  loading="lazy" width={400} height={300}/> : <div className="w-10 h-10 rounded bg-gray-200" />;
 }
 
 export default function AdminPropertiesList(){
@@ -90,7 +91,7 @@ export default function AdminPropertiesList(){
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">العقارات</h1>
-          <Link href="/properties/new" className="btn btn-primary">إدخال مبنى</Link>
+          <InstantLink href="/properties/new" className="btn btn-primary">إدخال مبنى</InstantLink>
         </div>
 
         <div className="border rounded-2xl p-3 grid sm:grid-cols-6 gap-2">
@@ -158,8 +159,8 @@ export default function AdminPropertiesList(){
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Link className="btn btn-outline btn-sm" href={`/admin/rent/${encodeURIComponent(b.id)}/${encodeURIComponent(u.id)}`}>إدارة التأجير</Link>
-                            <Link className="btn btn-outline btn-sm" href={`/admin/buildings/edit/${encodeURIComponent(b.id)}`}>تعديل البيانات</Link>
+                            <InstantLink className="btn btn-outline btn-sm" href={`/admin/rent/${encodeURIComponent(b.id)}/${encodeURIComponent(u.id)}`}>إدارة التأجير</InstantLink>
+                            <InstantLink className="btn btn-outline btn-sm" href={`/admin/buildings/edit/${encodeURIComponent(b.id)}`}>تعديل البيانات</InstantLink>
                           </div>
                         </div>
                       ))}
@@ -167,7 +168,7 @@ export default function AdminPropertiesList(){
 
                     <td className="p-2">
                       <div className="flex flex-col gap-2">
-                        <Link className="btn btn-outline btn-sm" href={`/admin/buildings/edit/${encodeURIComponent(b.id)}`}>تعديل المبنى</Link>
+                        <InstantLink className="btn btn-outline btn-sm" href={`/admin/buildings/edit/${encodeURIComponent(b.id)}`}>تعديل المبنى</InstantLink>
                         {!b.archived ? (
                           <button className="btn btn-outline btn-sm" onClick={()=>archiveBuilding(b.id)}>أرشفة المبنى</button>
                         ) : (
@@ -187,3 +188,4 @@ export default function AdminPropertiesList(){
     </div>
   );
 }
+

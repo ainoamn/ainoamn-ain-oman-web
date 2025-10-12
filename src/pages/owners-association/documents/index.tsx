@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Head from "next/head"; import Link from "next/link";
+import Head from "next/head"; import InstantLink from '@/components/InstantLink';
 import Layout from "@/components/layout/Layout"; import { useTSafe } from "@/lib/i18n-safe";
 import HoaNav from "@/components/hoa/HoaNav"; import { DocumentStatus } from "@/components/common/DocumentStatus";
 type Doc = { id: string; title: string; expiry?: string; url?: string };

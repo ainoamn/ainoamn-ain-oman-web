@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import Layout from "@/components/layout/Layout";
 import { useTSafe } from "@/lib/i18n-safe";
 import HoaNav from "@/components/hoa/HoaNav";
@@ -383,7 +383,7 @@ export default function HoaManagementPage() {
 
         {/* روابط سريعة */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link
+          <InstantLink 
             href="/owners-association/documents"
             className="card p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
@@ -393,9 +393,9 @@ export default function HoaManagementPage() {
             <p className="text-sm text-gray-600 dark:text-gray-400">
               {t("hoa.mgmt.manageDocuments", "إدارة مستندات الجمعية")}
             </p>
-          </Link>
+          </InstantLink>
           
-          <Link
+          <InstantLink 
             href="/owners-association/tracking"
             className="card p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
@@ -405,9 +405,9 @@ export default function HoaManagementPage() {
             <p className="text-sm text-gray-600 dark:text-gray-400">
               {t("hoa.mgmt.trackActivities", "متابعة أنشطة الجمعية")}
             </p>
-          </Link>
+          </InstantLink>
           
-          <Link
+          <InstantLink 
             href="/admin/users"
             className="card p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
@@ -417,7 +417,7 @@ export default function HoaManagementPage() {
             <p className="text-sm text-gray-600 dark:text-gray-400">
               {t("hoa.mgmt.manageUsers", "إدارة صلاحيات المستخدمين")}
             </p>
-          </Link>
+          </InstantLink>
         </div>
       </div>
     </Layout>

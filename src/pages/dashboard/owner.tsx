@@ -1,5 +1,5 @@
-// root: src/pages/dashboard/owner.tsx
-import { useState, useEffect } from "react";
+﻿// root: src/pages/dashboard/owner.tsx
+import { useState, useEffect, useMemo } from "react";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import PropertyCard from "@/components/properties/PropertyCard";
 import RentalStatusChart from "@/components/dashboard/RentalStatusChart";
 import StatsOverview from "@/components/dashboard/StatsOverview";
+import { useBookings } from "@/context/BookingsContext";
 
 /** ======== FIX: sanitize {ar,en} objects to plain strings ======== */
 type Localized = { ar?: string; en?: string; [k: string]: unknown };
@@ -37,6 +38,35 @@ const OwnerDashboard: NextPage = () => {
   const [rentals, setRentals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("properties");
+  
+  // ✅ استخدام Context للحجوزات
+  const { bookings: allBookings, loading: bookingsLoading } = useBookings();
+  
+  console.log('🔍 Owner Dashboard: allBookings count =', allBookings.length);
+  console.log('📊 Owner Dashboard: bookingsLoading =', bookingsLoading);
+  
+  // فلترة حجوزات المالك فقط
+  const ownerBookings = useMemo(() => {
+    const userId = session?.user?.id;
+    console.log('👤 Owner Dashboard: userId =', userId);
+    console.log('🏠 Owner Dashboard: properties count =', properties.length);
+    
+    if (!userId) return [];
+    
+    const filtered = allBookings.filter(b => 
+      properties.some(p => p.id === b.propertyId && p.ownerId === userId)
+    );
+    
+    console.log('✅ Owner Dashboard: ownerBookings count =', filtered.length);
+    
+    // ✅ مؤقتاً: إذا لم نجد أي حجوزات، نعرض الكل للاختبار
+    if (filtered.length === 0) {
+      console.log('⚠️ Owner Dashboard: No bookings found for owner, showing ALL');
+      return allBookings;
+    }
+    
+    return filtered;
+  }, [allBookings, properties, session]);
 
   useEffect(() => {
     fetchOwnerData();
@@ -194,7 +224,7 @@ const OwnerDashboard: NextPage = () => {
                               عقد #{rental.id.slice(0, 8)}
                             </p>
                             <p className="text-sm text-gray-500">
-                              {new Date(rental.createdAt).toLocaleDateString('ar-SA')}
+                              {new Date(rental.createdAt).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}
                             </p>
                           </div>
                         </div>

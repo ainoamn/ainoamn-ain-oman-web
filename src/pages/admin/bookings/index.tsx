@@ -1,11 +1,12 @@
-﻿import Head from "next/head";
-import Link from "next/link";
+import Head from "next/head";
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useState, useMemo } from "react";
 // Header is now handled by MainLayout in _app.tsx
 
 import AdvancedFilterSystem from "@/components/admin/AdvancedFilterSystem";
 import AdvancedDataTable from "@/components/admin/AdvancedDataTable";
 import SmartAnalytics from "@/components/admin/SmartAnalytics";
+import { useBookings } from "@/context/BookingsContext";
 
 type BookingStatus = "pending" | "reserved" | "leased" | "cancelled" | "accounting";
 type Booking = {
@@ -45,9 +46,13 @@ interface FilterState {
 }
 
 export default function AdminBookingsListPage(){
-  const [items, setItems] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string|null>(null);
+  // ✅ استخدام Context الموحد بدلاً من fetch محلي
+  const { bookings: items, loading, error: err, lastUpdate } = useBookings();
+  
+  console.log('🔍 Admin Bookings: items count =', items.length);
+  console.log('📊 Admin Bookings: loading =', loading);
+  console.log('❌ Admin Bookings: error =', err);
+  
   const [filters, setFilters] = useState<FilterState>({
     searchTerm: '',
     dateRange: { from: '', to: '' },
@@ -58,15 +63,6 @@ export default function AdminBookingsListPage(){
     smartSuggestions: [],
     aiInsights: []
   });
-
-  useEffect(()=>{
-    setLoading(true); setErr(null);
-    fetch("/api/bookings")
-      .then(r=>r.json())
-      .then(d=>setItems(Array.isArray(d?.items)? d.items : []))
-      .catch(()=>setErr("تعذّر جلب البيانات"))
-      .finally(()=>setLoading(false));
-  },[]);
 
   // فلترة وترتيب البيانات
   const filteredItems = useMemo(() => {
@@ -114,10 +110,10 @@ export default function AdminBookingsListPage(){
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Head><title>الحجوزات</title></Head>
+    <div className="min-h-screen bg-gray-50">
+      <Head><title>الحجوزات | Ain Oman</title></Head>
       
-      <main className="container mx-auto p-6 flex-1 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">
@@ -154,8 +150,7 @@ export default function AdminBookingsListPage(){
         ) : (
           <AdvancedDataTable data={filteredItems} loading={loading} />
         )}
-      </main>
-      
+      </div>
     </div>
   );
 }

@@ -1,13 +1,13 @@
 // src/pages/billing.tsx - الفواتير والفوترة
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import { 
   FiFileText, FiDownload, FiPrinter, FiShare2, FiEye, FiEdit,
   FiCalendar, FiDollarSign, FiUser, FiCreditCard, FiCheckCircle,
   FiAlertTriangle, FiClock, FiFilter, FiSearch, FiPlus
 } from 'react-icons/fi';
-import Layout from '@/components/layout/Layout';
+// Layout handled by _app.tsx
 
 interface Invoice {
   id: string;
@@ -110,7 +110,7 @@ export default function BillingPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM');
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' });
   };
 
   const getStatusColor = (status: string) => {
@@ -248,16 +248,16 @@ export default function BillingPage() {
 
   if (loading) {
     return (
-      <Layout>
+      <>
         <div className="flex justify-center items-center min-h-screen">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>الفواتير والفوترة - عين عُمان</title>
       </Head>
@@ -274,13 +274,13 @@ export default function BillingPage() {
                 </p>
               </div>
               <div className="flex space-x-3 rtl:space-x-reverse">
-                <Link
+                <InstantLink 
                   href="/billing/new"
                   className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                 >
                   <FiPlus className="w-4 h-4 ml-2" />
                   فاتورة جديدة
-                </Link>
+                </InstantLink>
                 {selectedInvoices.length > 0 && (
                   <button
                     onClick={exportSelectedInvoices}
@@ -498,20 +498,20 @@ export default function BillingPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                          <Link
+                          <InstantLink 
                             href={`/billing/${invoice.id}`}
                             className="text-blue-600 hover:text-blue-900 p-1"
                             title="عرض"
                           >
                             <FiEye className="w-4 h-4" />
-                          </Link>
-                          <Link
+                          </InstantLink>
+                          <InstantLink 
                             href={`/billing/${invoice.id}/edit`}
                             className="text-gray-600 hover:text-gray-900 p-1"
                             title="تعديل"
                           >
                             <FiEdit className="w-4 h-4" />
-                          </Link>
+                          </InstantLink>
                           <button
                             onClick={() => sendInvoice(invoice.id)}
                             className="text-green-600 hover:text-green-900 p-1"
@@ -538,13 +538,13 @@ export default function BillingPage() {
                     ابدأ بإنشاء فاتورة جديدة.
                   </p>
                   <div className="mt-6">
-                    <Link
+                    <InstantLink 
                       href="/billing/new"
                       className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                     >
                       <FiPlus className="w-4 h-4 ml-2" />
                       فاتورة جديدة
-                    </Link>
+                    </InstantLink>
                   </div>
                 </div>
               )}
@@ -552,6 +552,6 @@ export default function BillingPage() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

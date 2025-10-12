@@ -1,6 +1,6 @@
 ﻿// src/pages/admin/contracts/index.tsx
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState } from "react";
 // Header is now handled by MainLayout in _app.tsx
 
@@ -14,7 +14,7 @@ type Contract = {
   parties: { owner:{name:string}; tenant:{name:string; phone?:string} };
 };
 
-function dstr(s?:string){ if(!s) return "-"; const d=new Date(s); return d.toLocaleDateString("ar-OM",{year:"numeric",month:"2-digit",day:"2-digit"}); }
+function dstr(s?:string){ if(!s) return "-"; const d=new Date(s); return d.toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn', year:"numeric",month:"2-digit",day:"2-digit"}); }
 function money(a?:number,c="OMR"){ return new Intl.NumberFormat("ar-OM",{style:"currency",currency:c,maximumFractionDigits:3}).format(Number(a||0)); }
 function left(to?: string){ if(!to) return null; const ms=(new Date(to).getTime()-Date.now()); return Math.ceil(ms/86400000); }
 
@@ -37,7 +37,7 @@ export default function AdminContractsList(){
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">العقود</h1>
-          <Link href="/admin/contracts/new" className="btn btn-primary">عقد جديد</Link>
+          <InstantLink href="/admin/contracts/new" className="btn btn-primary">عقد جديد</InstantLink>
         </div>
 
         <input className="form-input w-full max-w-sm" placeholder="بحث برقم العقد أو اسم المستأجر" value={q} onChange={e=>setQ(e.target.value)} />
@@ -76,7 +76,7 @@ export default function AdminContractsList(){
                       <td className="p-2">{badge}</td>
                       <td className="p-2">{money(c.totals?.amount, c.totals?.currency||"OMR")}</td>
                       <td className="p-2">{c.status}</td>
-                      <td className="p-2"><Link href={`/admin/contracts/${encodeURIComponent(c.id)}`} className="btn btn-outline">فتح</Link></td>
+                      <td className="p-2"><InstantLink href={`/admin/contracts/${encodeURIComponent(c.id)}`} className="btn btn-outline">فتح</InstantLink></td>
                     </tr>
                   );
                 })}

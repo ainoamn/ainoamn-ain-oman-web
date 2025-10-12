@@ -1,6 +1,6 @@
 // src/pages/dashboard/property-owner.tsx - لوحة تحكم إدارة العقار والملاك
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import UnifiedDashboard from '@/components/dashboard/UnifiedDashboard';
 import { subscriptionManager } from '@/lib/subscriptionSystem';
 // تم استبدال الأيقونات برموز تعبيرية لتجنب مشاكل الاستيراد
@@ -76,7 +76,7 @@ export default function PropertyOwnerDashboard() {
   ];
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM');
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' });
   };
 
   const getStatusColor = (status: string) => {
@@ -242,9 +242,9 @@ export default function PropertyOwnerDashboard() {
               <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-lg font-semibold">الحجوزات الحديثة</h3>
-                  <Link href="/admin/bookings" className="text-green-600 text-sm hover:underline">
+                  <InstantLink href="/admin/bookings" className="text-green-600 text-sm hover:underline">
                     عرض الكل
-                  </Link>
+                  </InstantLink>
                 </div>
                 
                 {loading ? (
@@ -286,18 +286,18 @@ export default function PropertyOwnerDashboard() {
                             </td>
                             <td className="py-3 px-4">
                               <div className="flex space-x-2">
-                                <Link 
+                                <InstantLink 
                                   href={`/admin/bookings/${booking.id}`}
                                   className="text-green-600 hover:underline text-xs"
                                 >
                                   <span className="text-sm">👁️</span>
-                                </Link>
-                                <Link 
+                                </InstantLink>
+                                <InstantLink 
                                   href={`/admin/customers/${encodeURIComponent(booking.customerInfo?.name || '')}`}
                                   className="text-blue-600 hover:underline text-xs"
                                 >
                                   <span className="text-sm">👤</span>
-                                </Link>
+                                </InstantLink>
                               </div>
                             </td>
                           </tr>
@@ -319,9 +319,9 @@ export default function PropertyOwnerDashboard() {
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-lg font-semibold">العقارات النشطة</h3>
-                  <Link href="/manage-properties" className="text-green-600 text-sm hover:underline">
+                  <InstantLink href="/manage-properties" className="text-green-600 text-sm hover:underline">
                     إدارة العقارات
-                  </Link>
+                  </InstantLink>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -336,12 +336,12 @@ export default function PropertyOwnerDashboard() {
                         <span className="text-sm font-medium text-green-600">
                           {property.priceOMR?.toLocaleString()} ر.ع
                         </span>
-                        <Link 
+                        <InstantLink 
                           href={`/properties/${property.id}`}
                           className="text-green-600 hover:underline text-xs"
                         >
                           عرض التفاصيل
-                        </Link>
+                        </InstantLink>
                       </div>
                     </div>
                   ))}
@@ -359,23 +359,23 @@ export default function PropertyOwnerDashboard() {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold">إدارة العقارات</h3>
-                <Link 
+                <InstantLink 
                   href="/properties/new" 
                   className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   <span className="inline ml-1">➕</span>
                   إضافة عقار جديد
-                </Link>
+                </InstantLink>
               </div>
               <p className="text-gray-600 mb-4">
                 إدارة جميع عقاراتك وإضافة عقارات جديدة
               </p>
-              <Link 
+              <InstantLink 
                 href="/manage-properties" 
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
               >
                 عرض جميع العقارات
-              </Link>
+              </InstantLink>
             </div>
           )}
 
@@ -383,12 +383,12 @@ export default function PropertyOwnerDashboard() {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold">إدارة الحجوزات</h3>
-                <Link 
+                <InstantLink 
                   href="/admin/bookings" 
                   className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   عرض جميع الحجوزات
-                </Link>
+                </InstantLink>
               </div>
               <p className="text-gray-600 mb-4">
                 مراجعة وإدارة جميع طلبات الحجز من العملاء
@@ -450,12 +450,12 @@ export default function PropertyOwnerDashboard() {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold">إدارة المهام</h3>
-                <Link 
+                <InstantLink 
                   href="/admin/tasks" 
                   className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   عرض جميع المهام
-                </Link>
+                </InstantLink>
               </div>
               <p className="text-gray-600">
                 إدارة المهام والمتابعة اليومية

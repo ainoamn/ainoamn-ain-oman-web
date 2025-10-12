@@ -300,19 +300,19 @@ import "../styles/globals.css";
 أضف هذا الجزء في أسفل كل صفحة جديدة:
 
 أ) src/pages/development/index.tsx
-import Layout from "@/components/layout/Layout";
+// Layout handled by _app.tsx
 
 // ... (الكود الحالي للصفحة كما هو)
 
 DevelopmentListPage.getLayout = function getLayout(page: React.ReactElement) {
-  return <Layout>{page}</Layout>;
+  return <>{page}</>;
 };
 ب) src/pages/development/projects/[id].tsx
-import Layout from "@/components/layout/Layout";
+// Layout handled by _app.tsx
 
 // ... (الكود الحالي للصفحة كما هو)
 
 ProjectDetailsPage.getLayout = function getLayout(page: React.ReactElement) {
-  return <Layout>{page}</Layout>;
+  return <>{page}</>;
 };
 ج) صفحات الإدارة كذلك (حتى تظهر داخل نفس الإطار):

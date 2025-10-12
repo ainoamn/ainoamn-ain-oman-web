@@ -41,6 +41,27 @@ try { FloatingButtons = require("@/components/floating/FloatingButtons").default
 // Auth
 import { AuthProvider } from "@/context/AuthContext";
 
+// Performance Provider للتنقل الفوري ⚡
+let PerformanceProvider: any = ({ children }: any) => <>{children}</>;
+try {
+  const mod = require("@/context/PerformanceContext");
+  PerformanceProvider = mod.PerformanceProvider || PerformanceProvider;
+} catch {}
+
+// Bookings Provider للحجوزات الموحدة ⚡
+let BookingsProvider: any = ({ children }: any) => <>{children}</>;
+try {
+  const mod = require("@/context/BookingsContext");
+  BookingsProvider = mod.BookingsProvider || BookingsProvider;
+} catch {}
+
+// Subscription Provider للاشتراكات والصلاحيات 🔐
+let SubscriptionProvider: any = ({ children }: any) => <>{children}</>;
+try {
+  const mod = require("@/context/SubscriptionContext");
+  SubscriptionProvider = mod.SubscriptionProvider || SubscriptionProvider;
+} catch {}
+
 // مزامنة اللغة
 function LangSync() {
   const router = useRouter();
@@ -78,30 +99,58 @@ export default function App({ Component, pageProps }: AppProps) {
   const content = <Sanitize locale="ar">{base}</Sanitize>;
 
   return (
-    <ThemeProvider>
-      <I18nProvider>
-        <CustomizationProvider>
-          <AuthProvider>
-            <Head>
-              <meta name="viewport" content="width=device-width, initial-scale=1" />
-              <meta name="theme-color" content="#0f766e" />
-              <title>Ain Oman</title>
-            </Head>
+    <PerformanceProvider>
+      <ThemeProvider>
+        <I18nProvider>
+          <CustomizationProvider>
+            <AuthProvider>
+              <Head>
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta name="theme-color" content="#0f766e" />
+                
+                {/* PWA Meta Tags */}
+                <meta name="application-name" content="عين عُمان" />
+                <meta name="apple-mobile-web-app-capable" content="yes" />
+                <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+                <meta name="apple-mobile-web-app-title" content="عين عُمان" />
+                <meta name="description" content="منصة العقارات الذكية في عُمان" />
+                <meta name="format-detection" content="telephone=no" />
+                <meta name="mobile-web-app-capable" content="yes" />
+                
+                {/* Performance Hints */}
+                <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
+                
+                {/* Manifest */}
+                <link rel="manifest" href="/manifest.json" />
+                
+                {/* Icons */}
+                <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+                <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+                <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+                
+                <title>عين عُمان - منصة العقارات الذكية</title>
+              </Head>
 
-            <LangSync />
+              <LangSync />
 
-            <GoogleMapsProvider>
-              <CurrencyProvider>
-                <ChatProvider>
-                  {content}
-                  <ChatWidget />
-                  <FloatingButtons />
-                </ChatProvider>
-              </CurrencyProvider>
-            </GoogleMapsProvider>
-          </AuthProvider>
-        </CustomizationProvider>
-      </I18nProvider>
-    </ThemeProvider>
+              <GoogleMapsProvider>
+                <CurrencyProvider>
+                  <SubscriptionProvider>
+                    <BookingsProvider>
+                      <ChatProvider>
+                        {content}
+                        <ChatWidget />
+                        <FloatingButtons />
+                      </ChatProvider>
+                    </BookingsProvider>
+                  </SubscriptionProvider>
+                </CurrencyProvider>
+              </GoogleMapsProvider>
+            </AuthProvider>
+          </CustomizationProvider>
+        </I18nProvider>
+      </ThemeProvider>
+    </PerformanceProvider>
   );
 }

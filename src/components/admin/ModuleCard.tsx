@@ -1,5 +1,5 @@
 // src/components/admin/ModuleCard.tsx
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useMemo } from "react";
 import { type AdminModule } from "@/lib/admin/registry";
 
@@ -28,7 +28,7 @@ export default function ModuleCard(props: Props) {
   );
 
   return (
-    <Link
+    <InstantLink 
       href={href}
       className="block rounded-2xl border border-slate-200 bg-white p-4 hover:border-slate-300 hover:shadow-sm"
       dir={props.dir}
@@ -37,6 +37,6 @@ export default function ModuleCard(props: Props) {
       {m.description ? (
         <div className="mt-1 text-sm text-slate-600">{m.description}</div>
       ) : null}
-    </Link>
+    </InstantLink>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import Layout from '../../components/layout/Layout';
+// Layout handled by _app.tsx
 import { FaSave, FaTimes, FaUser, FaUserTie, FaBuilding, FaCalendarAlt, FaFileAlt, FaMoneyBillWave, FaGavel, FaBalanceScale, FaPlus, FaSearch, FaChevronDown, FaChevronUp, FaExclamationTriangle, FaCheckCircle, FaInfoCircle, FaSpinner, FaEdit } from 'react-icons/fa';
 
 interface Person {

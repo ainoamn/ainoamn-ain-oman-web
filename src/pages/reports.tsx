@@ -1,13 +1,13 @@
 // src/pages/reports.tsx - التقارير والإحصائيات
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import { 
   FiBarChart3, FiPieChart, FiTrendingUp, FiTrendingDown, FiDownload,
   FiPrinter, FiShare2, FiFilter, FiCalendar, FiDollarSign, FiUsers,
   FiHome, FiFileText, FiEye, FiEdit, FiPlus, FiRefreshCw
 } from 'react-icons/fi';
-import Layout from '@/components/layout/Layout';
+// Layout handled by _app.tsx
 
 interface Report {
   id: string;
@@ -118,7 +118,7 @@ export default function ReportsPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM', {
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn', 
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -243,16 +243,16 @@ export default function ReportsPage() {
 
   if (loading) {
     return (
-      <Layout>
+      <>
         <div className="flex justify-center items-center min-h-screen">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>التقارير والإحصائيات - عين عُمان</title>
       </Head>
@@ -534,6 +534,6 @@ export default function ReportsPage() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

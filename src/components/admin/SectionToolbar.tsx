@@ -1,5 +1,5 @@
 // src/components/admin/SectionToolbar.tsx
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -76,9 +76,9 @@ export default function SectionToolbar({ section }: { section: string }) {
   return (
     <div dir={dir} className="mb-4 flex flex-wrap items-center gap-2">
       {actions.map((a) => (
-        <Link key={a.id} href={a.href} className="rounded-xl border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50">
+        <InstantLink key={a.id} href={a.href} className="rounded-xl border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50">
           {a.label}
-        </Link>
+        </InstantLink>
       ))}
     </div>
   );

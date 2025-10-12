@@ -1,6 +1,6 @@
 // src/pages/admin/dashboard/widgets.tsx
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Cog6ToothIcon, HomeIcon, LinkIcon,
@@ -176,10 +176,10 @@ function syncFeaturesFromState(adm: AdminDefaults, links: AdminLink[], overrides
 /* عناصر واجهة مشتركة */
 function SidebarLink({ href, icon:Icon, text }:{ href:string; icon:any; text:string; }){
   return (
-    <Link href={href} className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-gray-800">
+    <InstantLink href={href} className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-gray-800">
       <Icon className="w-4 h-4 text-[var(--brand-700)]" />
       <span className="text-sm">{text}</span>
-    </Link>
+    </InstantLink>
   );
 }
 function AdminShell({ children, sidebar }:{ children:React.ReactNode; sidebar:React.ReactNode; }) {

@@ -1,8 +1,8 @@
 // src/pages/admin/buildings/edit/[id].tsx
 import Head from "next/head";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer handled by MainLayout in _app.tsx
 import Link from "next/link";
+import InstantLink from "@/components/InstantLink";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 
@@ -145,7 +145,7 @@ export default function EditBuildingPage() {
       <Head>
         <title>تعديل بيانات المبنى</title>
       </Head>
-      <Header />
+      {/* Header handled by MainLayout */}
       
       <main className="flex-1 container mx-auto p-4 max-w-7xl">
         {/* Header Section */}
@@ -499,7 +499,7 @@ export default function EditBuildingPage() {
         )}
       </main>
       
-      <Footer />
+      {/* Footer handled by MainLayout */}
     </div>
   );
 }

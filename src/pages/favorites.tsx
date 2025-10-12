@@ -1,13 +1,14 @@
-// src/pages/favorites.tsx - المفضلة
+﻿// src/pages/favorites.tsx - المفضلة
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
+import InstantImage from '@/components/InstantImage';
 import { 
   FiHeart, FiMapPin, FiDollarSign, FiCalendar, FiEye, FiShare2,
   FiFilter, FiSearch, FiSortAsc, FiTrash2, FiDownload, FiPrinter,
   FiHome, FiUsers, FiStar, FiTrendingUp, FiTrendingDown
 } from 'react-icons/fi';
-import Layout from '@/components/layout/Layout';
+// Layout handled by _app.tsx
 
 interface Favorite {
   id: string;
@@ -130,7 +131,7 @@ export default function FavoritesPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM', {
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn', 
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -286,16 +287,14 @@ export default function FavoritesPage() {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      </Layout>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
     );
   }
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>المفضلة - عين عُمان</title>
       </Head>
@@ -458,11 +457,10 @@ export default function FavoritesPage() {
                   {/* صورة العنصر */}
                   <div className="relative h-48 bg-gray-200">
                     {favorite.itemImage ? (
-                      <img
-                        src={favorite.itemImage}
+                      <InstantImage src={favorite.itemImage}
                         alt={favorite.itemName}
                         className="w-full h-full object-cover"
-                      />
+                       loading="lazy" width={400} height={300}/>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400">
                         {getTypeIcon(favorite.type)}
@@ -595,11 +593,10 @@ export default function FavoritesPage() {
                           <div className="flex items-center">
                             <div className="h-12 w-12 bg-gray-200 rounded-lg flex items-center justify-center ml-4">
                               {favorite.itemImage ? (
-                                <img
-                                  src={favorite.itemImage}
+                                <InstantImage src={favorite.itemImage}
                                   alt={favorite.itemName}
                                   className="h-12 w-12 object-cover rounded-lg"
-                                />
+                                 loading="lazy" width={400} height={300}/>
                               ) : (
                                 getTypeIcon(favorite.type)
                               )}
@@ -667,6 +664,7 @@ export default function FavoritesPage() {
           )}
         </div>
       </div>
-    </Layout>
+    </>
   );
 }
+

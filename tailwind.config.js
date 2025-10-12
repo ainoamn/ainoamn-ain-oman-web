@@ -6,7 +6,7 @@ module.exports = {
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
     "./app/**/*.{js,ts,jsx,tsx}",
-    "./styles/**/*.{css}"
+    "./styles/**/*.css"
   ],
   theme: {
     extend: {
@@ -60,7 +60,7 @@ module.exports = {
   safelist: [
     { pattern: /(bg|text|border|ring)-brand-(50|100|200|300|400|500|600|700|800|900)/ },
     { pattern: /(hover:)?text-brand-(400|500|600|700)/ },
-    { pattern: /focus:ring-brand-(400|500|600)/ },
+    { pattern: /(focus:)?(ring|border)-brand-(400|500|600)/ },
     { pattern: /(bg|text|border|ring)-primary-(50|100|500|600|700)/ }
   ],
   plugins: [],

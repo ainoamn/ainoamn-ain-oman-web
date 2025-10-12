@@ -1,7 +1,7 @@
 // src/components/admin/widgets/RecentActivity.tsx
 // Client widget: show recent quick links as activity placeholder.
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useTranslation } from "@/hooks/useTranslation";
 
 type QuickLink = { id: string; label: string; href: string; icon?: string; group?: string; createdAt: string };
@@ -24,7 +24,7 @@ export default function RecentActivity() {
         <ul className="space-y-2">
           {items.map((it) => (
             <li key={it.id} className="flex items-center justify-between rounded-xl border border-slate-100 p-3">
-              <Link href={it.href} className="text-slate-900 hover:underline">{it.label}</Link>
+              <InstantLink href={it.href} className="text-slate-900 hover:underline">{it.label}</InstantLink>
               <time className="text-xs text-slate-500">{new Date(it.createdAt).toLocaleString()}</time>
             </li>
           ))}

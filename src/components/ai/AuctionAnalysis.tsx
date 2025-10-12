@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { AIAnalysis } from '@/types/auction';
 import { useI18n } from '@/lib/i18n';
 
@@ -56,7 +56,7 @@ const AuctionAnalysis: React.FC<AuctionAnalysisProps> = ({ analysis, loading = f
         <div className="rounded-xl border bg-white p-4">
           <div className="text-xs text-slate-500">{t('ai.marketTrend')}</div>
           <div className="text-lg font-semibold">
-            {trendIcons[analysis.marketTrend]} {t(`ai.trend.${analysis.marketTrend}`)}
+            {trendIcons[analysis.marketTrend as keyof typeof trendIcons]} {t(`ai.trend.${analysis.marketTrend}`)}
           </div>
         </div>
         
@@ -89,7 +89,7 @@ const AuctionAnalysis: React.FC<AuctionAnalysisProps> = ({ analysis, loading = f
       )}
       
       <div className="mt-4 text-xs text-slate-400 text-left">
-        {t('ai.lastUpdated')} {new Date(analysis.updatedAt).toLocaleString('ar-OM')}
+        {t('ai.lastUpdated')} {new Date(analysis.updatedAt).toLocaleString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}
       </div>
     </div>
   );

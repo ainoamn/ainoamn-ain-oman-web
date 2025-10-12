@@ -1,4 +1,4 @@
-// src/components/booking/SmartSyncIndicator.tsx - مؤشر المزامنة الذكي
+﻿// src/components/booking/SmartSyncIndicator.tsx - مؤشر المزامنة الذكي
 import React, { useState, useEffect } from 'react';
 import { 
   Wifi, 
@@ -31,8 +31,8 @@ const bookingSyncEngine = {
     lastSyncTime: new Date().toISOString(),
     retryCount: 0
   }),
-  on: () => {},
-  off: () => {},
+  on: (_event: string, _handler: (...args: any[]) => void) => {},
+  off: (_event: string, _handler: (...args: any[]) => void) => {},
   forceSync: async () => {}
 };
 
@@ -143,7 +143,7 @@ export default function SmartSyncIndicator() {
     if (diffMins < 1) return 'الآن';
     if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
     if (diffMins < 1440) return `منذ ${Math.floor(diffMins / 60)} ساعة`;
-    return date.toLocaleDateString('ar-OM');
+    return date.toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' });
   };
 
   return (

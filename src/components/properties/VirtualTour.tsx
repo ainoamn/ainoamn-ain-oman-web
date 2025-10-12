@@ -1,4 +1,5 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
+import InstantImage from '@/components/InstantImage';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -43,14 +44,14 @@ export default function VirtualTour({ images, is360 = false }: VirtualTourProps)
       >
         {images.map((image, index) => (
           <SwiperSlide key={index}>
-            <img
-              src={image}
+            <InstantImage src={image}
               alt={`Property image ${index + 1}`}
               className="w-full h-full object-cover"
-            />
+             loading="lazy" width={400} height={300}/>
           </SwiperSlide>
         ))}
       </Swiper>
     </div>
   );
 }
+

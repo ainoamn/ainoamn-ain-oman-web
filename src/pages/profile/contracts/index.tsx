@@ -1,12 +1,12 @@
 // src/pages/profile/contracts/index.tsx
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useState } from "react";
 // Header and Footer are now handled by MainLayout in _app.tsx
 
 type Contract = { id:string; contractNumber:string; startDate?:string; endDate?:string; status:string; totals?:{amount:number;currency?:string}; };
 
-function dstr(s?:string){ if(!s) return "-"; const d=new Date(s); return d.toLocaleDateString("ar-OM",{year:"numeric",month:"2-digit",day:"2-digit"}); }
+function dstr(s?:string){ if(!s) return "-"; const d=new Date(s); return d.toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn', year:"numeric",month:"2-digit",day:"2-digit"}); }
 function money(a?:number,c="OMR"){ return new Intl.NumberFormat("ar-OM",{style:"currency",currency:c,maximumFractionDigits:3}).format(Number(a||0)); }
 
 export default function ProfileContracts(){
@@ -41,7 +41,7 @@ export default function ProfileContracts(){
                     <td className="p-2">{dstr(c.endDate)}</td>
                     <td className="p-2">{money(c.totals?.amount, c.totals?.currency||"OMR")}</td>
                     <td className="p-2">{c.status}</td>
-                    <td className="p-2"><Link href={`/profile/contracts/${encodeURIComponent(c.id)}`} className="btn btn-outline">عرض/اعتماد</Link></td>
+                    <td className="p-2"><InstantLink href={`/profile/contracts/${encodeURIComponent(c.id)}`} className="btn btn-outline">عرض/اعتماد</InstantLink></td>
                   </tr>
                 ))}
                 {items.length===0 && <tr><td className="p-3 text-center text-gray-600" colSpan={6}>لا توجد عقود.</td></tr>}

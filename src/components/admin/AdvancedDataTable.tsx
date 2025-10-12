@@ -1,6 +1,6 @@
 // src/components/admin/AdvancedDataTable.tsx - جدول بيانات متطور مع تأثيرات بصرية
 import React, { useState, useMemo } from 'react';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import { 
   ArrowUpDown, 
   ArrowUp, 
@@ -141,7 +141,7 @@ export default function AdvancedDataTable({ data, loading = false }: AdvancedDat
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM', {
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn', 
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -281,7 +281,7 @@ export default function AdvancedDataTable({ data, loading = false }: AdvancedDat
                   </td>
                   
                   <td className="px-6 py-4">
-                    <Link 
+                    <InstantLink 
                       href={`/properties/${encodeURIComponent(booking.propertyId || '')}`}
                       className="group block"
                     >
@@ -291,11 +291,11 @@ export default function AdvancedDataTable({ data, loading = false }: AdvancedDat
                       <div className="text-sm text-gray-500 group-hover:text-blue-500 transition-colors">
                         {booking.propertyReference || "غير محدد"}
                       </div>
-                    </Link>
+                    </InstantLink>
                   </td>
                   
                   <td className="px-6 py-4">
-                    <Link 
+                    <InstantLink 
                       href={`/admin/customers/${encodeURIComponent(booking.customerInfo?.name || '')}`}
                       className="group block"
                     >
@@ -305,7 +305,7 @@ export default function AdvancedDataTable({ data, loading = false }: AdvancedDat
                       <div className="text-sm text-gray-500 group-hover:text-blue-500 transition-colors">
                         {booking.customerInfo?.phone || "-"}
                       </div>
-                    </Link>
+                    </InstantLink>
                   </td>
                   
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -323,13 +323,13 @@ export default function AdvancedDataTable({ data, loading = false }: AdvancedDat
                   
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                      <Link 
+                      <InstantLink 
                         href={`/admin/bookings/${encodeURIComponent(booking.id)}`}
                         className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-xs font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                       >
                         <Eye className="w-3 h-3 ml-1" />
                         عرض
-                      </Link>
+                      </InstantLink>
                     </div>
                   </td>
                 </tr>

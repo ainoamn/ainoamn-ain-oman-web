@@ -1,7 +1,8 @@
-// صفحة موحدة لإدارة العقارات والوحدات - تصميم احترافي مع الذكاء الاصطناعي
+﻿// صفحة موحدة لإدارة العقارات والوحدات - تصميم احترافي مع الذكاء الاصطناعي
 import React, { useState, useEffect } from 'react';
+import InstantImage from '@/components/InstantImage';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import Layout from '@/components/layout/Layout';
 import {
   FaBuilding, FaHome, FaEye, FaEdit, FaTrash, FaPlus, FaSearch,
@@ -302,7 +303,7 @@ export default function UnifiedPropertyManagement() {
   // وظيفة تصدير التقرير
   const exportReport = () => {
     const reportData = {
-      generatedAt: new Date().toLocaleString('ar-OM'),
+      generatedAt: new Date().toLocaleString('ar', { calendar: 'gregory', numberingSystem: 'latn' }),
       summary: {
         totalProperties: properties.length,
         publishedProperties: properties.filter(p => p.published).length,
@@ -371,7 +372,7 @@ export default function UnifiedPropertyManagement() {
         <div class="header">
           <h1>قائمة العقارات - عين عُمان</h1>
           <p>تقرير شامل لجميع العقارات</p>
-          <p>تاريخ التقرير: ${new Date().toLocaleString('ar-OM')}</p>
+          <p>تاريخ التقرير: ${new Date().toLocaleString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}</p>
         </div>
         
         <div class="summary">
@@ -622,7 +623,7 @@ export default function UnifiedPropertyManagement() {
 
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM');
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' });
   };
 
   const getTitle = (title: Property['title']) => {
@@ -719,13 +720,13 @@ export default function UnifiedPropertyManagement() {
                 </p>
               </div>
               <div className="flex space-x-3">
-                <Link
+                <InstantLink 
                   href="/properties/new"
                   className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center"
                 >
                   <FaPlus className="ml-2" />
                   إضافة عقار
-                </Link>
+                </InstantLink>
                 <button
                   onClick={() => setShowFilters(!showFilters)}
                   className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center"
@@ -891,14 +892,14 @@ export default function UnifiedPropertyManagement() {
                   إجراءات سريعة
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  <Link
+                  <InstantLink 
                     href="/properties/new"
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
                     title="إضافة عقار جديد"
                   >
                     <FaPlus className="text-sm" />
                     <span className="text-xs font-medium">عقار جديد</span>
-                  </Link>
+                  </InstantLink>
                   <button 
                     onClick={publishAllDrafts}
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
@@ -1175,11 +1176,10 @@ export default function UnifiedPropertyManagement() {
                               <div className="flex items-center">
                                 <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0 ml-3">
                                   {getCoverImage(property) ? (
-                                    <img
-                                      className="w-full h-full object-cover"
+                                    <InstantImage className="w-full h-full object-cover"
                                       src={getCoverImage(property)}
                                       alt={getTitleFromProperty(property)}
-                                    />
+                                     loading="lazy" width={400} height={300}/>
                                   ) : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                                       <FaBuilding className="text-lg" />
@@ -1188,13 +1188,13 @@ export default function UnifiedPropertyManagement() {
                                 </div>
                                 <div className="flex-1">
                                   <div className="text-sm font-medium text-gray-900">
-                                    <Link 
+                                    <InstantLink 
                                       href={`/properties/${property.id}`}
                                       className="hover:text-blue-600 transition-colors"
                                       title="عرض تفاصيل العقار"
                                     >
                                       {getTitleFromProperty(property)}
-                                    </Link>
+                                    </InstantLink>
                                   </div>
                                   <div className="text-sm text-gray-500">
                                     {property.referenceNo || property.id}
@@ -1257,27 +1257,27 @@ export default function UnifiedPropertyManagement() {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                               <div className="flex items-center space-x-2">
-                                <Link
+                                <InstantLink 
                                   href={`/properties/${property.id}`}
                                   className="text-blue-600 hover:text-blue-900 p-1 rounded transition-colors"
                                   title="عرض تفاصيل العقار"
                                 >
                                   <FaEye />
-                                </Link>
-                                <Link
+                                </InstantLink>
+                                <InstantLink 
                                   href={`/properties/${property.id}/edit`}
                                   className="text-green-600 hover:text-green-900 p-1 rounded transition-colors"
                                   title="تعديل العقار"
                                 >
                                   <FaEdit />
-                                </Link>
-                                <Link
+                                </InstantLink>
+                                <InstantLink 
                                   href={`/property/${property.id}/admin`}
                                   className="text-purple-600 hover:text-purple-900 p-1 rounded transition-colors"
                                   title="إدارة العقار"
                                 >
                                   <FaCog />
-                                </Link>
+                                </InstantLink>
                                 <button
                                   onClick={() => togglePropertyPublish(property.id, property.published || false)}
                                   className={`p-1 rounded transition-colors ${
@@ -1309,14 +1309,14 @@ export default function UnifiedPropertyManagement() {
                       <FaBuilding className="text-6xl text-gray-300 mx-auto mb-4" />
                       <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد عقارات</h3>
                       <p className="text-gray-500 mb-6">ابدأ بإضافة عقار جديد</p>
-                      <Link
+                      <InstantLink 
                         href="/properties/new"
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center"
                         title="إضافة عقار جديد"
                       >
                         <FaPlus className="ml-2" />
                         إضافة عقار جديد
-                      </Link>
+                      </InstantLink>
                     </div>
                   )}
                 </div>
@@ -1334,11 +1334,10 @@ export default function UnifiedPropertyManagement() {
                       {/* Property Image */}
                       <div className="relative h-48 bg-gray-200">
                         {getCoverImage(property) ? (
-                          <img
-                            src={getCoverImage(property)}
+                          <InstantImage src={getCoverImage(property)}
                             alt={getTitleFromProperty(property)}
                             className="w-full h-full object-cover"
-                          />
+                           loading="lazy" width={400} height={300}/>
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
                             <FaBuilding className="text-4xl" />
@@ -1383,13 +1382,13 @@ export default function UnifiedPropertyManagement() {
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex-1">
                             <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                              <Link 
+                              <InstantLink 
                                 href={`/properties/${property.id}`}
                                 className="hover:text-blue-600 transition-colors"
                                 title="عرض تفاصيل العقار"
                               >
                                 {getTitleFromProperty(property)}
-                              </Link>
+                              </InstantLink>
                             </h3>
                             <p className="text-sm text-gray-500 mb-2">
                               {property.referenceNo || property.id}
@@ -1454,30 +1453,30 @@ export default function UnifiedPropertyManagement() {
 
                         {/* Actions */}
                         <div className="flex space-x-2">
-                          <Link
+                          <InstantLink 
                             href={`/properties/${property.id}`}
                             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
                             title="عرض تفاصيل العقار"
                           >
                             <FaEye className="ml-1" />
                             عرض
-                          </Link>
-                          <Link
+                          </InstantLink>
+                          <InstantLink 
                             href={`/properties/${property.id}/edit`}
                             className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
                             title="تعديل العقار"
                           >
                             <FaEdit className="ml-1" />
                             تعديل
-                          </Link>
-                          <Link
+                          </InstantLink>
+                          <InstantLink 
                             href={`/property/${property.id}/admin`}
                             className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
                             title="إدارة العقار"
                           >
                             <FaCog className="ml-1" />
                             إدارة
-                          </Link>
+                          </InstantLink>
                         </div>
                       </div>
 
@@ -1579,3 +1578,4 @@ export default function UnifiedPropertyManagement() {
     </Layout>
   );
 }
+

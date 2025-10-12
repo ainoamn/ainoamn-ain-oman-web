@@ -1,8 +1,8 @@
 // src/pages/manage-messages/index.tsx
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import Layout from "@/components/layout/Layout";
-import Link from "next/link";
+// Layout handled by _app.tsx
+import InstantLink from '@/components/InstantLink';
 
 type Thread = { threadId:string; propertyId:string; withId:string; lastText:string; lastTs:string };
 type Msg = { id:string; propertyId:string; fromId:string; toId:string; text:string; ts:string };
@@ -51,13 +51,13 @@ export default function ManageMessages(){
   };
 
   return (
-    <Layout>
+    <>
       <Head><title>مراسلاتي | Ain Oman</title></Head>
       <main className="min-h-screen bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold">المراسلات</h1>
-            <Link href="/manage-properties" className="text-sm underline">عودة للوحة العقارات</Link>
+            <InstantLink href="/manage-properties" className="text-sm underline">عودة للوحة العقارات</InstantLink>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-4">
@@ -93,6 +93,6 @@ export default function ManageMessages(){
           </div>
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

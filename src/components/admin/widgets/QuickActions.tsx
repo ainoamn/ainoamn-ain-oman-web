@@ -1,6 +1,6 @@
 // src/components/admin/widgets/QuickActions.tsx
 // Client widget: quick links to common admin actions.
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useTranslation } from "@/hooks/useTranslation";
 
 export default function QuickActions() {
@@ -17,9 +17,9 @@ export default function QuickActions() {
       <h3 className="mb-3 text-base font-semibold text-slate-900">{t("admin.quick.title", "إجراءات سريعة")}</h3>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {actions.map((a) => (
-          <Link key={a.href} href={a.href} className="rounded-xl border border-slate-300 px-3 py-2 text-center hover:bg-slate-50">
+          <InstantLink key={a.href} href={a.href} className="rounded-xl border border-slate-300 px-3 py-2 text-center hover:bg-slate-50">
             {a.label}
-          </Link>
+          </InstantLink>
         ))}
       </div>
     </section>

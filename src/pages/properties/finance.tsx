@@ -1,7 +1,7 @@
 // src/pages/properties/finance.tsx - المالية العقارية
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 import { 
   FiDollarSign, FiTrendingUp, FiTrendingDown, FiCalendar, FiFileText,
   FiCreditCard, FiDownload, FiPrinter, FiShare2, FiEye, FiEdit,
@@ -106,7 +106,7 @@ export default function PropertiesFinancePage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM');
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' });
   };
 
   const getTransactionIcon = (type: string) => {
@@ -341,12 +341,12 @@ export default function PropertiesFinancePage() {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">المعاملات الأخيرة</h3>
-                <Link
+                <InstantLink 
                   href="/properties/transactions"
                   className="text-sm text-blue-600 hover:text-blue-800"
                 >
                   عرض الكل
-                </Link>
+                </InstantLink>
               </div>
               <div className="space-y-3">
                 {transactions.slice(0, 5).map((transaction) => (

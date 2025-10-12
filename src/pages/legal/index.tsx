@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import Layout from '../../components/layout/Layout';
+// Layout handled by _app.tsx
 import { FaPlus, FaSearch, FaFilter, FaSort, FaSortUp, FaSortDown, FaEye, FaEdit, FaShare, FaTrash, FaBalanceScale, FaUser, FaUserTie, FaBuilding, FaCalendarAlt, FaClock, FaCheckCircle, FaExclamationTriangle, FaPlay, FaPause, FaGavel, FaFileAlt, FaMoneyBillWave, FaChartBar, FaBrain, FaDownload, FaPrint, FaQrcode, FaExternalLinkAlt, FaChevronDown, FaChevronUp, FaTimes, FaSpinner } from 'react-icons/fa';
 
 type ViewMode = "table" | "grid";
@@ -366,7 +366,7 @@ export default function LegalCasesPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn', 
       year: 'numeric',
       month: 'short',
       day: 'numeric'

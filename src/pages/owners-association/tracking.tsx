@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Head from "next/head"; import Link from "next/link";
+import Head from "next/head"; import InstantLink from '@/components/InstantLink';
 import Layout from "@/components/layout/Layout"; import { useTSafe } from "@/lib/i18n-safe";
 import HoaNav from "@/components/hoa/HoaNav"; import StatusBadge from "@/components/common/StatusBadge";
 type Row = { id: string; title: string; status: "open"|"in_progress"|"done"; due?: string };
@@ -17,7 +17,7 @@ export default function TrackingPage() {
         <HoaNav />
         <header className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">{t("hoa.tracking.title","المتابعة")}</h1>
-          <Link href="/admin/tasks" className="px-3 py-2 rounded-xl bg-[var(--brand-700,#0f766e)] text-white">{t("hoa.tracking.openBoard","فتح لوحة المهام")}</Link>
+          <InstantLink href="/admin/tasks" className="px-3 py-2 rounded-xl bg-[var(--brand-700,#0f766e)] text-white">{t("hoa.tracking.openBoard","فتح لوحة المهام")}</InstantLink>
         </header>
         <section className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 overflow-hidden">
           <table className="w-full text-sm">

@@ -1,9 +1,9 @@
 import Head from "next/head";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// Header and Footer handled by MainLayout in _app.tsx
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useI18n } from "@/lib/i18n";
+import InstantLink from "@/components/InstantLink";
 
 type User = { id:string; name:string; status:"active"|"restricted"|"banned" };
 type Sub = { id:string; serial:string; planId:string; state:string; startAt:number|null; endAt:number|null; finalPriceOMR:number };
@@ -36,7 +36,7 @@ export default function AdminUserPage(){
   return (
     <main dir={dir} className="min-h-screen bg-slate-50 flex flex-col">
       <Head><title>بيانات المستخدم</title></Head>
-      <Header />
+      {/* Header handled by MainLayout */}
       <div className="container mx-auto px-4 py-8 flex-1 w-full">
         <h1 className="text-2xl font-bold mb-4">بيانات المستخدم</h1>
         {!user ? <div>جاري التحميل…</div> : (
@@ -98,7 +98,7 @@ export default function AdminUserPage(){
           </table>
         </div>
       </div>
-      <Footer />
+      {/* Footer handled by MainLayout */}
     </main>
   );
 }

@@ -1,8 +1,10 @@
-// src/pages/dashboard/auctions/index.tsx
+﻿// src/pages/dashboard/auctions/index.tsx
 import { useState, useEffect } from 'react';
+import InstantImage from '@/components/InstantImage';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
+import InstantLink, { InstantButton } from '@/components/InstantLink';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/context/AuthContext';
 import { auctionService } from '@/services/auctionService';
@@ -57,7 +59,7 @@ export default function AuctionDashboard() {
     // التحقق من الاشتراك النشط
     if (!user.subscription.active) {
       alert('يجب أن يكون لديك اشتراك نشط لإنشاء مزاد');
-      router.push('/subscriptions');
+      await router.push('/subscriptions');
       return;
     }
 
@@ -65,16 +67,16 @@ export default function AuctionDashboard() {
     const listingFee = 100; // رسوم الإدراج
     if (user.balance < listingFee) {
       alert('رصيدك غير كافٍ لدفع رسوم الإدراج');
-      router.push('/dashboard/wallet');
+      await router.push('/dashboard/wallet');
       return;
     }
 
     // خصم رسوم الإدراج وإنشاء المزاد
     try {
       await paymentService.deductListingFee(listingFee);
-      router.push('/dashboard/auctions/create');
+      await router.push('/dashboard/auctions/create');
     } catch (error) {
-      alert('فشل في خصم الرسوم: ' + error.message);
+      alert('فشل في خصم الرسوم: ' + (error as any).message);
     }
   };
 
@@ -213,7 +215,7 @@ function AuctionRow({ auction, onUpdate }) {
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center">
           <div className="flex-shrink-0 h-10 w-10">
-            <img className="h-10 w-10 rounded-md object-cover" src={auction.images[0]} alt={auction.title} />
+            <InstantImage className="h-10 w-10 rounded-md object-cover" src={auction.images[0]} alt={auction.title}  loading="lazy" width={400} height={300}/>
           </div>
           <div className="mr-4">
             <div className="text-sm font-medium text-gray-900">{auction.title}</div>
@@ -237,9 +239,9 @@ function AuctionRow({ auction, onUpdate }) {
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
         <div className="flex space-x-2">
-          <Link href={`/auctions/${auction.id}`} className="text-blue-600 hover:text-blue-900">
+          <InstantLink href={`/auctions/${auction.id}`} className="text-blue-600 hover:text-blue-900">
             عرض
-          </Link>
+          </InstantLink>
           {['draft', 'rejected'].includes(auction.status) && (
             <button onClick={() => handleAction('edit', auction.id)} className="text-yellow-600 hover:text-yellow-900">
               تعديل
@@ -268,3 +270,4 @@ function AuctionRow({ auction, onUpdate }) {
     </tr>
   );
 }
+

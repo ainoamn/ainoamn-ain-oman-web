@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import Layout from '../../components/layout/Layout';
+// Layout handled by _app.tsx
 import { FaEdit, FaTrash, FaShare, FaDownload, FaPrint, FaFileAlt, FaCalendarAlt, FaUser, FaUserTie, FaBuilding, FaMapMarkerAlt, FaPhone, FaEnvelope, FaWhatsapp, FaTelegram, FaTwitter, FaFacebook, FaLinkedin, FaCopy, FaEye, FaClock, FaCheckCircle, FaExclamationTriangle, FaInfoCircle, FaBrain, FaChartLine, FaHistory, FaComments, FaMoneyBillWave, FaFileContract, FaGavel, FaBalanceScale, FaPlus, FaUpload, FaSearch, FaFilter, FaSort, FaSortUp, FaSortDown, FaChevronDown, FaChevronUp, FaExternalLinkAlt, FaQrcode, FaShieldAlt, FaLock, FaUnlock, FaKey, FaFingerprint, FaIdCard, FaCertificate, FaAward, FaTrophy, FaMedal, FaStar, FaHeart, FaThumbsUp, FaThumbsDown, FaReply, FaForward, FaBackward, FaPlay, FaPause, FaStop, FaMicrophone, FaVideo, FaCamera, FaImage, FaImages, FaFileImage, FaFilePdf, FaFileWord, FaFileExcel, FaFilePowerpoint, FaFileArchive, FaFileCode, FaFileInvoice, FaFileInvoiceDollar, FaFileMedical, FaFilePrescription, FaFileSignature, FaFileUpload, FaFileDownload, FaFileExport, FaFileImport, FaClipboard, FaClipboardList, FaClipboardCheck } from 'react-icons/fa';
 
 type Tab = "overview"|"timeline"|"documents"|"updates"|"expenses"|"analytics"|"ai-insights";

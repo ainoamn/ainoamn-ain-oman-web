@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import Layout from "@/components/layout/Layout";
+// Layout handled by _app.tsx
 
 export default function NewAppointmentTaskPage() {
   const router = useRouter();
@@ -63,7 +63,7 @@ export default function NewAppointmentTaskPage() {
   }
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>إنشاء مهمة متابعة | Ain Oman</title>
       </Head>
@@ -129,7 +129,7 @@ export default function NewAppointmentTaskPage() {
           </form>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }
 

@@ -52,8 +52,6 @@ export function useTranslation() {
 
   return { t, dir, lang };
 }
-export default function useTranslation() {
-  const t = (k: string, vars?: Record<string, any>) => k;
-  const locale = "ar";
-  return { t, locale };
-}
+
+// Export default يشير لنفس الدالة
+export default useTranslation;

@@ -1,8 +1,8 @@
-﻿// src/pages/admin/contracts/overrides.tsx
+// src/pages/admin/contracts/overrides.tsx
 import Head from "next/head";
 // Header is now handled by MainLayout in _app.tsx
 
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState } from "react";
 
 type Template = { id:string; name:string; scope:"unified"|"per-unit"; bodyAr:string; bodyEn:string; fields:{key:string;labelAr:string;labelEn:string;required?:boolean}[] };
@@ -83,7 +83,7 @@ export default function OverridesPage(){
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">تخصيصات العقود للوحدات/المباني</h1>
-          <Link href="/admin/contracts/settings" className="btn">العقد الموحّد</Link>
+          <InstantLink href="/admin/contracts/settings" className="btn">العقد الموحّد</InstantLink>
         </div>
 
         {loading? <div>جارٍ التحميل…</div> : err? <div className="text-red-600">{err}</div> : (
@@ -151,7 +151,7 @@ export default function OverridesPage(){
                         <td className="p-2">{a.level==="unit"?"وحدة":"مبنى"}</td>
                         <td className="p-2">{a.refId}</td>
                         <td className="p-2">{a.templateId}</td>
-                        <td className="p-2">{new Date(a.updatedAt).toLocaleString("ar-OM",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"})}</td>
+                        <td className="p-2">{new Date(a.updatedAt).toLocaleString("ar", { calendar: "gregory", numberingSystem: "latn" },{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"})}</td>
                       </tr>
                     ))}
                     {items.length===0 && <tr><td className="p-3 text-center text-gray-600" colSpan={4}>لا توجد تخصيصات.</td></tr>}

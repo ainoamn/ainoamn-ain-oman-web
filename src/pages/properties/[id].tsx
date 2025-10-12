@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import Layout from '@/components/layout/Layout';
+import InstantLink, { InstantButton } from '@/components/InstantLink';
 import { 
   FaBuilding, 
   FaHome, 
@@ -520,7 +520,9 @@ function PropertyDetailsPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-OM', {
+    return new Date(dateString).toLocaleDateString('ar', {
+      calendar: 'gregory', // ✅ التقويم الميلادي
+      numberingSystem: 'latn', // ✅ الأرقام اللاتينية
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -565,19 +567,19 @@ function PropertyDetailsPage() {
     }
   };
 
-  const handleBookAppointment = () => {
-    // ربط مع نظام المواعيد
-    router.push(`/tasks/new?propertyId=${id}`);
+  const handleBookAppointment = async () => {
+    // ربط مع نظام المواعيد - تنقل فوري ⚡
+    await router.push(`/tasks/new?propertyId=${id}`);
   };
 
-  const handleBookUnit = () => {
-    // ربط مع نظام الحجز والدفع
-    router.push(`/booking/new?propertyId=${id}`);
+  const handleBookUnit = async () => {
+    // ربط مع نظام الحجز والدفع - تنقل فوري ⚡
+    await router.push(`/booking/new?propertyId=${id}`);
   };
 
-  const handleChatWithManagement = () => {
-    // ربط مع نظام الدردشة
-    router.push(`/chat?propertyId=${id}&type=management`);
+  const handleChatWithManagement = async () => {
+    // ربط مع نظام الدردشة - تنقل فوري ⚡
+    await router.push(`/chat?propertyId=${id}&type=management`);
   };
 
   const handleWhatsAppContact = () => {
@@ -945,7 +947,7 @@ function PropertyDetailsPage() {
   // عرض حالة التحميل
   if (loading) {
     return (
-      <Layout>
+      <>
         <Head>
           <title>جاري التحميل...</title>
         </Head>
@@ -957,14 +959,14 @@ function PropertyDetailsPage() {
             </h1>
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   // إذا لم توجد البيانات، اعرض رسالة خطأ
   if (!property || !property.id || error) {
     return (
-      <Layout>
+      <>
         <Head>
           <title>لم يتم العثور على العقار</title>
         </Head>
@@ -988,13 +990,13 @@ function PropertyDetailsPage() {
             </Link>
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>{getTitle()} - عين عُمان</title>
         <meta name="description" content={getDescription()} />
@@ -2866,7 +2868,7 @@ function PropertyDetailsPage() {
           </div>
         )}
       </main>
-    </Layout>
+    </>
   );
 }
 

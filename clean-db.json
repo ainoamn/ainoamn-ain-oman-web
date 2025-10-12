@@ -1,0 +1,57 @@
+{
+  "properties": [
+    {
+      "id": "P-TEST-ENGLISH",
+      "createdAt": "2025-10-05T14:52:00.000Z",
+      "updatedAt": "2025-10-05T14:52:00.000Z",
+      "referenceNo": "P-TEST-ENGLISH",
+      "title": {
+        "ar": "Test Property in English",
+        "en": "Test Property in English"
+      },
+      "titleAr": "Test Property in English",
+      "titleEn": "Test Property in English",
+      "descriptionAr": "Property description in English",
+      "descriptionEn": "Property description in English",
+      "priceOMR": 2500,
+      "province": "Muscat",
+      "state": "Al Khuwair",
+      "address": "Sultan Qaboos Street",
+      "type": "villa",
+      "purpose": "sale",
+      "area": "200",
+      "beds": "4",
+      "baths": "3",
+      "published": true,
+      "status": "vacant",
+      "images": []
+    },
+    {
+      "id": "P-20251005144614",
+      "createdAt": "2025-10-05T14:46:14.680Z",
+      "updatedAt": "2025-10-05T14:46:14.680Z",
+      "referenceNo": "P-20251005144614",
+      "title": {
+        "ar": "عقار تجريبي",
+        "en": "Test Property"
+      },
+      "titleAr": "عقار تجريبي",
+      "titleEn": "Test Property",
+      "descriptionAr": "وصف العقار التجريبي",
+      "descriptionEn": "Test property description",
+      "priceOMR": 1000,
+      "province": "مسقط",
+      "state": "الخوير",
+      "address": "شارع السلطان قابوس",
+      "type": "apartment",
+      "purpose": "rent",
+      "area": "120",
+      "beds": "3",
+      "baths": "2",
+      "published": true,
+      "status": "vacant",
+      "images": []
+    }
+  ]
+}
+

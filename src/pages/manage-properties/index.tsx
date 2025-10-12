@@ -1,9 +1,9 @@
 // src/pages/manage-properties/index.tsx
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/router";
-import Layout from "@/components/layout/Layout";
+// Layout handled by _app.tsx
 
 type Item = {
   id: string;
@@ -89,13 +89,13 @@ export default function ManageProperties() {
   };
 
   return (
-    <Layout>
+    <>
       <Head><title>إدارة عقاراتي | Ain Oman</title></Head>
       <main className="min-h-screen bg-slate-50">
         <div className="mx-auto max-w-7xl px-4 py-8">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold">لوحة إدارة عقاراتي</h1>
-            <Link href="/properties/new" className="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700">+ إضافة عقار</Link>
+            <InstantLink href="/properties/new" className="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700">+ إضافة عقار</InstantLink>
           </div>
 
           {loading ? (
@@ -128,18 +128,18 @@ export default function ManageProperties() {
                       </td>
                       <td className="p-3">{p.published ? "منشور" : "مسودة"}</td>
                       <td className="p-3 space-x-2 space-x-reverse">
-                        <Link href={`/properties/new?edit=${encodeURIComponent(p.id)}`} className="px-3 py-1 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+                        <InstantLink href={`/properties/new?edit=${encodeURIComponent(p.id)}`} className="px-3 py-1 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
                           تحرير
-                        </Link>
+                        </InstantLink>
                         <button onClick={() => togglePublish(p.id, !!p.published)} className="px-3 py-1 rounded-lg bg-slate-700 text-white hover:bg-slate-800">
                           {p.published ? "إلغاء النشر" : "نشر"}
                         </button>
-                        <Link href={`/properties/${encodeURIComponent(p.id)}`} className="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">
+                        <InstantLink href={`/properties/${encodeURIComponent(p.id)}`} className="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">
                           عرض
-                        </Link>
-                        <Link href={`/properties/${encodeURIComponent(p.id)}/bookings`} className="px-3 py-1 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">
+                        </InstantLink>
+                        <InstantLink href={`/properties/${encodeURIComponent(p.id)}/bookings`} className="px-3 py-1 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">
                           الحجوزات
-                        </Link>
+                        </InstantLink>
                       </td>
                     </tr>
                   ))}
@@ -149,6 +149,6 @@ export default function ManageProperties() {
           )}
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

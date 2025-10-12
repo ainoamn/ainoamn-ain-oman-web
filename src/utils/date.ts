@@ -16,14 +16,16 @@ export function formatDate(date: Date | string, options: Intl.DateTimeFormatOpti
   const defaultOptions: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
+    calendar: 'gregory', // ✅ التقويم الميلادي
+    numberingSystem: 'latn' // ✅ الأرقام اللاتينية
   };
   
   const mergedOptions = { ...defaultOptions, ...options };
   
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   
-  return new Intl.DateTimeFormat('ar-SA', mergedOptions).format(dateObj);
+  return new Intl.DateTimeFormat('ar', mergedOptions).format(dateObj);
 }
 
 export function isDateExpired(date: string): boolean {
@@ -45,8 +47,12 @@ export function getDaysInMonth(year: number, month: number): number {
   return new Date(year, month + 1, 0).getDate();
 }
 
-export function getMonthName(month: number, locale: string = 'ar-SA'): string {
+export function getMonthName(month: number, locale: string = 'ar'): string {
   const date = new Date();
   date.setMonth(month - 1);
-  return date.toLocaleDateString(locale, { month: 'long' });
+  return date.toLocaleDateString(locale, { 
+    month: 'long',
+    calendar: 'gregory',
+    numberingSystem: 'latn'
+  });
 }

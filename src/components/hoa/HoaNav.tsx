@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useTSafe } from "@/lib/i18n-safe";
 import type { ComponentType, SVGProps } from "react";
 import {
@@ -53,7 +53,7 @@ export default function HoaNav() {
           const Icon = it.icon || FallbackIcon; // حارس
           return (
             <li key={it.href}>
-              <Link
+              <InstantLink 
                 href={it.href}
                 className={
                   "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm border " +
@@ -64,7 +64,7 @@ export default function HoaNav() {
               >
                 <Icon />
                 <span>{t(it.key, it.label)}</span>
-              </Link>
+              </InstantLink>
             </li>
           );
         })}

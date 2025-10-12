@@ -1,6 +1,6 @@
 // src/pages/admin/properties/new.tsx
 import Head from "next/head";
-import Link from "next/link";
+import InstantLink from '@/components/InstantLink';
 import { useRouter } from "next/router";
 import { useState } from "react";
 
@@ -101,7 +101,7 @@ export default function NewPropertyPage() {
             </section>
 
             <div className="flex justify-end gap-3">
-              <Link href="/admin/properties" className="px-4 py-2 rounded bg-gray-200">إلغاء</Link>
+              <InstantLink href="/admin/properties" className="px-4 py-2 rounded bg-gray-200">إلغاء</InstantLink>
               <button disabled={busy} className="px-4 py-2 rounded bg-blue-600 text-white">{busy? "جارٍ الحفظ…" : "حفظ"}</button>
             </div>
           </form>

@@ -1,6 +1,7 @@
-// src/pages/properties/index.tsx
+﻿// src/pages/properties/index.tsx
 import Head from "next/head";
-import Link from "next/link";
+import InstantImage from '@/components/InstantImage';
+import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/router";
 // Layout is now handled by MainLayout in _app.tsx
@@ -63,11 +64,24 @@ function useMounted() {
   return m;
 }
 
-/** يحوّل العنوان إلى نص قابل للعرض */
-function titleToText(t?: Item["title"]) {
+/** يحوّل العنوان إلى نص قابل للعرض - يحل مشكلة Objects في React */
+function titleToText(t?: Item["title"]): string {
   if (!t) return "";
   if (typeof t === "string") return t;
-  return t.ar || t.en || "";
+  if (typeof t === "object" && (t.ar || t.en)) {
+    return t.ar || t.en || "";
+  }
+  return String(t || "");
+}
+
+/** تحويل أي قيمة localized إلى نص */
+function toSafeText(value: any): string {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object" && (value.ar || value.en)) {
+    return value.ar || value.en || "";
+  }
+  return String(value || "");
 }
 /** يجهّز مسار الصورة المعروضة */
 function getCardImage(p: Item) {
@@ -409,35 +423,36 @@ export default function PropertiesIndexPage({ initialProperties = [] }: { initia
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50">
       <Head>
         <title>العقارات | عين عُمان</title>
       </Head>
 
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <h1 className="text-2xl font-bold">العقارات</h1>
-        <Link href="/properties/new" className="px-4 py-2 rounded bg-[var(--brand-800)] hover:bg-[var(--brand-700)] text-white">
-          نشر عقار جديد
-        </Link>
-      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-between gap-2 mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">العقارات</h1>
+          <InstantLink href="/properties/new" className="px-6 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-medium transition-colors">
+            نشر عقار جديد
+          </InstantLink>
+        </div>
 
-      <div className="mb-3">
-        <UnifiedSearchBar
-          onSearch={onSearch}
-          initial={{ keyword: q, type, purpose, rentalType: rentalType || undefined, province, state, village }}
-        />
-      </div>
+        <div className="mb-6">
+          <UnifiedSearchBar
+            onSearch={onSearch}
+            initial={{ keyword: q, type, purpose, rentalType: rentalType || undefined, province, state, village }}
+          />
+        </div>
 
-      <div className="mb-2 lg:hidden">
-        <button
-          onClick={() => setFiltersOpen((v) => !v)}
-          className="inline-flex items-center justify-center gap-2 px-3 py-2 border rounded"
-        >
-          <FaFilter /> {filtersOpen ? "إخفاء الفلاتر" : "عرض الفلاتر"}
-        </button>
-      </div>
+        <div className="mb-4 lg:hidden">
+          <button
+            onClick={() => setFiltersOpen((v) => !v)}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <FaFilter /> {filtersOpen ? "إخفاء الفلاتر" : "عرض الفلاتر"}
+          </button>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
         <aside className={`${filtersOpen ? "block" : "hidden"} lg:block`}>
           <div className="border rounded-lg p-3 bg-white sticky top-16">
             <div className="flex items-center justify-between mb-2">
@@ -646,14 +661,14 @@ export default function PropertiesIndexPage({ initialProperties = [] }: { initia
               const title = titleToText(p.title);
               const cardImg = getCardImage(p);
               return (
-                <Link
+                <InstantLink 
                   href={`/properties/${p.id}`}
                   key={String(p.id)}
                   className="border rounded-lg overflow-hidden shadow hover:shadow-lg transition block"
                 >
                   <div className="relative">
                     {cardImg ? (
-                      <img src={cardImg} alt={title || "Property"} className="w-full h-48 object-cover" />
+                      <InstantImage src={cardImg} alt={title || "Property"} className="w-full h-48 object-cover"  loading="lazy" width={800} height={192}/>
                     ) : (
                       <div className="w-full h-48 bg-gray-100" />
                     )}
@@ -703,14 +718,16 @@ export default function PropertiesIndexPage({ initialProperties = [] }: { initia
                       </div>
                     </div>
                   </div>
-                </Link>
+                </InstantLink>
               );
             })}
           </div>
         </section>
+      </div>
       </div>
     </div>
   );
 }
 
 // getServerSideProps removed - using useEffect instead
+

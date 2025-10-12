@@ -11,6 +11,8 @@
     "@google/generative-ai": "^0.24.1",
     "@heroicons/react": "2.2.0",
     "@react-google-maps/api": "2.20.7",
+    "@stripe/react-stripe-js": "^5.2.0",
+    "@stripe/stripe-js": "^8.0.0",
     "deepl-node": "1.12.0",
     "docx": "8.5.0",
     "formidable": "3.5.4",
@@ -32,6 +34,7 @@
     "react-leaflet": "^4.2.1",
     "react-qr-code": "^2.0.18",
     "recharts": "3.2.0",
+    "swiper": "^12.0.2",
     "tesseract.js": "^6.0.1",
     "xlsx": "0.18.5"
   },

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 // Header and Footer are now handled by MainLayout in _app.tsx
 import { FaBed, FaBath, FaRulerCombined, FaStar, FaBolt, FaMapMarkerAlt, FaHeart, FaEye, FaSearch, FaMoneyBillWave, FaBuilding, FaHouseUser } from 'react-icons/fa';
 
@@ -445,11 +445,11 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {banners.map(b => (
-              <Link key={b.id} href={b.link} className="block overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-shadow">
+              <InstantLink key={b.id} href={b.link} className="block overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-shadow">
                 <div className="w-full h-40 bg-gradient-to-r from-blue-500 to-teal-500 flex items-center justify-center text-white font-bold text-xl">
                   {b.alt}
                 </div>
-              </Link>
+              </InstantLink>
             ))}
           </div>
         </div>
@@ -461,7 +461,7 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">تصفح حسب النوع</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {propertyCategories.map(category => (
-              <Link 
+              <InstantLink 
                 key={category.id} 
                 href={`/properties?type=${category.name}`}
                 className="text-center p-6 bg-gray-50 rounded-lg hover:shadow-md transition-shadow border border-transparent hover:border-blue-200"
@@ -471,7 +471,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="font-semibold text-lg mb-1">{category.name}</h3>
                 <p className="text-gray-600">{category.count} عقار</p>
-              </Link>
+              </InstantLink>
             ))}
           </div>
         </div>
@@ -502,12 +502,12 @@ export default function HomePage() {
           )}
           
           <div className="text-center mt-12">
-            <Link 
+            <InstantLink 
               href="/properties" 
               className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
             >
               {t("home.view.all")}
-            </Link>
+            </InstantLink>
           </div>
         </div>
       </section>
@@ -533,9 +533,9 @@ export default function HomePage() {
           )}
 
           <div className="text-center mt-8">
-            <Link href="/auctions" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-amber-700 bg-amber-100 hover:bg-amber-200">
+            <InstantLink href="/auctions" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-amber-700 bg-amber-100 hover:bg-amber-200">
               {t("home.view.all")}
-            </Link>
+            </InstantLink>
           </div>
         </div>
       </section>

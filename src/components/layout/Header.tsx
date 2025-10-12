@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import Link from "next/link";
+﻿import React, { useState, useEffect, useRef, useCallback } from "react";
+import InstantImage from '@/components/InstantImage';
+import InstantLink from '@/components/InstantLink';
 import { useRouter } from "next/router";
 import { 
   MagnifyingGlassIcon, 
@@ -112,6 +113,9 @@ export default function Header() {
   const [user, setUser] = useState<User | null>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isOnline, setIsOnline] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchSuggestions, setSearchSuggestions] = useState<SearchSuggestion[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Refs
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -263,14 +267,45 @@ export default function Header() {
     window.addEventListener('online', handleOnlineStatus);
     window.addEventListener('offline', handleOnlineStatus);
 
-    // Mock user data
-    setUser(mockUser);
+    // تحميل بيانات المستخدم من localStorage
+    const loadUser = () => {
+      try {
+        const authData = localStorage.getItem("ain_auth");
+        if (authData) {
+          const userData = JSON.parse(authData);
+          setUser({
+            id: userData.id,
+            name: userData.name || 'مستخدم',
+            email: userData.email || userData.phone || '',
+            avatar: userData.picture || userData.avatar || '/demo/user1.jpg',
+            role: userData.role || 'user',
+            notifications: 0,
+            favorites: 0,
+            isVerified: userData.isVerified || false
+          });
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Error loading user:", error);
+        setUser(null);
+      }
+    };
+
+    loadUser();
     setNotifications(mockNotifications);
+
+    // الاستماع لتغييرات الـ auth
+    const handleAuthChange = () => {
+      loadUser();
+    };
+    window.addEventListener('ain_auth:change', handleAuthChange);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('online', handleOnlineStatus);
       window.removeEventListener('offline', handleOnlineStatus);
+      window.removeEventListener('ain_auth:change', handleAuthChange);
     };
   }, []);
 
@@ -338,16 +373,15 @@ export default function Header() {
               className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
               onClick={() => {
                 router.push(suggestion.actionUrl || '/');
-                setIsSearchOpen(false);
+                setIsSearching(false);
                 setSearchQuery('');
               }}
             >
               {suggestion.image && (
-                <img
-                  src={suggestion.image}
+                <InstantImage src={suggestion.image}
                   alt={suggestion.title}
                   className="w-12 h-12 rounded-lg object-cover"
-                />
+                 loading="lazy" width={48} height={48}/>
               )}
               <div className="flex-1">
                 <h4 className="font-medium text-gray-900 dark:text-white">{suggestion.title}</h4>
@@ -447,10 +481,13 @@ export default function Header() {
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <img
+            <InstantImage 
               src={user?.avatar || '/demo/user1.jpg'}
               alt={user?.name}
+              width={48}
+              height={48}
               className="w-12 h-12 rounded-full object-cover"
+              loading="lazy"
             />
             {user?.isVerified && (
               <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
@@ -465,36 +502,41 @@ export default function Header() {
         </div>
       </div>
       <div className="p-2">
-        <Link
+        <InstantLink
           href="/profile"
           className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           onClick={() => setIsUserMenuOpen(false)}
         >
           <UserIcon className="w-5 h-5 text-gray-500" />
           <span>الملف الشخصي</span>
-        </Link>
-        <Link
+        </InstantLink>
+        <InstantLink
           href="/settings"
           className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           onClick={() => setIsUserMenuOpen(false)}
         >
           <Cog6ToothIcon className="w-5 h-5 text-gray-500" />
           <span>الإعدادات</span>
-        </Link>
-        <Link
+        </InstantLink>
+        <InstantLink
           href="/favorites"
           className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           onClick={() => setIsUserMenuOpen(false)}
         >
           <HeartIcon className="w-5 h-5 text-gray-500" />
           <span>المفضلة ({user?.favorites})</span>
-        </Link>
+        </InstantLink>
         <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
         <button
           className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full text-left"
           onClick={() => {
             // Handle logout
+            localStorage.removeItem('ain_auth');
+            localStorage.removeItem('auth_token');
+            setUser(null);
             setIsUserMenuOpen(false);
+            window.dispatchEvent(new CustomEvent('ain_auth:change'));
+            router.push('/login');
           }}
         >
           <ArrowRightIcon className="w-5 h-5 text-red-500" />
@@ -550,7 +592,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
+          <InstantLink href="/" className="flex items-center gap-3 group">
             <div className="relative">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
                 <SparklesIcon className="w-6 h-6 text-white" />
@@ -561,13 +603,13 @@ export default function Header() {
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">عين عُمان</h1>
               <p className="text-xs text-gray-500 dark:text-gray-400">منصة العقارات الذكية</p>
             </div>
-          </Link>
+          </InstantLink>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
             {menuItems.map((item) => (
               <div key={item.id} className="relative group">
-                <Link
+                <InstantLink
                   href={item.href}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
                 >
@@ -581,21 +623,21 @@ export default function Header() {
                     </span>
                   )}
                   {item.children && <ChevronDownIcon className="w-4 h-4" />}
-                </Link>
+                </InstantLink>
 
                 {/* Dropdown Menu */}
                 {item.children && (
                   <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     <div className="p-2">
                       {item.children.map((child) => (
-                        <Link
+                        <InstantLink
                           key={child.id}
                           href={child.href}
                           className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                         >
                           <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                           <span className="text-gray-700 dark:text-gray-300">{child.label}</span>
-                        </Link>
+                        </InstantLink>
                       ))}
                     </div>
                   </div>
@@ -617,14 +659,14 @@ export default function Header() {
 
             {/* Quick Actions */}
             <div className="hidden lg:flex items-center gap-1">
-              <Link
+              <InstantLink
                 href="/properties/new"
                 className="p-2 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all"
                 title="إضافة عقار"
               >
                 <PlusIcon className="w-5 h-5" />
-              </Link>
-              <Link
+              </InstantLink>
+              <InstantLink
                 href="/favorites"
                 className="p-2 text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all relative"
                 title="المفضلة"
@@ -635,7 +677,7 @@ export default function Header() {
                     {user.favorites}
                   </span>
                 )}
-              </Link>
+              </InstantLink>
             </div>
 
             {/* Notifications */}
@@ -702,10 +744,13 @@ export default function Header() {
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center gap-2 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
                 >
-                  <img
+                  <InstantImage 
                     src={user.avatar || '/demo/user1.jpg'}
                     alt={user.name}
+                    width={32}
+                    height={32}
                     className="w-8 h-8 rounded-full object-cover"
+                    loading="lazy"
                   />
                   <span className="hidden lg:block text-sm font-medium text-gray-700 dark:text-gray-300">
                     {user.name}
@@ -715,18 +760,18 @@ export default function Header() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link
-                  href="/login"
+                <InstantLink
+                  href={`/login?return=${encodeURIComponent(router.asPath)}`}
                   className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                   تسجيل الدخول
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+                </InstantLink>
+                <InstantLink
+                  href={`/login?return=${encodeURIComponent(router.asPath)}`}
+                  className="px-4 py-2 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl hover:from-green-700 hover:to-blue-700 transition-all shadow-md"
                 >
                   إنشاء حساب
-                </Link>
+                </InstantLink>
               </div>
             )}
 
@@ -750,7 +795,7 @@ export default function Header() {
         <div className="lg:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
           <div className="px-4 py-4 space-y-2">
             {menuItems.map((item) => (
-              <Link
+              <InstantLink
                 key={item.id}
                 href={item.href}
                 className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
@@ -765,7 +810,7 @@ export default function Header() {
                     {item.badge}
                   </span>
                 )}
-              </Link>
+              </InstantLink>
             ))}
           </div>
         </div>
@@ -773,3 +818,4 @@ export default function Header() {
     </header>
   );
 }
+

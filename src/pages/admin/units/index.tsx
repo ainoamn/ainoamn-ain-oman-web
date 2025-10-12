@@ -2,8 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-// استبدال الأيقونات برموز emoji لتجنب مشاكل الاستيراد
-import Layout from '@/components/layout/Layout';
 
 interface Unit {
   id: string;
@@ -183,16 +181,17 @@ export default function UnitsManagementPage() {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex justify-center items-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري التحميل...</p>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout>
+    <div className="min-h-screen bg-gray-50">
       <Head>
         <title>إدارة الوحدات العقارية - عين عُمان</title>
       </Head>
@@ -209,7 +208,7 @@ export default function UnitsManagementPage() {
                 </p>
               </div>
               <div className="flex space-x-3 rtl:space-x-reverse">
-                <Link
+                <Link 
                   href="/properties/new"
                   className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                 >
@@ -473,7 +472,7 @@ export default function UnitsManagementPage() {
                             </div>
                             {unit.leaseEndDate && (
                               <div className="text-sm text-gray-500">
-                                ينتهي: {new Date(unit.leaseEndDate).toLocaleDateString('ar-OM')}
+                                ينتهي: {new Date(unit.leaseEndDate).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}
                               </div>
                             )}
                           </div>
@@ -488,14 +487,14 @@ export default function UnitsManagementPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                          <Link
+                          <Link 
                             href={`/admin/units/${unit.id}`}
                             className="text-blue-600 hover:text-blue-900 p-1"
                             title="عرض التفاصيل"
                           >
                             <span className="w-4 h-4">👁️</span>
                           </Link>
-                          <Link
+                          <Link 
                             href={`/admin/units/${unit.id}/edit`}
                             className="text-indigo-600 hover:text-indigo-900 p-1"
                             title="تعديل"
@@ -524,7 +523,7 @@ export default function UnitsManagementPage() {
                     ابدأ بإضافة وحدة جديدة لإدارة العقارات.
                   </p>
                   <div className="mt-6">
-                    <Link
+                    <Link 
                       href="/properties/new"
                       className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                     >
@@ -538,6 +537,6 @@ export default function UnitsManagementPage() {
           </div>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 }

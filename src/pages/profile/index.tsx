@@ -1,13 +1,16 @@
-// src/pages/profile/index.tsx - لوحة التحكم الذكية الموحدة
+﻿// src/pages/profile/index.tsx - لوحة التحكم الذكية الموحدة
 import { useState, useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import InstantLink, { InstantButton } from '@/components/InstantLink';
 import { 
   FiHome, FiCalendar, FiDollarSign, FiActivity, FiTrendingUp, FiAlertCircle, 
   FiCheckCircle, FiSettings, FiBell, FiClock, FiBarChart2,
   FiFileText, FiTool, FiAward, FiTarget, FiZap, FiShield, FiChevronDown, FiChevronUp
 } from 'react-icons/fi';
 import { subscriptionManager } from '@/lib/subscriptionSystem';
+import FeatureGate, { useFeatureVisibility, PremiumBadge, UpgradePrompt } from '@/components/FeatureGate';
+import { useSubscription } from '@/context/SubscriptionContext';
 
 export default function UserProfileDashboard() {
   const router = useRouter();
@@ -32,6 +35,14 @@ export default function UserProfileDashboard() {
     properties: false,
     rentals: false
   });
+
+  // 🔐 Feature visibility hooks
+  const { plan: currentPlan } = useSubscription();
+  const showTasks = useFeatureVisibility('tasks');
+  const showCalendar = useFeatureVisibility('calendar');
+  const showLegal = useFeatureVisibility('legal');
+  const showAnalytics = useFeatureVisibility('analytics');
+  const showReports = useFeatureVisibility('analytics');
 
   useEffect(() => {
     loadAllData();
@@ -795,23 +806,25 @@ export default function UserProfileDashboard() {
                 )}
               </div>
 
-              {/* المهام - قابل للطي */}
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <button
-                  onClick={() => toggleSection('tasks')}
-                  className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                >
-                  <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                    <FiTool className="w-7 h-7 text-orange-600" />
-                    مهامي
-                    <span className="text-sm font-normal text-gray-500">({myTasks.length})</span>
-                  </h3>
-                  {expandedSections.tasks ? (
-                    <FiChevronUp className="w-6 h-6 text-gray-600" />
-                  ) : (
-                    <FiChevronDown className="w-6 h-6 text-gray-600" />
-                  )}
-                </button>
+              {/* المهام - قابل للطي - مع FeatureGate 🔐 */}
+              <FeatureGate feature="tasks" mode="lock" showUpgrade={true}>
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                  <button
+                    onClick={() => toggleSection('tasks')}
+                    className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                  >
+                    <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                      <FiTool className="w-7 h-7 text-orange-600" />
+                      مهامي
+                      <span className="text-sm font-normal text-gray-500">({myTasks.length})</span>
+                      {!showTasks && <PremiumBadge className="mr-2" />}
+                    </h3>
+                    {expandedSections.tasks ? (
+                      <FiChevronUp className="w-6 h-6 text-gray-600" />
+                    ) : (
+                      <FiChevronDown className="w-6 h-6 text-gray-600" />
+                    )}
+                  </button>
 
                 {expandedSections.tasks && (
                   <div className="p-6 pt-0 border-t">
@@ -878,7 +891,8 @@ export default function UserProfileDashboard() {
                     )}
                   </div>
                 )}
-            </div>
+                </div>
+              </FeatureGate>
 
               {/* تنبيهات حرجة - المتأخرات */}
               {stats.totalOverdueItems > 0 && (
@@ -944,24 +958,26 @@ export default function UserProfileDashboard() {
                 </div>
               )}
 
-              {/* القضايا القانونية - قابل للطي */}
+              {/* القضايا القانونية - قابل للطي - مع FeatureGate 🔐 */}
               {stats.totalLegalCases > 0 && (
-                <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                  <button
-                    onClick={() => toggleSection('legal')}
-                    className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                  >
-                    <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                      <span className="text-3xl">⚖️</span>
-                      القضايا القانونية
-                      <span className="text-sm font-normal text-gray-500">({stats.totalLegalCases})</span>
-                    </h3>
-                    {expandedSections.legal ? (
-                      <FiChevronUp className="w-6 h-6 text-gray-600" />
-                    ) : (
-                      <FiChevronDown className="w-6 h-6 text-gray-600" />
-                    )}
-                  </button>
+                <FeatureGate feature="legal" mode="lock" showUpgrade={true}>
+                  <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <button
+                      onClick={() => toggleSection('legal')}
+                      className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                    >
+                      <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                        <span className="text-3xl">⚖️</span>
+                        القضايا القانونية
+                        <span className="text-sm font-normal text-gray-500">({stats.totalLegalCases})</span>
+                        {!showLegal && <PremiumBadge className="mr-2" />}
+                      </h3>
+                      {expandedSections.legal ? (
+                        <FiChevronUp className="w-6 h-6 text-gray-600" />
+                      ) : (
+                        <FiChevronDown className="w-6 h-6 text-gray-600" />
+                      )}
+                    </button>
 
                   {expandedSections.legal && (
                     <div className="p-6 pt-0 border-t">
@@ -1063,7 +1079,8 @@ export default function UserProfileDashboard() {
                       </div>
                     </div>
                   )}
-                </div>
+                  </div>
+                </FeatureGate>
               )}
 
                 {/* My Published Properties - قابل للطي */}
@@ -1211,7 +1228,7 @@ export default function UserProfileDashboard() {
                                 </p>
                                 <p className="text-sm text-gray-700 flex items-center gap-2">
                                   <span className="text-lg">📅</span>
-                                  <span>ينتهي في: <span className="font-semibold">{new Date(rental.endDate).toLocaleDateString('ar-OM')}</span></span>
+                                  <span>ينتهي في: <span className="font-semibold">{new Date(rental.endDate).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}</span></span>
                                 </p>
                       </div>
                       </div>
@@ -1246,6 +1263,11 @@ export default function UserProfileDashboard() {
                   )}
                 </div>
               </>
+            )}
+
+            {/* Upgrade Prompt - رسالة الترقية */}
+            {(!showTasks || !showLegal || !showAnalytics) && (
+              <UpgradePrompt />
             )}
 
             {/* Other sections content would go here based on activeSection */}
