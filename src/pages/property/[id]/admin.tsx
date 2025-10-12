@@ -3,8 +3,8 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Layout from '@/components/layout/Layout';
-import { usePermissions } from '@/hooks/usePermissions';
-import PermissionGate, { FeatureLock } from '@/components/PermissionGate';
+import { useFeatureAccessMultiple } from '@/hooks/useFeatureAccess';
+import FeatureGuard from '@/components/FeatureGuard';
 import {
   FaChartLine,
   FaTasks,
@@ -149,7 +149,7 @@ function SectionCard(props: { title: string; icon: React.ReactNode; action?: Rea
 export default function PropertyAdminPage() {
   const router = useRouter();
   const { id } = router.query;
-  const { checkPermission, requirePermission, canAccess, isAdmin, hasActiveSubscription } = usePermissions();
+  // تم استبدال usePermissions بـ useFeatureAccessMultiple
 
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -277,20 +277,28 @@ export default function PropertyAdminPage() {
     };
   }, [invoices, tasks, rentals, reservations, reviews, legalCases]);
 
-  const TABS: { id: string; label: string; icon: any }[] = [
-    { id: 'overview', label: 'نظرة عامة', icon: FaChartLine },
-    { id: 'tasks', label: 'المهام', icon: FaTasks },
-    { id: 'rentals', label: 'عقود الإيجار', icon: FaHandHoldingUsd },
-    { id: 'invoices', label: 'الفواتير والمدفوعات', icon: FaFileInvoiceDollar },
-    { id: 'maintenance', label: 'الصيانة', icon: FaTools },
-    { id: 'legal', label: 'الشؤون القانونية', icon: FaBalanceScale },
-    { id: 'contracts', label: 'العقود', icon: FaFileContract },
-    { id: 'requests', label: 'الطلبات', icon: FaClipboardList },
-    { id: 'calendar', label: 'التقويم', icon: FaCalendarAlt },
-    { id: 'alerts', label: 'التنبيهات', icon: FaBell },
-    { id: 'reviews', label: 'التقييمات', icon: FaComments },
-    { id: 'ai', label: 'التنبؤات والذكاء', icon: FaBrain },
+  // تعريف التبويبات مع الصلاحيات المطلوبة
+  const TABS_DEFINITIONS = [
+    { id: 'overview', label: 'نظرة عامة', icon: FaChartLine, featureId: 'OVERVIEW' },
+    { id: 'tasks', label: 'المهام', icon: FaTasks, featureId: 'TASKS_VIEW' },
+    { id: 'rentals', label: 'عقود الإيجار', icon: FaHandHoldingUsd, featureId: 'LEASES_VIEW' },
+    { id: 'invoices', label: 'الفواتير والمدفوعات', icon: FaFileInvoiceDollar, featureId: 'INVOICES_VIEW' },
+    { id: 'maintenance', label: 'الصيانة', icon: FaTools, featureId: 'MAINTENANCE_VIEW' },
+    { id: 'legal', label: 'الشؤون القانونية', icon: FaBalanceScale, featureId: 'LEGAL_VIEW' },
+    { id: 'contracts', label: 'العقود', icon: FaFileContract, featureId: 'CONTRACTS_VIEW' },
+    { id: 'requests', label: 'الطلبات', icon: FaClipboardList, featureId: 'REQUESTS_VIEW' },
+    { id: 'calendar', label: 'التقويم', icon: FaCalendarAlt, featureId: 'CALENDAR_VIEW' },
+    { id: 'alerts', label: 'التنبيهات', icon: FaBell, featureId: 'ALERTS_VIEW' },
+    { id: 'reviews', label: 'التقييمات', icon: FaComments, featureId: 'REVIEWS_VIEW' },
+    { id: 'ai', label: 'التنبؤات والذكاء', icon: FaBrain, featureId: 'AI_ANALYTICS' },
   ];
+
+  // التحقق من الصلاحيات
+  const featureIds = TABS_DEFINITIONS.map(tab => tab.featureId);
+  const { accessMap, isLoading: permissionsLoading } = useFeatureAccessMultiple(featureIds);
+
+  // فلترة التبويبات المتاحة فقط
+  const TABS = TABS_DEFINITIONS.filter(tab => accessMap[tab.featureId]);
 
   const getPropertyTitle = () => {
     if (!property) return String(id);
@@ -417,6 +425,33 @@ export default function PropertyAdminPage() {
               );
             })}
           </nav>
+
+          {/* إشعار بالتبويبات المقفلة */}
+          {TABS_DEFINITIONS.length > TABS.length && (
+            <div className="px-4 pb-4">
+              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <FaUserShield className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-gray-900 mb-2">
+                      {TABS_DEFINITIONS.length - TABS.length} ميزة إضافية مقفلة
+                    </h4>
+                    <div className="text-sm text-gray-700 mb-3">
+                      الميزات المقفلة: {TABS_DEFINITIONS.filter(t => !accessMap[t.featureId]).map(t => t.label).join(' • ')}
+                    </div>
+                    <Link
+                      href="/subscriptions"
+                      className="inline-block bg-gradient-to-r from-green-600 to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:from-green-700 hover:to-blue-700 transition-all"
+                    >
+                      ترقية الباقة لفتح جميع الميزات →
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Content */}

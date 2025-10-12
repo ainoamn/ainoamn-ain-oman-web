@@ -149,10 +149,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
         // ربط أسماء العقارات
         const transactionsWithPropertyNames = transactions.map(transaction => {
-          const property = properties.find(p => p.id === transaction.propertyId);
+          const foundProperty = properties.find(p => p.id === transaction.propertyId);
           return {
             ...transaction,
-            propertyName: property?.title || transaction.propertyName || 'عقار غير محدد'
+            propertyName: foundProperty?.title || transaction.propertyName || 'عقار غير محدد'
           };
         });
 
@@ -181,9 +181,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           });
         }
 
-        const properties = readProperties();
-        const property = properties.find(p => p.id === propertyId);
-        const propertyName = property?.title || 'عقار غير محدد';
+        const allProperties = readProperties();
+        const foundProperty = allProperties.find(p => p.id === propertyId);
+        const propertyName = foundProperty?.title || 'عقار غير محدد';
 
         const newTransaction = createTransaction({
           type,
