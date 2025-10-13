@@ -1,32 +1,4 @@
 {
-  "items": [
-    {
-      "id": "featured_real_estate",
-      "name": "عقار مميز",
-      "priceOMR": 5,
-      "durationDays": 7,
-      "category": "real_estate",
-      "icon": "🏠",
-      "description": "تمييز العقار 7 أيام",
-      "highlight": true
-    },
-    {
-      "id": "bump_listing",
-      "name": "رفع الإعلان",
-      "priceOMR": 1,
-      "durationDays": 0,
-      "category": "generic",
-      "icon": "⬆️",
-      "description": "رفع للأعلى مرة واحدة"
-    },
-    {
-      "id": "homepage_banner",
-      "name": "راية الصفحة الرئيسية",
-      "priceOMR": 25,
-      "durationDays": 7,
-      "category": "generic",
-      "icon": "🏷️",
-      "description": "ظهور في الراية لمدة أسبوع"
-    }
-  ]
+  "products": [],
+  "lastId": 0
 }

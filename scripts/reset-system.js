@@ -69,6 +69,12 @@ const emptyData = {
     cases: [],
     lastId: 0
   },
+  'legal.json': {
+    cases: [],
+    documents: [],
+    appointments: [],
+    lastId: 0
+  },
   'messages.json': {
     messages: [],
     conversations: [],
@@ -87,6 +93,39 @@ const emptyData = {
   },
   'reservations.json': {
     reservations: [],
+    lastId: 0
+  },
+  'customers.json': {
+    customers: [],
+    lastId: 0
+  },
+  'appointments.json': {
+    appointments: [],
+    lastId: 0
+  },
+  'requests.json': {
+    requests: [],
+    lastId: 0
+  },
+  'ad-orders.json': {
+    orders: [],
+    lastId: 0
+  },
+  'ad-products.json': {
+    products: [],
+    lastId: 0
+  },
+  'coupons.json': {
+    coupons: [],
+    lastId: 0
+  },
+  'db.json': {
+    properties: [],
+    bookings: [],
+    tenants: [],
+    contracts: [],
+    invoices: [],
+    payments: [],
     lastId: 0
   }
 };
