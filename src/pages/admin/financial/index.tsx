@@ -32,17 +32,36 @@ export default function FinancialDashboard() {
   const fetchFinancialSummary = async () => {
     setLoading(true);
     try {
-      const mockSummary: FinancialSummary = {
-        revenue: { total: 125670.50, monthly: 42350.25, growth: 18.5, bySource: { rent: 85420, service: 22150.5, subscription: 12450, auction: 4350, other: 1300 } },
-        expenses: { total: 67850.25, monthly: 22850.75, growth: 12.3, byCategory: { maintenance: 25420, utilities: 15670.5, salaries: 18950, marketing: 4320.75, administrative: 2489, other: 1000 } },
-        profit: { gross: 57820.25, net: 45420.80, margin: 36.2 },
-        cashFlow: { operating: 48250.50, investing: -15000.00, financing: -8500.00, net: 24750.50 },
-        receivables: { total: 34580, current: 28450, overdue: 6130, doubtful: 850 },
-        payables: { total: 18920, current: 15670, overdue: 3250 }
-      };
-      setSummary(mockSummary);
+      // جلب البيانات الفعلية من قاعدة البيانات
+      const response = await fetch('/api/financial/summary');
+      
+      if (response.ok) {
+        const data = await response.json();
+        setSummary(data);
+      } else {
+        // في حالة عدم وجود API، استخدم بيانات فارغة (النظام مُصفّر)
+        const emptySummary: FinancialSummary = {
+          revenue: { total: 0, monthly: 0, growth: 0, bySource: { rent: 0, service: 0, subscription: 0, auction: 0, other: 0 } },
+          expenses: { total: 0, monthly: 0, growth: 0, byCategory: { maintenance: 0, utilities: 0, salaries: 0, marketing: 0, administrative: 0, other: 0 } },
+          profit: { gross: 0, net: 0, margin: 0 },
+          cashFlow: { operating: 0, investing: 0, financing: 0, net: 0 },
+          receivables: { total: 0, current: 0, overdue: 0, doubtful: 0 },
+          payables: { total: 0, current: 0, overdue: 0 }
+        };
+        setSummary(emptySummary);
+      }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching financial summary:', error);
+      // في حالة الخطأ، عرض بيانات فارغة (النظام مُصفّر)
+      const emptySummary: FinancialSummary = {
+        revenue: { total: 0, monthly: 0, growth: 0, bySource: { rent: 0, service: 0, subscription: 0, auction: 0, other: 0 } },
+        expenses: { total: 0, monthly: 0, growth: 0, byCategory: { maintenance: 0, utilities: 0, salaries: 0, marketing: 0, administrative: 0, other: 0 } },
+        profit: { gross: 0, net: 0, margin: 0 },
+        cashFlow: { operating: 0, investing: 0, financing: 0, net: 0 },
+        receivables: { total: 0, current: 0, overdue: 0, doubtful: 0 },
+        payables: { total: 0, current: 0, overdue: 0 }
+      };
+      setSummary(emptySummary);
     } finally {
       setLoading(false);
     }

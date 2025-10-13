@@ -409,11 +409,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         // قراءة التقارير
         let reports = readReports();
         
-        // إنشاء بيانات تجريبية إذا لم تكن موجودة
-        if (reports.length === 0) {
-          reports = createSampleReports();
-          writeReports(reports);
-        }
+        // عدم إنشاء بيانات تجريبية - النظام مُصفّر
+        // if (reports.length === 0) {
+        //   reports = createSampleReports();
+        //   writeReports(reports);
+        // }
 
         const { 
           type, 
