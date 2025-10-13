@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start -p 3000"
+    "start": "next start -p 3000",
+    "reset": "node scripts/reset-system.js",
+    "reset:full": "node scripts/reset-system.js && echo ✅ النظام جاهز للبدء من الصفر!"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
