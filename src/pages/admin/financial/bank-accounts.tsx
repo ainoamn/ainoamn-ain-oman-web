@@ -1,5 +1,5 @@
 // src/pages/admin/financial/bank-accounts.tsx - نظام الحسابات البنكية المتقدم
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import {
@@ -11,52 +11,27 @@ import { AccountingTerm } from '@/components/common/SmartTooltip';
 
 export default function BankAccountsPage() {
   const router = useRouter();
-  const [accounts, setAccounts] = useState<BankAccount[]>([
-    {
-      id: 'bank_1',
-      accountName: 'الحساب الجاري الرئيسي',
-      accountNumber: '0123456789',
-      iban: 'OM23 001 0123456789012345',
-      bankName: 'بنك مسقط',
-      bankCode: '001',
-      branchName: 'فرع الخوير',
-      swiftCode: 'BMUSOMRX',
-      accountType: 'current',
-      currency: 'OMR',
-      openingBalance: 0, // تم تصفير من 50000
-      currentBalance: 0, // تم تصفير من 67850.50
-      availableBalance: 0, // تم تصفير من 67850.50
-      overdraftLimit: 0,
-      accountingAccountId: 'acc_1120',
-      isActive: true,
-      isPrimary: true,
-      openedDate: '2024-01-01',
-      lastReconciliationDate: '2025-01-10',
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2025-01-15T10:00:00Z'
-    },
-    {
-      id: 'bank_2',
-      accountName: 'حساب التوفير',
-      accountNumber: '9876543210',
-      iban: 'OM23 002 9876543210123456',
-      bankName: 'البنك الوطني العُماني',
-      bankCode: '002',
-      swiftCode: 'NBOMOMRX',
-      accountType: 'savings',
-      currency: 'OMR',
-      openingBalance: 0, // تم تصفير من 100000
-      currentBalance: 0, // تم تصفير من 125420.75
-      availableBalance: 0, // تم تصفير من 125420.75
-      overdraftLimit: 0,
-      accountingAccountId: 'acc_1120',
-      isActive: true,
-      isPrimary: false,
-      openedDate: '2024-03-01',
-      createdAt: '2024-03-01T00:00:00Z',
-      updatedAt: '2025-01-15T10:00:00Z'
-    }
-  ]);
+  const [accounts, setAccounts] = useState<BankAccount[]>([]); // تم إزالة البيانات الوهمية - يتم الجلب من API
+  const [loading, setLoading] = useState(true);
+
+  // جلب البيانات من API
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const response = await fetch('/api/financial/bank-accounts');
+        if (response.ok) {
+          const data = await response.json();
+          setAccounts(data.accounts || []);
+        }
+      } catch (error) {
+        console.error('Error fetching bank accounts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchAccounts();
+  }, []);
   
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
