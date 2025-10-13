@@ -87,9 +87,9 @@ export default function SalesIndexPage() {
 
   const stats = {
     totalInvoices: 127,
-    totalRevenue: 345670,
-    pendingAmount: 45320,
-    thisMonth: 89540
+    totalRevenue: 0 // تم تصفير من 345670,
+    pendingAmount: 0 // تم تصفير من 45320,
+    thisMonth: 0 // تم تصفير من 89540
   };
 
   return (

@@ -57,9 +57,9 @@ export default function PurchasesIndexPage() {
 
   const stats = {
     totalPurchases: 78,
-    totalExpenses: 234560,
-    pendingPayments: 45320,
-    thisMonth: 67890
+    totalExpenses: 0 // تم تصفير من 234560,
+    pendingPayments: 0 // تم تصفير من 45320,
+    thisMonth: 0 // تم تصفير من 67890
   };
 
   return (
