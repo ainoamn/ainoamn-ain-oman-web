@@ -26,53 +26,7 @@ export default function PaymentsPage() {
   const fetchPayments = async () => {
     setLoading(true);
     try {
-      const mockPayments: Payment[] = [
-        {
-          id: 'pay_1',
-          paymentNumber: 'PAY-2025-0001',
-          invoiceId: 'inv_1',
-          payerId: 'tenant_1',
-          payerName: 'أحمد محمد السالمي',
-          receiverId: 'landlord_1',
-          receiverName: 'شركة العقارات',
-          amount: 525,
-          currency: 'OMR',
-          method: 'bank_transfer',
-          status: 'completed',
-          paymentDate: '2025-01-10',
-          processedDate: '2025-01-10',
-          referenceNumber: 'TRF20250110001',
-          bankName: 'بنك مسقط',
-          accountNumber: '****1234',
-          transactionId: 'TXN123456789',
-          debitAccountId: 'acc_1120',
-          creditAccountId: 'acc_4110',
-          notes: 'دفع إيجار يناير 2025',
-          createdAt: '2025-01-10T14:30:00Z',
-          updatedAt: '2025-01-10T14:35:00Z'
-        },
-        {
-          id: 'pay_2',
-          paymentNumber: 'PAY-2025-0002',
-          invoiceId: 'inv_3',
-          payerId: 'user_3',
-          payerName: 'سالم بن راشد الغافري',
-          receiverId: 'admin_1',
-          receiverName: 'عين عُمان',
-          amount: 600,
-          currency: 'OMR',
-          method: 'credit_card',
-          status: 'completed',
-          paymentDate: '2025-01-15',
-          processedDate: '2025-01-15',
-          transactionId: 'CC987654321',
-          debitAccountId: 'acc_1120',
-          creditAccountId: 'acc_4300',
-          notes: 'دفعة أولى للاشتراك السنوي',
-          createdAt: '2025-01-15T11:00:00Z',
-          updatedAt: '2025-01-15T11:05:00Z'
-        }
-      ];
+      const mockPayments: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
 
       setPayments(mockPayments);
     } catch (error) {

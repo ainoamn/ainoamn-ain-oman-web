@@ -85,37 +85,7 @@ export default function QuotationsPage() {
   }, []);
 
   const loadQuotations = () => {
-    const mockQuotations: Quotation[] = [
-      {
-        id: '1',
-        quotationNumber: 'QUO-2025-001',
-        customer: { id: 'CUST-001', name: 'أحمد السالمي', email: 'ahmed@example.com', phone: '+96891234567' },
-        date: '2025-10-01',
-        validUntil: '2025-11-01',
-        currency: 'OMR',
-        items: [
-          {
-            id: '1',
-            description: 'خدمة صيانة شاملة',
-            account: '4200',
-            quantity: 12,
-            unitPrice: 1000,
-            discountPercent: 10,
-            discountAmount: 1200,
-            subtotal: 12000,
-            taxRate: 0,
-            taxAmount: 0,
-            total: 10800
-          }
-        ],
-        subtotal: 12000,
-        totalDiscount: 1200,
-        totalTax: 0,
-        total: 10800,
-        status: 'pending',
-        createdAt: '2025-10-01T10:00:00Z'
-      }
-    ];
+    const mockQuotations: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
     setQuotations(mockQuotations);
   };
 

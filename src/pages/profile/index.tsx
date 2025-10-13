@@ -116,46 +116,7 @@ export default function ProfilePage() {
     setLoading(true);
     try {
       // محاكاة بيانات المستخدم
-      const mockUser: User = {
-        id: '1',
-        name: 'أحمد محمد السالمي',
-        email: 'ahmed@example.com',
-        phone: '+968 9123 4567',
-        role: 'property_landlord',
-        avatar: '/avatars/ahmed.jpg',
-        company: 'شركة السالمي العقارية',
-        location: 'مسقط، سلطنة عُمان',
-        subscription: {
-          planName: 'الخطة المعيارية',
-          status: 'active',
-          expiryDate: '2025-12-31',
-          remainingDays: 350
-        },
-        stats: {
-          properties: 12,
-          units: 45,
-          bookings: 23,
-          revenue: 15420.50,
-          tasks: 8,
-          legalCases: 2
-        },
-        permissions: [
-          'إدارة العقارات',
-          'إدارة الحجوزات',
-          'إدارة الفواتير',
-          'إدارة المهام',
-          'التقارير المالية'
-        ],
-        lastLogin: '2025-01-15T10:30:00Z',
-        loginCount: 156,
-        ipAddress: '192.168.1.100',
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        documents: [
-          { type: 'id', name: 'بطاقة الهوية', url: '/docs/ahmed_id.pdf', verified: true },
-          { type: 'license', name: 'رخصة تجارية', url: '/docs/ahmed_license.pdf', verified: true },
-          { type: 'bank', name: 'البيانات البنكية', url: '/docs/ahmed_bank.pdf', verified: true }
-        ]
-      };
+      // const mockUser تم إزالة البيانات الوهمية
 
       setUser(mockUser);
       generateAIInsights(mockUser);

@@ -52,37 +52,29 @@ export default function DashboardRouter() {
   const loadUserData = async () => {
     setLoading(true);
     try {
-      // محاكاة بيانات المستخدم
-      const mockUser: User = {
-        id: '1',
-        name: 'أحمد محمد السالمي',
-        email: 'ahmed@example.com',
-        phone: '+968 9123 4567',
-        role: 'property_landlord',
-        avatar: '/avatars/ahmed.jpg',
-        company: 'شركة السالمي العقارية',
-        subscription: {
-          planName: 'الخطة المعيارية',
-          status: 'active',
-          expiryDate: '2025-12-31',
-          remainingDays: 350
-        },
-        lastLogin: '2025-01-15T10:30:00Z',
-        loginCount: 156
-      };
+      // جلب بيانات المستخدم الفعلية من API
+      const response = await fetch('/api/auth/me');
+      
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData.user);
+        generateAvailableDashboards(userData.user);
 
-      setUser(mockUser);
-      generateAvailableDashboards(mockUser);
-
-      // التوجيه التلقائي بعد 2 ثانية
-      if (autoRedirect) {
-        setTimeout(() => {
-          const dashboardPath = getDashboardPath(mockUser.role);
-          router.push(dashboardPath);
-        }, 2000);
+        // التوجيه التلقائي بعد 2 ثانية
+        if (autoRedirect) {
+          setTimeout(() => {
+            const dashboardPath = getDashboardPath(userData.user.role);
+            router.push(dashboardPath);
+          }, 2000);
+        }
+      } else {
+        // المستخدم غير مسجل دخول - التوجيه لصفحة تسجيل الدخول
+        router.push('/login');
       }
     } catch (error) {
       console.error('Error loading user data:', error);
+      // في حالة الخطأ، التوجيه لصفحة تسجيل الدخول
+      router.push('/login');
     } finally {
       setLoading(false);
     }

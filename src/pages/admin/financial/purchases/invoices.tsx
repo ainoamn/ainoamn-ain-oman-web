@@ -78,25 +78,7 @@ export default function PurchaseInvoicesPage() {
   }, []);
 
   const loadInvoices = () => {
-    const mockInvoices: PurchaseInvoice[] = [
-      {
-        id: '1',
-        invoiceNumber: 'PUR-2025-000001',
-        vendor: { id: 'VEND-001', name: 'شركة التوريدات' },
-        currency: 'OMR',
-        date: '2025-10-01',
-        dueDate: '2025-10-15',
-        country: 'عُمان',
-        items: [],
-        subtotal: 5000,
-        totalTax: 0,
-        total: 5000,
-        amountPaid: 2500,
-        balance: 2500,
-        status: 'received',
-        createdAt: '2025-10-01T10:00:00Z'
-      }
-    ];
+    const mockInvoices: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
     setInvoices(mockInvoices);
   };
 

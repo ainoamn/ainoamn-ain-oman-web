@@ -26,74 +26,7 @@ export default function ChecksPage() {
   const fetchChecks = async () => {
     setLoading(true);
     try {
-      const mockChecks: Check[] = [
-        {
-          id: 'chk_1',
-          checkNumber: 'CHK-1001',
-          type: 'received',
-          status: 'cleared',
-          issuerId: 'tenant_1',
-          issuerName: 'أحمد محمد السالمي',
-          beneficiaryId: 'landlord_1',
-          beneficiaryName: 'شركة العقارات',
-          bankName: 'بنك مسقط',
-          branchName: 'فرع الخوير',
-          accountNumber: '****1234',
-          amount: 500,
-          currency: 'OMR',
-          issueDate: '2025-01-01',
-          dueDate: '2025-01-15',
-          depositDate: '2025-01-02',
-          clearanceDate: '2025-01-10',
-          invoiceId: 'inv_1',
-          propertyId: 'prop_1',
-          notes: 'شيك إيجار يناير',
-          createdAt: '2025-01-01T08:00:00Z',
-          updatedAt: '2025-01-10T10:00:00Z'
-        },
-        {
-          id: 'chk_2',
-          checkNumber: 'CHK-2002',
-          type: 'received',
-          status: 'bounced',
-          issuerId: 'tenant_2',
-          issuerName: 'فاطمة علي الشنفري',
-          beneficiaryId: 'landlord_1',
-          beneficiaryName: 'شركة العقارات',
-          bankName: 'البنك الوطني العُماني',
-          accountNumber: '****5678',
-          amount: 300,
-          currency: 'OMR',
-          issueDate: '2024-12-20',
-          dueDate: '2025-01-05',
-          depositDate: '2024-12-21',
-          bouncedDate: '2025-01-06',
-          bouncedReason: 'رصيد غير كاف',
-          invoiceId: 'inv_2',
-          notes: 'شيك مرتد - تم التواصل مع العميل',
-          createdAt: '2024-12-20T09:00:00Z',
-          updatedAt: '2025-01-06T11:00:00Z'
-        },
-        {
-          id: 'chk_3',
-          checkNumber: 'CHK-3003',
-          type: 'issued',
-          status: 'pending',
-          issuerId: 'landlord_1',
-          issuerName: 'شركة العقارات',
-          beneficiaryId: 'vendor_1',
-          beneficiaryName: 'شركة الصيانة المتقدمة',
-          bankName: 'بنك مسقط',
-          accountNumber: '****9876',
-          amount: 450,
-          currency: 'OMR',
-          issueDate: '2025-01-12',
-          dueDate: '2025-02-01',
-          notes: 'دفع خدمات الصيانة',
-          createdAt: '2025-01-12T10:00:00Z',
-          updatedAt: '2025-01-12T10:00:00Z'
-        }
-      ];
+      const mockChecks: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
 
       setChecks(mockChecks);
     } catch (error) {

@@ -22,47 +22,7 @@ export default function BalanceSheetPage() {
     setLoading(true);
     try {
       // بيانات تجريبية للميزانية
-      const mockBalanceSheet: BalanceSheet = {
-        asOfDate,
-        assets: {
-          currentAssets: {
-            cash: 45670.50,
-            accountsReceivable: 34580.00,
-            inventory: 0,
-            prepaidExpenses: 5420.00,
-            total: 85670.50
-          },
-          fixedAssets: {
-            property: 850000.00,
-            equipment: 25000.00,
-            vehicles: 15000.00,
-            accumulatedDepreciation: -45000.00,
-            total: 845000.00
-          },
-          total: 930670.50
-        },
-        liabilities: {
-          currentLiabilities: {
-            accountsPayable: 18920.00,
-            shortTermLoans: 15000.00,
-            accruedExpenses: 8540.00,
-            total: 42460.00
-          },
-          longTermLiabilities: {
-            mortgages: 450000.00,
-            longTermLoans: 80000.00,
-            total: 530000.00
-          },
-          total: 572460.00
-        },
-        equity: {
-          capital: 250000.00,
-          retainedEarnings: 62790.70,
-          currentYearProfit: 45419.80,
-          total: 358210.50
-        },
-        totalLiabilitiesAndEquity: 930670.50
-      };
+      // const mockBalanceSheet تم إزالة البيانات الوهمية
 
       setBalanceSheet(mockBalanceSheet);
     } catch (error) {

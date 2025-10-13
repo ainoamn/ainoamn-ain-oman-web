@@ -38,60 +38,7 @@ export default function ReceivablesPage() {
     setLoading(true);
     try {
       // بيانات تجريبية
-      const mockReceivables: CustomerReceivable[] = [
-        {
-          customerId: 'cust_1',
-          customerName: 'أحمد محمد السالمي',
-          customerEmail: 'ahmed@example.com',
-          customerPhone: '+968 9123 4567',
-          totalOutstanding: 1500,
-          current: 500,
-          overdue30: 600,
-          overdue60: 400,
-          overdue90: 0,
-          oldestInvoiceDate: '2024-11-15',
-          invoiceCount: 3,
-          behavior: {
-            customerId: 'cust_1',
-            customerName: 'أحمد محمد السالمي',
-            paymentScore: 65,
-            averageDelayDays: 12,
-            totalInvoices: 8,
-            paidOnTime: 4,
-            paidLate: 2,
-            unpaid: 2,
-            riskLevel: 'medium',
-            recommendation: '⚡ عميل متوسط المخاطر - متابعة دورية ضرورية',
-            predictedNextPayment: '2025-02-15'
-          }
-        },
-        {
-          customerId: 'cust_2',
-          customerName: 'شركة البناء المتقدم',
-          customerEmail: 'info@building.com',
-          customerPhone: '+968 9876 5432',
-          totalOutstanding: 4500,
-          current: 0,
-          overdue30: 1500,
-          overdue60: 1500,
-          overdue90: 1500,
-          oldestInvoiceDate: '2024-09-01',
-          invoiceCount: 5,
-          behavior: {
-            customerId: 'cust_2',
-            customerName: 'شركة البناء المتقدم',
-            paymentScore: 35,
-            averageDelayDays: 45,
-            totalInvoices: 12,
-            paidOnTime: 2,
-            paidLate: 5,
-            unpaid: 5,
-            riskLevel: 'high',
-            recommendation: '⚠️ عميل عالي المخاطر - يُنصح بطلب دفعات مقدمة أو تأمينات إضافية',
-            predictedNextPayment: '2025-03-20'
-          }
-        }
-      ];
+      const mockReceivables: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
 
       setReceivables(mockReceivables);
     } catch (error) {

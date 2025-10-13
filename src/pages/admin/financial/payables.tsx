@@ -35,22 +35,7 @@ export default function PayablesPage() {
   const fetchPayables = async () => {
     setLoading(true);
     try {
-      const mockPayables: VendorPayable[] = [
-        {
-          vendorId: 'vendor_1',
-          vendorName: 'شركة الصيانة المتقدمة',
-          vendorEmail: 'maintenance@company.com',
-          vendorPhone: '+968 9234 5678',
-          totalOwed: 3200,
-          current: 1500,
-          overdue30: 1200,
-          overdue60: 500,
-          overdue90: 0,
-          nextDueDate: '2025-01-25',
-          nextDueAmount: 800,
-          billCount: 4
-        }
-      ];
+      const mockPayables: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
 
       setPayables(mockPayables);
     } catch (error) {

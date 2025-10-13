@@ -91,34 +91,7 @@ export default function SalesInvoicesPage() {
   }, []);
 
   const loadInvoices = () => {
-    const mockInvoices: SalesInvoice[] = [
-      {
-        id: '1',
-        invoiceNumber: 'INV-2025-001',
-        customer: {
-          id: 'CUST-001',
-          name: 'أحمد السالمي',
-          email: 'ahmed@example.com',
-          phone: '+96891234567',
-          taxId: 'TAX-123456'
-        },
-        currency: 'OMR',
-        date: '2025-10-01',
-        dueDate: '2025-10-31',
-        paymentTerms: 30,
-        items: [],
-        subtotal: 1000,
-        totalDiscount: 100,
-        totalTax: 0,
-        total: 900,
-        amountPaid: 500,
-        balance: 400,
-        status: 'partial',
-        createdBy: 'admin',
-        createdAt: '2025-10-01T10:00:00Z',
-        updatedAt: '2025-10-01T10:00:00Z'
-      }
-    ];
+    const mockInvoices: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
     setInvoices(mockInvoices);
   };
 
