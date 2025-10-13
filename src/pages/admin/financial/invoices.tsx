@@ -27,7 +27,7 @@ export default function InvoicesPage() {
     setLoading(true);
     try {
       // بيانات تجريبية للفواتير
-      const mockInvoices: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
+      const mockInvoices: any[] = []; // تم إزالة البيانات الوهمية // تم إزالة البيانات الوهمية - يتم الجلب من API
 
       setInvoices([]); // تم استبدال mockInvoices ببيانات فارغة
     } catch (error) {

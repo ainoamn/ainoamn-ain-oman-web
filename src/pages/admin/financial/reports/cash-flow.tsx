@@ -5,8 +5,8 @@ import { FiActivity } from 'react-icons/fi';
 
 export default function CashFlowPage() {
   const data = {
-    operating: 48250, investing: -15000, financing: -8500,
-    beginning: 35000, ending: 59750
+    operating: 0, investing: 0, financing: 0, // تم تصفير البيانات الوهمية
+    beginning: 0, ending: 0 // تم تصفير البيانات الوهمية
   };
 
   return (

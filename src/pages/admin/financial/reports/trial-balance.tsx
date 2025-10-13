@@ -5,8 +5,8 @@ import { FiCheckCircle } from 'react-icons/fi';
 import { CHART_OF_ACCOUNTS } from '@/lib/chart-of-accounts';
 
 export default function TrialBalancePage() {
-  const totalDebit = 930670.50;
-  const totalCredit = 930670.50;
+  const totalDebit = 0; // تم تصفير البيانات الوهمية
+  const totalCredit = 0; // تم تصفير البيانات الوهمية
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">

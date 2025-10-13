@@ -4,7 +4,7 @@ import Head from 'next/head';
 import { FiTrendingUp } from 'react-icons/fi';
 
 export default function ProfitLossPage() {
-  const profit = 59980;
+  const profit = 0; // تم تصفير البيانات الوهمية
   
   return (
     <div className="min-h-screen bg-gray-50 p-8">

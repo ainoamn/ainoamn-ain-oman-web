@@ -5,9 +5,9 @@ import { FiBarChart, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
 
 export default function IncomeStatementPage() {
   const data = {
-    revenue: { rent: 85420, service: 22150, subscription: 12450, total: 120020 },
-    expenses: { maintenance: 25420, utilities: 15670, salaries: 18950, total: 60040 },
-    netIncome: 59980
+    revenue: { rent: 0, service: 0, subscription: 0, total: 0 }, // تم تصفير البيانات الوهمية
+    expenses: { maintenance: 0, utilities: 0, salaries: 0, total: 0 }, // تم تصفير البيانات الوهمية
+    netIncome: 0 // تم تصفير البيانات الوهمية
   };
 
   return (

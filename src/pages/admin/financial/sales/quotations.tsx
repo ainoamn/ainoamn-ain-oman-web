@@ -85,7 +85,7 @@ export default function QuotationsPage() {
   }, []);
 
   const loadQuotations = () => {
-    const mockQuotations: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
+    const mockQuotations: any[] = []; // تم إزالة البيانات الوهمية // تم إزالة البيانات الوهمية - يتم الجلب من API
     setQuotations([]); // تم استبدال mockQuotations ببيانات فارغة
   };
 

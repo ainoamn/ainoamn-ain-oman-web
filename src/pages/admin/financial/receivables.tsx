@@ -38,7 +38,7 @@ export default function ReceivablesPage() {
     setLoading(true);
     try {
       // بيانات تجريبية
-      const mockReceivables: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
+      const mockReceivables: any[] = []; // تم إزالة البيانات الوهمية // تم إزالة البيانات الوهمية - يتم الجلب من API
 
       setReceivables([]); // تم استبدال mockReceivables ببيانات فارغة
     } catch (error) {
