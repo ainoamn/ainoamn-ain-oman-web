@@ -26,7 +26,7 @@ export default function SalesIndexPage() {
       description: 'فواتير البيع والخدمات المتقدمة',
       icon: FiShoppingCart,
       color: 'green',
-      count: 0 /* 127 */,
+      count: 0, /* 127 */
       path: '/admin/financial/sales/invoices'
     },
     {
@@ -86,9 +86,9 @@ export default function SalesIndexPage() {
   ];
 
   const stats = {
-    totalInvoices: 0 /* 127 */,
-    totalRevenue: 0 // تم تصفير من 345670,
-    pendingAmount: 0 // تم تصفير من 45320,
+    totalInvoices: 0, /* 127 */
+    totalRevenue: 0, // تم تصفير من 345670
+    pendingAmount: 0, // تم تصفير من 45320
     thisMonth: 0 // تم تصفير من 89540
   };
 

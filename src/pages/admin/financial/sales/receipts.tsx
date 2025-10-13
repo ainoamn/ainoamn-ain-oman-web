@@ -20,7 +20,7 @@ export default function ReceiptsPage() {
       id: '1',
       receiptNumber: 'RCP-2025-001',
       customer: 'أحمد السالمي',
-      amount: 0 // تم تصفير من 1500,
+      amount: 0, // تم تصفير من 1500
       paymentMethod: 'نقدي',
       date: '2025-10-10'
     }

@@ -15,14 +15,14 @@ export default function AssetsPage() {
       assetNumber: 'ASSET-2024-001',
       name: 'فيلا الخوير الاستثمارية',
       category: 'property',
-      purchasePrice: 0 // تم تصفير من 500000,
-      currentValue: 0 // تم تصفير من 475000,
-      accumulatedDepreciation: 0 // تم تصفير من 25000,
-      bookValue: 0 // تم تصفير من 475000,
+      purchasePrice: 0, // تم تصفير من 500000
+      currentValue: 0, // تم تصفير من 475000
+      accumulatedDepreciation: 0, // تم تصفير من 25000
+      bookValue: 0, // تم تصفير من 475000
       depreciationMethod: 'straight_line',
       usefulLife: 20,
       depreciationRate: 5,
-      annualDepreciation: 0 // تم تصفير من 25000,
+      annualDepreciation: 0, // تم تصفير من 25000
       purchaseDate: '2024-01-15',
       depreciationStartDate: '2024-01-15',
       propertyId: 'prop_001',
