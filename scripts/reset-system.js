@@ -127,6 +127,14 @@ const emptyData = {
     invoices: [],
     payments: [],
     lastId: 0
+  },
+  'reports.json': {
+    reports: [],
+    lastId: 0
+  },
+  'auctions.json': {
+    auctions: [],
+    lastId: 0
   }
 };
 
