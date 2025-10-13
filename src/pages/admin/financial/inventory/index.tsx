@@ -14,7 +14,7 @@ export default function InventoryIndexPage() {
       description: 'إدارة المنتجات والخدمات',
       icon: FiPackage,
       color: 'blue',
-      count: 145,
+      count: 0, // تم تصفير
       path: '/admin/financial/inventory/products'
     },
     {
@@ -23,7 +23,7 @@ export default function InventoryIndexPage() {
       description: 'تعديلات الجرد والكميات',
       icon: FiTrendingUp,
       color: 'orange',
-      count: 23,
+      count: 0, // تم تصفير
       path: '/admin/financial/inventory/adjustments'
     },
     {
@@ -32,7 +32,7 @@ export default function InventoryIndexPage() {
       description: 'إدارة المستودعات والمخازن',
       icon: FiHome,
       color: 'purple',
-      count: 3,
+      count: 0, // تم تصفير
       path: '/admin/financial/inventory/warehouses'
     }
   ];
@@ -54,20 +54,20 @@ export default function InventoryIndexPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-sm p-6">
             <p className="text-sm text-gray-600">إجمالي المنتجات</p>
-            <p className="text-3xl font-bold text-gray-900">145</p>
+            <p className="text-3xl font-bold text-gray-900">0</p>
           </div>
           <div className="bg-green-50 rounded-xl shadow-sm p-6 border border-green-200">
             <p className="text-sm text-gray-600">قيمة المخزون</p>
-            <p className="text-2xl font-bold text-green-600">234,560</p>
+            <p className="text-2xl font-bold text-green-600">0</p>
             <p className="text-xs text-gray-500">ريال عُماني</p>
           </div>
           <div className="bg-orange-50 rounded-xl shadow-sm p-6 border border-orange-200">
             <p className="text-sm text-gray-600">منتجات منخفضة</p>
-            <p className="text-3xl font-bold text-orange-600">12</p>
+            <p className="text-3xl font-bold text-orange-600">0</p>
           </div>
           <div className="bg-red-50 rounded-xl shadow-sm p-6 border border-red-200">
             <p className="text-sm text-gray-600">نفدت الكمية</p>
-            <p className="text-3xl font-bold text-red-600">3</p>
+            <p className="text-3xl font-bold text-red-600">0</p>
           </div>
         </div>
 
