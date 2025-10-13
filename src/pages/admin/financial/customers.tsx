@@ -26,62 +26,20 @@ export default function CustomersPage() {
   const fetchContacts = async () => {
     setLoading(true);
     try {
-      // بيانات تجريبية
-      const mockContacts: Contact[] = [
-        {
-          id: 'contact_1',
-          type: 'customer',
-          name: 'أحمد محمد السالمي',
-          companyName: 'شركة السالمي التجارية',
-          taxId: 'OM123456789',
-          email: 'ahmed@alsalmi.com',
-          phone: '+968 9123 4567',
-          mobile: '+968 9123 4567',
-          address: {
-            street: 'شارع السلطان قابوس',
-            city: 'مسقط',
-            state: 'محافظة مسقط',
-            country: 'سلطنة عُمان',
-            postalCode: '100'
-          },
-          currency: 'OMR',
-          paymentTerms: 30,
-          creditLimit: 10000,
-          currentBalance: 1500,
-          category: 'VIP',
-          tags: ['مستأجر', 'منتظم'],
-          isActive: true,
-          isVerified: true,
-          createdAt: '2024-06-15T08:00:00Z',
-          updatedAt: '2025-01-15T10:00:00Z'
-        },
-        {
-          id: 'contact_2',
-          type: 'vendor',
-          name: 'شركة الصيانة المتقدمة',
-          taxId: 'OM987654321',
-          commercialRegistration: 'CR-2024-5678',
-          email: 'info@maintenance.com',
-          phone: '+968 2465 7890',
-          address: {
-            city: 'مسقط',
-            country: 'سلطنة عُمان'
-          },
-          currency: 'OMR',
-          paymentTerms: 15,
-          creditLimit: 0,
-          currentBalance: -3200,
-          category: 'مورد خدمات',
-          isActive: true,
-          isVerified: true,
-          createdAt: '2024-08-01T09:00:00Z',
-          updatedAt: '2025-01-12T14:00:00Z'
-        }
-      ];
-
-      setContacts(mockContacts);
+      // جلب البيانات الفعلية من قاعدة البيانات
+      const response = await fetch('/api/financial/contacts');
+      
+      if (response.ok) {
+        const data = await response.json();
+        setContacts(data.contacts || []);
+      } else {
+        // النظام مُصفّر - لا توجد جهات اتصال
+        setContacts([]);
+      }
     } catch (error) {
       console.error('Error fetching contacts:', error);
+      // في حالة الخطأ، عرض قائمة فارغة (النظام مُصفّر)
+      setContacts([]);
     } finally {
       setLoading(false);
     }
@@ -218,22 +176,23 @@ export default function CustomersPage() {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الاسم</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">النوع</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الاتصال</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الرصيد</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">شروط الدفع</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">إجراءات</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredContacts.map((contact) => (
+        {/* Table or Empty State */}
+        {filteredContacts.length > 0 ? (
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الاسم</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">النوع</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الاتصال</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الرصيد</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">شروط الدفع</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">إجراءات</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredContacts.map((contact) => (
                 <tr key={contact.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div className="font-medium text-gray-900">{contact.name}</div>
@@ -308,10 +267,33 @@ export default function CustomersPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+            <FiUsers className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">لا يوجد عملاء أو موردين</h3>
+            <p className="text-gray-500 mb-6">ابدأ بإضافة جهة اتصال جديدة أو استيراد من نظام آخر</p>
+            <div className="flex justify-center gap-3">
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+              >
+                <FiPlus />
+                إضافة جهة اتصال
+              </button>
+              <button
+                onClick={() => setShowImportModal(true)}
+                className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 flex items-center gap-2"
+              >
+                <FiUpload />
+                استيراد
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Create Contact Modal */}
         {showCreateModal && (
