@@ -406,28 +406,7 @@ function PropertyDetailsPage() {
     setReviewsLoading(true);
     try {
       // محاكاة بيانات التعليقات
-      const mockReviews: Review[] = [
-        {
-          id: '1',
-          userId: 'user1',
-          userName: 'أحمد محمد',
-          rating: 5,
-          comment: 'عقار رائع في موقع ممتاز، أنصح به بشدة',
-          date: '2025-01-15',
-          helpful: 12,
-          verified: true
-        },
-        {
-          id: '2',
-          userId: 'user2',
-          userName: 'فاطمة علي',
-          rating: 4,
-          comment: 'جيد جداً ولكن يحتاج بعض التحسينات',
-          date: '2025-01-10',
-          helpful: 8,
-          verified: true
-        }
-      ];
+      const mockReviews: Review[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
       
       setReviews(mockReviews);
     } catch (error) {
@@ -440,14 +419,7 @@ function PropertyDetailsPage() {
   // تحميل الإحصائيات
   const loadStatistics = async () => {
     try {
-      const mockStats: Statistics = {
-        views: Math.floor(Math.random() * 1000) + 100,
-        favorites: Math.floor(Math.random() * 50) + 10,
-        shares: Math.floor(Math.random() * 30) + 5,
-        inquiries: Math.floor(Math.random() * 20) + 3,
-        avgRating: 4.2 + Math.random() * 0.8,
-        totalReviews: Math.floor(Math.random() * 50) + 10
-      };
+      const mockStats: Statistics = { views: 0, favorites: 0, shares: 0, bookings: 0, avgRating: 0 }; // من API
       
       setStatistics(mockStats);
     } catch (error) {
@@ -632,30 +604,7 @@ function PropertyDetailsPage() {
   const loadPropertyRatings = async () => {
     try {
       // محاكاة بيانات تقييمات العقار
-      const mockRatings: PropertyRating[] = [
-        {
-          id: '1',
-          userId: 'user1',
-          userName: 'أحمد محمد',
-          userType: 'tenant',
-          rating: 5,
-          comment: 'عقار رائع، موقع ممتاز ومرافق متكاملة',
-          date: '2025-01-15',
-          helpful: 12,
-          verified: true
-        },
-        {
-          id: '2',
-          userId: 'user2',
-          userName: 'فاطمة علي',
-          userType: 'buyer',
-          rating: 4,
-          comment: 'جيد جداً ولكن يحتاج بعض التحسينات',
-          date: '2025-01-10',
-          helpful: 8,
-          verified: true
-        }
-      ];
+      const mockRatings: PropertyRating[] = []; // تم إزالة البيانات الوهمية
       setPropertyRatings(mockRatings);
     } catch (error) {
       console.error('Error loading property ratings:', error);
@@ -665,20 +614,7 @@ function PropertyDetailsPage() {
   // Load Company Ratings
   const loadCompanyRatings = async () => {
     try {
-      const mockRatings: CompanyRating[] = [
-        {
-          id: '1',
-          userId: 'user1',
-          userName: 'محمد أحمد',
-          companyId: 'comp1',
-          companyName: 'شركة الإدارة العقارية',
-          rating: 4,
-          comment: 'خدمة جيدة وسريعة في الاستجابة',
-          date: '2025-01-12',
-          helpful: 6,
-          verified: true
-        }
-      ];
+      const mockRatings: CompanyRating[] = []; // تم إزالة البيانات الوهمية
       setCompanyRatings(mockRatings);
     } catch (error) {
       console.error('Error loading company ratings:', error);
@@ -688,18 +624,7 @@ function PropertyDetailsPage() {
   // Load Service Ratings
   const loadServiceRatings = async () => {
     try {
-      const mockRatings: ServiceRating[] = [
-        {
-          id: '1',
-          userId: 'user1',
-          userName: 'سارة محمد',
-          serviceType: 'maintenance',
-          rating: 5,
-          comment: 'خدمة الصيانة ممتازة وسريعة',
-          date: '2025-01-08',
-          helpful: 4
-        }
-      ];
+      const mockRatings: ServiceRating[] = []; // تم إزالة البيانات الوهمية
       setServiceRatings(mockRatings);
     } catch (error) {
       console.error('Error loading service ratings:', error);
@@ -709,25 +634,7 @@ function PropertyDetailsPage() {
   // Load User Profile
   const loadUserProfile = async () => {
     try {
-      const mockProfile: UserProfile = {
-        id: 'user1',
-        name: 'أحمد محمد',
-        type: 'individual',
-        badges: [
-          {
-            id: '1',
-            name: 'مستأجر موثق',
-            description: 'مستأجر موثق في النظام',
-            icon: 'FaUserCheck',
-            color: 'blue',
-            type: 'user',
-            earnedDate: '2025-01-01'
-          }
-        ],
-        points: 1250,
-        level: 3,
-        verified: true
-      };
+      const mockProfile: UserProfile | null = null; // تم إزالة البيانات الوهمية
       setUserProfile(mockProfile);
     } catch (error) {
       console.error('Error loading user profile:', error);
@@ -737,26 +644,7 @@ function PropertyDetailsPage() {
   // Load Property Badges
   const loadPropertyBadges = async () => {
     try {
-      const mockBadges: Badge[] = [
-        {
-          id: '1',
-          name: 'عقار موثق',
-          description: 'عقار موثق ومتأكد من صحته',
-          icon: 'FaCertificate',
-          color: 'green',
-          type: 'property',
-          earnedDate: '2025-01-01'
-        },
-        {
-          id: '2',
-          name: 'موقع ممتاز',
-          description: 'موقع استراتيجي ممتاز',
-          icon: 'FaMapPin',
-          color: 'blue',
-          type: 'property',
-          earnedDate: '2025-01-02'
-        }
-      ];
+      const mockBadges: Badge[] = []; // تم إزالة البيانات الوهمية
       setPropertyBadges(mockBadges);
     } catch (error) {
       console.error('Error loading property badges:', error);
@@ -766,30 +654,7 @@ function PropertyDetailsPage() {
   // Load Similar Properties
   const loadSimilarProperties = async () => {
     try {
-      const mockSimilar: SimilarProperty[] = [
-        {
-          id: 'P-20251005183037',
-          title: 'شقة فاخرة في نفس المنطقة',
-          price: '800 ريال',
-          location: 'مسقط - الخوير',
-          image: '/demo/apartment1.jpg',
-          type: 'شقة',
-          area: '120',
-          beds: '3',
-          baths: '2'
-        },
-        {
-          id: 'P-20251005183038',
-          title: 'فيلا قريبة من العقار',
-          price: '1200 ريال',
-          location: 'مسقط - الخوير',
-          image: '/demo/villa1.jpg',
-          type: 'فيلا',
-          area: '200',
-          beds: '4',
-          baths: '3'
-        }
-      ];
+      const mockSimilar: SimilarProperty[] = []; // تم إزالة البيانات الوهمية
       setSimilarProperties(mockSimilar);
     } catch (error) {
       console.error('Error loading similar properties:', error);
@@ -800,15 +665,7 @@ function PropertyDetailsPage() {
   const loadCurrentUser = async () => {
     try {
       // محاكاة بيانات المستخدم الحالي
-      const mockUser: User = {
-        id: 'user1',
-        name: 'أحمد محمد',
-        email: 'ahmed@example.com',
-        phone: '+96812345678',
-        verified: true,
-        userType: 'individual',
-        permissions: ['rate_property', 'rate_company', 'rate_service', 'view_units']
-      };
+      const mockUser: User | null = null; // تم إزالة البيانات الوهمية
       setCurrentUser(mockUser);
       setUserCanRate(mockUser.verified && mockUser.permissions.includes('rate_property'));
     } catch (error) {
@@ -835,56 +692,7 @@ function PropertyDetailsPage() {
   const loadBuildingUnits = async () => {
     try {
       // محاكاة بيانات وحدات المبنى
-      const mockUnits: BuildingUnit[] = [
-        {
-          id: 'unit-1',
-          unitNumber: '101',
-          floor: '1',
-          area: '120',
-          beds: '3',
-          baths: '2',
-          price: '800',
-          status: 'available',
-          images: ['/demo/apartment1.jpg'],
-          amenities: ['balcony', 'parking'],
-          description: 'وحدة ممتازة في الطابق الأول',
-          published: true,
-          ownerId: 'owner1',
-          permissions: ['view', 'rate']
-        },
-        {
-          id: 'unit-2',
-          unitNumber: '201',
-          floor: '2',
-          area: '150',
-          beds: '4',
-          baths: '3',
-          price: '1000',
-          status: 'available',
-          images: ['/demo/apartment1.jpg'],
-          amenities: ['balcony', 'parking', 'storage'],
-          description: 'وحدة فاخرة في الطابق الثاني',
-          published: true,
-          ownerId: 'owner1',
-          permissions: ['view', 'rate']
-        },
-        {
-          id: 'unit-3',
-          unitNumber: '301',
-          floor: '3',
-          area: '180',
-          beds: '5',
-          baths: '4',
-          price: '1200',
-          status: 'rented',
-          images: ['/demo/apartment1.jpg'],
-          amenities: ['balcony', 'parking', 'storage', 'garden'],
-          description: 'وحدة فاخرة في الطابق الثالث',
-          published: false,
-          ownerId: 'owner2',
-          permissions: ['view']
-        }
-      ];
+      const mockUnits: BuildingUnit[] = []; // تم إزالة البيانات الوهمية
       setBuildingUnits(mockUnits);
     } catch (error) {
       console.error('Error loading building units:', error);
