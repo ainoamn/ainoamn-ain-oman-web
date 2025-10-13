@@ -29,16 +29,16 @@ export default function BalanceSheetPage() {
         setBalanceSheet(data);
       } else {
         // النظام مُصفّر - بيانات فارغة
-        const emptyBalanceSheet: BalanceSheet = {
+        const emptyBalanceSheet: any = {
           asOfDate: asOfDate,
           assets: {
             currentAssets: { cash: 0, accountsReceivable: 0, inventory: 0, prepaidExpenses: 0, otherCurrentAssets: 0, total: 0 },
-            nonCurrentAssets: { propertyPlantEquipment: 0, accumulatedDepreciation: 0, investments: 0, intangibleAssets: 0, otherNonCurrentAssets: 0, total: 0 },
+            fixedAssets: { property: 0, equipment: 0, vehicles: 0, accumulatedDepreciation: 0, total: 0 },
             total: 0
           },
           liabilities: {
             currentLiabilities: { accountsPayable: 0, shortTermLoans: 0, accruedExpenses: 0, customerDeposits: 0, otherCurrentLiabilities: 0, total: 0 },
-            nonCurrentLiabilities: { longTermLoans: 0, deferredTaxLiabilities: 0, otherNonCurrentLiabilities: 0, total: 0 },
+            longTermLiabilities: { longTermLoans: 0, deferredTaxLiabilities: 0, otherLongTermLiabilities: 0, total: 0 },
             total: 0
           },
           equity: {
@@ -54,16 +54,16 @@ export default function BalanceSheetPage() {
     } catch (error) {
       console.error('Error fetching balance sheet:', error);
       // في حالة الخطأ، عرض بيانات فارغة
-      const emptyBalanceSheet: BalanceSheet = {
+      const emptyBalanceSheet: any = {
         asOfDate: asOfDate,
         assets: {
           currentAssets: { cash: 0, accountsReceivable: 0, inventory: 0, prepaidExpenses: 0, otherCurrentAssets: 0, total: 0 },
-          nonCurrentAssets: { propertyPlantEquipment: 0, accumulatedDepreciation: 0, investments: 0, intangibleAssets: 0, otherNonCurrentAssets: 0, total: 0 },
+          fixedAssets: { property: 0, equipment: 0, vehicles: 0, accumulatedDepreciation: 0, total: 0 },
           total: 0
         },
         liabilities: {
           currentLiabilities: { accountsPayable: 0, shortTermLoans: 0, accruedExpenses: 0, customerDeposits: 0, otherCurrentLiabilities: 0, total: 0 },
-          nonCurrentLiabilities: { longTermLoans: 0, deferredTaxLiabilities: 0, otherNonCurrentLiabilities: 0, total: 0 },
+          longTermLiabilities: { longTermLoans: 0, deferredTaxLiabilities: 0, otherLongTermLiabilities: 0, total: 0 },
           total: 0
         },
         equity: {
