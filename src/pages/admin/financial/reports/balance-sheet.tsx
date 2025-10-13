@@ -21,12 +21,60 @@ export default function BalanceSheetPage() {
   const fetchBalanceSheet = async () => {
     setLoading(true);
     try {
-      // بيانات تجريبية للميزانية
-      // const mockBalanceSheet تم إزالة البيانات الوهمية
-
-      setBalanceSheet(mockBalanceSheet);
+      // جلب البيانات من API
+      const response = await fetch(`/api/financial/balance-sheet?date=${asOfDate}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setBalanceSheet(data);
+      } else {
+        // النظام مُصفّر - بيانات فارغة
+        const emptyBalanceSheet: BalanceSheet = {
+          asOfDate: asOfDate,
+          assets: {
+            currentAssets: { cash: 0, accountsReceivable: 0, inventory: 0, prepaidExpenses: 0, otherCurrentAssets: 0, total: 0 },
+            nonCurrentAssets: { propertyPlantEquipment: 0, accumulatedDepreciation: 0, investments: 0, intangibleAssets: 0, otherNonCurrentAssets: 0, total: 0 },
+            total: 0
+          },
+          liabilities: {
+            currentLiabilities: { accountsPayable: 0, shortTermLoans: 0, accruedExpenses: 0, customerDeposits: 0, otherCurrentLiabilities: 0, total: 0 },
+            nonCurrentLiabilities: { longTermLoans: 0, deferredTaxLiabilities: 0, otherNonCurrentLiabilities: 0, total: 0 },
+            total: 0
+          },
+          equity: {
+            capital: 0,
+            retainedEarnings: 0,
+            currentYearProfit: 0,
+            total: 0
+          },
+          totalLiabilitiesAndEquity: 0
+        };
+        setBalanceSheet(emptyBalanceSheet);
+      }
     } catch (error) {
       console.error('Error fetching balance sheet:', error);
+      // في حالة الخطأ، عرض بيانات فارغة
+      const emptyBalanceSheet: BalanceSheet = {
+        asOfDate: asOfDate,
+        assets: {
+          currentAssets: { cash: 0, accountsReceivable: 0, inventory: 0, prepaidExpenses: 0, otherCurrentAssets: 0, total: 0 },
+          nonCurrentAssets: { propertyPlantEquipment: 0, accumulatedDepreciation: 0, investments: 0, intangibleAssets: 0, otherNonCurrentAssets: 0, total: 0 },
+          total: 0
+        },
+        liabilities: {
+          currentLiabilities: { accountsPayable: 0, shortTermLoans: 0, accruedExpenses: 0, customerDeposits: 0, otherCurrentLiabilities: 0, total: 0 },
+          nonCurrentLiabilities: { longTermLoans: 0, deferredTaxLiabilities: 0, otherNonCurrentLiabilities: 0, total: 0 },
+          total: 0
+        },
+        equity: {
+          capital: 0,
+          retainedEarnings: 0,
+          currentYearProfit: 0,
+          total: 0
+        },
+        totalLiabilitiesAndEquity: 0
+      };
+      setBalanceSheet(emptyBalanceSheet);
     } finally {
       setLoading(false);
     }
