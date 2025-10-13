@@ -1,4 +1,4 @@
-// src/pages/admin/contracts/settings.tsx
+﻿// src/pages/admin/contracts/settings.tsx
 import Head from "next/head";
 // Header is now handled by MainLayout in _app.tsx
 

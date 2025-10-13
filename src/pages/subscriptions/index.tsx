@@ -21,13 +21,87 @@ export default function SubscriptionsPage() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [loading, setLoading] = useState(true);
+  
+  // الباقات (من API أو الافتراضي)
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  
+  // الصلاحيات لكل باقة (من localStorage)
+  const [plansFeatures, setPlansFeatures] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
-    loadUserData();
+    loadData();
+
+    // الاستماع للتغييرات من صفحة الإدارة
+    const handleStorageChange = () => {
+      console.log('🔄 اكتشاف تغيير في البيانات، إعادة التحميل...');
+      loadData();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('ain_auth:change', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('ain_auth:change', handleStorageChange);
+    };
   }, []);
 
-  const loadUserData = () => {
+  const loadData = async () => {
     try {
+      let loadedPlans: SubscriptionPlan[] = [];
+      let loadedFeatures: Record<string, string[]> = {};
+
+      // 1. تحميل الباقات من localStorage
+      const customPlansStr = localStorage.getItem('custom_plans');
+      if (customPlansStr) {
+        try {
+          const customPlans = JSON.parse(customPlansStr);
+          if (Array.isArray(customPlans) && customPlans.length > 0) {
+            loadedPlans = customPlans;
+            console.log('✅ تم تحميل الباقات من localStorage:', loadedPlans.length);
+          }
+        } catch (e) {
+          console.error('خطأ في قراءة الباقات:', e);
+        }
+      }
+
+      // 2. تحميل الصلاحيات من localStorage
+      const customFeaturesStr = localStorage.getItem('custom_plan_features');
+      if (customFeaturesStr) {
+        try {
+          const customFeatures = JSON.parse(customFeaturesStr);
+          loadedFeatures = customFeatures;
+          console.log('✅ تم تحميل الصلاحيات من localStorage:', Object.keys(loadedFeatures).length);
+        } catch (e) {
+          console.error('خطأ في قراءة الصلاحيات:', e);
+        }
+      }
+
+      // 3. إذا لم توجد باقات، استخدم الافتراضية
+      if (loadedPlans.length === 0) {
+        loadedPlans = [...SUBSCRIPTION_PLANS];
+        console.log('ℹ️ استخدام الباقات الافتراضية:', loadedPlans.length);
+      }
+
+      // 4. التأكد من وجود featuresAr و permissions
+      const plansWithFeatures = loadedPlans.map((plan: SubscriptionPlan) => ({
+        ...plan,
+        features: plan.features || [],
+        featuresAr: plan.featuresAr || plan.features || [
+          `حتى ${plan.maxProperties === -1 ? '∞' : plan.maxProperties} عقار`,
+          `حتى ${plan.maxUnits === -1 ? '∞' : plan.maxUnits} وحدة`,
+          `حتى ${plan.maxBookings === -1 ? '∞' : plan.maxBookings} حجز`,
+          `${plan.maxUsers === -1 ? '∞' : plan.maxUsers} مستخدم`,
+          `${plan.storageGB} جيجابايت تخزين`
+        ],
+        permissions: plan.permissions || []
+      }));
+      
+      setPlans(plansWithFeatures);
+      setPlansFeatures(loadedFeatures);
+      console.log('📦 إجمالي الباقات:', plansWithFeatures.length, '| الصلاحيات:', Object.keys(loadedFeatures).length);
+
+      // 5. تحميل بيانات المستخدم
       const authData = localStorage.getItem('ain_auth');
       if (authData) {
         const userData = JSON.parse(authData);
@@ -37,7 +111,8 @@ export default function SubscriptionsPage() {
         }
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error loading data:', error);
+      setPlans([...SUBSCRIPTION_PLANS]);
     } finally {
       setLoading(false);
     }
@@ -157,11 +232,11 @@ export default function SubscriptionsPage() {
               </span>
             )}
           </div>
+          </div>
         </div>
-      </div>
 
-      {/* Current Subscription */}
-      {userSubscription && (
+          {/* Current Subscription */}
+          {userSubscription && (
         <div className="max-w-7xl mx-auto px-6 -mt-10 mb-8 relative z-10">
           <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl shadow-2xl p-8">
             <div className="flex items-center justify-between">
@@ -172,13 +247,13 @@ export default function SubscriptionsPage() {
                 <div>
                   <div className="text-sm opacity-90 mb-1">اشتراكك الحالي</div>
                   <div className="text-2xl font-bold">
-                    {SUBSCRIPTION_PLANS.find(p => p.id === userSubscription.planId)?.nameAr || 'باقة غير معروفة'}
+                    {plans.find(p => p.id === userSubscription.planId)?.nameAr || 'باقة غير معروفة'}
                   </div>
                   <div className="text-sm opacity-90 mt-1">
                     {userSubscription.status === 'active' 
                       ? `✓ نشط - ${userSubscription.remainingDays} يوم متبقي` 
                       : '⚠️ منتهي'}
-                  </div>
+                </div>
                 </div>
               </div>
               <button
@@ -187,22 +262,22 @@ export default function SubscriptionsPage() {
               >
                 عرض لوحة التحكم
               </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
       {/* Plans Grid */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {SUBSCRIPTION_PLANS.map((plan, idx) => {
+          {plans.map((plan, idx) => {
             const isCurrentPlan = userSubscription?.planId === plan.id;
             const price = billingCycle === 'yearly' ? getYearlyPrice(plan.price) : plan.price;
             const priceLabel = billingCycle === 'yearly' ? 'سنوياً' : 'شهرياً';
 
             return (
-              <div
-                key={plan.id}
+              <div 
+                key={plan.id} 
                 className={`relative rounded-3xl shadow-2xl transition-all transform hover:scale-105 ${
                   plan.popular 
                     ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white scale-110 z-10' 
@@ -217,7 +292,7 @@ export default function SubscriptionsPage() {
                     </span>
                   </div>
                 )}
-
+                
                 {isCurrentPlan && (
                   <div className="absolute -top-4 right-4">
                     <span className="px-4 py-2 bg-green-500 text-white rounded-full text-sm font-bold shadow-lg">
@@ -237,7 +312,7 @@ export default function SubscriptionsPage() {
                     <p className={`text-sm ${plan.popular ? 'text-white/80' : 'text-gray-600'}`}>
                       {plan.descriptionAr}
                     </p>
-                  </div>
+                </div>
 
                   <div className="text-center mb-8">
                     <div className={`text-5xl font-extrabold mb-2 ${plan.popular ? 'text-white' : 'text-gray-900'}`}>
@@ -255,15 +330,28 @@ export default function SubscriptionsPage() {
                   </div>
 
                   <div className="space-y-3 mb-8">
-                    {plan.featuresAr.map((feature, fidx) => (
-                      <div key={fidx} className="flex items-start gap-3">
-                        <FiCheck className={`w-5 h-5 flex-shrink-0 ${plan.popular ? 'text-green-300' : 'text-green-600'}`} />
-                        <span className={`text-sm ${plan.popular ? 'text-white/90' : 'text-gray-700'}`}>
-                          {feature}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                    {(plan.featuresAr || plan.features || []).map((feature: any, fidx: number) => {
+                      // معالجة آمنة للميزات (قد تكون string أو object)
+                      let featureText = '';
+                      
+                      if (typeof feature === 'string') {
+                        featureText = feature;
+                      } else if (feature && typeof feature === 'object') {
+                        featureText = feature.nameAr || feature.name || feature.description || 'ميزة';
+                      } else {
+                        featureText = 'ميزة';
+                      }
+                      
+                      return (
+                        <div key={fidx} className="flex items-start gap-3">
+                          <FiCheck className={`w-5 h-5 flex-shrink-0 ${plan.popular ? 'text-green-300' : 'text-green-600'}`} />
+                          <span className={`text-sm ${plan.popular ? 'text-white/90' : 'text-gray-700'}`}>
+                            {featureText}
+                          </span>
+                        </div>
+                      );
+                    })}
+                </div>
 
                   <div className={`grid grid-cols-2 gap-3 mb-8 pb-8 border-b ${plan.popular ? 'border-white/20' : 'border-gray-200'}`}>
                     <div className={`text-center p-3 rounded-lg ${plan.popular ? 'bg-white/10' : 'bg-gray-50'}`}>
@@ -280,8 +368,8 @@ export default function SubscriptionsPage() {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => handleSelectPlan(plan.id)}
+                    <button 
+                      onClick={() => handleSelectPlan(plan.id)}
                     disabled={isCurrentPlan}
                     className={`w-full py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg ${
                       plan.popular
@@ -292,32 +380,32 @@ export default function SubscriptionsPage() {
                     }`}
                   >
                     {isCurrentPlan ? '✓ باقتك الحالية' : 'اشترك الآن'}
-                  </button>
+                    </button>
                 </div>
               </div>
             );
           })}
-        </div>
+          </div>
 
-        {/* Features Comparison */}
+          {/* Features Comparison */}
         <div className="mt-20 bg-white rounded-3xl shadow-2xl p-10">
           <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">
             مقارنة شاملة للباقات
           </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
                 <tr className="border-b-2 border-gray-200">
                   <th className="text-right px-6 py-4 text-sm font-bold text-gray-700">الميزة</th>
-                  {SUBSCRIPTION_PLANS.map((plan) => (
+                  {plans.map((plan) => (
                     <th key={plan.id} className="text-center px-6 py-4">
                       <div className={`inline-block px-4 py-2 ${plan.color} text-white rounded-lg font-bold`}>
                         {plan.nameAr}
                       </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
               <tbody className="divide-y divide-gray-200">
                 {[
                   { label: '🏢 عدد العقارات', key: 'maxProperties' },
@@ -328,7 +416,7 @@ export default function SubscriptionsPage() {
                 ].map((row, ridx) => (
                   <tr key={ridx} className="hover:bg-gray-50">
                     <td className="px-6 py-4 text-sm font-medium text-gray-700">{row.label}</td>
-                    {SUBSCRIPTION_PLANS.map((plan) => (
+                    {plans.map((plan) => (
                       <td key={plan.id} className="text-center px-6 py-4">
                         <span className="font-bold text-gray-900">
                           {(plan as any)[row.key] === -1 ? '∞' : (plan as any)[row.key]}
@@ -340,16 +428,18 @@ export default function SubscriptionsPage() {
                 ))}
                 <tr className="hover:bg-gray-50">
                   <td className="px-6 py-4 text-sm font-medium text-gray-700">🔐 عدد الصلاحيات</td>
-                  {SUBSCRIPTION_PLANS.map((plan) => (
+                  {plans.map((plan) => (
                     <td key={plan.id} className="text-center px-6 py-4">
-                      <span className="font-bold text-blue-600">{plan.permissions.length}</span>
-                    </td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
+                      <span className="font-bold text-blue-600">
+                        {plansFeatures[plan.id]?.length || 0}
+                      </span>
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
 
         {/* FAQ or Features */}
         <div className="mt-20 text-center">
@@ -368,10 +458,10 @@ export default function SubscriptionsPage() {
             ))}
           </div>
         </div>
-      </div>
+        </div>
 
-      {/* Payment Modal */}
-      {showPaymentModal && (
+        {/* Payment Modal */}
+        {showPaymentModal && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-2xl w-full">
             <h3 className="text-3xl font-bold text-gray-900 mb-6 text-center">
@@ -384,22 +474,22 @@ export default function SubscriptionsPage() {
                   <div>
                     <div className="text-sm text-gray-600 mb-1">الباقة المختارة</div>
                     <div className="text-2xl font-bold text-gray-900">
-                      {SUBSCRIPTION_PLANS.find(p => p.id === selectedPlanId)?.nameAr}
+                      {plans.find(p => p.id === selectedPlanId)?.nameAr}
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-3xl font-bold text-blue-600">
                       {formatCurrency(
                         billingCycle === 'yearly'
-                          ? getYearlyPrice(SUBSCRIPTION_PLANS.find(p => p.id === selectedPlanId)?.price || 0)
-                          : SUBSCRIPTION_PLANS.find(p => p.id === selectedPlanId)?.price || 0
+                          ? getYearlyPrice(plans.find(p => p.id === selectedPlanId)?.price || 0)
+                          : plans.find(p => p.id === selectedPlanId)?.price || 0
                       )}
                     </div>
                     <div className="text-sm text-gray-600">{billingCycle === 'yearly' ? 'سنوياً' : 'شهرياً'}</div>
-                  </div>
-                </div>
               </div>
-            )}
+            </div>
+          </div>
+        )}
 
             <div className="mb-8">
               <label className="block text-sm font-bold text-gray-700 mb-2">طريقة الدفع</label>
@@ -421,7 +511,7 @@ export default function SubscriptionsPage() {
             </div>
 
             <div className="flex gap-4">
-              <button
+                <button 
                 onClick={() => {
                   setShowPaymentModal(false);
                   setSelectedPlanId('');
@@ -429,19 +519,19 @@ export default function SubscriptionsPage() {
                 className="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-bold text-lg transition-all"
               >
                 <FiX className="inline-block w-5 h-5 ml-2" />
-                إلغاء
-              </button>
-              <button
+                  إلغاء
+                </button>
+                <button 
                 onClick={handlePayment}
                 className="flex-1 px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-2xl font-bold text-lg transform hover:scale-105 transition-all"
               >
                 <FiCreditCard className="inline-block w-5 h-5 ml-2" />
                 إتمام الدفع
-              </button>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
   );
 }

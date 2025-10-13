@@ -83,3 +83,37 @@ export async function getNextCourtCaseNumber(): Promise<string> {
 export async function getNextTransferNumber(): Promise<string> {
   return nextSerial("TRANSFER", "TRANSFER-");
 }
+
+// ========================
+// النظام المالي - Financial System Serial Numbers
+// ========================
+
+/** توليد رقم تسلسلي للفواتير بصيغة INV-2025-000001 */
+export async function getNextInvoiceNumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  return nextSerial(`INV-${year}`, `INV-${year}-`);
+}
+
+/** توليد رقم تسلسلي للمدفوعات بصيغة PAY-2025-000001 */
+export async function getNextPaymentNumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  return nextSerial(`PAY-${year}`, `PAY-${year}-`);
+}
+
+/** توليد رقم تسلسلي للشيكات بصيغة CHK-2025-000001 */
+export async function getNextCheckNumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  return nextSerial(`CHK-${year}`, `CHK-${year}-`);
+}
+
+/** توليد رقم تسلسلي للقيود المحاسبية بصيغة JE-2025-000001 */
+export async function getNextJournalEntryNumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  return nextSerial(`JE-${year}`, `JE-${year}-`);
+}
+
+/** توليد رقم تسلسلي للإيصالات بصيغة REC-2025-000001 */
+export async function getNextReceiptNumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  return nextSerial(`REC-${year}`, `REC-${year}-`);
+}
