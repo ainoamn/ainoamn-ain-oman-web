@@ -28,7 +28,7 @@ export default function PaymentsPage() {
     try {
       const mockPayments: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
 
-      setPayments(mockPayments);
+      setPayments([]); // تم استبدال mockPayments ببيانات فارغة
     } catch (error) {
       console.error('Error fetching payments:', error);
     } finally {

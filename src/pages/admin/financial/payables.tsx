@@ -37,7 +37,7 @@ export default function PayablesPage() {
     try {
       const mockPayables: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
 
-      setPayables(mockPayables);
+      setPayables([]); // تم استبدال mockPayables ببيانات فارغة
     } catch (error) {
       console.error('Error fetching payables:', error);
     } finally {

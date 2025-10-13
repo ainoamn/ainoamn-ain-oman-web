@@ -28,7 +28,7 @@ export default function ChecksPage() {
     try {
       const mockChecks: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
 
-      setChecks(mockChecks);
+      setChecks([]); // تم استبدال mockChecks ببيانات فارغة
     } catch (error) {
       console.error('Error fetching checks:', error);
     } finally {

@@ -29,7 +29,7 @@ export default function InvoicesPage() {
       // بيانات تجريبية للفواتير
       const mockInvoices: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
 
-      setInvoices(mockInvoices);
+      setInvoices([]); // تم استبدال mockInvoices ببيانات فارغة
     } catch (error) {
       console.error('Error fetching invoices:', error);
     } finally {

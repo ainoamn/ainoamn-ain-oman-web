@@ -92,7 +92,7 @@ export default function SalesInvoicesPage() {
 
   const loadInvoices = () => {
     const mockInvoices: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
-    setInvoices(mockInvoices);
+    setInvoices([]); // تم استبدال mockInvoices ببيانات فارغة
   };
 
   const loadNextInvoiceNumber = async () => {

@@ -79,7 +79,7 @@ export default function PurchaseInvoicesPage() {
 
   const loadInvoices = () => {
     const mockInvoices: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
-    setInvoices(mockInvoices);
+    setInvoices([]); // تم استبدال mockInvoices ببيانات فارغة
   };
 
   const calculateItemTotals = (item: Partial<PurchaseItem>) => {

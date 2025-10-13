@@ -40,7 +40,7 @@ export default function ReceivablesPage() {
       // بيانات تجريبية
       const mockReceivables: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
 
-      setReceivables(mockReceivables);
+      setReceivables([]); // تم استبدال mockReceivables ببيانات فارغة
     } catch (error) {
       console.error('Error fetching receivables:', error);
     } finally {
