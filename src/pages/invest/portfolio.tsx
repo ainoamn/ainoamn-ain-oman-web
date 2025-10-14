@@ -1,11 +1,11 @@
 import Head from "next/head";
-import Layout from "@/components/layout/Layout";
+
 import { useI18n } from "@/lib/i18n";
 
 export default function Portfolio() {
   const { t, dir } = useI18n();
   return (
-    <Layout>
+    <>
       <Head><title>{t("invest.portfolio","محفظتي")} | Ain Oman</title></Head>
       <main dir={dir} className="min-h-screen bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-8">
@@ -15,6 +15,6 @@ export default function Portfolio() {
           </div>
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

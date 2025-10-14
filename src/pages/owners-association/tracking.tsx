@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Head from "next/head"; import InstantLink from '@/components/InstantLink';
-import Layout from "@/components/layout/Layout"; import { useTSafe } from "@/lib/i18n-safe";
+ import { useTSafe } from "@/lib/i18n-safe";
 import HoaNav from "@/components/hoa/HoaNav"; import StatusBadge from "@/components/common/StatusBadge";
 type Row = { id: string; title: string; status: "open"|"in_progress"|"done"; due?: string };
 
@@ -11,7 +11,7 @@ export default function TrackingPage() {
     { id: "AO-T-000099", title: "تجديد عقد الحراسة", status: "open", due: "2025-09-12" },
   ]);
   return (
-    <Layout>
+    <>
       <Head><title>{t("hoa.tracking.title","المتابعة")}</title></Head>
       <div dir={dir} className="space-y-6">
         <HoaNav />
@@ -29,6 +29,6 @@ export default function TrackingPage() {
           </table>
         </section>
       </div>
-    </Layout>
+    </>
   );
 }

@@ -2,7 +2,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import Layout from "@/components/layout/Layout";
+
 
 export default function LoginPage(){
   const router = useRouter();
@@ -28,7 +28,7 @@ export default function LoginPage(){
   };
 
   return (
-    <Layout>
+    <>
       <Head><title>تسجيل الدخول | Ain Oman</title></Head>
       <main className="min-h-screen bg-slate-50">
         <div className="max-w-md mx-auto p-6 space-y-4">
@@ -44,6 +44,6 @@ export default function LoginPage(){
           <button onClick={submit} className="px-4 py-2 rounded-xl bg-[var(--brand-800)] hover:bg-[var(--brand-700)] text-white w-full">دخول</button>
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

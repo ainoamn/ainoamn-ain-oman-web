@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Head from "next/head"; import Layout from "@/components/layout/Layout";
+import Head from "next/head"; 
 import { useTSafe } from "@/lib/i18n-safe"; import HoaNav from "@/components/hoa/HoaNav";
 import type { Investor } from "@/types/hoa";
 
@@ -9,7 +9,7 @@ export default function InvestorsPage() {
   const [form, setForm] = useState<Investor>({ id: "", name: "", email: "", share: 0 });
   const add = () => { if (!form.name) return; const id = "inv_" + Math.random().toString(36).slice(2, 8); setItems(prev => [...prev, { ...form, id }]); setForm({ id: "", name: "", email: "", share: 0 }); };
   return (
-    <Layout>
+    <>
       <Head><title>{t("hoa.investors.title","المستثمرون")}</title></Head>
       <div dir={dir} className="space-y-6">
         <HoaNav />
@@ -35,6 +35,6 @@ export default function InvestorsPage() {
           </section>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

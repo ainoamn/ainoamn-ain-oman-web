@@ -1,6 +1,6 @@
 import Head from "next/head";
 import InstantLink from '@/components/InstantLink';
-import Layout from "@/components/layout/Layout";
+
 import { useI18n } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import type { InvestmentOpportunity } from "@/types/invest";
@@ -14,7 +14,7 @@ export default function InvestIndex() {
   }, []);
 
   return (
-    <Layout>
+    <>
       <Head><title>{t("invest.title","الاستثمار")} | Ain Oman</title></Head>
       <main dir={dir} className="min-h-screen bg-slate-50">
         <div className="mx-auto max-w-7xl px-4 py-8">
@@ -36,6 +36,6 @@ export default function InvestIndex() {
           </div>
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

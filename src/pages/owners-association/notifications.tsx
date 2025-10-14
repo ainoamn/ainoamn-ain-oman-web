@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head"; import InstantLink from '@/components/InstantLink';
-import Layout from "@/components/layout/Layout"; import { useTSafe } from "@/lib/i18n-safe";
+ import { useTSafe } from "@/lib/i18n-safe";
 import HoaNav from "@/components/hoa/HoaNav";
 type Item = { id: string; message: string; createdAt: string; read?: boolean };
 
@@ -8,7 +8,7 @@ export default function NotificationsPage() {
   const { t, dir } = useTSafe(); const [items, setItems] = useState<Item[]>([]); const [loading, setLoading] = useState(true);
   useEffect(() => { let m=true;(async()=>{ try{ const r=await fetch("/api/hoa/notifications"); const js=await r.json(); if(m && js && js.items) setItems(js.items);}catch{ if(m) setItems([]);}finally{ if(m) setLoading(false);} })(); return ()=>{m=false}; }, []);
   return (
-    <Layout>
+    <>
       <Head><title>{t("hoa.notifications.title","الإشعارات")}</title></Head>
       <div dir={dir} className="space-y-6">
         <HoaNav />
@@ -21,6 +21,6 @@ export default function NotificationsPage() {
             <InstantLink href="/owners-association/alerts" className="text-sm underline">{t("hoa.notifications.view","تفاصيل")}</InstantLink></div>))}
         </section>
       </div>
-    </Layout>
+    </>
   );
 }

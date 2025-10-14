@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import InstantLink from '@/components/InstantLink';
-import Layout from "@/components/layout/Layout";
+
 import { useTSafe } from "@/lib/i18n-safe";
 import HoaNav from "@/components/hoa/HoaNav";
 import { useHoa } from "@/context/hoa";
@@ -62,7 +62,7 @@ export default function AlertsPage() {
   };
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>{t("hoa.alerts.title", "التنبيهات")}</title>
       </Head>
@@ -276,6 +276,6 @@ export default function AlertsPage() {
           </div>
         )}
       </div>
-    </Layout>
+    </>
   );
 }

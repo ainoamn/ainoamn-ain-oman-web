@@ -1,7 +1,7 @@
 // src/pages/admin/login.tsx
 import { useState } from "react";
 import Head from "next/head";
-import Layout from "@/components/layout/Layout";
+
 import { useRouter } from "next/router";
 
 export default function AdminLoginPage() {
@@ -30,7 +30,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <Layout>
+    <>
       <Head><title>تسجيل دخول المدير</title></Head>
       <div className="max-w-md mx-auto p-6">
         <h1 className="text-2xl font-bold mb-4">تسجيل دخول المدير</h1>
@@ -47,6 +47,6 @@ export default function AdminLoginPage() {
           <button className="px-4 py-2 rounded bg-[var(--brand-800)] hover:bg-[var(--brand-700)] text-white">دخول</button>
         </form>
       </div>
-    </Layout>
+    </>
   );
 }

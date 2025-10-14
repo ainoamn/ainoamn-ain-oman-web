@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import InstantLink from '@/components/InstantLink';
-import Layout from "@/components/layout/Layout";
+
 import { useTSafe } from "@/lib/i18n-safe";
 import HoaNav from "@/components/hoa/HoaNav";
 import StatCard from "@/components/common/StatCard";
@@ -56,7 +56,7 @@ export default function OwnersAssociationHome() {
   const totalUnits = hoas.reduce((acc, hoa) => acc + (hoa.unitsCount || 0), 0);
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>{t("hoa.home.title", "جمعيات الملاك")}</title>
       </Head>
@@ -198,7 +198,7 @@ export default function OwnersAssociationHome() {
           </div>
         </section>
       </div>
-    </Layout>
+    </>
   );
 }
 

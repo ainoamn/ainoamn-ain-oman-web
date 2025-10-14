@@ -1,6 +1,6 @@
 // src/pages/admin/sequencing.tsx
 import React, { useState, useEffect } from "react";
-import Layout from "@/components/layout/Layout";
+
 import Head from "next/head";
 
 export default function SequencingPage() {
@@ -48,7 +48,7 @@ export default function SequencingPage() {
   };
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>إدارة الترقيم المتسلسل | Ain Oman</title>
       </Head>
@@ -109,6 +109,6 @@ export default function SequencingPage() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

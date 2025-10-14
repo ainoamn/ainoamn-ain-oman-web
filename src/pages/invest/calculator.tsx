@@ -1,5 +1,5 @@
 import Head from "next/head";
-import Layout from "@/components/layout/Layout";
+
 import { useI18n } from "@/lib/i18n";
 import { useState } from "react";
 
@@ -31,7 +31,7 @@ export default function InvestCalculator() {
   const calcIRR = irr(flows);
 
   return (
-    <Layout>
+    <>
       <Head><title>{t("invest.calculator","محاكي العوائد")} | Ain Oman</title></Head>
       <main dir={dir} className="min-h-screen bg-slate-50">
         <div className="mx-auto max-w-3xl px-4 py-8">
@@ -64,6 +64,6 @@ export default function InvestCalculator() {
           </div>
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

@@ -7,7 +7,7 @@ import {
   FiCreditCard, FiDownload, FiPrinter, FiShare2, FiEye, FiEdit,
   FiPieChart, FiBarChart3, FiActivity, FiAlertTriangle, FiCheckCircle
 } from 'react-icons/fi';
-import Layout from '@/components/layout/Layout';
+
 
 interface FinancialData {
   totalRevenue: number;
@@ -167,16 +167,16 @@ export default function PropertiesFinancePage() {
 
   if (loading) {
     return (
-      <Layout>
+      <>
         <div className="flex justify-center items-center min-h-screen">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>المالية العقارية - عين عُمان</title>
       </Head>
@@ -465,6 +465,6 @@ export default function PropertiesFinancePage() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

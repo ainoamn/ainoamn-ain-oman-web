@@ -1,7 +1,7 @@
 // src/pages/admin/actions.tsx
 import { useEffect, useState } from "react";
 import Head from "next/head";
-import Layout from "@/components/layout/Layout";
+
 import type { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 
@@ -130,17 +130,17 @@ export default function AdminActionsPage() {
   // شاشة انتظار أثناء تحقق الحارس أو تحميل البيانات
   if (!authChecked) {
     return (
-      <Layout>
+      <>
         <Head><title>إدارة الأزرار | لوحة التحكم</title></Head>
         <div className="max-w-4xl mx-auto p-6">
           <div className="text-sm text-gray-600">جارٍ التحقق من الصلاحيات…</div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
+    <>
       <Head><title>إدارة الأزرار | لوحة التحكم</title></Head>
       <div className="max-w-4xl mx-auto p-4">
         <h1 className="text-2xl font-bold mb-3">إدارة الأزرار (تفاصيل العقار)</h1>
@@ -221,7 +221,7 @@ export default function AdminActionsPage() {
           </>
         )}
       </div>
-    </Layout>
+    </>
   );
 }
 

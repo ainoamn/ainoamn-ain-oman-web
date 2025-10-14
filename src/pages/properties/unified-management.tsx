@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import Head from 'next/head';
 import InstantLink from '@/components/InstantLink';
-import Layout from '@/components/layout/Layout';
+
 import {
   FaBuilding, FaHome, FaEye, FaEdit, FaTrash, FaPlus, FaSearch,
   FaFilter, FaSort, FaChevronDown, FaChevronUp, FaExpand,
@@ -699,7 +699,7 @@ export default function UnifiedPropertyManagement() {
 
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>إدارة العقارات والوحدات - عين عُمان</title>
       </Head>
@@ -1575,7 +1575,7 @@ export default function UnifiedPropertyManagement() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }
 

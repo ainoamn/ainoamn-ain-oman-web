@@ -1,5 +1,5 @@
 import Head from "next/head";
-import Layout from "@/components/layout/Layout";
+
 import { useI18n } from "@/lib/i18n";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -21,7 +21,7 @@ export default function OpportunityDetails() {
   }
 
   return (
-    <Layout>
+    <>
       <Head><title>{op?.title || t("invest.loading","جاري التحميل...")} | Ain Oman</title></Head>
       <main dir={dir} className="min-h-screen bg-slate-50">
         <div className="mx-auto max-w-5xl px-4 py-8">
@@ -52,6 +52,6 @@ export default function OpportunityDetails() {
           </p>
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

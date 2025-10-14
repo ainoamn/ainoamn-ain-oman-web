@@ -2,7 +2,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Layout from "@/components/layout/Layout";
+
 
 const LS_KEY = "ao_new_property_autosave_v3";
 
@@ -76,13 +76,13 @@ export default function EditPropertyBridge() {
   }, [pid, router]);
 
   return (
-    <Layout>
+    <>
       <Head><title>تحضير نموذج التحرير | Ain Oman</title></Head>
       <main className="min-h-screen bg-slate-50">
         <div className="max-w-3xl mx-auto p-6">
           {loading ? "جارِ التحضير لنموذج التحرير…" : err ? `خطأ: ${err}` : "جارٍ الفتح…"}
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

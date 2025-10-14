@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Head from "next/head"; import Layout from "@/components/layout/Layout";
+import Head from "next/head"; 
 import { useTSafe } from "@/lib/i18n-safe"; import HoaNav from "@/components/hoa/HoaNav";
 import StatusBadge from "@/components/common/StatusBadge";
 type Ticket = { id: string; by: string; type: string; status: "open"|"in_progress"|"done"; createdAt: string };
@@ -10,7 +10,7 @@ export default function RequestsPage() {
   useEffect(() => { (async () => { try { const r = await fetch("/api/hoa/requests"); const js = await r.json(); setItems(js.items || []);} catch {} })(); }, []);
   const add = () => { if (!newT.by || !newT.type) return; const id = "REQ-" + Math.random().toString(36).slice(2, 6).toUpperCase(); setItems(prev => [{ id, by: newT.by, type: newT.type, status: "open", createdAt: new Date().toISOString().slice(0,10) }, ...prev]); setNewT({ by: "", type: "" }); };
   return (
-    <Layout>
+    <>
       <Head><title>{t("hoa.requests.title","الطلبات")}</title></Head>
       <div dir={dir} className="space-y-6">
         <HoaNav />
@@ -34,6 +34,6 @@ export default function RequestsPage() {
           </table>
         </section>
       </div>
-    </Layout>
+    </>
   );
 }

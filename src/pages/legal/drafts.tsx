@@ -1,6 +1,6 @@
 // src/pages/legal/drafts.tsx
 import React, { useEffect, useState } from "react";
-import Layout from "@/components/layout/Layout";
+
 import CaseGrid from "@/components/legal/CaseGrid";
 import { useRouter } from "next/router";
 
@@ -22,12 +22,12 @@ export default function DraftsPage() {
   },[]);
 
   return (
-    <Layout>
+    <>
       <main className="container mx-auto px-4 py-6 space-y-4">
         <h1 className="text-2xl font-bold">المسودات</h1>
         {loading ? <div className="p-6 border rounded">جاري التحميل…</div> :
           <CaseGrid items={items} onOpen={(id:string)=>router.push(`/legal/${id}`)} />}
       </main>
-    </Layout>
+    </>
   );
 }

@@ -315,26 +315,26 @@ export default function CasePage() {
 
   if (loading) {
     return (
-      <Layout>
+      <>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600">جاري تحميل بيانات القضية...</p>
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   if (!case_) {
     return (
-      <Layout>
+      <>
         <div className="text-center py-12">
           <FaExclamationTriangle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">القضية غير موجودة</h3>
           <p className="text-gray-500">لم يتم العثور على القضية المطلوبة</p>
         </div>
-      </Layout>
+      </>
     );
   }
 
@@ -342,7 +342,7 @@ export default function CasePage() {
   const client = clients.find(c => c.id === case_.clientId);
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>{case_.title} - نظام إدارة القضايا</title>
       </Head>
@@ -892,6 +892,6 @@ export default function CasePage() {
           </div>
         </div>
       )}
-    </Layout>
+    </>
   );
 }

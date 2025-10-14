@@ -312,7 +312,7 @@ export default function NewCasePage() {
   };
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>إنشاء قضية جديدة - نظام إدارة القضايا</title>
       </Head>
@@ -904,6 +904,6 @@ export default function NewCasePage() {
         </div>
         </form>
       </div>
-    </Layout>
+    </>
   );
 }

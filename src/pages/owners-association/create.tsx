@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import Layout from "@/components/layout/Layout";
+
 import { useTSafe } from "@/lib/i18n-safe";
 import HoaNav from "@/components/hoa/HoaNav";
 import { useHoa } from "@/context/hoa";
@@ -116,7 +116,7 @@ export default function CreateHoaPage() {
   };
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>{t("hoa.create.title", "إنشاء جمعية جديدة")}</title>
       </Head>
@@ -359,6 +359,6 @@ export default function CreateHoaPage() {
           )}
         </form>
       </div>
-    </Layout>
+    </>
   );
 }

@@ -52,24 +52,20 @@ export default function DashboardRouter() {
   const loadUserData = async () => {
     setLoading(true);
     try {
-      // جلب بيانات المستخدم الفعلية من API
-      const response = await fetch('/api/auth/me');
+      // جلب بيانات المستخدم من localStorage
+      const authData = localStorage.getItem('ain_auth');
       
-      if (response.ok) {
-        const userData = await response.json();
-        if (userData && userData.user) {
-          setUser(userData.user);
-          generateAvailableDashboards(userData.user);
+      if (authData) {
+        const userData = JSON.parse(authData);
+        setUser(userData);
+        generateAvailableDashboards(userData);
 
-          // التوجيه التلقائي بعد 2 ثانية
-          if (autoRedirect) {
-            setTimeout(() => {
-              const dashboardPath = getDashboardPath(userData.user.role);
-              router.push(dashboardPath);
-            }, 2000);
-          }
-        } else {
-          router.push('/login');
+        // التوجيه التلقائي بعد 2 ثانية
+        if (autoRedirect) {
+          setTimeout(() => {
+            const dashboardPath = getDashboardPath(userData.role);
+            router.push(dashboardPath);
+          }, 2000);
         }
       } else {
         // المستخدم غير مسجل دخول - التوجيه لصفحة تسجيل الدخول

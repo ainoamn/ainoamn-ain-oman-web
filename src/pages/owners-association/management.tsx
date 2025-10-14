@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Head from "next/head";
 import InstantLink from '@/components/InstantLink';
-import Layout from "@/components/layout/Layout";
+
 import { useTSafe } from "@/lib/i18n-safe";
 import HoaNav from "@/components/hoa/HoaNav";
 import { useHoa } from "@/context/hoa";
@@ -74,16 +74,16 @@ export default function HoaManagementPage() {
 
   if (loading) {
     return (
-      <Layout>
+      <>
         <div className="flex items-center justify-center min-h-screen">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600"></div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>{t("hoa.mgmt.title", "إدارة الجمعية")}</title>
       </Head>
@@ -420,6 +420,6 @@ export default function HoaManagementPage() {
           </InstantLink>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }
