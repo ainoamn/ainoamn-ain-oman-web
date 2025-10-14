@@ -16,14 +16,21 @@ export default function ProtectedRoute({
   fallback 
 }: ProtectedRouteProps) {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
   const [userName, setUserName] = useState('');
   const [userPlan, setUserPlan] = useState<string | null>(null);
 
   useEffect(() => {
-    checkPermissions();
-  }, [requiredPermission, router.pathname]);
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      checkPermissions();
+    }
+  }, [mounted, requiredPermission, router.pathname]);
 
   const checkPermissions = () => {
     try {
@@ -70,8 +77,8 @@ export default function ProtectedRoute({
     }
   };
 
-  // جاري التحميل
-  if (hasAccess === null) {
+  // عدم عرض أي شيء حتى يتم التحميل (لتجنب hydration error)
+  if (!mounted || hasAccess === null) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
