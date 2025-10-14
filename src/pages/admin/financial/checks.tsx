@@ -26,7 +26,7 @@ export default function ChecksPage() {
   const fetchChecks = async () => {
     setLoading(true);
     try {
-      const mockChecks: any[] = []; // تم إزالة البيانات الوهمية // تم إزالة البيانات الوهمية - يتم الجلب من API
+      const mockChecks: any[] = []; // تم إزالة البيانات الوهمية // تم إزالة البيانات الوهمية // تم إزالة البيانات الوهمية - يتم الجلب من API
 
       setChecks([]); // تم استبدال mockChecks ببيانات فارغة
     } catch (error) {

@@ -1,6 +1,6 @@
 import Head from "next/head";
 import InstantLink from "@/components/InstantLink";
-import { useI18n } from "@/lib/i18n";
+    import { useI18n } from "@/lib/i18n";
 import { FaFileContract, FaCheckCircle, FaExclamationTriangle, FaHome } from "react-icons/fa";
 
 export default function TermsPage() {
@@ -318,8 +318,8 @@ export default function TermsPage() {
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
+      </div>
+    </section>
 
           {/* Acceptance */}
           <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6 mt-8">
@@ -362,7 +362,7 @@ export default function TermsPage() {
         <div className="mt-8 text-center text-gray-600 text-sm">
           <p>© 2025 Ain Oman. جميع الحقوق محفوظة.</p>
         </div>
-      </div>
-    </main>
-  );
-}
+          </div>
+        </main>
+      );
+    }

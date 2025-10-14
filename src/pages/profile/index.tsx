@@ -74,12 +74,12 @@ interface AIInsights {
   performanceScore: number;
   recommendations: Array<{
     type: 'success' | 'warning' | 'info';
-    title: string;
-    description: string;
+  title: string;
+  description: string;
     action?: string;
   }>;
   nextActions: Array<{
-    title: string;
+  title: string;
     description: string;
     priority: 'high' | 'medium' | 'low';
     link: string;
@@ -229,7 +229,7 @@ export default function ProfilePage() {
             تسجيل الدخول
           </button>
         </div>
-      </div>
+        </div>
     );
   }
 
@@ -282,11 +282,11 @@ export default function ProfilePage() {
                     <div className="flex items-center gap-1">
                       <FiMapPin className="w-4 h-4" />
                       <span>{user.location}</span>
-                    </div>
+              </div>
                   )}
-                </div>
               </div>
             </div>
+          </div>
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push(getDashboardPath(user.role))}
@@ -303,7 +303,7 @@ export default function ProfilePage() {
                 تعديل البروفايل
               </button>
             </div>
-          </div>
+        </div>
 
           {/* Subscription Info */}
           {user.subscription && (
@@ -330,7 +330,7 @@ export default function ProfilePage() {
               </div>
             </div>
           )}
-        </div>
+                  </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
@@ -346,7 +346,7 @@ export default function ProfilePage() {
                 <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
                   <FiZap className="text-yellow-500" />
                   الإجراءات السريعة
-                </h2>
+                  </h2>
                 {expandedSections.quickActions ? <FiChevronUp /> : <FiChevronDown />}
               </div>
               {expandedSections.quickActions && (
@@ -398,10 +398,10 @@ export default function ProfilePage() {
                       <FiFileText className="w-8 h-8 text-red-600 mb-2" />
                       <span className="text-sm font-medium text-red-800">قضية قانونية</span>
                     </button>
-                  </div>
-                </div>
+                    </div>
+                    </div>
               )}
-            </div>
+                  </div>
 
             {/* AI Insights */}
             {aiInsights && (
@@ -415,7 +415,7 @@ export default function ProfilePage() {
                     رؤى الذكاء الاصطناعي
                     <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-sm">
                       {aiInsights.performanceScore}%
-                    </span>
+                        </span>
                   </h2>
                   {expandedSections.analytics ? <FiChevronUp /> : <FiChevronDown />}
                 </div>
@@ -475,12 +475,12 @@ export default function ProfilePage() {
                                 <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                   {rec.action}
                                 </button>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      )}
                     </div>
+                  </div>
+                        ))}
+                </div>
+              </div>
 
                     {/* Next Actions */}
                     <div>
@@ -491,7 +491,7 @@ export default function ProfilePage() {
                             <div>
                               <h5 className="font-medium text-gray-900">{action.title}</h5>
                               <p className="text-gray-600 text-sm">{action.description}</p>
-                            </div>
+                </div>
                             <div className="flex items-center gap-2">
                               <span className={`px-2 py-1 rounded text-xs font-medium ${
                                 action.priority === 'high' ? 'bg-red-100 text-red-800' :
@@ -507,12 +507,12 @@ export default function ProfilePage() {
                               >
                                 <FiExternalLink />
                               </button>
-                            </div>
-                          </div>
-                        ))}
                       </div>
                     </div>
-                  </div>
+                  ))}
+                </div>
+              </div>
+            </div>
                 )}
               </div>
             )}
@@ -532,7 +532,7 @@ export default function ProfilePage() {
                     </span>
                   </h2>
                   {expandedSections.properties ? <FiChevronUp /> : <FiChevronDown />}
-                </div>
+                    </div>
                 {expandedSections.properties && (
                   <div className="p-6 pt-0">
                     <div className="text-center py-8">
@@ -548,7 +548,7 @@ export default function ProfilePage() {
                     </div>
                   </div>
                 )}
-              </div>
+                </div>
             )}
 
             {/* Tasks Section */}
@@ -565,7 +565,7 @@ export default function ProfilePage() {
                   </span>
                 </h2>
                 {expandedSections.tasks ? <FiChevronUp /> : <FiChevronDown />}
-              </div>
+                    </div>
               {expandedSections.tasks && (
                 <div className="p-6 pt-0">
                   <div className="text-center py-8">
@@ -578,12 +578,12 @@ export default function ProfilePage() {
                     >
                       إنشاء مهمة جديدة
                     </button>
+                    </div>
                   </div>
-                </div>
               )}
-            </div>
+                </div>
 
-          </div>
+                </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
@@ -605,10 +605,10 @@ export default function ProfilePage() {
                     <span className="font-semibold text-gray-900">
                       {key === 'revenue' ? formatCurrency(value) : value}
                     </span>
-                  </div>
+                    </div>
                 ))}
+                </div>
               </div>
-            </div>
 
             {/* Role Permissions */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -618,10 +618,10 @@ export default function ProfilePage() {
                   <div key={index} className="flex items-center gap-2">
                     <FiCheckCircle className="w-4 h-4 text-green-500" />
                     <span className="text-sm text-gray-600">{feature}</span>
-                  </div>
+                      </div>
                 ))}
-              </div>
-            </div>
+                  </div>
+                </div>
 
             {/* System Info */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -631,21 +631,21 @@ export default function ProfilePage() {
                   <FiCalendar className="text-gray-400" />
                   <span className="text-gray-600">آخر تسجيل دخول:</span>
                   <span className="font-medium">{user.lastLogin ? formatDate(user.lastLogin) : 'غير محدد'}</span>
-                </div>
+                      </div>
                 <div className="flex items-center gap-2">
                   <FiActivity className="text-gray-400" />
                   <span className="text-gray-600">عدد تسجيلات الدخول:</span>
                   <span className="font-medium">{user.loginCount || 0}</span>
-                </div>
+                      </div>
                 {user.ipAddress && (
                   <div className="flex items-center gap-2">
                     <FiGlobe className="text-gray-400" />
                     <span className="text-gray-600">عنوان IP:</span>
                     <span className="font-medium">{user.ipAddress}</span>
-                  </div>
+                      </div>
                 )}
+                </div>
               </div>
-            </div>
 
             {/* Documents */}
             {user.documents && user.documents.length > 0 && (
@@ -671,12 +671,12 @@ export default function ProfilePage() {
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+                    </div>
+                  )}
 
+            </div>
           </div>
         </div>
       </div>
-    </div>
   );
 }

@@ -91,7 +91,7 @@ export default function SalesInvoicesPage() {
   }, []);
 
   const loadInvoices = () => {
-    const mockInvoices: any[] = []; // تم إزالة البيانات الوهمية // تم إزالة البيانات الوهمية - يتم الجلب من API
+    const mockInvoices: any[] = []; // تم إزالة البيانات الوهمية // تم إزالة البيانات الوهمية // تم إزالة البيانات الوهمية - يتم الجلب من API
     setInvoices([]); // تم استبدال mockInvoices ببيانات فارغة
   };
 

@@ -35,7 +35,7 @@ export default function PayablesPage() {
   const fetchPayables = async () => {
     setLoading(true);
     try {
-      const mockPayables: any[] = []; // تم إزالة البيانات الوهمية // تم إزالة البيانات الوهمية - يتم الجلب من API
+      const mockPayables: any[] = []; // تم إزالة البيانات الوهمية // تم إزالة البيانات الوهمية // تم إزالة البيانات الوهمية - يتم الجلب من API
 
       setPayables([]); // تم استبدال mockPayables ببيانات فارغة
     } catch (error) {

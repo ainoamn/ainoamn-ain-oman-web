@@ -923,8 +923,8 @@ export default function PropertyAdminPage() {
                     <div className="bg-teal-50 rounded-lg p-4 text-center">
                       <div className="text-2xl font-bold text-teal-700">{stats.legal.rentalDisputes}</div>
                       <div className="text-sm text-gray-600">نزاعات إيجار</div>
-                    </div>
-                  </div>
+      </div>
+    </div>
                 </SectionCard>
               </div>
             )}

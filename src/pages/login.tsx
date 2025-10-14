@@ -471,13 +471,13 @@ function LoginPage() {
                     <strong>وضع التطوير:</strong> الأزرار أدناه تحاكي OAuth flow.
                     في الإنتاج، سيتم توجيهك إلى صفحة تسجيل الدخول الحقيقية لكل منصة.
                   </p>
-                </div>
+          </div>
 
                 <p className="text-center text-sm text-gray-600 mb-6">
                   اختر طريقة تسجيل الدخول المفضلة لديك
                 </p>
 
-                <div className="space-y-3">
+            <div className="space-y-3">
                   <button
                     onClick={() => handleSocialLogin("google")}
                     disabled={busy}
@@ -522,8 +522,8 @@ function LoginPage() {
                     <FaApple className="text-xl" />
                     تسجيل الدخول عبر Apple
                   </button>
-                </div>
               </div>
+            </div>
             )}
 
             {/* Footer */}

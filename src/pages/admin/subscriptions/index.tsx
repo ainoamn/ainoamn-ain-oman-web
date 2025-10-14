@@ -308,8 +308,8 @@ export default function AdminSubscriptionsPage() {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-orange-500">
-              <div className="flex items-center justify-between">
-                <div>
+        <div className="flex items-center justify-between">
+          <div>
                   <div className="text-sm text-gray-600 mb-1">النشطة</div>
                   <div className="text-2xl font-bold text-gray-900">
                     {users.filter(u => u.subscription?.status === 'active').length}
@@ -339,8 +339,8 @@ export default function AdminSubscriptionsPage() {
                       <div className="text-3xl font-extrabold">{plan.price} ر.ع</div>
                       <div className="text-sm opacity-90">
                         {plan.duration === 'monthly' ? 'شهرياً' : 'سنوياً'}
-                      </div>
-                    </div>
+          </div>
+        </div>
 
                     {/* المحتوى */}
                     <div className="p-4 space-y-4">
@@ -385,7 +385,7 @@ export default function AdminSubscriptionsPage() {
                             />
                           </div>
                         </div>
-                      </div>
+          </div>
 
                       {/* الميزات المعروضة */}
                       <div>
@@ -401,7 +401,7 @@ export default function AdminSubscriptionsPage() {
                             <div className="text-xs text-gray-500">+{(plan.featuresAr || []).length - 5} أخرى</div>
                           )}
                         </div>
-                      </div>
+          </div>
 
                       {/* الصلاحيات */}
                       <div>
@@ -491,7 +491,7 @@ export default function AdminSubscriptionsPage() {
                 <tbody className="divide-y divide-gray-200">
                   {allFeatures.map(featureId => {
                     const feature = FEATURE_PERMISSIONS[featureId];
-                    return (
+                        return (
                       <tr key={featureId} className="hover:bg-gray-50">
                         <td className="px-6 py-3 sticky right-0 bg-white">
                           <div className="text-sm font-medium text-gray-900">{feature.nameAr}</div>
@@ -510,8 +510,8 @@ export default function AdminSubscriptionsPage() {
                           </td>
                         ))}
                       </tr>
-                    );
-                  })}
+                        );
+                      })}
                 </tbody>
               </table>
             </div>
@@ -768,7 +768,7 @@ export default function AdminSubscriptionsPage() {
                     </div>
                   </div>
                 ))}
-              </div>
+          </div>
 
               <div className="flex gap-3 mt-6 pt-6 border-t-2 border-gray-200">
                 <button
@@ -785,8 +785,8 @@ export default function AdminSubscriptionsPage() {
                 </button>
               </div>
             </div>
-          </div>
         </div>
+      </div>
       )}
     </>
   );

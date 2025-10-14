@@ -1029,8 +1029,8 @@ export default function AddNewProperty() {
       if (response.ok) {
         const result = await response.json();
         console.log('Property saved successfully:', result);
-        alert('تم حفظ العقار بنجاح!');
-        router.push('/properties/unified-management');
+      alert('تم حفظ العقار بنجاح!');
+      router.push('/properties/unified-management');
       } else {
         const error = await response.json();
         console.error('Error saving property:', error);

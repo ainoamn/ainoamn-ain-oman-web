@@ -118,7 +118,7 @@ export default function TaskDetailsPage() {
       }
 
       // fallback
-      setTask(fallbackTask(String(id)));
+        setTask(fallbackTask(String(id)));
     } catch {
       setTask(fallbackTask(String(id)));
     } finally {
@@ -462,12 +462,12 @@ export default function TaskDetailsPage() {
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">العنوان</label>
                   {canEditCore ? (
-                    <input
-                      className="w-full border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={task.title}
-                      onChange={(e) => setTask({ ...task, title: e.target.value })}
-                      onBlur={() => handleFieldChange("title", task.title)}
-                    />
+                  <input
+                    className="w-full border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={task.title}
+                    onChange={(e) => setTask({ ...task, title: e.target.value })}
+                    onBlur={() => handleFieldChange("title", task.title)}
+                  />
                   ) : (
                     <div className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 text-slate-700">
                       {task.title}
@@ -492,13 +492,13 @@ export default function TaskDetailsPage() {
               <div className="mb-6">
                 <label className="block text-sm font-medium text-slate-700 mb-2">الوصف</label>
                 {canEditCore ? (
-                  <textarea
-                    className="w-full border border-slate-300 rounded-xl px-4 py-3 min-h-[120px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={task.description ?? ""}
-                    onChange={(e) => setTask({ ...task, description: e.target.value })}
-                    onBlur={() => handleFieldChange("description", task.description)}
-                    placeholder="أضف وصفًا مفصلاً للمهمة..."
-                  />
+                <textarea
+                  className="w-full border border-slate-300 rounded-xl px-4 py-3 min-h-[120px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={task.description ?? ""}
+                  onChange={(e) => setTask({ ...task, description: e.target.value })}
+                  onBlur={() => handleFieldChange("description", task.description)}
+                  placeholder="أضف وصفًا مفصلاً للمهمة..."
+                />
                 ) : (
                   <div className="w-full min-h-[120px] border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 text-slate-700 whitespace-pre-wrap">
                     {task.description || "—"}
@@ -629,11 +629,11 @@ export default function TaskDetailsPage() {
                   </div>
                   
                   {/* نشر */}
-                  <button
+                <button
                     onClick={sendUpdate}
                     className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium disabled:opacity-50 transition-colors"
-                    disabled={!message.trim()}
-                  >
+                  disabled={!message.trim()}
+                >
                     نشر
                   </button>
                 </div>
@@ -652,7 +652,7 @@ export default function TaskDetailsPage() {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                       </svg>
-                    </button>
+                </button>
                   </div>
                 )}
               </div>

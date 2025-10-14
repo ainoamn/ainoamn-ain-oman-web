@@ -231,7 +231,7 @@ export default function SubscriptionsPage() {
                 وفّر 20%
               </span>
             )}
-          </div>
+            </div>
           </div>
         </div>
 
@@ -248,14 +248,14 @@ export default function SubscriptionsPage() {
                   <div className="text-sm opacity-90 mb-1">اشتراكك الحالي</div>
                   <div className="text-2xl font-bold">
                     {plans.find(p => p.id === userSubscription.planId)?.nameAr || 'باقة غير معروفة'}
-                  </div>
+                </div>
                   <div className="text-sm opacity-90 mt-1">
                     {userSubscription.status === 'active' 
                       ? `✓ نشط - ${userSubscription.remainingDays} يوم متبقي` 
                       : '⚠️ منتهي'}
                 </div>
-                </div>
               </div>
+                        </div>
               <button
                 onClick={() => router.push('/profile')}
                 className="px-6 py-3 bg-white text-green-600 rounded-xl hover:bg-gray-50 font-bold shadow-lg transform hover:scale-105 transition-all"
@@ -348,7 +348,7 @@ export default function SubscriptionsPage() {
                           <span className={`text-sm ${plan.popular ? 'text-white/90' : 'text-gray-700'}`}>
                             {featureText}
                           </span>
-                        </div>
+                  </div>
                       );
                     })}
                 </div>
@@ -366,7 +366,7 @@ export default function SubscriptionsPage() {
                       </div>
                       <div className={`text-xs ${plan.popular ? 'text-white/70' : 'text-gray-600'}`}>حجز</div>
                     </div>
-                  </div>
+                </div>
 
                     <button 
                       onClick={() => handleSelectPlan(plan.id)}
@@ -456,8 +456,8 @@ export default function SubscriptionsPage() {
                 <p className="text-gray-600">{item.desc}</p>
               </div>
             ))}
+            </div>
           </div>
-        </div>
         </div>
 
         {/* Payment Modal */}

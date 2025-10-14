@@ -730,7 +730,7 @@ export default function Layout({
   const renderSidebar = () => {
     if (!config.showSidebar) return null;
 
-    return (
+  return (
       <aside className={`bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 ${
         config.sidebarStyle === 'collapsible' ? 'fixed top-0 left-0 h-full z-40' :
         config.sidebarStyle === 'floating' ? 'absolute top-0 left-0 h-full z-40' :
@@ -755,8 +755,8 @@ export default function Layout({
                   )}
                 </InstantLink>
               ))}
-            </nav>
-          </div>
+          </nav>
+        </div>
         </div>
       </aside>
     );
@@ -809,7 +809,7 @@ export default function Layout({
             العودة
           </button>
         </div>
-      </div>
+    </div>
     );
   };
 

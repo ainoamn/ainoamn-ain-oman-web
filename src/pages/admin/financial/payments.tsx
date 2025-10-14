@@ -26,7 +26,7 @@ export default function PaymentsPage() {
   const fetchPayments = async () => {
     setLoading(true);
     try {
-      const mockPayments: any[] = []; // تم إزالة البيانات الوهمية // تم إزالة البيانات الوهمية - يتم الجلب من API
+      const mockPayments: any[] = []; // تم إزالة البيانات الوهمية // تم إزالة البيانات الوهمية // تم إزالة البيانات الوهمية - يتم الجلب من API
 
       setPayments([]); // تم استبدال mockPayments ببيانات فارغة
     } catch (error) {

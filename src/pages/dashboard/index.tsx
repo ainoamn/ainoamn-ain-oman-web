@@ -548,10 +548,10 @@ export default function DashboardRouter() {
                     <div key={index} className="flex items-center gap-2">
                       <FiCheck className="w-4 h-4 text-green-500" />
                       <span className="text-sm text-gray-600">{feature}</span>
-                    </div>
-                  ))}
                 </div>
+                  ))}
           </div>
+            </div>
               <div>
                 <h4 className="font-medium text-gray-900 mb-3">الحدود المسموحة</h4>
                 <div className="space-y-2 text-sm text-gray-600">

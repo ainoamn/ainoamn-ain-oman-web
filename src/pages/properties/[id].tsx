@@ -1195,7 +1195,7 @@ function PropertyDetailsPage() {
 
                       {/* Add Property Rating Form */}
                       {userCanRate ? (
-                        <div className="bg-gray-50 rounded-lg p-4">
+              <div className="bg-gray-50 rounded-lg p-4">
                           <h4 className="font-semibold text-gray-900 mb-3">أضف تقييمك للعقار</h4>
                         <div className="space-y-3">
                           <div className="flex items-center gap-4">
@@ -1947,12 +1947,12 @@ function PropertyDetailsPage() {
                               {/* Actions */}
                               <div className="flex gap-2">
                                 {unit.published && unit.permissions.includes('view') && (
-                                  <Link
+              <Link
                                     href={`/properties/${unit.id}`}
                                     className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm text-center hover:bg-blue-700 transition-colors"
-                                  >
+              >
                                     عرض التفاصيل
-                                  </Link>
+              </Link>
                                 )}
                                 {unit.status === 'available' && (
                                   <button
@@ -2022,8 +2022,8 @@ function PropertyDetailsPage() {
                                   <FaStar />
                                 </button>
                               ))}
-                            </div>
-                          </div>
+                </div>
+              </div>
                           <textarea
                             value={newReview.comment}
                             onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
@@ -2034,8 +2034,8 @@ function PropertyDetailsPage() {
                           <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                             إضافة التقييم
                           </button>
-                        </div>
-                      </div>
+            </div>
+          </div>
 
                       {/* Reviews List */}
                       <div className="space-y-4">
@@ -2047,7 +2047,7 @@ function PropertyDetailsPage() {
                                   <span className="text-blue-600 font-semibold">
                                     {review.userName.charAt(0)}
                                   </span>
-                </div>
+        </div>
                                 <div>
                                   <div className="flex items-center gap-2">
                                     <span className="font-semibold text-gray-900">{review.userName}</span>

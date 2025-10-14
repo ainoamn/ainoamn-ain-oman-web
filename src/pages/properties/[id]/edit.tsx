@@ -1277,99 +1277,99 @@ export default function EditProperty({ property }: { property: any }) {
       // FormData فقط عند إضافة عقار جديد مع صور
       if (false && hasNewImages) {
         // إذا كانت هناك صور جديدة، استخدم FormData
-        const formDataToSend = new FormData();
-        
-        // Add all text fields
-        formDataToSend.append('titleAr', formData.titleAr);
-        formDataToSend.append('titleEn', formData.titleEn);
-        formDataToSend.append('descriptionAr', formData.descriptionAr);
-        formDataToSend.append('descriptionEn', formData.descriptionEn);
-        formDataToSend.append('province', formData.province);
-        formDataToSend.append('state', formData.state);
-        formDataToSend.append('city', formData.city);
-        formDataToSend.append('village', formData.village);
-        formDataToSend.append('address', formData.address);
-        formDataToSend.append('type', formData.type);
-        formDataToSend.append('usageType', formData.usageType);
-        formDataToSend.append('purpose', formData.purpose);
-        formDataToSend.append('buildingType', formData.buildingType);
-        formDataToSend.append('buildingAge', formData.buildingAge);
-        formDataToSend.append('area', formData.area);
-        formDataToSend.append('beds', formData.beds);
-        formDataToSend.append('baths', formData.baths);
-        formDataToSend.append('floors', formData.floors);
-        formDataToSend.append('priceOMR', formData.priceOMR);
-        formDataToSend.append('rentalPrice', formData.rentalPrice);
-        formDataToSend.append('published', String(formData.published));
-        formDataToSend.append('referenceNo', formData.referenceNo);
-        formDataToSend.append('surveyNumber', formData.surveyNumber);
-        formDataToSend.append('landNumber', formData.landNumber);
-        formDataToSend.append('latitude', formData.latitude);
-        formDataToSend.append('longitude', formData.longitude);
-        formDataToSend.append('mapAddress', formData.mapAddress);
-        formDataToSend.append('halls', formData.halls);
-        formDataToSend.append('majlis', formData.majlis);
-        formDataToSend.append('kitchens', formData.kitchens);
-        
-        if (formData.buildingType === 'multi') {
-          formDataToSend.append('totalUnits', formData.totalUnits);
-          formDataToSend.append('totalArea', formData.totalArea);
-        }
-        
-        // Add amenities
-        formDataToSend.append('amenities', JSON.stringify(formData.amenities));
-        formDataToSend.append('customAmenities', JSON.stringify(formData.customAmenities));
-        
+      const formDataToSend = new FormData();
+      
+      // Add all text fields
+      formDataToSend.append('titleAr', formData.titleAr);
+      formDataToSend.append('titleEn', formData.titleEn);
+      formDataToSend.append('descriptionAr', formData.descriptionAr);
+      formDataToSend.append('descriptionEn', formData.descriptionEn);
+      formDataToSend.append('province', formData.province);
+      formDataToSend.append('state', formData.state);
+      formDataToSend.append('city', formData.city);
+      formDataToSend.append('village', formData.village);
+      formDataToSend.append('address', formData.address);
+      formDataToSend.append('type', formData.type);
+      formDataToSend.append('usageType', formData.usageType);
+      formDataToSend.append('purpose', formData.purpose);
+      formDataToSend.append('buildingType', formData.buildingType);
+      formDataToSend.append('buildingAge', formData.buildingAge);
+      formDataToSend.append('area', formData.area);
+      formDataToSend.append('beds', formData.beds);
+      formDataToSend.append('baths', formData.baths);
+      formDataToSend.append('floors', formData.floors);
+      formDataToSend.append('priceOMR', formData.priceOMR);
+      formDataToSend.append('rentalPrice', formData.rentalPrice);
+      formDataToSend.append('published', String(formData.published));
+      formDataToSend.append('referenceNo', formData.referenceNo);
+      formDataToSend.append('surveyNumber', formData.surveyNumber);
+      formDataToSend.append('landNumber', formData.landNumber);
+      formDataToSend.append('latitude', formData.latitude);
+      formDataToSend.append('longitude', formData.longitude);
+      formDataToSend.append('mapAddress', formData.mapAddress);
+      formDataToSend.append('halls', formData.halls);
+      formDataToSend.append('majlis', formData.majlis);
+      formDataToSend.append('kitchens', formData.kitchens);
+      
+      if (formData.buildingType === 'multi') {
+        formDataToSend.append('totalUnits', formData.totalUnits);
+        formDataToSend.append('totalArea', formData.totalArea);
+      }
+      
+      // Add amenities
+      formDataToSend.append('amenities', JSON.stringify(formData.amenities));
+      formDataToSend.append('customAmenities', JSON.stringify(formData.customAmenities));
+      
         // Add images (only File objects)
-        formData.images.forEach((image, index) => {
+      formData.images.forEach((image, index) => {
           if (image instanceof File) {
-            formDataToSend.append(`images`, image);
+        formDataToSend.append(`images`, image);
           }
-        });
-        
-        // Add cover index
-        formDataToSend.append('coverIndex', String(formData.coverIndex));
-        
-        // Add video URL
-        if (formData.videoUrl) {
-          formDataToSend.append('videoUrl', formData.videoUrl);
-        }
-        
-        // Add contact info
-        formDataToSend.append('useUserContact', String(formData.useUserContact));
-        if (!formData.useUserContact) {
-          formDataToSend.append('ownerName', formData.ownerName);
-          formDataToSend.append('ownerPhone', formData.ownerPhone);
-          formDataToSend.append('ownerEmail', formData.ownerEmail);
-        }
-        
-        // Add notes
-        if (formData.notes) {
-          formDataToSend.append('notes', formData.notes);
-        }
-        
-        // Add units data if multi-unit building
-        if (formData.buildingType === 'multi' && formData.units.length > 0) {
-          formDataToSend.append('units', JSON.stringify(formData.units));
-        }
+      });
+      
+      // Add cover index
+      formDataToSend.append('coverIndex', String(formData.coverIndex));
+      
+      // Add video URL
+      if (formData.videoUrl) {
+        formDataToSend.append('videoUrl', formData.videoUrl);
+      }
+      
+      // Add contact info
+      formDataToSend.append('useUserContact', String(formData.useUserContact));
+      if (!formData.useUserContact) {
+        formDataToSend.append('ownerName', formData.ownerName);
+        formDataToSend.append('ownerPhone', formData.ownerPhone);
+        formDataToSend.append('ownerEmail', formData.ownerEmail);
+      }
+      
+      // Add notes
+      if (formData.notes) {
+        formDataToSend.append('notes', formData.notes);
+      }
+      
+      // Add units data if multi-unit building
+      if (formData.buildingType === 'multi' && formData.units.length > 0) {
+        formDataToSend.append('units', JSON.stringify(formData.units));
+      }
 
-        // استخدام PUT للتعديل أو POST للإضافة
-        const url = id ? `/api/properties/${id}` : '/api/properties';
-        const method = id ? 'PUT' : 'POST';
+      // استخدام PUT للتعديل أو POST للإضافة
+      const url = id ? `/api/properties/${id}` : '/api/properties';
+      const method = id ? 'PUT' : 'POST';
 
-        const response = await fetch(url, {
-          method: method,
-          body: formDataToSend
-        });
+      const response = await fetch(url, {
+        method: method,
+        body: formDataToSend
+      });
 
-        if (response.ok) {
-          const data = await response.json();
-          alert(id ? 'تم تحديث العقار بنجاح!' : 'تم حفظ العقار بنجاح!');
-          router.push('/properties/unified-management');
-        } else {
+      if (response.ok) {
+        const data = await response.json();
+        alert(id ? 'تم تحديث العقار بنجاح!' : 'تم حفظ العقار بنجاح!');
+        router.push('/properties/unified-management');
+      } else {
           try {
-            const error = await response.json();
-            alert('حدث خطأ: ' + (error.message || 'فشل في حفظ العقار'));
+        const error = await response.json();
+        alert('حدث خطأ: ' + (error.message || 'فشل في حفظ العقار'));
           } catch (parseError) {
             console.error('Error parsing response:', parseError);
             alert('حدث خطأ في حفظ العقار - استجابة غير صحيحة من الخادم');
@@ -1461,7 +1461,7 @@ export default function EditProperty({ property }: { property: any }) {
   };
 
   if (loading && id) {
-  return (
+    return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
@@ -2862,9 +2862,9 @@ export default function EditProperty({ property }: { property: any }) {
                   </button>
           </div>
         )}
-            </div>
-        </div>
+      </div>
     </div>
+      </div>
     </>
   );
 }
