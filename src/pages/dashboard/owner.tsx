@@ -4,6 +4,8 @@ import { NextPage } from "next";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
+import InstantLink from "@/components/InstantLink";
+import { FaPlus, FaCog } from "react-icons/fa";
 import PropertyCard from "@/components/properties/PropertyCard";
 import RentalStatusChart from "@/components/dashboard/RentalStatusChart";
 import StatsOverview from "@/components/dashboard/StatsOverview";
@@ -187,13 +189,21 @@ const OwnerDashboard: NextPage = () => {
                     </svg>
                     <h3 className="mt-2 text-sm font-medium text-gray-900">لا توجد عقارات</h3>
                     <p className="mt-1 text-sm text-gray-500">ابدأ بإضافة عقارك الأول.</p>
-                    <div className="mt-6">
-                      <button
-                        type="button"
-                        className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    <div className="mt-6 flex gap-3">
+                      <InstantLink
+                        href="/properties/new"
+                        className="inline-flex items-center px-6 py-3 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-105"
                       >
+                        <FaPlus className="ml-2" />
                         إضافة عقار جديد
-                      </button>
+                      </InstantLink>
+                      <InstantLink
+                        href="/properties/unified-management"
+                        className="inline-flex items-center px-6 py-3 border-2 border-blue-600 rounded-xl shadow-lg text-sm font-bold text-blue-600 bg-white hover:bg-blue-50 transition-all"
+                      >
+                        <FaCog className="ml-2" />
+                        الإدارة المتقدمة
+                      </InstantLink>
                     </div>
                   </div>
                 )}

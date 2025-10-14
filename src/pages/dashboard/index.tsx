@@ -112,24 +112,24 @@ export default function DashboardRouter() {
     }
 
     // لوحة المالك - للملاك والمطورين والشركات
-    if (['property_landlord', 'basic_landlord', 'corporate_landlord', 'developer'].includes(userData.role)) {
+    if (['property_owner', 'property_landlord', 'basic_landlord', 'corporate_landlord', 'developer'].includes(userData.role)) {
       dashboards.push({
-    id: 'property-owner',
+	id: 'property-owner',
         title: 'إدارة العقارات',
         description: 'لوحة تحكم لإدارة عقاراتك ومستأجريك',
         icon: <FiHome className="text-4xl text-green-600" />,
-    color: 'bg-green-500',
-    bgColor: 'bg-green-50',
-    textColor: 'text-green-600',
-    features: [
-      'إدارة عقاراتك',
-      'مراجعة الحجوزات',
+	color: 'bg-green-500',
+	bgColor: 'bg-green-50',
+	textColor: 'text-green-600',
+	features: [
+	  'إدارة عقاراتك',
+	  'مراجعة الحجوزات',
           'إدارة المستأجرين',
-      'التحليلات المالية',
-      'إدارة المهام',
-      'التقارير والإحصائيات'
-    ],
-        link: '/dashboard/property-owner',
+	  'التحليلات المالية',
+	  'إدارة المهام',
+	  'التقارير والإحصائيات'
+	],
+        link: '/dashboard/owner',
         permission: 'canViewOwnProperties'
       });
     }
@@ -157,8 +157,88 @@ export default function DashboardRouter() {
       });
     }
 
-    // لوحة المستأجر الفردي
-    if (userData.role === 'individual_tenant') {
+    // لوحة المحاسب
+    if (userData.role === 'accountant') {
+      dashboards.push({
+        id: 'accountant',
+        title: 'النظام المالي',
+        description: 'لوحة تحكم المحاسبة والمالية',
+        icon: <FiDollarSign className="text-4xl text-green-600" />,
+        color: 'bg-green-500',
+        bgColor: 'bg-green-50',
+        textColor: 'text-green-600',
+        features: [
+          'إدارة الفواتير',
+          'إدارة الشيكات',
+          'التقارير المالية',
+          'تصدير البيانات'
+        ],
+        link: '/dashboard/accountant',
+        permission: 'view_financial'
+      });
+    }
+
+    // لوحة المستشار القانوني
+    if (userData.role === 'legal_advisor') {
+      dashboards.push({
+        id: 'legal',
+        title: 'النظام القانوني',
+        description: 'لوحة تحكم القضايا القانونية',
+        icon: <FiFileText className="text-4xl text-red-600" />,
+        color: 'bg-red-500',
+        bgColor: 'bg-red-50',
+        textColor: 'text-red-600',
+        features: [
+          'إدارة القضايا',
+          'العقود',
+          'الاستشارات'
+        ],
+        link: '/dashboard/legal',
+        permission: 'view_legal'
+      });
+    }
+
+    // لوحة المبيعات
+    if (userData.role === 'sales_agent') {
+      dashboards.push({
+        id: 'sales',
+        title: 'المبيعات',
+        description: 'لوحة تحكم المبيعات والتسويق',
+        icon: <FiTrendingUp className="text-4xl text-blue-600" />,
+        color: 'bg-blue-500',
+        bgColor: 'bg-blue-50',
+        textColor: 'text-blue-600',
+        features: [
+          'عرض العقارات',
+          'إضافة عقارات',
+          'إدارة المهام'
+        ],
+        link: '/dashboard/sales',
+        permission: 'view_properties'
+      });
+    }
+
+    // لوحة الصيانة
+    if (userData.role === 'maintenance_staff') {
+      dashboards.push({
+        id: 'maintenance',
+        title: 'الصيانة',
+        description: 'لوحة تحكم طلبات الصيانة',
+        icon: <FiSettings className="text-4xl text-purple-600" />,
+        color: 'bg-purple-500',
+        bgColor: 'bg-purple-50',
+        textColor: 'text-purple-600',
+        features: [
+          'طلبات الصيانة',
+          'المهام المسندة'
+        ],
+        link: '/dashboard/maintenance',
+        permission: 'view_maintenance'
+      });
+    }
+
+    // لوحة المستأجر والعميل
+    if (['tenant', 'individual_tenant', 'customer_viewer'].includes(userData.role)) {
       dashboards.push({
         id: 'tenant',
         title: 'لوحة المستأجر',

@@ -87,6 +87,9 @@ type Developer = {
 
 export default function HomePage() {
   const router = useRouter();
+  
+  // إصلاح Hydration: استخدام mounted state
+  const [mounted, setMounted] = useState(false);
 
   // --- إصلاح قوي: توحيد واجهة i18n حتى لو أعادت دالة أو كائن ---
   const _i18n = useI18n();
@@ -101,7 +104,7 @@ export default function HomePage() {
   // ----------------------------------------------------------------
 
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = mounted ? theme === "dark" : false;
   
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
   const [allProperties, setAllProperties] = useState<Property[]>([]);
@@ -118,6 +121,11 @@ export default function HomePage() {
   const [location, setLocation] = useState("");
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
 
+  // إصلاح Hydration: تحديد mounted بعد التحميل
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     // جلب البيانات من API الخاصة بالعقارات، المزادات، والشركاء
     const fetchData = async () => {
@@ -125,7 +133,8 @@ export default function HomePage() {
       try {
         // محاكاة جلب البيانات من واجهات برمجة التطبيقات
         // في التطبيق الحقيقي، استبدل هذه مع استدعاءات API فعلية
-        const now = Date.now();
+        // إصلاح Hydration: استخدام قيمة ثابتة بدلاً من Date.now()
+        const now = 1728950400000; // قيمة ثابتة لتجنب hydration mismatch
         
         // بيانات العقارات المميزة
         const propertiesData: Property[] = [
@@ -281,6 +290,9 @@ export default function HomePage() {
   const formatPrice = (n: number) => new Intl.NumberFormat("ar-OM").format(n) + " ر.ع";
   
   const formatRemainingTime = (endTime: number) => {
+    // إصلاح Hydration: استخدام قيمة ثابتة أثناء SSR
+    if (!mounted) return "جاري الحساب...";
+    
     const diff = endTime - Date.now();
     const days = Math.max(0, Math.floor(diff / 86400000));
     const hours = Math.max(0, Math.floor((diff % 86400000) / 3600000));

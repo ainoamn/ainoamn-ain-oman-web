@@ -16,8 +16,10 @@ type AinAuth = {
   phone?: string;
   role: string; 
   isVerified?: boolean;
+  permissions?: string[];
   features?: string[]; 
   subscription?: any;
+  picture?: string;
 };
 
 function setSession(u: AinAuth) {
@@ -93,13 +95,20 @@ function LoginPage() {
       
       if (!r.ok) return alert(d?.error || "فشل تسجيل الدخول");
       
+      // استخدام البيانات من d.user (API response structure)
+      const userData = d.user || d;
+      
       setSession({ 
-        id: d.id || email, 
-        name: d.name || name || email.split('@')[0], 
+        id: userData.id || email, 
+        name: userData.name || name || email.split('@')[0], 
         email: email,
-        role: d.role || "user", // النظام سيحدد الدور تلقائياً
-        isVerified: d.isVerified || false,
-        features: d.features || ["DASHBOARD_ACCESS"]
+        role: userData.role || "user",
+        isVerified: userData.isVerified || false,
+        permissions: userData.permissions || [],
+        subscription: userData.subscription || null,
+        picture: userData.picture,
+        phone: userData.phone,
+        features: userData.features || ["DASHBOARD_ACCESS"]
       });
 
       // العودة للصفحة الأصلية أو الداشبورد
@@ -155,13 +164,19 @@ function LoginPage() {
       
       if (!r.ok) return alert(d?.error || "فشل التحقق");
       
+      // استخدام البيانات من d.user (API response structure)
+      const userData = d.user || d;
+      
       setSession({ 
-        id: d.id || phone, 
-        name: d.name || name || phone, 
+        id: userData.id || phone, 
+        name: userData.name || name || phone, 
         phone: phone,
-        role: d.role || "user", // النظام سيحدد الدور تلقائياً
-        isVerified: d.isVerified || false,
-        features: d.features || ["DASHBOARD_ACCESS"]
+        role: userData.role || "user",
+        isVerified: userData.isVerified || false,
+        permissions: userData.permissions || [],
+        subscription: userData.subscription || null,
+        picture: userData.picture,
+        features: userData.features || ["DASHBOARD_ACCESS"]
       });
 
       // العودة للصفحة الأصلية

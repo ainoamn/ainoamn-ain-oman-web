@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحديث مطلوب - Ain Oman</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #2d3748;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+        p {
+            color: #4a5568;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        .status {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #2d3748;
+        }
+        .success {
+            color: #38a169;
+            font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🔄</div>
+        <h1>تحديث مطلوب</h1>
+        <p>
+            تم تحديث نظام الصلاحيات في الموقع. يرجى الضغط على الزر أدناه لمسح البيانات القديمة وتسجيل الدخول من جديد.
+        </p>
+        
+        <button class="btn" onclick="clearAndRedirect()">
+            مسح وإعادة التسجيل
+        </button>
+        
+        <div class="status">
+            <p id="status">اضغط الزر لتحديث البيانات...</p>
+            <p class="success" id="success">✅ تم! جاري التوجيه...</p>
+        </div>
+    </div>
+
+    <script>
+        function clearAndRedirect() {
+            const btn = document.querySelector('.btn');
+            const status = document.getElementById('status');
+            const success = document.getElementById('success');
+            
+            btn.disabled = true;
+            btn.textContent = 'جاري المسح...';
+            
+            // مسح localStorage
+            localStorage.clear();
+            
+            // مسح sessionStorage
+            sessionStorage.clear();
+            
+            // مسح cookies
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            status.style.display = 'none';
+            success.style.display = 'block';
+            
+            // التوجيه بعد ثانية
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1000);
+        }
+        
+        // عرض معلومات التشخيص
+        window.addEventListener('load', () => {
+            const auth = localStorage.getItem('ain_auth');
+            if (auth) {
+                try {
+                    const data = JSON.parse(auth);
+                    console.log('🔍 بيانات ain_auth الحالية:', data);
+                    console.log('🔑 الصلاحيات:', data.permissions || 'غير موجودة');
+                } catch (e) {
+                    console.error('خطأ في قراءة البيانات:', e);
+                }
+            } else {
+                console.log('✅ لا توجد بيانات محفوظة');
+            }
+        });
+    </script>
+</body>
+</html>
+
+

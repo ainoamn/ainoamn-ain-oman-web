@@ -130,16 +130,54 @@ export default function RolesPermissionsPage() {
     loadRolesConfig();
   }, []);
 
-  const loadRolesConfig = () => {
-    // محاولة تحميل من localStorage أو API
+  const loadRolesConfig = async () => {
+    // محاولة تحميل من API أولاً
+    try {
+      const response = await fetch('/api/roles/load');
+      if (response.ok) {
+        const data = await response.json();
+        setRoles(data.roles);
+        // حفظ في localStorage أيضاً
+        localStorage.setItem('roles_permissions_config', JSON.stringify(data.roles));
+        console.log('✅ Roles: Loaded from API:', data.roles.length, 'roles');
+        return;
+      }
+    } catch (error) {
+      console.log('⚠️ Roles: Failed to load from API, trying localStorage...');
+    }
+    
+    // fallback إلى localStorage
     const savedConfig = localStorage.getItem('roles_permissions_config');
     if (savedConfig) {
       try {
         const config = JSON.parse(savedConfig);
         setRoles(config);
+        console.log('✅ Roles: Loaded from localStorage:', config.length, 'roles');
       } catch (error) {
-        console.error('Error loading roles config:', error);
+        console.error('❌ Roles: Error loading roles config:', error);
+        initializeDefaultRoles();
       }
+    } else {
+      console.log('⚠️ Roles: No config found, initializing default roles...');
+      initializeDefaultRoles();
+    }
+  };
+
+  const initializeDefaultRoles = () => {
+    localStorage.setItem('roles_permissions_config', JSON.stringify(DEFAULT_ROLES));
+    setRoles(DEFAULT_ROLES);
+    console.log('✅ Roles: Default roles initialized and saved:', DEFAULT_ROLES.length, 'roles');
+    
+    // إرسال إشعار للتبويبات الأخرى
+    try {
+      const channel = new BroadcastChannel('permissions_channel');
+      channel.postMessage({ 
+        type: 'PERMISSIONS_INITIALIZED',
+        timestamp: Date.now() 
+      });
+      channel.close();
+    } catch (error) {
+      console.error('Error broadcasting initialization:', error);
     }
   };
 
@@ -161,7 +199,7 @@ export default function RolesPermissionsPage() {
     }
   };
 
-  const saveRolePermissions = () => {
+  const saveRolePermissions = async () => {
     if (!selectedRole) return;
 
     const updatedRoles = roles.map(role => 
@@ -171,9 +209,42 @@ export default function RolesPermissionsPage() {
     );
 
     setRoles(updatedRoles);
+    
+    // حفظ في localStorage (للمتصفح الحالي)
     localStorage.setItem('roles_permissions_config', JSON.stringify(updatedRoles));
     
-    alert('✅ تم حفظ صلاحيات الدور بنجاح!\n\nسيتم تطبيقها على جميع المستخدمين من نفس الدور.');
+    // حفظ في API (للمتصفحات الأخرى)
+    try {
+      await fetch('/api/roles/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roles: updatedRoles })
+      });
+      console.log('✅ Roles saved to API');
+    } catch (error) {
+      console.error('❌ Failed to save to API:', error);
+    }
+    
+    // إرسال إشعار للتبويبات الأخرى باستخدام BroadcastChannel
+    try {
+      const channel = new BroadcastChannel('permissions_channel');
+      channel.postMessage({ 
+        type: 'PERMISSIONS_UPDATED', 
+        roleId: selectedRole.id,
+        timestamp: Date.now() 
+      });
+      channel.close();
+      console.log('✅ Broadcast message sent for real-time sync');
+      
+      // أيضاً إرسال CustomEvent للتبويب الحالي
+      window.dispatchEvent(new CustomEvent('permissions:updated', { 
+        detail: { roleId: selectedRole.id } 
+      }));
+    } catch (error) {
+      console.error('Error broadcasting update:', error);
+    }
+    
+    alert('✅ تم حفظ صلاحيات الدور بنجاح!\n\nسيتم تطبيقها على جميع المستخدمين والمتصفحات.');
     setSelectedRole(null);
   };
 

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تشخيص النظام - Ain Oman</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f7fafc;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .check {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-right: 4px solid #cbd5e0;
+        }
+        .check.success {
+            border-color: #38a169;
+            background: #f0fff4;
+        }
+        .check.error {
+            border-color: #e53e3e;
+            background: #fff5f5;
+        }
+        .check.warning {
+            border-color: #ecc94b;
+            background: #fffaf0;
+        }
+        .check h3 {
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #5a67d8;
+        }
+        .btn.success {
+            background: #38a169;
+        }
+        .btn.danger {
+            background: #e53e3e;
+        }
+        pre {
+            background: #2d3748;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            direction: ltr;
+            text-align: left;
+            margin-top: 10px;
+        }
+        .icon {
+            font-size: 24px;
+            margin-left: 10px;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 تشخيص نظام الصلاحيات</h1>
+        
+        <div id="checks"></div>
+        
+        <div class="actions">
+            <button class="btn" onclick="runDiagnosis()">🔄 إعادة التشخيص</button>
+            <button class="btn success" onclick="initRoles()">⚙️ تهيئة الأدوار</button>
+            <button class="btn danger" onclick="clearAll()">🗑️ مسح الكل</button>
+        </div>
+    </div>
+
+    <script>
+        function runDiagnosis() {
+            const checksDiv = document.getElementById('checks');
+            checksDiv.innerHTML = '';
+            
+            let checks = [];
+
+            // Check 1: roles_permissions_config
+            const rolesConfig = localStorage.getItem('roles_permissions_config');
+            if (rolesConfig) {
+                try {
+                    const roles = JSON.parse(rolesConfig);
+                    checks.push({
+                        type: 'success',
+                        icon: '✅',
+                        title: 'roles_permissions_config موجود',
+                        message: `تم العثور على ${roles.length} أدوار`,
+                        details: roles.map(r => `${r.name.ar} (${r.permissions.length} صلاحية)`).join('<br>')
+                    });
+                } catch (e) {
+                    checks.push({
+                        type: 'error',
+                        icon: '❌',
+                        title: 'roles_permissions_config تالف',
+                        message: 'البيانات موجودة لكنها غير صالحة',
+                        details: e.message
+                    });
+                }
+            } else {
+                checks.push({
+                    type: 'error',
+                    icon: '❌',
+                    title: 'roles_permissions_config غير موجود',
+                    message: 'يجب تهيئة الأدوار أولاً',
+                    action: 'اضغط على "تهيئة الأدوار" أدناه'
+                });
+            }
+
+            // Check 2: ain_auth
+            const ainAuth = localStorage.getItem('ain_auth');
+            if (ainAuth) {
+                try {
+                    const user = JSON.parse(ainAuth);
+                    const hasPermissions = user.permissions && user.permissions.length > 0;
+                    checks.push({
+                        type: hasPermissions ? 'success' : 'warning',
+                        icon: hasPermissions ? '✅' : '⚠️',
+                        title: 'بيانات المستخدم (ain_auth)',
+                        message: `المستخدم: ${user.name} | الدور: ${user.role}`,
+                        details: hasPermissions 
+                            ? `الصلاحيات: ${user.permissions.length} صلاحية`
+                            : 'لا توجد صلاحيات! سجّل خروج ودخول من جديد'
+                    });
+                } catch (e) {
+                    checks.push({
+                        type: 'error',
+                        icon: '❌',
+                        title: 'ain_auth تالف',
+                        message: 'البيانات موجودة لكنها غير صالحة'
+                    });
+                }
+            } else {
+                checks.push({
+                    type: 'warning',
+                    icon: '⚠️',
+                    title: 'ain_auth غير موجود',
+                    message: 'لم تسجل دخول بعد'
+                });
+            }
+
+            // Check 3: BroadcastChannel support
+            if (typeof BroadcastChannel !== 'undefined') {
+                checks.push({
+                    type: 'success',
+                    icon: '✅',
+                    title: 'BroadcastChannel مدعوم',
+                    message: 'المتصفح يدعم التزامن الفوري'
+                });
+            } else {
+                checks.push({
+                    type: 'error',
+                    icon: '❌',
+                    title: 'BroadcastChannel غير مدعوم',
+                    message: 'استخدم Chrome/Firefox/Edge الحديث'
+                });
+            }
+
+            // Check 4: اختبار الاتصال
+            try {
+                const testChannel = new BroadcastChannel('test_channel');
+                testChannel.close();
+                checks.push({
+                    type: 'success',
+                    icon: '✅',
+                    title: 'اختبار BroadcastChannel',
+                    message: 'تم إنشاء قناة اختبارية بنجاح'
+                });
+            } catch (e) {
+                checks.push({
+                    type: 'error',
+                    icon: '❌',
+                    title: 'اختبار BroadcastChannel فشل',
+                    message: e.message
+                });
+            }
+
+            // عرض النتائج
+            checks.forEach(check => {
+                const div = document.createElement('div');
+                div.className = `check ${check.type}`;
+                div.innerHTML = `
+                    <h3><span class="icon">${check.icon}</span>${check.title}</h3>
+                    <p>${check.message}</p>
+                    ${check.details ? `<pre>${check.details}</pre>` : ''}
+                    ${check.action ? `<p style="margin-top: 10px; font-weight: bold;">→ ${check.action}</p>` : ''}
+                `;
+                checksDiv.appendChild(div);
+            });
+
+            // ملخص
+            const successCount = checks.filter(c => c.type === 'success').length;
+            const errorCount = checks.filter(c => c.type === 'error').length;
+            
+            const summary = document.createElement('div');
+            summary.className = 'check ' + (errorCount === 0 ? 'success' : 'warning');
+            summary.innerHTML = `
+                <h3>📊 الملخص</h3>
+                <p>✅ نجح: ${successCount} | ❌ فشل: ${errorCount}</p>
+                ${errorCount === 0 
+                    ? '<p style="font-weight: bold; color: #38a169;">🎉 النظام جاهز للعمل!</p>' 
+                    : '<p style="font-weight: bold; color: #e53e3e;">⚠️ يرجى إصلاح المشاكل أعلاه</p>'
+                }
+            `;
+            checksDiv.appendChild(summary);
+        }
+
+        async function initRoles() {
+            try {
+                const response = await fetch('/roles-config.json');
+                const roles = await response.json();
+                localStorage.setItem('roles_permissions_config', JSON.stringify(roles));
+                
+                // إرسال broadcast
+                try {
+                    const channel = new BroadcastChannel('permissions_channel');
+                    channel.postMessage({ 
+                        type: 'PERMISSIONS_INITIALIZED',
+                        timestamp: Date.now() 
+                    });
+                    channel.close();
+                } catch (e) {}
+                
+                alert('✅ تم تهيئة الأدوار بنجاح!\n\nعدد الأدوار: ' + roles.length);
+                runDiagnosis();
+            } catch (e) {
+                alert('❌ فشل تحميل الأدوار: ' + e.message);
+            }
+        }
+
+        function clearAll() {
+            if (confirm('⚠️ هل أنت متأكد من مسح جميع البيانات؟')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                alert('✅ تم مسح جميع البيانات');
+                runDiagnosis();
+            }
+        }
+
+        // تشغيل التشخيص عند التحميل
+        window.addEventListener('load', runDiagnosis);
+    </script>
+</body>
+</html>
+

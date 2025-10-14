@@ -1,7 +1,7 @@
 // src/pages/admin/dashboard.tsx
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+import InstantLink from '@/components/InstantLink';
 
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
@@ -57,40 +57,40 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Links */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* إدارة العقارات */}
           <div className="bg-white rounded-xl shadow p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">إدارة العقارات</h3>
             <div className="grid grid-cols-2 gap-4">
-              <Link 
+              <InstantLink 
                 href="/admin/units"
                 className="block p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition text-center"
               >
                 <div className="text-2xl mb-2">🏢</div>
                 <span className="text-sm font-medium text-blue-800">إدارة الوحدات</span>
-              </Link>
-              <Link 
+              </InstantLink>
+              <InstantLink 
                 href="/admin/buildings"
                 className="block p-4 bg-green-50 rounded-lg hover:bg-green-100 transition text-center"
               >
                 <div className="text-2xl mb-2">🏗️</div>
                 <span className="text-sm font-medium text-green-800">إدارة المباني</span>
-              </Link>
-              <Link 
+              </InstantLink>
+              <InstantLink 
                 href="/admin/tenants"
                 className="block p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition text-center"
               >
                 <div className="text-2xl mb-2">👥</div>
                 <span className="text-sm font-medium text-purple-800">إدارة المستأجرين</span>
-              </Link>
-              <Link 
+              </InstantLink>
+              <InstantLink 
                 href="/admin/bookings"
                 className="block p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition text-center"
               >
                 <div className="text-2xl mb-2">📅</div>
                 <span className="text-sm font-medium text-yellow-800">إدارة الحجوزات</span>
-              </Link>
+              </InstantLink>
             </div>
           </div>
 
@@ -98,34 +98,69 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-xl shadow p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">المالية والمحاسبة</h3>
             <div className="grid grid-cols-2 gap-4">
-              <Link 
+              <InstantLink 
                 href="/admin/invoices"
                 className="block p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition text-center"
               >
                 <div className="text-2xl mb-2">📄</div>
                 <span className="text-sm font-medium text-blue-800">إدارة الفواتير</span>
-              </Link>
-              <Link 
+              </InstantLink>
+              <InstantLink 
                 href="/admin/checks"
                 className="block p-4 bg-green-50 rounded-lg hover:bg-green-100 transition text-center"
               >
                 <div className="text-2xl mb-2">💳</div>
                 <span className="text-sm font-medium text-green-800">إدارة الشيكات</span>
-              </Link>
-              <Link 
+              </InstantLink>
+              <InstantLink 
                 href="/admin/maintenance"
                 className="block p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition text-center"
               >
                 <div className="text-2xl mb-2">🔧</div>
                 <span className="text-sm font-medium text-purple-800">إدارة الصيانة</span>
-              </Link>
-              <Link 
+              </InstantLink>
+              <InstantLink 
                 href="/admin/tasks"
                 className="block p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition text-center"
               >
                 <div className="text-2xl mb-2">✅</div>
                 <span className="text-sm font-medium text-yellow-800">إدارة المهام</span>
-              </Link>
+              </InstantLink>
+            </div>
+          </div>
+
+          {/* الإدارة والصلاحيات */}
+          <div className="bg-white rounded-xl shadow p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">الإدارة والصلاحيات</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <InstantLink 
+                href="/admin/users"
+                className="block p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition text-center"
+              >
+                <div className="text-2xl mb-2">👥</div>
+                <span className="text-sm font-medium text-indigo-800">إدارة المستخدمين</span>
+              </InstantLink>
+              <InstantLink 
+                href="/admin/roles-permissions"
+                className="block p-4 bg-red-50 rounded-lg hover:bg-red-100 transition text-center"
+              >
+                <div className="text-2xl mb-2">🛡️</div>
+                <span className="text-sm font-medium text-red-800">إدارة الأدوار</span>
+              </InstantLink>
+              <InstantLink 
+                href="/admin/permissions"
+                className="block p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition text-center"
+              >
+                <div className="text-2xl mb-2">🔐</div>
+                <span className="text-sm font-medium text-orange-800">الصلاحيات</span>
+              </InstantLink>
+              <InstantLink 
+                href="/admin/subscriptions"
+                className="block p-4 bg-teal-50 rounded-lg hover:bg-teal-100 transition text-center"
+              >
+                <div className="text-2xl mb-2">💎</div>
+                <span className="text-sm font-medium text-teal-800">الاشتراكات</span>
+              </InstantLink>
             </div>
           </div>
 

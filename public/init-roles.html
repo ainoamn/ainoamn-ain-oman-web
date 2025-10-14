@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تهيئة الأدوار - Ain Oman</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            color: #2d3748;
+            font-size: 28px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        p {
+            color: #4a5568;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #2d3748;
+            text-align: right;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            color: #38a169;
+            font-weight: bold;
+        }
+        .error {
+            color: #e53e3e;
+            font-weight: bold;
+        }
+        pre {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ تهيئة الأدوار والصلاحيات</h1>
+        <p>
+            هذه الصفحة ستقوم بتهيئة الأدوار الـ10 الافتراضية في localStorage
+        </p>
+        
+        <button class="btn" id="initBtn" onclick="initializeRoles()">
+            تهيئة الأدوار الآن
+        </button>
+        
+        <div class="status" id="status">
+            <p>اضغط الزر لبدء التهيئة...</p>
+        </div>
+    </div>
+
+    <script>
+        async function initializeRoles() {
+            const btn = document.getElementById('initBtn');
+            const status = document.getElementById('status');
+            
+            btn.disabled = true;
+            btn.textContent = 'جاري التهيئة...';
+            status.innerHTML = '<p>⏳ جاري التحميل...</p>';
+            
+            try {
+                // جلب الأدوار من ملف JSON
+                const response = await fetch('/roles-config.json');
+                const roles = await response.json();
+                
+                // حفظ في localStorage
+                localStorage.setItem('roles_permissions_config', JSON.stringify(roles));
+                
+                // عرض النتيجة
+                status.innerHTML = `
+                    <p class="success">✅ تم تهيئة الأدوار بنجاح!</p>
+                    <p>📊 عدد الأدوار: ${roles.length}</p>
+                    <p>📝 الأدوار المُحفوظة:</p>
+                    <ul style="list-style: none; padding: 0; margin-top: 10px;">
+                        ${roles.map((r, i) => {
+                            const count = r.permissions.includes('*') ? 'الكل' : r.permissions.length;
+                            return `<li>✅ ${i+1}. ${r.name.ar} (${count} ${count === 'الكل' ? 'صلاحية' : (count === 1 ? 'صلاحية' : count === 2 ? 'صلاحيتين' : 'صلاحيات')})</li>`;
+                        }).join('')}
+                    </ul>
+                    <p style="margin-top: 20px; font-weight: bold;">🎯 الخطوة التالية:</p>
+                    <p>افتح <a href="/profile" style="color: #667eea;">صفحة Profile</a> وسترى الصلاحيات!</p>
+                `;
+                
+                btn.textContent = '✅ تم!';
+                btn.style.background = '#38a169';
+                
+                // إرسال إشعار للتبويبات الأخرى
+                try {
+                    const channel = new BroadcastChannel('permissions_channel');
+                    channel.postMessage({ 
+                        type: 'PERMISSIONS_INITIALIZED',
+                        timestamp: Date.now() 
+                    });
+                    channel.close();
+                    console.log('✅ Broadcast message sent');
+                } catch (e) {
+                    console.log('⚠️ BroadcastChannel not supported');
+                }
+                
+            } catch (error) {
+                status.innerHTML = `
+                    <p class="error">❌ حدث خطأ!</p>
+                    <p>${error.message}</p>
+                `;
+                btn.disabled = false;
+                btn.textContent = 'إعادة المحاولة';
+            }
+        }
+        
+        // عرض الحالة الحالية
+        window.addEventListener('load', () => {
+            const config = localStorage.getItem('roles_permissions_config');
+            if (config) {
+                try {
+                    const roles = JSON.parse(config);
+                    const status = document.getElementById('status');
+                    status.innerHTML = `
+                        <p class="success">ℹ️ يوجد تكوين محفوظ مسبقاً</p>
+                        <p>📊 عدد الأدوار: ${roles.length}</p>
+                        <p>💡 يمكنك إعادة التهيئة بالضغط على الزر</p>
+                    `;
+                } catch (e) {
+                    console.error('Error parsing config:', e);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
