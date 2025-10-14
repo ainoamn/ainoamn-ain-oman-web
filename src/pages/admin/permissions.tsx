@@ -33,6 +33,20 @@ export default function PermissionsManagementPage() {
   const [editingPermissions, setEditingPermissions] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
+  const [canEdit, setCanEdit] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    // التحقق من صلاحيات المستخدم الحالي
+    const authData = localStorage.getItem('ain_auth');
+    if (authData) {
+      const userData = JSON.parse(authData);
+      setCurrentUser(userData);
+      const hasEditPermission = userData.permissions?.includes('*') || 
+                                userData.permissions?.includes('manage_users');
+      setCanEdit(hasEditPermission);
+    }
+  }, []);
 
   useEffect(() => {
     loadUsers();
@@ -96,7 +110,7 @@ export default function PermissionsManagementPage() {
   });
 
   return (
-    <ProtectedRoute requiredPermission="manage_users">
+    <>
       <Head>
         <title>إدارة الصلاحيات - Ain Oman</title>
       </Head>
@@ -109,11 +123,32 @@ export default function PermissionsManagementPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-4xl font-bold mb-2">إدارة الصلاحيات</h1>
-                <p className="text-blue-100">تحكم كامل في صلاحيات المستخدمين والباقات</p>
+                <p className="text-blue-100">
+                  {canEdit 
+                    ? 'تحكم كامل في صلاحيات المستخدمين والباقات' 
+                    : 'عرض صلاحيات المستخدمين (وضع القراءة فقط)'}
+                </p>
               </div>
               <FiShield className="w-16 h-16 opacity-50" />
             </div>
           </div>
+
+          {/* Access Notice for Non-Admins */}
+          {!canEdit && (
+            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-6 mb-8">
+              <div className="flex items-start gap-3">
+                <FiAlertCircle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="font-bold text-yellow-900 mb-2">وضع المشاهدة فقط</h3>
+                  <p className="text-yellow-800">
+                    أنت تعرض هذه الصفحة في وضع القراءة فقط. لتعديل صلاحيات المستخدمين، يجب أن تكون لديك صلاحية 
+                    <span className="font-mono bg-yellow-100 px-2 py-1 rounded mx-1">manage_users</span>
+                    أو أن تكون مدير النظام.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -228,13 +263,24 @@ export default function PermissionsManagementPage() {
                           )}
                         </td>
                         <td className="px-6 py-4">
-                          <button
-                            onClick={() => handleEditUser(user)}
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                          >
-                            <FiEdit className="w-4 h-4" />
-                            تعديل
-                          </button>
+                          {canEdit ? (
+                            <button
+                              onClick={() => handleEditUser(user)}
+                              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                              <FiEdit className="w-4 h-4" />
+                              تعديل
+                            </button>
+                          ) : (
+                            <button
+                              disabled
+                              className="flex items-center gap-2 px-4 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed"
+                              title="ليس لديك صلاحية التعديل"
+                            >
+                              <FiEdit className="w-4 h-4" />
+                              عرض فقط
+                            </button>
+                          )}
                         </td>
                       </tr>
                     );
@@ -332,12 +378,14 @@ export default function PermissionsManagementPage() {
                       return (
                         <div
                           key={permission.id}
-                          className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            canEdit ? 'cursor-pointer' : 'cursor-default'
+                          } ${
                             isChecked 
                               ? 'bg-blue-50 border-blue-500' 
                               : 'bg-white border-gray-200 hover:border-blue-300'
                           }`}
-                          onClick={() => togglePermission(permission.id)}
+                          onClick={() => canEdit && togglePermission(permission.id)}
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -374,15 +422,17 @@ export default function PermissionsManagementPage() {
                     onClick={() => setSelectedUser(null)}
                     className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-100 transition-colors"
                   >
-                    إلغاء
+                    {canEdit ? 'إلغاء' : 'إغلاق'}
                   </button>
-                  <button
-                    onClick={savePermissions}
-                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all shadow-lg"
-                  >
-                    <FiSave className="w-5 h-5" />
-                    حفظ الصلاحيات
-                  </button>
+                  {canEdit && (
+                    <button
+                      onClick={savePermissions}
+                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all shadow-lg"
+                    >
+                      <FiSave className="w-5 h-5" />
+                      حفظ الصلاحيات
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -390,7 +440,7 @@ export default function PermissionsManagementPage() {
 
         </div>
       </div>
-    </ProtectedRoute>
+    </>
   );
 }
 
