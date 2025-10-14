@@ -301,7 +301,7 @@ export default function HomePage() {
   };
 
   const heroStyles = {
-    backgroundImage: "url('/images/banner1.jpg')",
+    backgroundImage: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     backgroundSize: 'cover',
     backgroundPosition: 'center'
   };

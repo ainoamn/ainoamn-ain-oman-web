@@ -51,7 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       email: user.email,
       role: user.role,
       phone: user.phone || '',
-      picture: user.picture || '/demo/user1.jpg',
+      picture: user.picture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=6B7280&color=fff&size=200',
       isVerified: user.isVerified !== false,
       permissions: user.permissions || [],
       subscription: user.subscription || null

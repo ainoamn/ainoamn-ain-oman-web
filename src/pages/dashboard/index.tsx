@@ -57,15 +57,19 @@ export default function DashboardRouter() {
       
       if (response.ok) {
         const userData = await response.json();
-        setUser(userData.user);
-        generateAvailableDashboards(userData.user);
+        if (userData && userData.user) {
+          setUser(userData.user);
+          generateAvailableDashboards(userData.user);
 
-        // التوجيه التلقائي بعد 2 ثانية
-        if (autoRedirect) {
-          setTimeout(() => {
-            const dashboardPath = getDashboardPath(userData.user.role);
-            router.push(dashboardPath);
-          }, 2000);
+          // التوجيه التلقائي بعد 2 ثانية
+          if (autoRedirect) {
+            setTimeout(() => {
+              const dashboardPath = getDashboardPath(userData.user.role);
+              router.push(dashboardPath);
+            }, 2000);
+          }
+        } else {
+          router.push('/login');
         }
       } else {
         // المستخدم غير مسجل دخول - التوجيه لصفحة تسجيل الدخول

@@ -10,7 +10,7 @@ let reviewsStore: any[] = [
     propertyId: 'P-20251005183036',
     userId: 'user_1',
     userName: 'أحمد محمد',
-    userAvatar: '/demo/user1.jpg',
+    userAvatar: 'https://ui-avatars.com/api/?name=User&background=6B7280&color=fff&size=200',
     type: 'property', // 'property', 'company', 'service'
     rating: 5,
     title: 'عقار ممتاز',
@@ -29,7 +29,7 @@ let reviewsStore: any[] = [
     propertyId: 'P-20251005183036',
     userId: 'user_2',
     userName: 'فاطمة علي',
-    userAvatar: '/demo/user1.jpg',
+    userAvatar: 'https://ui-avatars.com/api/?name=User&background=6B7280&color=fff&size=200',
     type: 'company',
     rating: 4,
     title: 'إدارة محترفة',
@@ -84,7 +84,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         propertyId,
         userId: 'user_123', // من الجلسة
         userName: 'مستخدم',
-        userAvatar: '/demo/user1.jpg',
+        userAvatar: 'https://ui-avatars.com/api/?name=User&background=6B7280&color=fff&size=200',
         type,
         rating,
         title,

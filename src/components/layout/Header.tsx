@@ -188,7 +188,7 @@ export default function Header() {
     id: '1',
     name: 'أحمد محمد',
     email: 'ahmed@example.com',
-    avatar: '/demo/user1.jpg',
+    avatar: 'https://ui-avatars.com/api/?name=Ahmed&background=0D8ABC&color=fff&size=200',
     role: 'مدير',
     notifications: 5,
     favorites: 12,
@@ -277,7 +277,7 @@ export default function Header() {
             id: userData.id,
             name: userData.name || 'مستخدم',
             email: userData.email || userData.phone || '',
-            avatar: userData.picture || userData.avatar || '/demo/user1.jpg',
+            avatar: userData.picture || userData.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.name || 'User') + '&background=6B7280&color=fff&size=200',
             role: userData.role || 'user',
             notifications: 0,
             favorites: 0,
@@ -492,7 +492,7 @@ export default function Header() {
         <div className="flex items-center gap-3">
           <div className="relative">
             <InstantImage 
-              src={user?.avatar || '/demo/user1.jpg'}
+              src={user?.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&background=6B7280&color=fff&size=200'}
               alt={user?.name}
               width={48}
               height={48}
@@ -755,7 +755,7 @@ export default function Header() {
                   className="flex items-center gap-2 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
                 >
                   <InstantImage 
-                    src={user.avatar || '/demo/user1.jpg'}
+                    src={user.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name || 'User') + '&background=6B7280&color=fff&size=200'}
                     alt={user.name}
                     width={32}
                     height={32}

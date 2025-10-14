@@ -550,10 +550,10 @@ export default function Footer() {
         </button>
       )}
 
-      {/* Audio Element */}
-      <audio ref={audioRef} loop>
+      {/* Audio Element - Disabled */}
+      {/* <audio ref={audioRef} loop>
         <source src="/audio/background.mp3" type="audio/mpeg" />
-      </audio>
+      </audio> */}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Live Stats */}

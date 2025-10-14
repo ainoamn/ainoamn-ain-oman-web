@@ -987,10 +987,10 @@ export default function Layout({
   return (
     <LayoutContext.Provider value={contextValue}>
       <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${className}`}>
-        {/* Audio Element */}
-        <audio ref={audioRef} loop>
+        {/* Audio Element - Disabled */}
+        {/* <audio ref={audioRef} loop>
           <source src="/audio/background.mp3" type="audio/mpeg" />
-        </audio>
+        </audio> */}
 
         {/* Announcement Bar */}
         {renderAnnouncementBar()}
