@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import {
   FiDollarSign, FiTrendingUp, FiTrendingDown, FiFileText,
   FiCreditCard, FiBarChart, FiPieChart, FiActivity,
@@ -20,7 +21,7 @@ interface FinancialSummary {
   payables: { total: number; current: number; overdue: number };
 }
 
-export default function FinancialDashboard() {
+function FinancialDashboardContent() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState<FinancialSummary | null>(null);
@@ -288,5 +289,13 @@ export default function FinancialDashboard() {
 
       </div>
     </div>
+  );
+}
+
+export default function FinancialDashboard() {
+  return (
+    <ProtectedRoute requiredPermission="view_financial">
+      <FinancialDashboardContent />
+    </ProtectedRoute>
   );
 }
