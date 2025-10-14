@@ -299,13 +299,23 @@ export default function Header() {
     const handleAuthChange = () => {
       loadUser();
     };
+    
+    // الاستماع لتغييرات localStorage من تبويبات أخرى
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'ain_auth' || e.key === 'auth_token') {
+        loadUser();
+      }
+    };
+    
     window.addEventListener('ain_auth:change', handleAuthChange);
+    window.addEventListener('storage', handleStorageChange);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('online', handleOnlineStatus);
       window.removeEventListener('offline', handleOnlineStatus);
       window.removeEventListener('ain_auth:change', handleAuthChange);
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 

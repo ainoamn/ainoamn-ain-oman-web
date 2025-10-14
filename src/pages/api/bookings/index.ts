@@ -47,8 +47,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.warn("Error reading db.json:", error);
     }
     
-    // دمج الحجوزات من كلا المصدرين
-    const allItems = [...items, ...dbItems];
+    // دمج الحجوزات من كلا المصدرين (التأكد من أنها arrays)
+    const allItems = [...(Array.isArray(items) ? items : []), ...(Array.isArray(dbItems) ? dbItems : [])];
     
     // إزالة التكرارات بناءً على ID
     const uniqueItems = new Map();
