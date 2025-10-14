@@ -319,17 +319,17 @@ export const Stages = {
 export const Assignments = { history(t:ID,c:ID){return db.assigns.filter(a=>a.tenantId===t && a.caseId===c);}, addMany(list:CaseAssignment[]){list.forEach(a=>db.assigns.push(a)); save(); return list;} };
 
 export const Directory = {
-  list(t:ID,kind?:DirectoryKind){return db.directory.filter(d=>d.tenantId===t && (!kind || d.kind===kind));},
-  upsert(p: Omit<DirectoryPerson,"createdAt"|"updatedAt">){const i=db.directory.findIndex(d=>d.id===p.id && d.tenantId===p.tenantId); const t=now(); if(i>=0) db.directory[i]={...db.directory[i],...p,updatedAt:t}; else db.directory.push({...p,phoneNumbers:p.phoneNumbers||[],emails:p.emails||[],createdAt:t,updatedAt:t}); save(); return p.id;},
-  importMany(t:ID,kind:DirectoryKind,entries:{subscriptionNo:string;name:string;id?:ID}[]){const out:DirectoryPerson[]=[]; for(const e of entries){const id=e.id||e.subscriptionNo; const person:Omit<DirectoryPerson,"createdAt"|"updatedAt">={id,tenantId:t,kind,subscriptionNo:e.subscriptionNo,name:e.name,phoneNumbers:[],emails:[]}; this.upsert(person); out.push({...person,createdAt:now(),updatedAt:now()} as DirectoryPerson);} return out;}
+  list(t:ID,kind?:DirectoryKind){return (db.directory || []).filter(d=>d.tenantId===t && (!kind || d.kind===kind));},
+  upsert(p: Omit<DirectoryPerson,"createdAt"|"updatedAt">){if(!db.directory) db.directory=[]; const i=db.directory.findIndex(d=>d.id===p.id && d.tenantId===p.tenantId); const t=now(); if(i>=0) db.directory[i]={...db.directory[i],...p,updatedAt:t}; else db.directory.push({...p,phoneNumbers:p.phoneNumbers||[],emails:p.emails||[],createdAt:t,updatedAt:t}); save(); return p.id;},
+  importMany(t:ID,kind:DirectoryKind,entries:{subscriptionNo:string;name:string;id?:ID}[]){if(!db.directory) db.directory=[]; const out:DirectoryPerson[]=[]; for(const e of entries){const id=e.id||e.subscriptionNo; const person:Omit<DirectoryPerson,"createdAt"|"updatedAt">={id,tenantId:t,kind,subscriptionNo:e.subscriptionNo,name:e.name,phoneNumbers:[],emails:[]}; this.upsert(person); out.push({...person,createdAt:now(),updatedAt:now()} as DirectoryPerson);} return out;}
 };
 
 export const Audit = { add(a:AuditLog){db.audits.push(a); save();}, listByCase(t:ID,c:ID){return db.audits.filter(a=>a.tenantId===t && (a.entityId===c || (a.meta as any)?.caseId===c)).sort((x,y)=>+new Date(y.at)-+new Date(x.at));} };
 
 export const Analytics = {
   generate(tenantId: ID): LegalAnalytics {
-    const cases = db.cases.filter(c => c.tenantId === tenantId);
-    const expenses = db.expenses.filter(e => e.tenantId === tenantId);
+    const cases = (db.cases || []).filter(c => c.tenantId === tenantId);
+    const expenses = (db.expenses || []).filter(e => e.tenantId === tenantId);
     
     const totalCases = cases.length;
     const activeCases = cases.filter(c => c.status === "OPEN" || c.status === "IN_PROGRESS").length;

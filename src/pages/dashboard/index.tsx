@@ -80,11 +80,16 @@ export default function DashboardRouter() {
     }
   };
 
-  const generateAvailableDashboards = (userData: User) => {
+  const generateAvailableDashboards = (userData: User | null) => {
     const dashboards = [];
 
+    if (!userData) {
+      setAvailableDashboards([]);
+      return;
+    }
+
     // لوحة الإدارة - للمديرين فقط
-    if (userData.role === 'site_admin') {
+    if (userData.role === 'site_admin' || userData.role === 'company_admin') {
       dashboards.push({
     id: 'admin',
     title: 'إدارة النظام الكاملة',
