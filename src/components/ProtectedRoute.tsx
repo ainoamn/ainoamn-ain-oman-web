@@ -45,8 +45,23 @@ export default function ProtectedRoute({
       setUserName(userData.name || 'مستخدم');
       setUserPlan(userData.subscription?.plan || null);
       
-      // جلب صلاحيات المستخدم
-      const permissions = userData.permissions || [];
+      // جلب صلاحيات المستخدم من الدور المحفوظ
+      let permissions = userData.permissions || [];
+      
+      // محاولة تحميل الصلاحيات المخصصة من localStorage
+      const rolesConfig = localStorage.getItem('roles_permissions_config');
+      if (rolesConfig) {
+        try {
+          const roles = JSON.parse(rolesConfig);
+          const userRole = roles.find((r: any) => r.id === userData.role);
+          if (userRole) {
+            permissions = userRole.permissions;
+          }
+        } catch (error) {
+          console.error('Error loading roles config:', error);
+        }
+      }
+      
       setUserPermissions(permissions);
 
       // إذا لم يتم تحديد صلاحيات مطلوبة، السماح بالوصول
