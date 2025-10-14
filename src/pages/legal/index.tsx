@@ -382,19 +382,19 @@ export default function LegalCasesPage() {
 
   if (loading) {
     return (
-      <Layout>
+      <>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600">جاري تحميل القضايا...</p>
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>إدارة القضايا القانونية - نظام إدارة القضايا</title>
       </Head>
@@ -919,6 +919,6 @@ export default function LegalCasesPage() {
           )}
         </div>
       </div>
-    </Layout>
+    </>
   );
 }
