@@ -115,11 +115,13 @@ export default function ProfilePage() {
   const loadUserData = async () => {
     setLoading(true);
     try {
-      // محاكاة بيانات المستخدم
-      // const mockUser تم إزالة البيانات الوهمية
-
-      setUser(mockUser);
-      generateAIInsights(mockUser);
+      // جلب بيانات المستخدم من localStorage
+      const authData = localStorage.getItem('ain_auth');
+      if (authData) {
+        const userData = JSON.parse(authData);
+        setUser(userData);
+        generateAIInsights(userData);
+      }
     } catch (error) {
       console.error('Error loading user data:', error);
     } finally {
