@@ -13,6 +13,7 @@ import {
   FiChevronDown, FiChevronUp, FiArrowRight, FiTarget
 } from 'react-icons/fi';
 import { ALL_PERMISSIONS } from '@/lib/permissions';
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 interface User {
   id: string;
@@ -256,6 +257,81 @@ export default function ProfilePage() {
               </div>
             </div>
           )}
+
+          {/* الرسوم البيانية التفاعلية */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* أداء العقارات - خط */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <FiTrendingUp className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">أداء العقارات</h3>
+                  <p className="text-sm text-gray-600">آخر 6 أشهر</p>
+                </div>
+              </div>
+              <ResponsiveContainer width="100%" height={250}>
+                <AreaChart data={[
+                  { month: 'يناير', views: 120, bookings: 15 },
+                  { month: 'فبراير', views: 180, bookings: 22 },
+                  { month: 'مارس', views: 250, bookings: 35 },
+                  { month: 'أبريل', views: 320, bookings: 45 },
+                  { month: 'مايو', views: 280, bookings: 38 },
+                  { month: 'يونيو', views: 400, bookings: 52 }
+                ]}>
+                  <defs>
+                    <linearGradient id="viewsGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="bookingsGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Area type="monotone" dataKey="views" stroke="#3B82F6" fillOpacity={1} fill="url(#viewsGradient)" name="المشاهدات" />
+                  <Area type="monotone" dataKey="bookings" stroke="#10B981" fillOpacity={1} fill="url(#bookingsGradient)" name="الحجوزات" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* الإيرادات - شريطي */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                  <FiDollarSign className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">الإيرادات الشهرية</h3>
+                  <p className="text-sm text-gray-600">مقارنة بالمصروفات</p>
+                </div>
+              </div>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={[
+                  { month: 'يناير', revenue: 45000, expenses: 28000 },
+                  { month: 'فبراير', revenue: 52000, expenses: 31000 },
+                  { month: 'مارس', revenue: 68000, expenses: 35000 },
+                  { month: 'أبريل', revenue: 75000, expenses: 38000 },
+                  { month: 'مايو', revenue: 71000, expenses: 36000 },
+                  { month: 'يونيو', revenue: 89000, expenses: 42000 }
+                ]}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="revenue" fill="#10B981" name="الإيرادات" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="expenses" fill="#EF4444" name="المصروفات" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
 
           {/* الإشعارات والتنبيهات */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
