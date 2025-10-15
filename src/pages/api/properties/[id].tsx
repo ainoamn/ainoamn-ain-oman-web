@@ -237,8 +237,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  // إذا لم يكن GET أو PUT
-  res.setHeader("Allow", "GET, PUT");
+  if (req.method === "DELETE") {
+    // حذف العقار
+    try {
+      const { remove } = await import("@/server/properties/store");
+      
+      if (typeof remove === 'function') {
+        await remove(String(id));
+        res.status(200).json({ ok: true, message: "تم حذف العقار بنجاح" });
+      } else {
+        res.status(500).json({ ok: false, error: "delete_not_supported" });
+      }
+    } catch (error) {
+      console.error('Error deleting property:', error);
+      res.status(500).json({ ok: false, error: "delete_error", message: "حدث خطأ أثناء حذف العقار" });
+    }
+    return;
+  }
+
+  // إذا لم يكن GET أو PUT أو DELETE
+  res.setHeader("Allow", "GET, PUT, DELETE");
   res.status(405).json({ ok: false, error: "method_not_allowed" });
   return;
 }
