@@ -1318,10 +1318,10 @@ export default function UnifiedPropertyManagement() {
                               <div className="flex items-center">
                                 <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0 ml-3">
                                   {getCoverImage(property) ? (
-                                    <InstantImage className="w-full h-full object-cover"
+                                    <img className="w-full h-full object-cover"
                                       src={getCoverImage(property)}
                                       alt={getTitleFromProperty(property)}
-                                     loading="lazy" width={400} height={300}/>
+                                     loading="lazy" />
                                   ) : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                                       <FaBuilding className="text-lg" />
@@ -1483,10 +1483,10 @@ export default function UnifiedPropertyManagement() {
                       {/* Property Image */}
                       <div className="relative h-48 bg-gray-200">
                         {getCoverImage(property) ? (
-                          <InstantImage src={getCoverImage(property)}
+                          <img src={getCoverImage(property)}
                             alt={getTitleFromProperty(property)}
                             className="w-full h-full object-cover"
-                           loading="lazy" width={400} height={300}/>
+                           loading="lazy" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
                             <FaBuilding className="text-4xl" />
