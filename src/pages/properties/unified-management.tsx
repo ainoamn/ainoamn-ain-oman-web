@@ -116,6 +116,77 @@ export default function UnifiedPropertyManagement() {
   const [aiInsights, setAiInsights] = useState<any>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
+  const [showBulkActions, setShowBulkActions] = useState(false);
+  const [bulkAction, setBulkAction] = useState('');
+
+  // Bulk Actions Handler
+  const handleBulkAction = async (action: string) => {
+    if (selectedProperties.size === 0) {
+      alert('لم يتم تحديد أي عقار');
+      return;
+    }
+
+    const selectedIds = Array.from(selectedProperties);
+    
+    switch (action) {
+      case 'delete':
+        if (confirm(`هل أنت متأكد من حذف ${selectedIds.length} عقار؟`)) {
+          selectedIds.forEach(id => deleteProperty(id));
+          setSelectedProperties(new Set());
+        }
+        break;
+      case 'publish':
+        selectedIds.forEach(id => {
+          const property = properties.find(p => p.id === id);
+          if (property && !property.published) {
+            togglePropertyPublish(id, false);
+          }
+        });
+        setSelectedProperties(new Set());
+        break;
+      case 'unpublish':
+        selectedIds.forEach(id => {
+          const property = properties.find(p => p.id === id);
+          if (property && property.published) {
+            togglePropertyPublish(id, false);
+          }
+        });
+        setSelectedProperties(new Set());
+        break;
+      case 'archive':
+        selectedIds.forEach(id => togglePropertyPublish(id, false));
+        setSelectedProperties(new Set());
+        break;
+      case 'export':
+        const exportData = properties.filter(p => selectedIds.includes(p.id));
+        const { exportToCSV, exportToExcel } = await import('@/lib/export');
+        exportToCSV(exportData, 'properties');
+        break;
+      default:
+        break;
+    }
+    setShowBulkActions(false);
+  };
+
+  // Toggle Select All
+  const toggleSelectAll = () => {
+    if (selectedProperties.size === filteredProperties.length) {
+      setSelectedProperties(new Set());
+    } else {
+      setSelectedProperties(new Set(filteredProperties.map(p => p.id)));
+    }
+  };
+
+  // Toggle Select Property
+  const toggleSelectProperty = (id: string) => {
+    const newSelected = new Set(selectedProperties);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedProperties(newSelected);
+  };
 
   // جلب البيانات
   useEffect(() => {
@@ -736,6 +807,56 @@ export default function UnifiedPropertyManagement() {
                 </button>
               </div>
             </div>
+
+            {/* Bulk Actions Bar */}
+            {selectedProperties.size > 0 && (
+              <div className="mt-4 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg p-4 animate-fade-in">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FaCheck className="text-blue-600 text-xl" />
+                    <span className="font-bold text-gray-900">
+                      تم تحديد {selectedProperties.size} عقار
+                    </span>
+                    <button
+                      onClick={() => setSelectedProperties(new Set())}
+                      className="text-sm text-red-600 hover:text-red-700 underline"
+                    >
+                      إلغاء التحديد
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleBulkAction('publish')}
+                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition flex items-center gap-2"
+                    >
+                      <FaGlobe />
+                      نشر
+                    </button>
+                    <button
+                      onClick={() => handleBulkAction('unpublish')}
+                      className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium transition flex items-center gap-2"
+                    >
+                      <FaEyeSlash />
+                      إخفاء
+                    </button>
+                    <button
+                      onClick={() => handleBulkAction('export')}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition flex items-center gap-2"
+                    >
+                      <FaDownload />
+                      تصدير
+                    </button>
+                    <button
+                      onClick={() => handleBulkAction('delete')}
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition flex items-center gap-2"
+                    >
+                      <FaTrash />
+                      حذف
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Tabs */}
             <div className="flex space-x-1 mt-6">
