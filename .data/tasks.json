@@ -1,4 +1,99 @@
 {
-  "tasks": [],
-  "lastId": 0
+  "tasks": [
+    {
+      "id": "task_001",
+      "userId": "owner@ainoman.om",
+      "title": "مراجعة عقد الإيجار للوحدة رقم 5",
+      "description": "مراجعة وتوقيع عقد الإيجار الجديد مع المستأجر الجديد",
+      "status": "pending",
+      "priority": "high",
+      "category": "contract",
+      "dueDate": "2025-10-20T00:00:00.000Z",
+      "assignedTo": "owner@ainoman.om",
+      "relatedTo": {
+        "type": "property",
+        "id": "prop_001",
+        "name": "فيلا الخليج - وحدة 5"
+      },
+      "createdAt": "2025-10-14T08:00:00.000Z",
+      "updatedAt": "2025-10-14T08:00:00.000Z",
+      "completedAt": null
+    },
+    {
+      "id": "task_002",
+      "userId": "owner@ainoman.om",
+      "title": "متابعة طلب الصيانة - تسرب مياه",
+      "description": "التواصل مع فني الصيانة للتأكد من إصلاح مشكلة تسرب المياه في الوحدة رقم 3",
+      "status": "in_progress",
+      "priority": "urgent",
+      "category": "maintenance",
+      "dueDate": "2025-10-16T00:00:00.000Z",
+      "assignedTo": "owner@ainoman.om",
+      "relatedTo": {
+        "type": "maintenance",
+        "id": "maint_001",
+        "name": "تسرب مياه - وحدة 3"
+      },
+      "createdAt": "2025-10-13T09:00:00.000Z",
+      "updatedAt": "2025-10-14T10:00:00.000Z",
+      "completedAt": null
+    },
+    {
+      "id": "task_003",
+      "userId": "owner@ainoman.om",
+      "title": "إعداد تقرير مالي شهري",
+      "description": "إعداد تقرير مالي شامل لشهر سبتمبر 2025",
+      "status": "pending",
+      "priority": "medium",
+      "category": "financial",
+      "dueDate": "2025-10-18T00:00:00.000Z",
+      "assignedTo": "owner@ainoman.om",
+      "relatedTo": {
+        "type": "report",
+        "id": "report_sep_2025",
+        "name": "تقرير سبتمبر 2025"
+      },
+      "createdAt": "2025-10-12T08:00:00.000Z",
+      "updatedAt": "2025-10-12T08:00:00.000Z",
+      "completedAt": null
+    },
+    {
+      "id": "task_004",
+      "userId": "owner@ainoman.om",
+      "title": "تجديد رخصة البناية",
+      "description": "تجديد رخصة البناية السنوية من البلدية",
+      "status": "completed",
+      "priority": "high",
+      "category": "legal",
+      "dueDate": "2025-10-15T00:00:00.000Z",
+      "assignedTo": "owner@ainoman.om",
+      "relatedTo": {
+        "type": "property",
+        "id": "prop_001",
+        "name": "فيلا الخليج"
+      },
+      "createdAt": "2025-10-01T08:00:00.000Z",
+      "updatedAt": "2025-10-10T14:00:00.000Z",
+      "completedAt": "2025-10-10T14:00:00.000Z"
+    },
+    {
+      "id": "task_005",
+      "userId": "admin@ainoman.om",
+      "title": "مراجعة طلبات المستخدمين الجدد",
+      "description": "مراجعة والموافقة على 5 طلبات تسجيل مستخدمين جدد",
+      "status": "pending",
+      "priority": "medium",
+      "category": "admin",
+      "dueDate": "2025-10-17T00:00:00.000Z",
+      "assignedTo": "admin@ainoman.om",
+      "relatedTo": {
+        "type": "users",
+        "id": "users_pending",
+        "name": "طلبات التسجيل"
+      },
+      "createdAt": "2025-10-14T07:00:00.000Z",
+      "updatedAt": "2025-10-14T07:00:00.000Z",
+      "completedAt": null
+    }
+  ]
 }

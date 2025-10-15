@@ -1,6 +1,7 @@
 ﻿import React, { useState, useEffect, useRef, useCallback } from "react";
 import InstantImage from '@/components/InstantImage';
 import InstantLink from '@/components/InstantLink';
+import NotificationsDropdown from '@/components/NotificationsDropdown';
 import { useRouter } from "next/router";
 import { 
   MagnifyingGlassIcon, 
@@ -691,21 +692,7 @@ export default function Header() {
             </div>
 
             {/* Notifications */}
-            <div className="relative" ref={notificationsRef}>
-              <button
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                className="p-2 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all relative"
-                title="الإشعارات"
-              >
-                <BellIcon className="w-5 h-5" />
-                {user?.notifications && user.notifications > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {user.notifications}
-                  </span>
-                )}
-              </button>
-              {isNotificationsOpen && renderNotifications()}
-            </div>
+            <NotificationsDropdown />
 
             {/* Theme Selector */}
             <div className="relative" ref={themeMenuRef}>

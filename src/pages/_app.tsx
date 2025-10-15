@@ -62,6 +62,13 @@ try {
   SubscriptionProvider = mod.SubscriptionProvider || SubscriptionProvider;
 } catch {}
 
+// Notifications Provider للإشعارات 🔔
+let NotificationsProvider: any = ({ children }: any) => <>{children}</>;
+try {
+  const mod = require("@/context/NotificationsContext");
+  NotificationsProvider = mod.NotificationsProvider || NotificationsProvider;
+} catch {}
+
 // مزامنة اللغة
 function LangSync() {
   const router = useRouter();
@@ -138,11 +145,13 @@ export default function App({ Component, pageProps }: AppProps) {
                 <CurrencyProvider>
                   <SubscriptionProvider>
                     <BookingsProvider>
-                      <ChatProvider>
-                        {content}
-                        <ChatWidget />
-                        <FloatingButtons />
-                      </ChatProvider>
+                      <NotificationsProvider>
+                        <ChatProvider>
+                          {content}
+                          <ChatWidget />
+                          <FloatingButtons />
+                        </ChatProvider>
+                      </NotificationsProvider>
                     </BookingsProvider>
                   </SubscriptionProvider>
                 </CurrencyProvider>

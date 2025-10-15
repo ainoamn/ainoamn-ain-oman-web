@@ -1,35 +1,63 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { mkdir, readFile, writeFile, access } from "node:fs/promises";
-import path from "node:path";
+import type { NextApiRequest, NextApiResponse } from 'next';
+import fs from 'fs';
+import path from 'path';
 
-const DATA_DIR = path.join(process.cwd(), ".data");
-const FILE = path.join(DATA_DIR, "notifications.json");
+const notificationsPath = path.join(process.cwd(), '.data', 'notifications.json');
 
-async function ensure() {
-  try { await access(DATA_DIR); } catch { await mkdir(DATA_DIR, { recursive: true }); }
-  try { await access(FILE); } catch { await writeFile(FILE, JSON.stringify({ items: [] }, null, 2), "utf8"); }
-}
-async function readDB() { const raw = await readFile(FILE, "utf8").catch(()=> '{"items":[]}'); return JSON.parse(raw || '{"items":[]}'); }
-async function writeDB(data: any) { await writeFile(FILE, JSON.stringify(data, null, 2), "utf8"); }
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { id } = req.query;
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  await ensure();
-  const { id } = req.query as { id: string };
+  try {
+    const fileData = fs.readFileSync(notificationsPath, 'utf8');
+    const data = JSON.parse(fileData);
 
-  if (req.method === "PUT") {
-    const db = await readDB();
-    db.items = (db.items || []).map((n: any) => n.id === id ? { ...n, ...(req.body || {}), id } : n);
-    await writeDB(db);
-    return res.status(200).json({ ok: true });
+    if (req.method === 'PUT' || req.method === 'PATCH') {
+      // تحديث إشعار
+      const notificationIndex = data.notifications.findIndex((n: any) => n.id === id);
+
+      if (notificationIndex === -1) {
+        return res.status(404).json({ error: 'Notification not found' });
+      }
+
+      // تحديث البيانات
+      data.notifications[notificationIndex] = {
+        ...data.notifications[notificationIndex],
+        ...req.body,
+        updatedAt: new Date().toISOString()
+      };
+
+      fs.writeFileSync(notificationsPath, JSON.stringify(data, null, 2), 'utf8');
+
+      res.status(200).json({
+        success: true,
+        notification: data.notifications[notificationIndex]
+      });
+
+    } else if (req.method === 'DELETE') {
+      // حذف إشعار
+      const notificationIndex = data.notifications.findIndex((n: any) => n.id === id);
+
+      if (notificationIndex === -1) {
+        return res.status(404).json({ error: 'Notification not found' });
+      }
+
+      data.notifications.splice(notificationIndex, 1);
+      fs.writeFileSync(notificationsPath, JSON.stringify(data, null, 2), 'utf8');
+
+      res.status(200).json({
+        success: true,
+        message: 'Notification deleted'
+      });
+
+    } else {
+      res.status(405).json({ error: 'Method not allowed' });
+    }
+
+  } catch (error) {
+    console.error('Error in /api/notifications/[id]:', error);
+    res.status(500).json({ 
+      error: 'Failed to process notification',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
-
-  if (req.method === "DELETE") {
-    const db = await readDB();
-    db.items = (db.items || []).filter((n: any) => n.id !== id);
-    await writeDB(db);
-    return res.status(200).json({ ok: true });
-  }
-
-  res.setHeader("Allow", "PUT, DELETE");
-  return res.status(405).json({ error: "Method Not Allowed" });
 }

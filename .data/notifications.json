@@ -1,4 +1,95 @@
 {
-  "notifications": [],
-  "lastId": 0
+  "notifications": [
+    {
+      "id": "notif_001",
+      "userId": "owner@ainoman.om",
+      "type": "booking",
+      "title": "حجز جديد",
+      "message": "تم تسجيل حجز جديد للعقار 'فيلا الخليج'",
+      "icon": "FaCalendarCheck",
+      "color": "blue",
+      "link": "/bookings",
+      "read": false,
+      "createdAt": "2025-10-14T14:30:00.000Z",
+      "priority": "high"
+    },
+    {
+      "id": "notif_002",
+      "userId": "owner@ainoman.om",
+      "type": "payment",
+      "title": "دفعة مستلمة",
+      "message": "تم استلام دفعة بقيمة 1,500 ر.ع من المستأجر أحمد",
+      "icon": "FaDollarSign",
+      "color": "green",
+      "link": "/admin/financial",
+      "read": false,
+      "createdAt": "2025-10-14T12:00:00.000Z",
+      "priority": "medium"
+    },
+    {
+      "id": "notif_003",
+      "userId": "owner@ainoman.om",
+      "type": "maintenance",
+      "title": "طلب صيانة",
+      "message": "طلب صيانة عاجل: تسرب مياه في الوحدة رقم 5",
+      "icon": "FaTools",
+      "color": "orange",
+      "link": "/admin/maintenance",
+      "read": false,
+      "createdAt": "2025-10-14T09:15:00.000Z",
+      "priority": "urgent"
+    },
+    {
+      "id": "notif_004",
+      "userId": "owner@ainoman.om",
+      "type": "contract",
+      "title": "عقد منتهي قريباً",
+      "message": "عقد الإيجار للوحدة رقم 3 ينتهي خلال 15 يوم",
+      "icon": "FaFileContract",
+      "color": "yellow",
+      "link": "/properties/unified-management",
+      "read": true,
+      "createdAt": "2025-10-13T16:00:00.000Z",
+      "priority": "medium"
+    },
+    {
+      "id": "notif_005",
+      "userId": "owner@ainoman.om",
+      "type": "system",
+      "title": "تحديث النظام",
+      "message": "تم إضافة ميزات جديدة للنظام: تزامن فوري للصلاحيات",
+      "icon": "FaBell",
+      "color": "purple",
+      "link": "/profile",
+      "read": true,
+      "createdAt": "2025-10-13T10:00:00.000Z",
+      "priority": "low"
+    },
+    {
+      "id": "notif_006",
+      "userId": "admin@ainoman.om",
+      "type": "user",
+      "title": "مستخدم جديد",
+      "message": "انضم مستخدم جديد: محمد علي (مستأجر)",
+      "icon": "FaUserPlus",
+      "color": "indigo",
+      "link": "/admin/users",
+      "read": false,
+      "createdAt": "2025-10-14T08:00:00.000Z",
+      "priority": "low"
+    },
+    {
+      "id": "notif_007",
+      "userId": "admin@ainoman.om",
+      "type": "report",
+      "title": "تقرير شهري",
+      "message": "تقرير أكتوبر جاهز: إجمالي الإيرادات 25,000 ر.ع",
+      "icon": "FaChartLine",
+      "color": "emerald",
+      "link": "/reports",
+      "read": false,
+      "createdAt": "2025-10-14T07:00:00.000Z",
+      "priority": "medium"
+    }
+  ]
 }
