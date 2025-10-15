@@ -1590,23 +1590,23 @@ export default function UnifiedPropertyManagement() {
                             <FaEdit className="ml-1" />
                             تعديل
                           </InstantLink>
-                          <InstantLink 
-                            href={`/property/${property.id}/admin`}
-                            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
-                            title="إدارة العقار"
+                          <button
+                            onClick={() => deleteProperty(property.id)}
+                            className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
+                            title="حذف العقار"
                           >
-                            <FaCog className="ml-1" />
-                            إدارة
-                          </InstantLink>
+                            <FaTrash className="ml-1" />
+                            حذف
+                          </button>
                         </div>
                       </div>
 
                       {/* Units List (if expanded) */}
                       {property.buildingType === 'multi' && expandedProperties.has(property.id) && (
                         <div className="border-t border-gray-200 p-4 bg-gray-50">
-                          <h4 className="text-sm font-semibold text-gray-700 mb-3">وحدات المبنى</h4>
+                          <h4 className="text-sm font-semibold text-gray-700 mb-3">وحدات المبنى ({(property.units || []).length})</h4>
                           <div className="space-y-2">
-                            {getPropertyUnits(property.id).map((unit) => (
+                            {((property.units || []).length > 0 ? property.units : getPropertyUnits(property.id)).map((unit: any) => (
                               <div key={unit.id} className="bg-white rounded-lg p-3 border border-gray-200">
                                 <div className="flex items-center justify-between">
                                   <div>
@@ -1628,9 +1628,16 @@ export default function UnifiedPropertyManagement() {
                                 </div>
                               </div>
                             ))}
-                            {getPropertyUnits(property.id).length === 0 && (
+                            {(property.units || []).length === 0 && getPropertyUnits(property.id).length === 0 && (
                               <div className="text-center text-gray-500 text-sm py-4">
                                 لا توجد وحدات محددة لهذا المبنى
+                                <br />
+                                <InstantLink 
+                                  href={`/properties/${property.id}/edit`}
+                                  className="text-blue-600 hover:text-blue-700 text-xs underline mt-2 inline-block"
+                                >
+                                  إضافة وحدات →
+                                </InstantLink>
                               </div>
                             )}
                           </div>
