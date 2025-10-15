@@ -27,15 +27,19 @@ interface Unit {
   updatedAt: string;
 }
 
-const UNITS_FILE = path.join(process.cwd(), 'data', 'units.json');
-const BUILDINGS_FILE = path.join(process.cwd(), 'data', 'buildings.json');
+const UNITS_FILE = path.join(process.cwd(), '.data', 'units.json');
+const BUILDINGS_FILE = path.join(process.cwd(), '.data', 'buildings.json');
 
 // قراءة الوحدات من الملف
 function readUnits(): Unit[] {
   try {
     if (fs.existsSync(UNITS_FILE)) {
       const data = fs.readFileSync(UNITS_FILE, 'utf8');
-      return JSON.parse(data);
+      if (!data || data.trim() === '') {
+        return [];
+      }
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : [];
     }
   } catch (error) {
     console.error('Error reading units:', error);
@@ -61,7 +65,11 @@ function readBuildings(): any[] {
   try {
     if (fs.existsSync(BUILDINGS_FILE)) {
       const data = fs.readFileSync(BUILDINGS_FILE, 'utf8');
-      return JSON.parse(data);
+      if (!data || data.trim() === '') {
+        return [];
+      }
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : [];
     }
   } catch (error) {
     console.error('Error reading buildings:', error);
