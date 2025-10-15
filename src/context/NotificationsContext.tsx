@@ -60,7 +60,9 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
       const response = await fetch(`/api/notifications?userId=${encodeURIComponent(userId)}`);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch notifications');
+        console.error('Failed to fetch notifications');
+        setNotifications([]);
+        return;
       }
 
       const data = await response.json();
