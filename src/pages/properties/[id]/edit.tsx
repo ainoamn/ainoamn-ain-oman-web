@@ -2863,10 +2863,11 @@ export default function EditProperty({ property }: { property: any }) {
                 </div>
               )}
             </div>
-          </div>
+          </form>
         </div>
-      </>
-    );
-  }
+      </div>
+    </>
+  );
+}
 
 // تم إزالة getServerSideProps - الصفحة تحمل البيانات من API مباشرة
