@@ -742,8 +742,8 @@ function PropertyDetailsPage() {
   };
 
   // الحصول على الصور
-  const getImages = () => {
-    if (property?.images && property.images.length > 0) {
+  const getImages = (): string[] => {
+    if (property?.images && Array.isArray(property.images) && property.images.length > 0) {
       return property.images;
     }
     if (property?.coverImage) {
@@ -946,7 +946,7 @@ function PropertyDetailsPage() {
             </div>
 
                   {/* Thumbnail Gallery */}
-                  {Array.isArray(getImages()) && getImages().length > 1 && (
+                  {getImages().length > 1 && (
                     <div className="p-4">
                       <div className="flex gap-2 overflow-x-auto">
                         {getImages().map((image, index) => (
