@@ -8,12 +8,8 @@ import MainLayout from "@/components/layout/MainLayout";
 import { CustomizationProvider } from "@/contexts/CustomizationContext";
 import Sanitize from "@/lib/react-sanitize-children";
 
-// ThemeProvider (اختياري إن وُجد)
-let ThemeProvider: React.ComponentType<any> = ({ children }: any) => <>{children}</>;
-try {
-  const mod = require("@/context/ThemeContext");
-  ThemeProvider = mod.ThemeProvider || mod.default?.ThemeProvider || ThemeProvider;
-} catch {}
+// ThemeProvider
+import { ThemeProvider } from "@/context/ThemeContext";
 
 // i18n (اختياري إن وُجد)
 let I18nProvider: React.ComponentType<any> = ({ children }: any) => <>{children}</>;

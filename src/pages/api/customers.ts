@@ -32,7 +32,13 @@ const readCustomers = (): Customer[] => {
   try {
     if (fs.existsSync(CUSTOMERS_FILE)) {
       const data = fs.readFileSync(CUSTOMERS_FILE, 'utf8');
-      return JSON.parse(data);
+      const parsed = JSON.parse(data);
+      // تأكد من أن النتيجة array
+      if (Array.isArray(parsed)) {
+        return parsed;
+      } else if (parsed && Array.isArray(parsed.customers)) {
+        return parsed.customers;
+      }
     }
   } catch (error) {
     console.error('Error reading customers:', error);

@@ -103,7 +103,17 @@ export default function HomePage() {
     typeof (_i18n as any)?.dir === "string" ? (_i18n as any).dir : "rtl";
   // ----------------------------------------------------------------
 
-  const { theme } = useTheme();
+  // Theme (safe)
+  let theme = "light";
+  try {
+    const themeHook = require("@/context/ThemeContext").useTheme;
+    if (themeHook) {
+      const themeContext = themeHook();
+      theme = themeContext?.theme || "light";
+    }
+  } catch (e) {
+    // ThemeProvider not available
+  }
   const isDark = mounted ? theme === "dark" : false;
   
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
