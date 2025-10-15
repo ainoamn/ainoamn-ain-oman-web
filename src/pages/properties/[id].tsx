@@ -946,7 +946,7 @@ function PropertyDetailsPage() {
             </div>
 
                   {/* Thumbnail Gallery */}
-                  {getImages().length > 1 && (
+                  {Array.isArray(getImages()) && getImages().length > 1 && (
                     <div className="p-4">
                       <div className="flex gap-2 overflow-x-auto">
                         {getImages().map((image, index) => (
