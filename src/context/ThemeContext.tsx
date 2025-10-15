@@ -1,3 +1,4 @@
+// src/context/ThemeContext.tsx - Dark Mode Context
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type Theme = 'light' | 'dark';
@@ -10,47 +11,49 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // التحقق من وجود تفضيل theme في localStorage
-    const savedTheme = localStorage.getItem('theme') as Theme;
+    setMounted(true);
+    // قراءة الـ theme من localStorage
+    const savedTheme = localStorage.getItem('ain_theme') as Theme;
     if (savedTheme) {
       setTheme(savedTheme);
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      // إذا لم يوجد تفضيل محفوظ، نستخدم إعدادات النظام
-      setTheme('dark');
+      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+    } else {
+      // التحقق من تفضيلات النظام
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDark) {
+        setTheme('dark');
+        document.documentElement.classList.add('dark');
+      }
     }
   }, []);
 
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
+    const newTheme: Theme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
+    localStorage.setItem('ain_theme', newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
   };
 
-  const value: ThemeContextType = {
-    theme,
-    toggleTheme,
-    isDark: theme === 'dark',
-  };
+  if (!mounted) {
+    return <>{children}</>;
+  }
 
   return (
-    <ThemeContext.Provider value={value}>
-      <div className={`theme-${theme}`}>
-        {children}
-      </div>
+    <ThemeContext.Provider value={{ theme, toggleTheme, isDark: theme === 'dark' }}>
+      {children}
     </ThemeContext.Provider>
   );
-};
+}
 
-export const useTheme = (): ThemeContextType => {
+export function useTheme() {
   const context = useContext(ThemeContext);
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
-};
-
-export default ThemeContext;
+}
