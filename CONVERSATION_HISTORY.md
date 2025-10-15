@@ -1752,7 +1752,78 @@ useEffect(() => setMounted(true), []);
 
 ---
 
-*الحالة: جلسة مكتملة - المرحلة 22 ✅*  
-*المشروع: Ain Oman Web - منصة عقارات ذكية + RBAC فوري + صفحات موحدة*  
-*آخر تحديث: 14 أكتوبر 2025 - 06:30 مساءً*
+### المرحلة 2️⃣3️⃣: إصلاح نظام الصور وType Safety (15 أكتوبر 2025)
+
+**المشاكل المُبلغ عنها:**
+> "الصور لا تظهر في unified-management"
+> "خطأ getImages().map is not a function"
+
+**ما تم تنفيذه:**
+
+1. **إصلاح Hydration Errors** ⚡
+   - إضافة `mounted` state pattern
+   - safe `useTheme` usage مع try-catch
+   - تأجيل client-side operations
+
+2. **إصلاح Type Safety في getImages()** 🔧
+   ```typescript
+   const getImages = (): string[] => {
+     if (property?.images && Array.isArray(property.images) && property.images.length > 0) {
+       return property.images;
+     }
+     return ['/demo/apartment1.jpg'];
+   };
+   ```
+
+3. **إصلاح عرض الصور Base64** 🖼️
+   - استبدال `InstantImage` بـ `<img>` للـ base64
+   - إصلاح API لعدم تعديل base64 paths
+   - إضافة `!img.startsWith('data:')` check
+
+4. **إصلاح JSX Structure في edit.tsx** 📝
+   - تصحيح closing tags
+   - إصلاح form structure
+
+5. **إضافة صور لجميع العقارات** 🎨
+   - base64 SVG placeholders ملونة
+   - ضمان وجود `images` array
+
+**الملفات المُعدّلة (6):**
+1. `src/pages/properties/[id].tsx` - type safety
+2. `src/pages/properties/[id]/edit.tsx` - JSX fix
+3. `src/pages/properties/unified-management.tsx` - img support
+4. `src/pages/api/properties/index.ts` - base64 handling
+5. `src/pages/index.tsx` - hydration fix
+6. `.data/db.json` - images added
+
+**الأخطاء المُصلحة (8):**
+1. ✅ Hydration error في index
+2. ✅ `getImages().map is not a function`
+3. ✅ `useTheme must be used within ThemeProvider`
+4. ✅ `Cannot read properties of null`
+5. ✅ `customers is not iterable`
+6. ✅ JSX syntax errors في edit.tsx
+7. ✅ Base64 image path corruption
+8. ✅ Images not displaying
+
+**Git Commits (6):**
+- `81a68f3` - ensure getImages returns array
+- `ebd1442` - correct JSX structure
+- `825c11f` - getImages array check
+- `e9f62a5` - replace InstantImage with img
+- `4def07a` - preserve base64 images in API
+- `7e5aa04` - correct JSX closing tags
+
+**الحالة:** ✅ مكتمل - الصور تظهر بشكل صحيح
+
+**ملاحظات فنية:**
+- Base64 مناسب للتجربة، لكن file upload أفضل للـ production
+- `InstantImage` للصور من `/public` فقط
+- `<img>` للـ base64 أو mixed sources
+
+---
+
+*الحالة: جلسة مكتملة - المرحلة 23 ✅*  
+*المشروع: Ain Oman Web - منصة عقارات ذكية + نظام صور محسّن*  
+*آخر تحديث: 15 أكتوبر 2025 - 09:45 مساءً*
 
