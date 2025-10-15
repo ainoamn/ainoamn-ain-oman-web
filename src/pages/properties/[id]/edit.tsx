@@ -2861,11 +2861,12 @@ export default function EditProperty({ property }: { property: any }) {
                     )}
                   </button>
                 </div>
-              </div>
+              )}
             </div>
           </div>
-        </>
-      );
-    }
+        </div>
+      </>
+    );
+  }
 
 // تم إزالة getServerSideProps - الصفحة تحمل البيانات من API مباشرة
