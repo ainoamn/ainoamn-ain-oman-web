@@ -33,6 +33,8 @@ export default function ProfilePage() {
   const [mounted, setMounted] = useState(false);
   const [showPermissions, setShowPermissions] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [realStats, setRealStats] = useState<any>(null);
+  const [aiInsights, setAiInsights] = useState<any[]>([]);
 
   useEffect(() => {
     setMounted(true);
@@ -112,9 +114,41 @@ export default function ProfilePage() {
       }
 
       setUser({ ...userData, permissions });
+      
+      // تحميل الإحصائيات الحقيقية
+      loadRealStats();
+      // تحميل AI Insights
+      loadAIInsights();
+      
       setLoading(false);
     } catch (error) {
       router.push('/login');
+    }
+  };
+
+  const loadRealStats = async () => {
+    try {
+      const response = await fetch('/api/stats/profile');
+      if (response.ok) {
+        const data = await response.json();
+        setRealStats(data);
+        console.log('✅ Profile: Real stats loaded:', data);
+      }
+    } catch (error) {
+      console.error('Error loading real stats:', error);
+    }
+  };
+
+  const loadAIInsights = async () => {
+    try {
+      const response = await fetch('/api/insights/ai');
+      if (response.ok) {
+        const data = await response.json();
+        setAiInsights(data.insights || []);
+        console.log('✅ Profile: AI Insights loaded:', data.insights?.length);
+      }
+    } catch (error) {
+      console.error('Error loading AI insights:', error);
     }
   };
 
@@ -137,12 +171,32 @@ export default function ProfilePage() {
     { id: 'all_properties', label: 'تصفح العقارات', icon: FiGrid, link: '/properties', permission: 'view_properties', color: 'cyan', desc: 'جميع العقارات' },
   ].filter(action => hasPermission(action.permission));
 
-  // إحصائيات ذكية
+  // إحصائيات ذكية (من البيانات الحقيقية)
   const stats = [
-    { label: 'الصلاحيات النشطة', value: user?.permissions.includes('*') ? '∞' : user?.permissions.length || 0, icon: FiShield, color: 'blue' },
-    { label: 'المهام المعلقة', value: 0, icon: FiClock, color: 'yellow' },
-    { label: 'الإشعارات الجديدة', value: 0, icon: FiBell, color: 'red' },
-    { label: 'نسبة الإنجاز', value: '0%', icon: FiTarget, color: 'green' },
+    { 
+      label: 'عقاراتي', 
+      value: realStats?.properties.total || 0, 
+      icon: FiHome, 
+      color: 'blue' 
+    },
+    { 
+      label: 'المهام المعلقة', 
+      value: realStats?.tasks.pending || 0, 
+      icon: FiClock, 
+      color: 'yellow' 
+    },
+    { 
+      label: 'الإشعارات الجديدة', 
+      value: realStats?.notifications.unread || 0, 
+      icon: FiBell, 
+      color: 'red' 
+    },
+    { 
+      label: 'الحجوزات', 
+      value: realStats?.bookings.total || 0, 
+      icon: FiCalendar, 
+      color: 'green' 
+    },
   ];
 
   if (!mounted || loading) {
@@ -272,7 +326,7 @@ export default function ProfilePage() {
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={250}>
-                <AreaChart data={[
+                <AreaChart data={realStats?.chartData?.performance || [
                   { month: 'يناير', views: 120, bookings: 15 },
                   { month: 'فبراير', views: 180, bookings: 22 },
                   { month: 'مارس', views: 250, bookings: 35 },
@@ -313,7 +367,7 @@ export default function ProfilePage() {
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={[
+                <BarChart data={realStats?.chartData?.revenue || [
                   { month: 'يناير', revenue: 45000, expenses: 28000 },
                   { month: 'فبراير', revenue: 52000, expenses: 31000 },
                   { month: 'مارس', revenue: 68000, expenses: 35000 },
@@ -375,46 +429,38 @@ export default function ProfilePage() {
           </div>
 
           {/* AI Insights - تحليلات ذكية */}
-          <div className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl shadow-2xl p-6 mb-6 text-white">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
-                <FiActivity className="w-6 h-6" />
+          {aiInsights.length > 0 && (
+            <div className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl shadow-2xl p-6 mb-6 text-white">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
+                  <FiActivity className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold">🤖 تحليلات ذكية</h3>
+                  <p className="text-white/80 text-sm">مدعوم بالذكاء الاصطناعي - {aiInsights.length} توصية</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-2xl font-bold">🤖 تحليلات ذكية</h3>
-                <p className="text-white/80 text-sm">مدعوم بالذكاء الاصطناعي</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {aiInsights.map((insight) => (
+                  <div key={insight.id} className="bg-white/10 backdrop-blur rounded-xl p-4 hover:bg-white/20 transition">
+                    <div className="flex items-start gap-3 mb-3">
+                      <span className="text-3xl">{insight.icon}</span>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-lg mb-1">{insight.title}</h4>
+                        <p className="text-sm text-white/80 mb-2">{insight.description}</p>
+                        {insight.action && (
+                          <button className="text-xs bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full transition">
+                            {insight.action} →
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <FiTrendingUp className="w-5 h-5 text-green-300" />
-                  <span className="font-bold">الأداء</span>
-                </div>
-                <p className="text-3xl font-bold">95%</p>
-                <p className="text-sm text-white/70">ممتاز جداً</p>
-              </div>
-
-              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <FiBarChart2 className="w-5 h-5 text-blue-300" />
-                  <span className="font-bold">النشاط</span>
-                </div>
-                <p className="text-3xl font-bold">+12%</p>
-                <p className="text-sm text-white/70">مقارنة بالأسبوع الماضي</p>
-              </div>
-
-              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <FiTarget className="w-5 h-5 text-yellow-300" />
-                  <span className="font-bold">التوقعات</span>
-                </div>
-                <p className="text-3xl font-bold">🔥</p>
-                <p className="text-sm text-white/70">اتجاه إيجابي</p>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* الصلاحيات - قابلة للطي */}
           <div className="bg-white rounded-2xl shadow-xl p-6">
