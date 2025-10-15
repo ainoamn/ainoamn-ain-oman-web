@@ -1,0 +1,10 @@
+# robots.txt
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /dashboard/
+
+Sitemap: https://www.ainoman.om/sitemap.xml
+
