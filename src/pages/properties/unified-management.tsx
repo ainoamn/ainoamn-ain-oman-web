@@ -598,6 +598,27 @@ export default function UnifiedPropertyManagement() {
     }
   };
 
+  const deleteProperty = async (propertyId: string) => {
+    if (confirm('⚠️ هل أنت متأكد من حذف هذا العقار نهائياً؟\nهذا الإجراء لا يمكن التراجع عنه!')) {
+      try {
+        const response = await fetch(`/api/properties/${propertyId}`, {
+          method: 'DELETE'
+        });
+        
+        if (response.ok) {
+          setProperties(prev => prev.filter(p => p.id !== propertyId));
+          alert('✅ تم حذف العقار بنجاح');
+          fetchData();
+        } else {
+          alert('❌ حدث خطأ أثناء حذف العقار');
+        }
+      } catch (error) {
+        console.error('Error deleting property:', error);
+        alert('❌ حدث خطأ أثناء حذف العقار');
+      }
+    }
+  };
+
   // فلترة وترتيب البيانات
   const getFilteredData = () => {
     let data: any[] = [];
@@ -1416,6 +1437,13 @@ export default function UnifiedPropertyManagement() {
                                   title="أرشفة العقار"
                                 >
                                   <FaArchive />
+                                </button>
+                                <button
+                                  onClick={() => deleteProperty(property.id)}
+                                  className="text-red-600 hover:text-red-900 p-1 rounded transition-colors"
+                                  title="حذف العقار نهائياً"
+                                >
+                                  <FaTrash />
                                 </button>
                               </div>
                             </td>
