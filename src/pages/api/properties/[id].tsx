@@ -85,25 +85,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const cleaned = cleanSingleItemArrays(item);
     
-    // إصلاح مسارات الصور
+    // إصلاح مسارات الصور (لا نعدل base64!)
     if (cleaned.images && Array.isArray(cleaned.images)) {
       cleaned.images = cleaned.images.map((img: string) => {
-        if (img && !img.startsWith('/uploads/') && !img.startsWith('http')) {
-          // إذا كان اسم ملف فقط، أضف المسار الكامل
+        // إذا كانت base64 أو URL كامل، لا تعدّلها
+        if (img && (img.startsWith('data:') || img.startsWith('http') || img.startsWith('/uploads/'))) {
+          return img;
+        }
+        // إذا كان اسم ملف فقط، أضف المسار الكامل
+        if (img) {
           return `/uploads/properties/${cleaned.id}/${img}`;
         }
         return img;
       });
     } else if (cleaned.images && typeof cleaned.images === 'string') {
-      // إذا كانت الصور كسلسلة نصية واحدة
-      if (cleaned.images && !cleaned.images.startsWith('/uploads/') && !cleaned.images.startsWith('http')) {
+      // إذا كانت base64 أو URL، لا تعدّلها
+      if (cleaned.images && !cleaned.images.startsWith('data:') && !cleaned.images.startsWith('/uploads/') && !cleaned.images.startsWith('http')) {
         cleaned.images = `/uploads/properties/${cleaned.id}/${cleaned.images}`;
       }
     }
     
-    // إصلاح صورة الغلاف
-    if (cleaned.coverImage && !cleaned.coverImage.startsWith('/uploads/') && !cleaned.coverImage.startsWith('http')) {
-      cleaned.coverImage = `/uploads/properties/${cleaned.id}/${cleaned.coverImage}`;
+    // إصلاح صورة الغلاف (لا نعدل base64!)
+    if (cleaned.coverImage) {
+      if (!cleaned.coverImage.startsWith('data:') && !cleaned.coverImage.startsWith('/uploads/') && !cleaned.coverImage.startsWith('http')) {
+        cleaned.coverImage = `/uploads/properties/${cleaned.id}/${cleaned.coverImage}`;
+      }
     }
     
     res.setHeader("Content-Type", "application/json; charset=utf-8");
