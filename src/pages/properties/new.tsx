@@ -1012,9 +1012,18 @@ export default function AddNewProperty() {
   // Submit form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // ✅ منع الإرسال المزدوج
+    if (loading) {
+      console.log('⚠️ Form submission already in progress, ignoring duplicate');
+      return;
+    }
+    
     setLoading(true);
     
     try {
+      console.log('📤 Submitting property data...');
+      
       // إرسال البيانات إلى API
       const response = await fetch('/api/properties', {
         method: 'POST',
@@ -1028,20 +1037,25 @@ export default function AddNewProperty() {
       
       if (response.ok) {
         const result = await response.json();
-        console.log('Property saved successfully:', result);
-      alert('تم حفظ العقار بنجاح!');
-      router.push('/properties/unified-management');
+        console.log('✅ Property saved successfully:', result);
+        alert('تم حفظ العقار بنجاح!');
+        
+        // ✅ الانتقال بعد تأخير بسيط لضمان الحفظ
+        setTimeout(() => {
+          router.push('/properties/unified-management');
+        }, 300);
       } else {
         const error = await response.json();
-        console.error('Error saving property:', error);
+        console.error('❌ Error saving property:', error);
         alert('حدث خطأ أثناء حفظ العقار: ' + (error.error || 'خطأ غير معروف'));
+        setLoading(false); // ✅ إعادة تفعيل الزر عند الخطأ
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error('❌ Error submitting form:', error);
       alert('حدث خطأ أثناء حفظ العقار');
-    } finally {
-      setLoading(false);
+      setLoading(false); // ✅ إعادة تفعيل الزر عند الخطأ
     }
+    // ملاحظة: لا نعيد setLoading(false) عند النجاح لمنع الضغط مرة أخرى
   };
 
   return (
@@ -2398,10 +2412,17 @@ export default function AddNewProperty() {
                   <button
                     type="button"
                     onClick={async () => {
+                      // ✅ منع الإرسال المزدوج
+                      if (loading) {
+                        console.log('⚠️ Draft save already in progress, ignoring duplicate');
+                        return;
+                      }
+                      
                       setFormData(prev => ({ ...prev, published: false }));
                       setLoading(true);
                       
                       try {
+                        console.log('📤 Saving as draft...');
                         const response = await fetch('/api/properties', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
@@ -2414,22 +2435,27 @@ export default function AddNewProperty() {
                         
                         if (response.ok) {
                           const result = await response.json();
-                          console.log('Property saved as draft:', result);
+                          console.log('✅ Property saved as draft:', result);
                           alert('تم حفظ العقار كمسودة!');
-                          router.push('/properties/unified-management');
+                          
+                          // ✅ الانتقال بعد تأخير بسيط
+                          setTimeout(() => {
+                            router.push('/properties/unified-management');
+                          }, 300);
                         } else {
                           const error = await response.json();
-                          console.error('Error saving draft:', error);
+                          console.error('❌ Error saving draft:', error);
                           alert('حدث خطأ أثناء حفظ المسودة: ' + (error.error || 'خطأ غير معروف'));
+                          setLoading(false);
                         }
                       } catch (error) {
-                        console.error('Error saving draft:', error);
+                        console.error('❌ Error saving draft:', error);
                         alert('حدث خطأ أثناء حفظ المسودة');
-                      } finally {
                         setLoading(false);
                       }
                     }}
-                    className="px-4 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors"
+                    disabled={loading}
+                    className="px-4 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <FaSave className="inline ml-2" />
                     حفظ كمسودة
