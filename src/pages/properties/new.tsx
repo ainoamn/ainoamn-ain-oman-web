@@ -1070,6 +1070,8 @@ export default function AddNewProperty() {
       if (response.ok) {
         const result = await response.json();
         console.log('✅ Property saved successfully:', result);
+        console.log('📸 Images count:', mainImages.length);
+        console.log('🏢 Units count:', processedUnits.length);
         alert('تم حفظ العقار بنجاح!');
         
         // ✅ الانتقال بعد تأخير بسيط لضمان الحفظ
