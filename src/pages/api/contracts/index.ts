@@ -29,7 +29,16 @@ const DATA_DIR = path.join(process.cwd(), ".data");
 const FILE = path.join(DATA_DIR, "contracts.json");
 
 async function ensure(){ if(!fs.existsSync(DATA_DIR)) await fsp.mkdir(DATA_DIR,{recursive:true}); if(!fs.existsSync(FILE)) await fsp.writeFile(FILE,"[]","utf8"); }
-async function readAll(): Promise<Contract[]>{ await ensure(); try{ return JSON.parse(await fsp.readFile(FILE,"utf8")); } catch{ return []; } }
+async function readAll(): Promise<Contract[]>{ 
+  await ensure(); 
+  try{ 
+    const data = await fsp.readFile(FILE,"utf8");
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch{ 
+    return []; 
+  } 
+}
 async function writeAll(items: Contract[]){ await ensure(); await fsp.writeFile(FILE, JSON.stringify(items,null,2), "utf8"); }
 function uid(p="C"){ return p+"-"+new Date().toISOString().replace(/[-:.TZ]/g,"").slice(0,14); }
 function num(){ return "CN-"+Date.now(); }

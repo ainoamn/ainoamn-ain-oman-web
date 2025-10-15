@@ -667,7 +667,7 @@ function PropertyDetailsPage() {
       // محاكاة بيانات المستخدم الحالي
       const mockUser: User | null = null; // تم إزالة البيانات الوهمية
       setCurrentUser(mockUser);
-      setUserCanRate(mockUser.verified && mockUser.permissions.includes('rate_property'));
+      setUserCanRate(mockUser ? (mockUser.verified && mockUser.permissions.includes('rate_property')) : false);
     } catch (error) {
       console.error('Error loading current user:', error);
     }
