@@ -1,4 +1,99 @@
 {
-  "properties": [],
-  "lastId": 0
+  "properties": [
+    {
+      "id": "TEST-001",
+      "titleAr": "فيلا فاخرة للاختبار",
+      "titleEn": "Luxury Villa Test",
+      "type": "villa",
+      "purpose": "sale",
+      "buildingType": "single",
+      "priceOMR": 150000,
+      "province": "muscat",
+      "state": "مسقط",
+      "city": "الخوير",
+      "address": "شارع السلطان قابوس",
+      "beds": 4,
+      "baths": 3,
+      "area": 300,
+      "images": [
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%233b82f6' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='24' fill='white'%3ETest Image 1%3C/text%3E%3C/svg%3E",
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%2310b981' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='24' fill='white'%3ETest Image 2%3C/text%3E%3C/svg%3E"
+      ],
+      "coverImage": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%233b82f6' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='24' fill='white'%3ETest Image 1%3C/text%3E%3C/svg%3E",
+      "coverIndex": 0,
+      "amenities": ["مصعد", "مواقف", "حديقة"],
+      "status": "vacant",
+      "published": true,
+      "createdAt": "2025-01-15T12:00:00Z",
+      "updatedAt": "2025-01-15T12:00:00Z"
+    },
+    {
+      "id": "TEST-002",
+      "titleAr": "مبنى متعدد الوحدات - اختبار",
+      "titleEn": "Multi-Unit Building Test",
+      "type": "apartment",
+      "purpose": "rent",
+      "buildingType": "multi",
+      "priceOMR": 250000,
+      "province": "muscat",
+      "state": "مسقط",
+      "city": "الغبرة",
+      "beds": 0,
+      "baths": 0,
+      "area": 1000,
+      "totalUnits": 3,
+      "images": [
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%23f59e0b' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='24' fill='white'%3EBuilding%3C/text%3E%3C/svg%3E"
+      ],
+      "coverImage": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%23f59e0b' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='24' fill='white'%3EBuilding%3C/text%3E%3C/svg%3E",
+      "units": [
+        {
+          "id": "UNIT-001",
+          "unitNo": "101",
+          "propertyId": "TEST-002",
+          "floor": 1,
+          "area": 120,
+          "beds": 2,
+          "baths": 2,
+          "type": "apartment",
+          "status": "available",
+          "rentalPrice": 400,
+          "images": [
+            "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150'%3E%3Crect fill='%238b5cf6' width='200' height='150'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' fill='white'%3EUnit 101%3C/text%3E%3C/svg%3E"
+          ]
+        },
+        {
+          "id": "UNIT-002",
+          "unitNo": "102",
+          "propertyId": "TEST-002",
+          "floor": 1,
+          "area": 150,
+          "beds": 3,
+          "baths": 2,
+          "type": "apartment",
+          "status": "rented",
+          "rentalPrice": 500,
+          "images": []
+        },
+        {
+          "id": "UNIT-003",
+          "unitNo": "201",
+          "propertyId": "TEST-002",
+          "floor": 2,
+          "area": 120,
+          "beds": 2,
+          "baths": 2,
+          "type": "apartment",
+          "status": "available",
+          "rentalPrice": 400,
+          "images": []
+        }
+      ],
+      "status": "vacant",
+      "published": true,
+      "createdAt": "2025-01-15T12:00:00Z",
+      "updatedAt": "2025-01-15T12:00:00Z"
+    }
+  ],
+  "lastId": 2
 }
