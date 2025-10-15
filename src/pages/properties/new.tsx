@@ -1024,12 +1024,44 @@ export default function AddNewProperty() {
     try {
       console.log('📤 Submitting property data...');
       
+      // تحويل الصور إلى base64
+      const convertImagesToBase64 = async (images: File[]) => {
+        return Promise.all(images.map(image => {
+          return new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => resolve('');
+            reader.readAsDataURL(image);
+          });
+        }));
+      };
+
+      // تحويل صور الوحدات
+      const convertUnitImages = async (units: any[]) => {
+        return Promise.all(units.map(async (unit) => {
+          if (unit.images && unit.images.length > 0 && unit.images[0] instanceof File) {
+            const base64Images = await convertImagesToBase64(unit.images);
+            return { ...unit, images: base64Images };
+          }
+          return unit;
+        }));
+      };
+
+      const mainImages = formData.images.length > 0 && formData.images[0] instanceof File
+        ? await convertImagesToBase64(formData.images)
+        : formData.images;
+
+      const processedUnits = await convertUnitImages(formData.units);
+      
       // إرسال البيانات إلى API
       const response = await fetch('/api/properties', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          images: mainImages,
+          coverImage: mainImages[formData.coverIndex] || mainImages[0],
+          units: processedUnits,
           published: formData.published,
           status: formData.published ? 'vacant' : 'draft'
         })
@@ -2423,11 +2455,30 @@ export default function AddNewProperty() {
                       
                       try {
                         console.log('📤 Saving as draft...');
+                        
+                        // تحويل الصور إلى base64
+                        const convertImagesToBase64 = async (images: File[]) => {
+                          return Promise.all(images.map(image => {
+                            return new Promise<string>((resolve) => {
+                              const reader = new FileReader();
+                              reader.onload = () => resolve(reader.result as string);
+                              reader.onerror = () => resolve('');
+                              reader.readAsDataURL(image);
+                            });
+                          }));
+                        };
+
+                        const mainImages = formData.images.length > 0 && formData.images[0] instanceof File
+                          ? await convertImagesToBase64(formData.images)
+                          : formData.images;
+                        
                         const response = await fetch('/api/properties', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({
                             ...formData,
+                            images: mainImages,
+                            coverImage: mainImages[formData.coverIndex] || mainImages[0],
                             published: false,
                             status: 'draft'
                           })

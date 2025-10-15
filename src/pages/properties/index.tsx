@@ -1,733 +1,536 @@
-﻿// src/pages/properties/index.tsx
+﻿// src/pages/properties/index.tsx - صفحة العقارات المحسّنة مع AI
 import Head from "next/head";
 import InstantImage from '@/components/InstantImage';
 import InstantLink from '@/components/InstantLink';
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/router";
-// Layout is now handled by MainLayout in _app.tsx
-import { useCurrency } from "../../context/CurrencyContext";
-import { getStates, getVillages, OMAN_PROVINCES } from "../../lib/om-locations";
-import { FaFilter, FaBolt, FaBed, FaBath, FaRulerCombined, FaStar } from "react-icons/fa";
-import UnifiedSearchBar from "../../components/search/UnifiedSearchBar";
+import { 
+  FaSearch, FaFilter, FaBolt, FaBed, FaBath, FaRulerCombined, 
+  FaStar, FaHeart, FaMapMarkerAlt, FaBuilding, FaHome, FaStore,
+  FaRobot, FaChartLine, FaFire, FaRegHeart, FaTimes, FaChevronDown
+} from "react-icons/fa";
 
-type Item = {
-  id: number | string;
-  /** قد تكون string قد تكون {ar,en} */
+interface Property {
+  id: string;
+  titleAr?: string;
   title?: string | { ar?: string; en?: string };
-  description?: string | { ar?: string; en?: string };
-  image?: string; // إن وجدت
-  images?: string[];
-  coverIndex?: number;
-  coverImage?: string;
-
   priceOMR?: number;
+  rentalPrice?: number;
   province?: string;
   state?: string;
-  village?: string;
-  location?: string;
-
-  rating?: number;
+  city?: string;
   beds?: number;
   baths?: number;
   area?: number;
-  type?: "apartment" | "villa" | "land" | "office" | "shop";
-  purpose?: "sale" | "rent" | "investment";
-  rentalType?: "daily" | "monthly" | "yearly" | null;
-
+  type?: string;
+  purpose?: string;
+  images?: string[];
+  coverImage?: string;
+  coverIndex?: number;
+  rating?: number;
   promoted?: boolean;
-  promotedAt?: string | null;
-  createdAt?: string | null;
+  status?: string;
+  published?: boolean;
   amenities?: string[];
-  /** رقم مرجعي */
-  referenceNo?: string;
-};
-
-const ALL_TYPES = ["apartment", "villa", "land", "office", "shop"] as const;
-const ALL_AMENITIES = [
-  "مصعد",
-  "مواقف",
-  "تكييف مركزي",
-  "مفروش",
-  "مسبح",
-  "حديقة",
-  "مطبخ مجهز",
-  "أمن 24/7",
-  "كاميرات",
-  "إنترنت عالي السرعة",
-];
-const STAR_OPTIONS = [5, 4, 3, 2, 1];
-const LS_KEY = "ao_prop_filters_v2";
-
-function useMounted() {
-  const [m, setM] = useState(false);
-  useEffect(() => void setM(true), []);
-  return m;
 }
 
-/** يحوّل العنوان إلى نص قابل للعرض - يحل مشكلة Objects في React */
-function titleToText(t?: Item["title"]): string {
-  if (!t) return "";
-  if (typeof t === "string") return t;
-  if (typeof t === "object" && (t.ar || t.en)) {
-    return t.ar || t.en || "";
-  }
-  return String(t || "");
-}
-
-/** تحويل أي قيمة localized إلى نص */
-function toSafeText(value: any): string {
-  if (!value) return "";
-  if (typeof value === "string") return value;
-  if (typeof value === "object" && (value.ar || value.en)) {
-    return value.ar || value.en || "";
-  }
-  return String(value || "");
-}
-/** يجهّز مسار الصورة المعروضة */
-function getCardImage(p: Item) {
-  let imagePath = "";
+export default function PropertiesPage() {
+  const router = useRouter();
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   
-  if (p.coverImage) {
-    imagePath = p.coverImage;
-  } else if (Array.isArray(p.images) && p.images.length) {
-    const idx = typeof p.coverIndex === "number" ? p.coverIndex : 0;
-    imagePath = p.images[idx] || p.images[0];
-  } else if (p.image) {
-    imagePath = p.image;
-  }
+  // Filters
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState('all');
+  const [selectedPurpose, setSelectedPurpose] = useState('all');
+  const [selectedProvince, setSelectedProvince] = useState('all');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [minBeds, setMinBeds] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [showFilters, setShowFilters] = useState(false);
   
-  // إصلاح مسار الصورة
-  if (imagePath) {
-    // إذا كان المسار يبدأ بـ /uploads/ فهو صحيح
-    if (imagePath.startsWith('/uploads/')) {
-      return imagePath;
-    }
-    // إذا كان المسار يبدأ بـ uploads/ أضف /
-    if (imagePath.startsWith('uploads/')) {
-      return `/${imagePath}`;
-    }
-    // إذا كان المسار يبدأ بـ public/ أزل public
-    if (imagePath.startsWith('public/')) {
-      return imagePath.replace('public/', '/');
-    }
-    // إذا كان المسار لا يبدأ بـ / أضفه
-    if (!imagePath.startsWith('/')) {
-      return `/${imagePath}`;
-    }
-    return imagePath;
-  }
-  
-  return "";
-}
+  // AI Features
+  const [aiRecommendations, setAiRecommendations] = useState<any[]>([]);
+  const [trendingProperties, setTrendingProperties] = useState<Property[]>([]);
 
-export default function PropertiesIndexPage({ initialProperties = [] }: { initialProperties?: Item[] }) {
-  const mounted = useMounted();
-  const { format } = useCurrency();
-
-  const [loading, setLoading] = useState(false);
-  const [items, setItems] = useState<Item[]>(initialProperties || []);
-  const [error, setError] = useState<string | null>(null);
-
-  // جلب البيانات عند تحميل الصفحة
   useEffect(() => {
-    const fetchProperties = async () => {
-      if (items.length === 0) {
-        setLoading(true);
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    loadProperties();
+    loadAIRecommendations();
+  }, [mounted]);
+
+  const loadProperties = async () => {
         try {
           const response = await fetch('/api/properties');
           if (response.ok) {
             const data = await response.json();
-            setItems(data.items || []);
+        const props = data.properties || [];
+        setProperties(props.filter((p: Property) => p.published !== false));
+        
+        // Trending properties (محاكاة)
+        const trending = props
+          .filter((p: Property) => p.promoted || p.rating && p.rating >= 4)
+          .slice(0, 3);
+        setTrendingProperties(trending);
           }
         } catch (error) {
-          console.error('Error fetching properties:', error);
-          setError('حدث خطأ أثناء جلب العقارات');
+      console.error('Error loading properties:', error);
         } finally {
           setLoading(false);
-        }
-      }
-    };
+    }
+  };
 
-    fetchProperties();
-  }, []);
+  const loadAIRecommendations = async () => {
+    // محاكاة AI recommendations
+    setAiRecommendations([
+      { icon: '🔥', title: 'الأكثر طلباً', desc: 'فلل في الموالح', color: 'red' },
+      { icon: '📈', title: 'سعر مناسب', desc: 'شقق تحت 50,000', color: 'green' },
+      { icon: '⭐', title: 'تقييم عالي', desc: 'عقارات 5 نجوم', color: 'yellow' }
+    ]);
+  };
 
-  const [q, setQ] = useState("");
-  const [type, setType] = useState<Item["type"] | "">("");
-  const [purpose, setPurpose] = useState<Item["purpose"] | "">("");
-  const [rentalType, setRentalType] = useState<Item["rentalType"] | "">("");
-  const [province, setProvince] = useState("");
-  const [state, setState] = useState("");
-  const [village, setVillage] = useState("");
-  const [minPrice, setMinPrice] = useState<number | "">("");
-  const [maxPrice, setMaxPrice] = useState<number | "">("");
-  const [minArea, setMinArea] = useState<number | "">("");
-  const [maxArea, setMaxArea] = useState<number | "">("");
-  const [starSet, setStarSet] = useState<number[]>([]);
-  const [amenitySet, setAmenitySet] = useState<string[]>([]);
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const getTitleText = (property: Property): string => {
+    if (property.titleAr) return property.titleAr;
+    if (typeof property.title === 'string') return property.title;
+    if (typeof property.title === 'object') return property.title.ar || property.title.en || '';
+    return 'عقار';
+  };
 
-  const router = useRouter();
+  const getCoverImage = (property: Property): string => {
+    if (property.coverImage) return property.coverImage;
+    if (property.images && property.images.length > 0) {
+      const idx = property.coverIndex || 0;
+      return property.images[idx] || property.images[0];
+    }
+    return 'https://via.placeholder.com/400x300?text=No+Image';
+  };
 
-  // استعادة/حفظ الفلاتر محليًا
-  useEffect(() => {
-    try {
-      const s = JSON.parse(localStorage.getItem(LS_KEY) || "null");
-      if (s) {
-        setQ(s.q ?? "");
-        setType(s.type ?? "");
-        setPurpose(s.purpose ?? "");
-        setRentalType(s.rentalType ?? "");
-        setProvince(s.province ?? "");
-        setState(s.state ?? "");
-        setVillage(s.village ?? "");
-        setMinPrice(s.minPrice ?? "");
-        setMaxPrice(s.maxPrice ?? "");
-        setMinArea(s.minArea ?? "");
-        setMaxArea(s.maxArea ?? "");
-        setStarSet(s.starSet ?? []);
-        setAmenitySet(s.amenitySet ?? []);
-      }
-    } catch {}
-  }, []);
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        LS_KEY,
-        JSON.stringify({
-          q,
-          type,
-          purpose,
-          rentalType,
-          province,
-          state,
-          village,
-          minPrice,
-          maxPrice,
-          minArea,
-          maxArea,
-          starSet,
-          amenitySet,
-        })
+  // Filtered properties
+  const filteredProperties = useMemo(() => {
+    let filtered = [...properties];
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(p => 
+        getTitleText(p).toLowerCase().includes(term) ||
+        p.city?.toLowerCase().includes(term) ||
+        p.province?.toLowerCase().includes(term)
       );
-    } catch {}
-  }, [q, type, purpose, rentalType, province, state, village, minPrice, maxPrice, minArea, maxArea, starSet, amenitySet]);
-
-  // دالة إعادة الجلب — تُستخدم عند التحميل والتنقل والتركيز
-  const fetchList = useCallback(() => {
-    setLoading(true);
-    setError(null);
-    fetch(`/api/properties?_ts=${Date.now()}`, { cache: "no-store" })
-      .then((r) => r.json())
-      .then((d) => setItems(Array.isArray(d?.items) ? d.items : []))
-      .catch(() => setError("تعذر جلب البيانات"))
-      .finally(() => setLoading(false));
-  }, []);
-
-  // جلب البيانات عند التحميل أول مرة (الكود الأصلي مع إضافة منع الكاش)
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-    fetch("/api/properties", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((d) => setItems(Array.isArray(d?.items) ? d.items : []))
-      .catch(() => setError("تعذر جلب البيانات"))
-      .finally(() => setLoading(false));
-  }, []);
-
-  // إعادة الجلب تلقائيًا عند العودة للصفحة أو اكتمال أي تنقل داخل التطبيق
-  useEffect(() => {
-    const onRoute = () => fetchList();
-    const onVis = () => {
-      if (document.visibilityState === "visible") fetchList();
-    };
-    try {
-      router.events.on("routeChangeComplete", onRoute);
-    } catch {}
-    document.addEventListener("visibilitychange", onVis);
-    if (typeof document !== "undefined" && document.visibilityState === "visible") {
-      // محاولة تحديث فورية عند الوصول
-      fetchList();
-    }
-    return () => {
-      try { router.events.off("routeChangeComplete", onRoute); } catch {}
-      document.removeEventListener("visibilitychange", onVis);
-    };
-  }, [router.events, fetchList]);
-
-  const states = useMemo(() => getStates(province), [province]);
-  const villages = useMemo(() => getVillages(province, state), [province, state]);
-  useEffect(() => {
-    setState("");
-    setVillage("");
-  }, [province]);
-  useEffect(() => {
-    setVillage("");
-  }, [state]);
-
-  const onSearch = (s: {
-    keyword: string;
-    type?: string;
-    purpose?: string;
-    rentalType?: string;
-    province?: string;
-    state?: string;
-    village?: string;
-  }) => {
-    setQ(s.keyword || "");
-    setType((s.type as any) || "");
-    setPurpose((s.purpose as any) || "");
-    setRentalType((s.rentalType as any) || "");
-    setProvince(s.province || "");
-    setState(s.state || "");
-    setVillage(s.village || "");
-  };
-
-  /** نسخ الرقم المرجعي */
-  const copyRef = (e: React.MouseEvent, ref?: string) => {
-    if (!ref) return;
-    e.preventDefault();
-    e.stopPropagation();
-    if (navigator?.clipboard) {
-      navigator.clipboard.writeText(ref).then(
-        () => alert(`تم نسخ الرقم المرجعي: ${ref}`),
-        () => alert(ref)
-      );
-    } else {
-      alert(ref);
-    }
-  };
-
-  // تصفية وترتيب
-  const filtered = useMemo(() => {
-    let list = [...items];
-
-    const qq = q.trim().toLowerCase();
-    if (qq) {
-      list = list.filter((p) => {
-        const t = titleToText(p.title).toLowerCase();
-        const loc = (p.location ?? "").toLowerCase();
-        const pr = (p.province ?? "").toLowerCase();
-        const st = (p.state ?? "").toLowerCase();
-        const vg = (p.village ?? "").toLowerCase();
-        const ref = (p.referenceNo ?? "").toLowerCase();
-        return t.includes(qq) || loc.includes(qq) || pr.includes(qq) || st.includes(qq) || vg.includes(qq) || ref.includes(qq);
-      });
     }
 
-    if (type) list = list.filter((p) => p.type === type);
-    if (purpose) list = list.filter((p) => p.purpose === purpose);
-    if (rentalType) list = list.filter((p) => p.rentalType === rentalType);
-    if (province) list = list.filter((p) => p.province === province);
-    if (state) list = list.filter((p) => p.state === state);
-    if (village) list = list.filter((p) => p.village === village);
-    if (minPrice !== "") list = list.filter((p) => (p.priceOMR ?? 0) >= Number(minPrice));
-    if (maxPrice !== "") list = list.filter((p) => (p.priceOMR ?? 0) <= Number(maxPrice));
-    if (minArea !== "") list = list.filter((p) => (p.area ?? 0) >= Number(minArea));
-    if (maxArea !== "") list = list.filter((p) => (p.area ?? 0) <= Number(maxArea));
-    if (starSet.length) list = list.filter((p) => starSet.some((s) => Math.round(p.rating ?? 0) >= s));
-    if (amenitySet.length) list = list.filter((p) => {
-      const amenities = Array.isArray(p.amenities) ? p.amenities : [];
-      return amenitySet.every((x) => amenities.includes(x));
-    });
-
-    list.sort((a, b) => {
-      // المميز أولًا
-      const ap = a.promoted ? 1 : 0;
-      const bp = b.promoted ? 1 : 0;
-      if (ap !== bp) return bp - ap;
-      // ثم حسب promotedAt
-      const apAt = a.promotedAt ? new Date(a.promotedAt).getTime() : 0;
-      const bpAt = b.promotedAt ? new Date(b.promotedAt).getTime() : 0;
-      if (apAt !== bpAt) return bpAt - apAt;
-      // ثم الأحدث إنشاءً
-      const ac = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const bc = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-      if (ac !== bc) return bc - ac;
-      // ثم الأعلى تقييمًا
-      const ar = a.rating ?? 0;
-      const br = b.rating ?? 0;
-      if (ar !== br) return br - ar;
-      // ثم الأعلى سعرًا
-      return (b.priceOMR ?? 0) - (a.priceOMR ?? 0);
-    });
-
-    return list;
-  }, [
-    items,
-    q,
-    type,
-    purpose,
-    rentalType,
-    province,
-    state,
-    village,
-    minPrice,
-    maxPrice,
-    minArea,
-    maxArea,
-    starSet,
-    amenitySet,
-  ]);
-
-  // عدّادات المرافق الديناميكية
-  const amenityCounts = useMemo(() => {
-    const base = [...items].filter((p) => {
-      if (q.trim()) {
-        const qq = q.trim().toLowerCase();
-        const ok =
-          titleToText(p.title).toLowerCase().includes(qq) ||
-          (p.location ?? "").toLowerCase().includes(qq) ||
-          (p.province ?? "").toLowerCase().includes(qq) ||
-          (p.state ?? "").toLowerCase().includes(qq) ||
-          (p.village ?? "").toLowerCase().includes(qq) ||
-          (p.referenceNo ?? "").toLowerCase().includes(qq);
-        if (!ok) return false;
-      }
-      if (type && p.type !== type) return false;
-      if (purpose && p.purpose !== purpose) return false;
-      if (rentalType && p.rentalType !== rentalType) return false;
-      if (province && p.province !== province) return false;
-      if (state && p.state !== state) return false;
-      if (village && p.village !== village) return false;
-      if (minPrice !== "" && (p.priceOMR ?? 0) < Number(minPrice)) return false;
-      if (maxPrice !== "" && (p.priceOMR ?? 0) > Number(maxPrice)) return false;
-      if (minArea !== "" && (p.area ?? 0) < Number(minArea)) return false;
-      if (maxArea !== "" && (p.area ?? 0) > Number(maxArea)) return false;
-      if (starSet.length && !starSet.some((s) => Math.round(p.rating ?? 0) >= s)) return false;
-      return true;
-    });
-
-    const m = new Map<string, number>();
-    for (const a of ALL_AMENITIES) m.set(a, 0);
-    for (const p of base) {
-      const amenities = Array.isArray(p.amenities) ? p.amenities : [];
-      amenities.forEach((a) => { if (m.has(a)) m.set(a, (m.get(a) ?? 0) + 1); });
+    if (selectedType !== 'all') {
+      filtered = filtered.filter(p => p.type === selectedType);
     }
-    return m;
-  }, [items, q, type, purpose, rentalType, province, state, village, minPrice, maxPrice, minArea, maxArea, starSet]);
 
-  const resetAll = () => {
-    setQ("");
-    setType("");
-    setPurpose("");
-    setRentalType("");
-    setProvince("");
-    setState("");
-    setVillage("");
-    setMinPrice("");
-    setMaxPrice("");
-    setMinArea("");
-    setMaxArea("");
-    setStarSet([]);
-    setAmenitySet([]);
-  };
+    if (selectedPurpose !== 'all') {
+      filtered = filtered.filter(p => p.purpose === selectedPurpose);
+    }
+
+    if (selectedProvince !== 'all') {
+      filtered = filtered.filter(p => p.province === selectedProvince);
+    }
+
+    if (minPrice) {
+      filtered = filtered.filter(p => (p.priceOMR || p.rentalPrice || 0) >= Number(minPrice));
+    }
+
+    if (maxPrice) {
+      filtered = filtered.filter(p => (p.priceOMR || p.rentalPrice || 0) <= Number(maxPrice));
+    }
+
+    if (minBeds) {
+      filtered = filtered.filter(p => (p.beds || 0) >= Number(minBeds));
+    }
+
+    // Sorting
+    if (sortBy === 'price-low') {
+      filtered.sort((a, b) => (a.priceOMR || a.rentalPrice || 0) - (b.priceOMR || b.rentalPrice || 0));
+    } else if (sortBy === 'price-high') {
+      filtered.sort((a, b) => (b.priceOMR || b.rentalPrice || 0) - (a.priceOMR || a.rentalPrice || 0));
+    } else if (sortBy === 'rating') {
+      filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    }
+
+    return filtered;
+  }, [properties, searchTerm, selectedType, selectedPurpose, selectedProvince, minPrice, maxPrice, minBeds, sortBy]);
+
+  if (!mounted || loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
       <Head>
-        <title>العقارات | عين عُمان</title>
+        <title>العقارات | Ain Oman</title>
       </Head>
 
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between gap-2 mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">العقارات</h1>
-          <InstantLink href="/properties/new" className="px-6 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-medium transition-colors">
-            نشر عقار جديد
-          </InstantLink>
+          
+          {/* Hero Header مع AI */}
+          <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl shadow-2xl p-8 mb-8 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full -ml-48 -mb-48"></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-4">
+                <FaRobot className="text-5xl" />
+                <div>
+                  <h1 className="text-4xl font-bold">🏠 استكشف العقارات</h1>
+                  <p className="text-blue-100 text-lg">مدعوم بالذكاء الاصطناعي • {properties.length} عقار متاح</p>
         </div>
-
-        <div className="mb-6">
-          <UnifiedSearchBar
-            onSearch={onSearch}
-            initial={{ keyword: q, type, purpose, rentalType: rentalType || undefined, province, state, village }}
-          />
-        </div>
-
-        <div className="mb-4 lg:hidden">
-          <button
-            onClick={() => setFiltersOpen((v) => !v)}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <FaFilter /> {filtersOpen ? "إخفاء الفلاتر" : "عرض الفلاتر"}
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
-        <aside className={`${filtersOpen ? "block" : "hidden"} lg:block`}>
-          <div className="border rounded-lg p-3 bg-white sticky top-16">
-            <div className="flex items-center justify-between mb-2">
-              <div className="font-semibold">الفلاتر</div>
-              <button onClick={resetAll} className="text-xs underline text-red-600">
-                إعادة تعيين الكل
-              </button>
             </div>
 
-            <div className="grid gap-3 text-sm">
+              {/* AI Recommendations */}
+              {aiRecommendations.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                  {aiRecommendations.map((rec, i) => (
+                    <div key={i} className="bg-white/10 backdrop-blur rounded-xl p-4 hover:bg-white/20 transition">
+                      <div className="flex items-center gap-3">
+                        <span className="text-3xl">{rec.icon}</span>
               <div>
-                <label className="block text-gray-600 mb-1">نوع العقار</label>
-                <select className="w-full border rounded p-2" value={type} onChange={(e) => setType(e.target.value as any)}>
-                  <option value="">الكل</option>
-                  {ALL_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {t === "apartment" ? "شقة" : t === "villa" ? "فيلا" : t === "land" ? "أرض" : t === "office" ? "مكتب" : "محل"}
-                    </option>
+                          <p className="font-bold">{rec.title}</p>
+                          <p className="text-sm text-blue-100">{rec.desc}</p>
+                        </div>
+                      </div>
+                    </div>
                   ))}
+                </div>
+              )}
+
+              {/* Search Bar */}
+              <div className="mt-6">
+                <div className="relative">
+                  <FaSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="ابحث عن عقار أو موقع..."
+                    className="w-full pr-12 pl-6 py-4 rounded-2xl text-gray-900 text-lg focus:outline-none focus:ring-4 focus:ring-white/50 shadow-xl"
+                  />
+                </div>
+              </div>
+                </div>
+              </div>
+
+          {/* Filters Bar */}
+          <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium"
+                >
+                  <FaFilter />
+                  {showFilters ? 'إخفاء الفلاتر' : 'فلاتر متقدمة'}
+                </button>
+                
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="newest">الأحدث</option>
+                  <option value="price-low">السعر: من الأقل</option>
+                  <option value="price-high">السعر: من الأعلى</option>
+                  <option value="rating">الأعلى تقييماً</option>
+                  </select>
+
+                <div className="flex gap-2 border-2 border-gray-200 rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`px-4 py-2 rounded-md transition ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}
+                  >
+                    شبكة
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`px-4 py-2 rounded-md transition ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}
+                  >
+                    قائمة
+                  </button>
+                </div>
+              </div>
+
+              <p className="text-gray-600 font-medium">
+                {filteredProperties.length} عقار
+              </p>
+            </div>
+
+            {/* Advanced Filters */}
+            {showFilters && (
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 pt-4 border-t border-gray-200 animate-fade-in">
+                <select
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500"
+                >
+                  <option value="all">كل الأنواع</option>
+                  <option value="apartment">شقة</option>
+                  <option value="villa">فيلا</option>
+                  <option value="land">أرض</option>
+                  <option value="office">مكتب</option>
+                  <option value="shop">محل</option>
                 </select>
-              </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-gray-600 mb-1">الغرض</label>
-                  <select className="w-full border rounded p-2" value={purpose} onChange={(e) => setPurpose(e.target.value as any)}>
-                    <option value="">الكل</option>
-                    <option value="sale">بيع</option>
-                    <option value="rent">إيجار</option>
-                    <option value="investment">استثمار</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-gray-600 mb-1">نوع الإيجار</label>
-                  <select
-                    className="w-full border rounded p-2"
-                    value={rentalType || ""}
-                    onChange={(e) => setRentalType(e.target.value as any)}
-                    disabled={purpose !== "rent"}
-                  >
-                    <option value="">—</option>
-                    <option value="daily">يومي</option>
-                    <option value="monthly">شهري</option>
-                    <option value="yearly">سنوي</option>
-                  </select>
-                </div>
-              </div>
+                <select
+                  value={selectedPurpose}
+                  onChange={(e) => setSelectedPurpose(e.target.value)}
+                  className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500"
+                >
+                  <option value="all">كل الأغراض</option>
+                  <option value="sale">للبيع</option>
+                  <option value="rent">للإيجار</option>
+                  <option value="investment">للاستثمار</option>
+                </select>
 
-              <div className="grid gap-2">
-                <div>
-                  <label className="block text-gray-600 mb-1">المحافظة</label>
-                  <select className="w-full border rounded p-2" value={province} onChange={(e) => setProvince(e.target.value)}>
-                    <option value="">الكل</option>
-                    {OMAN_PROVINCES.map((p) => (
-                      <option key={p.name} value={p.name}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-gray-600 mb-1">الولاية</label>
-                  <select
-                    className="w-full border rounded p-2"
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    disabled={!province}
-                  >
-                    <option value="">الكل</option>
-                    {getStates(province).map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-gray-600 mb-1">القرية</label>
-                  <select
-                    className="w-full border rounded p-2"
-                    value={village}
-                    onChange={(e) => setVillage(e.target.value)}
-                    disabled={!state}
-                  >
-                    <option value="">الكل</option>
-                    {getVillages(province, state).map((v) => (
-                      <option key={v} value={v}>
-                        {v}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+                <select
+                  value={selectedProvince}
+                  onChange={(e) => setSelectedProvince(e.target.value)}
+                  className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500"
+                >
+                  <option value="all">كل المحافظات</option>
+                  <option value="muscat">مسقط</option>
+                  <option value="dhofar">ظفار</option>
+                  <option value="dakhliyah">الداخلية</option>
+                </select>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-gray-600 mb-1">السعر من</label>
                   <input
                     type="number"
-                    className="w-full border rounded p-2"
                     value={minPrice}
-                    onChange={(e) => setMinPrice(e.target.value ? +e.target.value : "")}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                  placeholder="السعر من"
+                  className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500"
                   />
-                </div>
-                <div>
-                  <label className="block text-gray-600 mb-1">السعر إلى</label>
+
                   <input
                     type="number"
-                    className="w-full border rounded p-2"
                     value={maxPrice}
-                    onChange={(e) => setMaxPrice(e.target.value ? +e.target.value : "")}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  placeholder="السعر إلى"
+                  className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500"
                   />
                 </div>
-                <div>
-                  <label className="block text-gray-600 mb-1">المساحة من</label>
-                  <input
-                    type="number"
-                    className="w-full border rounded p-2"
-                    value={minArea}
-                    onChange={(e) => setMinArea(e.target.value ? +e.target.value : "")}
-                  />
+            )}
                 </div>
-                <div>
-                  <label className="block text-gray-600 mb-1">المساحة إلى</label>
-                  <input
-                    type="number"
-                    className="w-full border rounded p-2"
-                    value={maxArea}
-                    onChange={(e) => setMaxArea(e.target.value ? +e.target.value : "")}
-                  />
-                </div>
-              </div>
 
-              <div>
-                <div className="block text-gray-600 mb-1">الحد الأدنى للتقييم</div>
-                <div className="flex flex-wrap gap-2">
-                  {STAR_OPTIONS.map((s) => (
-                    <label key={s} className="inline-flex items-center gap-1 border rounded px-2 py-1">
-                      <input
-                        type="checkbox"
-                        checked={starSet.includes(s)}
-                        onChange={(e) =>
-                          setStarSet((prev) => (e.target.checked ? [...prev, s] : prev.filter((x) => x !== s)))
-                        }
-                      />
-                      <span className="inline-flex items-center gap-1">
-                        <FaStar className="text-yellow-500" /> {s}+
-                      </span>
-                    </label>
-                  ))}
+          {/* Trending Properties */}
+          {trendingProperties.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-4">
+                <FaFire className="text-orange-500 text-2xl" />
+                <h2 className="text-2xl font-bold text-gray-900">العقارات الأكثر طلباً</h2>
                 </div>
-              </div>
-
-              <div>
-                <div className="block text-gray-600 mb-1">المرافق</div>
-                <div className="flex flex-wrap gap-2">
-                  {ALL_AMENITIES.map((a) => {
-                    const c = amenityCounts.get(a) ?? 0;
-                    const disabled = c === 0 && !amenitySet.includes(a);
-                    return (
-                      <label
-                        key={a}
-                        className={`inline-flex items-center gap-1 border rounded px-2 py-1 ${
-                          disabled ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          disabled={disabled}
-                          checked={amenitySet.includes(a)}
-                          onChange={(e) =>
-                            setAmenitySet((prev) => (e.target.checked ? [...prev, a] : prev.filter((x) => x !== a)))
-                          }
-                        />
-                        <span>
-                          {a} <span className="text-xs text-gray-500">({c})</span>
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {trendingProperties.map((property) => (
+                  <PropertyCard key={property.id} property={property} featured />
+                ))}
               </div>
             </div>
-          </div>
-        </aside>
-
-        <section>
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-sm text-gray-600">
-              النتائج: <b>{filtered.length}</b>
-            </div>
-            <div className="text-sm">
-              <span className="text-gray-600">الترتيب: </span>
-              <span className="font-semibold">المميز أولًا، ثم الأحدث، ثم الأعلى تقييمًا</span>
-            </div>
-          </div>
-
-          {loading && <div className="py-10 text-center text-gray-600">جاري التحميل…</div>}
-          {error && <div className="py-10 text-center text-red-600">{error}</div>}
-          {!loading && !error && filtered.length === 0 && (
-            <div className="py-10 text-center text-gray-600">لا توجد نتائج مطابقة.</div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filtered.map((p) => {
-              const title = titleToText(p.title);
-              const cardImg = getCardImage(p);
-              return (
-                <InstantLink 
-                  href={`/properties/${p.id}`}
-                  key={String(p.id)}
-                  className="border rounded-lg overflow-hidden shadow hover:shadow-lg transition block"
-                >
-                  <div className="relative">
-                    {cardImg ? (
-                      <InstantImage src={cardImg} alt={title || "Property"} className="w-full h-48 object-cover"  loading="lazy" width={800} height={192}/>
-                    ) : (
-                      <div className="w-full h-48 bg-gray-100" />
-                    )}
+          {/* Properties Grid/List */}
+          {filteredProperties.length === 0 ? (
+            <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+              <FaHome className="text-6xl text-gray-300 mx-auto mb-4" />
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">لا توجد عقارات</h3>
+              <p className="text-gray-600">جرّب تغيير الفلاتر أو البحث بكلمة أخرى</p>
+            </div>
+          ) : (
+            <div className={viewMode === 'grid' 
+              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
+              : 'space-y-6'
+            }>
+              {filteredProperties.map((property) => (
+                <PropertyCard key={property.id} property={property} viewMode={viewMode} />
+              ))}
+            </div>
+          )}
+                </div>
+              </div>
+    </>
+  );
+}
 
-                    {/* شارة السيريال مع النسخ */}
-                    {p.referenceNo && (
+function PropertyCard({ property, featured = false, viewMode = 'grid' }: { 
+  property: Property; 
+  featured?: boolean; 
+  viewMode?: 'grid' | 'list' 
+}) {
+  const [liked, setLiked] = useState(false);
+
+  const getTitleText = (p: Property): string => {
+    if (p.titleAr) return p.titleAr;
+    if (typeof p.title === 'string') return p.title;
+    if (typeof p.title === 'object') return p.title.ar || p.title.en || '';
+    return 'عقار';
+  };
+
+  const getCoverImage = (p: Property): string => {
+    if (p.coverImage) return p.coverImage;
+    if (p.images && p.images.length > 0) {
+      const idx = p.coverIndex || 0;
+      return p.images[idx] || p.images[0];
+    }
+    return 'https://via.placeholder.com/400x300?text=No+Image';
+  };
+
+  const price = property.priceOMR || property.rentalPrice || 0;
+
+  if (viewMode === 'list') {
+                    return (
+      <InstantLink href={`/properties/${property.id}`}>
+        <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all p-4 flex gap-6 group">
+          <div className="relative w-64 h-48 flex-shrink-0">
+            <InstantImage
+              src={getCoverImage(property)}
+              alt={getTitleText(property)}
+              className="w-full h-full object-cover rounded-xl"
+              width={256}
+              height={192}
+            />
+            {featured && (
+              <div className="absolute top-2 right-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
+                <FaFire /> مميز
+              </div>
+            )}
+          </div>
+          
+          <div className="flex-1">
+            <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition">
+              {getTitleText(property)}
+            </h3>
+            <p className="text-gray-600 mb-3 flex items-center gap-2">
+              <FaMapMarkerAlt className="text-blue-600" />
+              {property.city || property.province}
+            </p>
+            
+            <div className="flex gap-4 mb-4">
+              {property.beds && (
+                <div className="flex items-center gap-1 text-gray-600">
+                  <FaBed /> {property.beds}
+                </div>
+              )}
+              {property.baths && (
+                <div className="flex items-center gap-1 text-gray-600">
+                  <FaBath /> {property.baths}
+                </div>
+              )}
+              {property.area && (
+                <div className="flex items-center gap-1 text-gray-600">
+                  <FaRulerCombined /> {property.area} م²
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between">
+              <p className="text-3xl font-bold text-blue-600">
+                {price.toLocaleString()} ر.ع
+              </p>
+              {property.rating && (
+                <div className="flex items-center gap-1">
+                  <FaStar className="text-yellow-400" />
+                  <span className="font-bold">{property.rating}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </InstantLink>
+    );
+  }
+
+  return (
+    <InstantLink href={`/properties/${property.id}`}>
+      <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all overflow-hidden group">
+        <div className="relative h-56">
+          <InstantImage
+            src={getCoverImage(property)}
+            alt={getTitleText(property)}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            width={400}
+            height={300}
+          />
+          
+          {featured && (
+            <div className="absolute top-3 right-3 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg">
+              <FaFire /> مميز
+            </div>
+          )}
+
                       <button
-                        onClick={(e) => copyRef(e, p.referenceNo)}
-                        title="انسخ الرقم المرجعي"
-                        className="absolute top-2 left-2 text-[10px] bg-black/70 hover:bg-black text-white px-2 py-1 rounded"
-                      >
-                        {p.referenceNo}
+            onClick={(e) => {
+              e.preventDefault();
+              setLiked(!liked);
+            }}
+            className="absolute top-3 left-3 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center hover:scale-110 transition shadow-lg"
+          >
+            {liked ? <FaHeart className="text-red-500" /> : <FaRegHeart className="text-gray-600" />}
                       </button>
-                    )}
 
-                    {p.promoted && (
-                      <span className="absolute top-2 end-2 text-xs bg-amber-500 text-white px-2 py-1 rounded inline-flex items-center gap-1">
-                        <FaBolt /> مميز
-                      </span>
+          {property.type && (
+            <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur text-white px-3 py-1 rounded-lg text-sm font-medium">
+              {property.type === 'apartment' ? '🏢 شقة' : 
+               property.type === 'villa' ? '🏠 فيلا' :
+               property.type === 'land' ? '🌳 أرض' :
+               property.type === 'office' ? '🏛️ مكتب' : '🏪 محل'}
+            </div>
                     )}
                   </div>
 
-                  <div className="p-3">
-                    <div className="font-semibold line-clamp-1">{title || `#${p.id}`}</div>
-                    <div className="text-xs text-gray-600 line-clamp-1">
-                      {p.location ?? `${p.province ?? ""}${p.state ? " - " + p.state : ""}${p.village ? " - " + p.village : ""}`}
+        <div className="p-6">
+          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition line-clamp-1">
+            {getTitleText(property)}
+          </h3>
+          
+          <p className="text-gray-600 mb-4 flex items-center gap-2">
+            <FaMapMarkerAlt className="text-blue-600" />
+            {property.city || property.province}
+          </p>
+
+          <div className="flex gap-3 mb-4 text-sm text-gray-600">
+            {property.beds && (
+              <div className="flex items-center gap-1">
+                <FaBed /> {property.beds}
+              </div>
+            )}
+            {property.baths && (
+              <div className="flex items-center gap-1">
+                <FaBath /> {property.baths}
+                      </div>
+            )}
+            {property.area && (
+              <div className="flex items-center gap-1">
+                <FaRulerCombined /> {property.area} م²
+                      </div>
+            )}
                     </div>
 
-                    <div className="mt-2 flex items-center justify-between">
-                      <div className="text-[var(--brand-700)] font-bold">
-                        {mounted ? format(p.priceOMR ?? 0) : `${p.priceOMR ?? 0} ر.ع`}
+          <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+            <p className="text-2xl font-bold text-blue-600">
+              {price.toLocaleString()} ر.ع
+            </p>
+            {property.rating && (
+              <div className="flex items-center gap-1">
+                <FaStar className="text-yellow-400" />
+                <span className="font-bold">{property.rating}</span>
                       </div>
-                      <div className="text-xs text-yellow-600 inline-flex items-center gap-1">
-                        <FaStar /> {p.rating ?? 0}
-                      </div>
-                    </div>
-
-                    <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-gray-700">
-                      <div className="inline-flex items-center gap-1">
-                        <FaBed /> {p.beds ?? 0}
-                      </div>
-                      <div className="inline-flex items-center gap-1">
-                        <FaBath /> {p.baths ?? 0}
-                      </div>
-                      <div className="inline-flex items-center gap-1">
-                        <FaRulerCombined /> {p.area ?? 0} م²
+            )}
                       </div>
                     </div>
                   </div>
                 </InstantLink>
-              );
-            })}
-          </div>
-        </section>
-      </div>
-      </div>
-    </div>
   );
 }
-
-// getServerSideProps removed - using useEffect instead
-
