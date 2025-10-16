@@ -1,23 +1,79 @@
 أنا أعمل على مشروع Ain Oman Web في المسار: C:\dev\ain-oman-web
 
-قم بالتالي بالترتيب:
+قم بالتالي بالترتيب (بدون توقف):
 
-1.اسحب كل الملفات الموجوده في https://github.com/ainoamn/ainoamn-ain-oman-web
-2.اقرأ ملف C:\dev\ain-oman-web\CONVERSATION_HISTORY.md لفهم العمل السابق
+1. اسحب كل الملفات من GitHub (استبدل كل الملفات المحلية):
+   ```
+   git fetch --all
+   git reset --hard origin/main
+   git pull --force origin main
+   ```
+   - تأكد من استبدال جميع الملفات المحلية بالنسخة من Git
+   - لا تترك أي ملفات قديمة
 
-3. اقرأ ملف C:\dev\ain-oman-web\PROJECT_GUIDE.md لفهم المعايير والتقنيات
+2. اقرأ الملفات التالية لفهم النظام:
+   - C:\dev\ain-oman-web\CONVERSATION_HISTORY.md (آخر 3 مراحل على الأقل)
+   - C:\dev\ain-oman-web\PROJECT_GUIDE.md (المعايير والتقنيات)
+   - C:\dev\ain-oman-web\sessions\ (آخر 3 جلسات)
+   - C:\dev\ain-oman-web\conversations\ (آخر محادثة)
 
-4. قدم لي ملخصاً مختصراً (10-30 نقاط) يحتوي على:
-   - 📅 تاريخ ووقت آخر تحديث للملفات
-   - ✅ آخر 10 إنجازات تمت
-   - 🔄 المهام المتبقية (إن وجدت)
-   - ⚠️ أي مشاكل معروفة
-   - 🎯 التقنيات الأساسية المستخدمة
-5. شغل السيرفر 
-6. ثم اسألني: "ما الذي تريد العمل عليه اليوم؟"
+3. راجع البنية الأساسية:
+   - src/pages/ (الصفحات الرئيسية)
+   - src/components/ (المكونات)
+   - src/context/ (Contexts)
+   - src/lib/ (المكتبات)
+   - src/server/ (Server-side code)
+   - .data/ (قاعدة البيانات JSON)
 
-ملاحظات مهمة:
+4. افحص الأخطاء المحتملة:
+   - تشغيل: npm run build (للتحقق من أخطاء البناء)
+   - قراءة linter errors
+   - فحص console.log المتبقية
+   - التحقق من الملفات التالفة
+
+5. قدم لي ملخصاً شاملاً (20-50 نقطة):
+   
+   **📅 معلومات النظام:**
+   - تاريخ ووقت آخر تحديث
+   - آخر commit message
+   - حالة Git (clean/modified)
+   
+   **✅ آخر 10 إنجازات:**
+   - [قائمة من CONVERSATION_HISTORY.md]
+   
+   **🔄 المهام المتبقية:**
+   - [من آخر جلسة]
+   
+   **⚠️ المشاكل المعروفة:**
+   - أخطاء البناء
+   - Linter errors
+   - Performance issues
+   
+   **🎯 التقنيات المستخدمة:**
+   - Next.js, React, TypeScript
+   - InstantLink, InstantImage
+   - useBookings, usePermissions
+   - Contexts: Theme, Auth, Bookings, etc.
+   
+   **📊 إحصائيات:**
+   - عدد الصفحات
+   - عدد المكونات
+   - عدد APIs
+   - حجم المشروع
+
+6. شغّل السيرفر:
+   ```
+   npm run dev
+   ```
+   - انتظر حتى يصبح جاهزاً
+   - تحقق من عدم وجود أخطاء
+
+7. ثم اسألني: "🎯 ما الذي تريد العمل عليه اليوم؟"
+
+⚠️ ملاحظات مهمة:
 - التزم بجميع المعايير في PROJECT_GUIDE.md
 - استخدم: InstantLink، toSafeText، useBookings، formatDate (ميلادي)
 - لا تستورد Header/Footer مباشرة
 - عند إنشاء/تعديل ملفات، تجنب التكرار والتضارب
+- اعمل بدون توقف حتى تنتهي من جميع الخطوات
+- لا تترك أي خطوة غير مكتملة
