@@ -182,7 +182,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
   // Bulk Actions Handler
   const handleBulkAction = async (action: string) => {
     if (selectedProperties.size === 0) {
-      alert('�� ��� ����� �� ����');
+      alert('لم يتم تحديد أي عقار');
       return;
     }
 
@@ -190,7 +190,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
     
     switch (action) {
       case 'delete':
-        if (confirm(`�� ��� ����� �� ��� ${selectedIds.length} ���ѿ`)) {
+        if (confirm(`هل أنت متأكد من حذف ${selectedIds.length} عقاراً؟`)) {
           selectedIds.forEach(id => deleteProperty(id));
           setSelectedProperties(new Set());
         }
@@ -325,23 +325,24 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
     return recommendations;
   };
 
-  // ����� ����� ���������� ������
+  // تحليل واقتراحات ذكية
   const generateSmartSuggestions = () => {
-    // ����� ��� ��������
-    const vacantProperties = properties.filter(p => p.status === 'vacant');
-    const publishedProperties = properties.filter(p => p.published);
-    const draftProperties = properties.filter(p => !p.published);
+    // تصفية أنواع العقارات
+    const validProperties = properties.filter(p => p && typeof p === 'object');
+    const vacantProperties = validProperties.filter(p => p.status === 'vacant');
+    const publishedProperties = validProperties.filter(p => p.published);
+    const draftProperties = validProperties.filter(p => !p.published);
     
-    // �������� ����
+    // الاقتراحات الذكية
     const suggestions = [];
     
     if (draftProperties.length > 0) {
       suggestions.push({
         type: 'publish',
-        title: '��� ��������',
-        description: `���� ${draftProperties.length} ���� ����� ������. ����� ����� �� ����� �� �����.`,
+        title: 'نشر العقارات',
+        description: `لديك ${draftProperties.length} عقار بحالة مسودة. يُنصح بنشرها لزيادة فرص البيع أو الإيجار.`,
         action: () => {
-          // ��� ���� ��������
+          // نشر كافة العقارات
           draftProperties.forEach(property => {
             togglePropertyPublish(property.id, false);
           });
@@ -352,22 +353,22 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
     if (vacantProperties.length > 3) {
       suggestions.push({
         type: 'pricing',
-        title: '������ �������',
-        description: `���� ${vacantProperties.length} ���� ����. �� ����� ������� ������� �� ����� �����.`,
+        title: 'مراجعة الأسعار',
+        description: `لديك ${vacantProperties.length} عقار شاغر. قد تحتاج لمراجعة الأسعار أو تحسين التسويق.`,
         action: () => {
-          // ��� ���� ������ �������
+          // فتح صفحة تحليل الأسعار
           window.open('/admin/pricing-analysis', '_blank');
         }
       });
     }
     
-    if (properties.filter(p => !p.images || p.images.length === 0).length > 0) {
+    if (validProperties.filter(p => !p.images || p.images.length === 0).length > 0) {
       suggestions.push({
         type: 'media',
-        title: '����� �����',
-        description: '��� �������� �� ����� ��� ���. ����� ��� ����� ������ ����� �� ������ ��������.',
+        title: 'إضافة الصور',
+        description: 'بعض العقارات لا تحتوي على صور. يُنصح بإضافة صور عالية الجودة لزيادة الاهتمام.',
         action: () => {
-          // ��� ���� ����� �����
+          // فتح صفحة إدارة الصور
           window.open('/admin/media-management', '_blank');
         }
       });
@@ -376,16 +377,17 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
     return suggestions;
   };
 
-  // ����� ��� ���� ��������
+  // دالة نشر كافة المسودات
   const publishAllDrafts = async () => {
-    const draftProperties = properties.filter(p => !p.published);
+    const validProperties = properties.filter(p => p && typeof p === 'object');
+    const draftProperties = validProperties.filter(p => !p.published);
     
     if (draftProperties.length === 0) {
-      alert('�� ���� ������ �����');
+      alert('لا توجد مسودات لنشرها');
       return;
     }
 
-    if (confirm(`�� ���� ��� ${draftProperties.length} ���� ����� �����ɿ`)) {
+    if (confirm(`هل تريد نشر ${draftProperties.length} عقار دفعة واحدة؟`)) {
       try {
         const promises = draftProperties.map(property => 
           fetch(`/api/properties/${property.id}`, {
@@ -397,16 +399,16 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
 
         await Promise.all(promises);
         
-        // ����� ������ �������
-        setProperties(prev => prev.map(p => 
+        // تحديث الحالة المحلية
+        const updatedItems = properties.map(p => 
           !p.published ? { ...p, published: true } : p
-        ));
+        );
+        await mutateProperties({ items: updatedItems }, true);
         
         generateAIInsights();
-        alert(`�� ��� ${draftProperties.length} ���� �����!`);
+        alert(`تم نشر ${draftProperties.length} عقار بنجاح!`);
       } catch (error) {
-
-        alert('��� ��� ����� ��� ��������');
+        alert('حدث خطأ أثناء نشر العقارات');
       }
     }
   };
@@ -841,7 +843,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
   return (
     <>
       <Head>
-        <title>����� �������� �������� - ��� �����</title>
+        <title>الإدارة الموحدة للعقارات - عين عُمان</title>
       </Head>
 
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
@@ -852,11 +854,11 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 flex items-center">
                   <FaBuilding className="ml-3 text-blue-600" />
-                  ����� �������� ��������
+                  الإدارة الموحدة للعقارات
                 </h1>
                 <p className="text-gray-600 mt-2 flex items-center">
                   <FaRobot className="ml-2 text-purple-500" />
-                  ���� ����� ��� ������ �������� ��������
+                  لوحة تحكم واحدة لإدارة كل شيء
                 </p>
               </div>
               <div className="flex space-x-3">
@@ -865,14 +867,14 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                   className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center"
                 >
                   <FaPlus className="ml-2" />
-                  ����� ����
+                  إضافة عقار
                 </InstantLink>
                 <button
                   onClick={() => setShowFilters(!showFilters)}
                   className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center"
                 >
                   <FaFilter className="ml-2" />
-                  {showFilters ? '����� �������' : '��� �������'}
+                  {showFilters ? 'إخفاء الفلاتر' : 'عرض الفلاتر'}
                 </button>
               </div>
             </div>
@@ -884,13 +886,13 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                   <div className="flex items-center gap-3">
                     <FaCheck className="text-blue-600 text-xl" />
                     <span className="font-bold text-gray-900">
-                      �� ����� {selectedProperties.size} ����
+                      تم تحديد {selectedProperties.size} عقار
                     </span>
                     <button
                       onClick={() => setSelectedProperties(new Set())}
                       className="text-sm text-red-600 hover:text-red-700 underline"
                     >
-                      ����� �������
+                      إلغاء التحديد
                     </button>
                   </div>
                   <div className="flex gap-2">
@@ -899,28 +901,28 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                       className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition flex items-center gap-2"
                     >
                       <FaGlobe />
-                      ���
+                      نشر
                     </button>
                     <button
                       onClick={() => handleBulkAction('unpublish')}
                       className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium transition flex items-center gap-2"
                     >
                       <FaEyeSlash />
-                      �����
+                      إخفاء
                     </button>
                     <button
                       onClick={() => handleBulkAction('export')}
                       className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition flex items-center gap-2"
                     >
                       <FaDownload />
-                      �����
+                      تصدير
                     </button>
                     <button
                       onClick={() => handleBulkAction('delete')}
                       className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition flex items-center gap-2"
                     >
                       <FaTrash />
-                      ���
+                      حذف
                     </button>
                   </div>
                 </div>
@@ -930,9 +932,9 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
             {/* Tabs */}
             <div className="flex space-x-1 mt-6">
               {[
-                { id: 'properties', label: '��������', icon: '??', count: properties.length },
-                { id: 'units', label: '�������', icon: '??', count: units.length },
-                { id: 'customers', label: '�������', icon: '??', count: customers.length }
+                { id: 'properties', label: 'العقارات', icon: '🏢', count: properties.length },
+                { id: 'units', label: 'الوحدات', icon: '🏘️', count: units.length },
+                { id: 'customers', label: 'العملاء', icon: '👥', count: customers.length }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -966,7 +968,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                     <div className="bg-white/20 p-1.5 rounded-lg ml-2">
                       <FaRobot className="text-lg" />
                     </div>
-                    ���� ������ ���������
+                    لوحة الذكاء الاصطناعي
                   </h2>
                 </div>
                 <div className="flex space-x-2">
