@@ -233,9 +233,7 @@ export default function EditProperty({ property }: { property: any }) {
   const [loading, setLoading] = useState(true);
   const [loadingImages, setLoadingImages] = useState(false);
   
-  // تشخيص: طباعة البيانات المستلمة
-  console.log('EditProperty component received property:', property);
-  console.log('EditProperty component received id:', id);
+  // تم إزالة console.log لتحسين الأداء
   const [customAmenity, setCustomAmenity] = useState('');
   const [filteredStates, setFilteredStates] = useState<string[]>([]);
   const [filteredCities, setFilteredCities] = useState<string[]>([]);
@@ -390,7 +388,7 @@ export default function EditProperty({ property }: { property: any }) {
     }
   };
 
-  // وظيفة تحميل الصور من الخادم
+  // وظيفة تحميل الصور من الخادم أو base64
   const loadImagesFromServer = async (imageUrls: string[]): Promise<File[]> => {
     const imageFiles: File[] = [];
     
@@ -398,32 +396,39 @@ export default function EditProperty({ property }: { property: any }) {
       return imageFiles;
     }
     
-    for (const imageUrl of imageUrls) {
+    for (let i = 0; i < imageUrls.length; i++) {
+      const imageUrl = imageUrls[i];
       try {
-        // تحقق من أن الرابط صحيح
         if (!imageUrl || typeof imageUrl !== 'string') {
           continue;
         }
         
-        // إضافة http:// إذا لم يكن موجوداً
-        const fullUrl = imageUrl.startsWith('http') ? imageUrl : `http://localhost:3000${imageUrl}`;
+        // إذا كانت الصورة base64، حولها مباشرة إلى File
+        if (imageUrl.startsWith('data:')) {
+          const response = await fetch(imageUrl);
+          const blob = await response.blob();
+          const mimeType = imageUrl.split(';')[0].split(':')[1];
+          const ext = mimeType.split('/')[1];
+          const fileName = `image-${i + 1}.${ext}`;
+          const file = new File([blob], fileName, { type: mimeType });
+          imageFiles.push(file);
+          continue;
+        }
         
+        // إذا كانت URL عادي، اعمل fetch
+        const fullUrl = imageUrl.startsWith('http') ? imageUrl : `http://localhost:3000${imageUrl}`;
         const response = await fetch(fullUrl);
         if (response.ok) {
           const blob = await response.blob();
-          const fileName = imageUrl.split('/').pop() || `image-${Date.now()}.jpg`;
+          const fileName = imageUrl.split('/').pop() || `image-${i + 1}.jpg`;
           const file = new File([blob], fileName, { type: blob.type });
           imageFiles.push(file);
-          console.log('Successfully loaded image:', fileName);
-        } else {
-          console.warn('Failed to load image:', fullUrl, response.status);
         }
       } catch (error) {
-        console.error('Error loading image:', imageUrl, error);
+        // تجاهل الأخطاء واستمر
       }
     }
     
-    console.log(`Loaded ${imageFiles.length} images out of ${imageUrls.length}`);
     return imageFiles;
   };
 

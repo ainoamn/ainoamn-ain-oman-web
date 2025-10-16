@@ -35,30 +35,30 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       // محاولة الحصول على بيانات المستخدم من localStorage
       const authData = localStorage.getItem('ain_auth');
       if (!authData) {
-        console.log('🔐 Subscription: No auth data found');
+
         setSubscription(null);
         setPlan(null);
         return;
       }
 
       const userData = JSON.parse(authData);
-      console.log('👤 Subscription: User data loaded:', userData.name);
+
 
       // التحقق من وجود اشتراك
       if (userData.subscription) {
-        console.log('📦 Subscription: Active subscription found:', userData.subscription.planId);
+
         setSubscription(userData.subscription);
         
         // جلب تفاصيل الباقة
         const userPlan = SUBSCRIPTION_PLANS.find(p => p.id === userData.subscription.planId);
         if (userPlan) {
-          console.log('✅ Subscription: Plan loaded:', userPlan.nameAr);
+
           setPlan(userPlan);
         } else {
-          console.warn('⚠️ Subscription: Plan not found:', userData.subscription.planId);
+
         }
       } else {
-        console.log('⚠️ Subscription: No active subscription - using FREE tier');
+
         // لا يوجد اشتراك - استخدام الباقة المجانية الافتراضية
         const freePlan = SUBSCRIPTION_PLANS.find(p => p.id === 'free');
         if (freePlan) {
@@ -67,7 +67,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
         setSubscription(null);
       }
     } catch (error) {
-      console.error('❌ Subscription: Error loading subscription:', error);
+
       setSubscription(null);
       setPlan(null);
     } finally {
@@ -80,7 +80,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
 
     // الاستماع لتغييرات المصادقة
     const handleAuthChange = () => {
-      console.log('🔄 Subscription: Auth changed, reloading...');
+
       loadSubscription();
     };
 
@@ -91,19 +91,19 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
   // التحقق من صلاحية معينة
   const hasPermission = (permissionId: string): boolean => {
     if (!plan || !plan.permissions) {
-      console.log(`❌ Permission Check: No plan - denying ${permissionId}`);
+
       return false;
     }
 
     const hasPerm = plan.permissions.some(p => p.id === permissionId);
-    console.log(`🔐 Permission Check: ${permissionId} = ${hasPerm}`);
+
     return hasPerm;
   };
 
   // التحقق من ميزة معينة (بناءً على category)
   const hasFeature = (featureKey: string): boolean => {
     if (!plan) {
-      console.log(`❌ Feature Check: No plan - denying ${featureKey}`);
+
       return false;
     }
 
@@ -121,7 +121,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
 
     const category = featureCategoryMap[featureKey];
     if (!category) {
-      console.log(`⚠️ Feature Check: Unknown feature ${featureKey}`);
+
       return true; // افتراضياً السماح بالميزات غير المعروفة
     }
 
@@ -163,14 +163,14 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     current: number
   ): boolean => {
     if (!subscription || !subscription.limits) {
-      console.log(`⚠️ Limit Check: No subscription - denying ${limitType}`);
+
       return false;
     }
 
     const max = subscription.limits[limitType];
     const isWithin = max === -1 || current < max; // -1 = unlimited
 
-    console.log(`📊 Limit Check: ${limitType} = ${current}/${max === -1 ? '∞' : max} - ${isWithin ? 'OK' : 'EXCEEDED'}`);
+
     return isWithin;
   };
 
@@ -190,7 +190,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
 
   // تحديث الاشتراك يدوياً
   const refreshSubscription = async () => {
-    console.log('🔄 Refreshing subscription...');
+
     await loadSubscription();
   };
 

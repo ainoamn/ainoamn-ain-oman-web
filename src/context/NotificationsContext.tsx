@@ -48,33 +48,26 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
       const userId = user?.email;
 
       if (!userId) {
-        console.log('📢 Notifications: No user logged in');
         setNotifications([]);
         setUnreadCount(0);
         setLoading(false);
         return;
       }
 
-      console.log('📢 Notifications: Fetching for user:', userId);
-
       const response = await fetch(`/api/notifications?userId=${encodeURIComponent(userId)}`);
       
       if (!response.ok) {
-        console.error('Failed to fetch notifications');
         setNotifications([]);
         return;
       }
 
       const data = await response.json();
 
-      console.log('📢 Notifications: Received', data.count, 'notifications');
-      console.log('📢 Notifications: Unread', data.unreadCount);
-
       setNotifications(data.notifications || []);
       setUnreadCount(data.unreadCount || 0);
 
     } catch (err) {
-      console.error('Error fetching notifications:', err);
+
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
@@ -94,7 +87,7 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
         throw new Error('Failed to mark notification as read');
       }
 
-      console.log('✅ Notifications: Marked as read:', id);
+
 
       // تحديث محلياً
       setNotifications(prev =>
@@ -103,7 +96,7 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
       setUnreadCount(prev => Math.max(0, prev - 1));
 
     } catch (err) {
-      console.error('Error marking notification as read:', err);
+
     }
   };
 
@@ -126,7 +119,7 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
         throw new Error('Failed to mark all notifications as read');
       }
 
-      console.log('✅ Notifications: Marked all as read');
+
 
       // تحديث محلياً
       setNotifications(prev =>
@@ -135,7 +128,7 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
       setUnreadCount(0);
 
     } catch (err) {
-      console.error('Error marking all notifications as read:', err);
+
     }
   };
 
@@ -150,7 +143,7 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
         throw new Error('Failed to delete notification');
       }
 
-      console.log('🗑️ Notifications: Deleted:', id);
+
 
       // تحديث محلياً
       const deletedNotif = notifications.find(n => n.id === id);
@@ -161,7 +154,7 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
       }
 
     } catch (err) {
-      console.error('Error deleting notification:', err);
+
     }
   };
 
@@ -185,14 +178,14 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
       }
 
       const data = await response.json();
-      console.log('➕ Notifications: Added new notification');
+
 
       // تحديث محلياً
       setNotifications(prev => [data.notification, ...prev]);
       setUnreadCount(prev => prev + 1);
 
     } catch (err) {
-      console.error('Error adding notification:', err);
+
     }
   };
 
@@ -212,7 +205,7 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
 
     channel.onmessage = (event) => {
       if (event.data.type === 'NOTIFICATION_ADDED' || event.data.type === 'NOTIFICATION_UPDATED') {
-        console.log('📡 Notifications: Sync event received');
+
         refreshNotifications();
       }
     };

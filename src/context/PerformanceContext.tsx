@@ -41,7 +41,6 @@ export function PerformanceProvider({ children }: { children: React.ReactNode })
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then(() => {
         setIsServiceWorkerReady(true);
-        console.log('[Performance] Service Worker is ready! ⚡');
       });
     }
   }, []);

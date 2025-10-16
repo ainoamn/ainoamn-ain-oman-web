@@ -80,7 +80,7 @@ export function BookingsProvider({
     try {
       setError(null);
       
-      console.log('📡 BookingsContext: Fetching bookings from API...');
+
       const response = await fetch('/api/bookings', {
         cache: 'no-store',
         credentials: 'include',
@@ -88,24 +88,24 @@ export function BookingsProvider({
       
       if (response.ok) {
         const data = await response.json();
-        console.log('📦 BookingsContext: Raw API data:', data);
+
         
         const items = Array.isArray(data?.items) ? data.items : Array.isArray(data) ? data : [];
-        console.log(`📊 BookingsContext: Found ${items.length} items`);
+
         
         // تطبيع البيانات
         const normalized = items.map((item: any) => normalizeBooking(item));
-        console.log(`✅ BookingsContext: Normalized ${normalized.length} bookings`);
-        console.log('📋 BookingsContext: Sample booking:', normalized[0]);
+
+
         
         setBookings(normalized);
         setLastUpdate(new Date());
       } else {
-        console.error('❌ BookingsContext: API error:', response.status);
+
         setError(`فشل في جلب البيانات: ${response.status}`);
       }
     } catch (err: any) {
-      console.error('❌ BookingsContext: Fetch error:', err);
+
       setError(err.message || 'فشل في جلب البيانات');
     } finally {
       setLoading(false);
@@ -275,8 +275,8 @@ export function usePropertyBookings(propertyId?: string) {
 export function useBooking(bookingId?: string) {
   const { bookings, loading, error, updateBooking } = useBookings();
   
-  console.log('🔍 useBooking: Looking for ID:', bookingId);
-  console.log('📦 useBooking: Total bookings:', bookings.length);
+
+
   
   const booking = bookingId ? bookings.find(b => {
     const match = b.id === bookingId;
@@ -285,7 +285,7 @@ export function useBooking(bookingId?: string) {
   }) : null;
   
   if (!booking && bookingId) {
-    console.warn('⚠️ useBooking: Booking not found in context:', bookingId);
+
     console.log('📋 Available IDs:', bookings.map(b => b.id).slice(0, 5));
   }
   
