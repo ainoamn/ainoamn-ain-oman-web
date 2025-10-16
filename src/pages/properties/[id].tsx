@@ -434,54 +434,7 @@ function PropertyDetailsPage() {
     }
   };
 
-  const loadPropertyData = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/properties/${id}`);
-      if (response.ok) {
-        const data = await response.json();
-        const propertyData = data.item; // Correctly extract 'item'
-        
-        
-        // إصلاح مشكلة الترميز المشوه
-        const fixCorruptedText = (text: string): string => {
-          if (!text) return '';
-          if (text.includes('') || text.includes('') || text.includes('')) {
-            return '';
-          }
-          return text;
-        };
-
-        // تنظيف البيانات
-        const cleanedProperty = {
-          ...propertyData,
-          titleAr: fixCorruptedText(propertyData.titleAr || propertyData.title?.ar || ''),
-          titleEn: fixCorruptedText(propertyData.titleEn || propertyData.title?.en || ''),
-          descriptionAr: fixCorruptedText(propertyData.descriptionAr || propertyData.description?.ar || ''),
-          descriptionEn: fixCorruptedText(propertyData.descriptionEn || propertyData.description?.en || ''),
-          province: fixCorruptedText(propertyData.province || ''),
-          state: fixCorruptedText(propertyData.state || ''),
-          city: fixCorruptedText(propertyData.city || ''),
-          village: fixCorruptedText(propertyData.village || ''),
-          address: fixCorruptedText(propertyData.address || '')
-        };
-
-        setProperty(cleanedProperty);
-        setError(null);
-      } else {
-        const errorData = await response.json();
-        console.error('Error fetching property:', errorData);
-        setError('العقار المطلوب غير موجود أو تم حذفه');
-        setProperty(null);
-      }
-    } catch (error) {
-      console.error('Error loading property data:', error);
-      setError('حدث خطأ أثناء جلب بيانات العقار');
-      setProperty(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // تم حذف loadPropertyData() - نستخدم الآن useInstantData ⚡
 
   // وظائف مساعدة
   const getAmenityIcon = (amenity: string) => {
