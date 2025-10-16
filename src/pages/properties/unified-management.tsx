@@ -1,8 +1,9 @@
-// ÕÝÍÉ ãæÍÏÉ áÅÏÇÑÉ ÇáÚÞÇÑÇÊ æÇáæÍÏÇÊ - ÊÕãíã ÇÍÊÑÇÝí ãÚ ÇáÐßÇÁ ÇáÇÕØäÇÚí
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 import React, { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import Head from 'next/head';
 import InstantLink from '@/components/InstantLink';
+import { useInstantData } from '@/hooks/useInstantData';
 
 import {
   FaBuilding, FaHome, FaEye, FaEdit, FaTrash, FaPlus, FaSearch,
@@ -101,10 +102,27 @@ interface Customer {
 
 export default function UnifiedPropertyManagement() {
   const [activeTab, setActiveTab] = useState<'properties' | 'units' | 'customers'>('properties');
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [units, setUnits] = useState<Unit[]>([]);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState(true);
+  
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ useInstantData ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ âš¡
+  const { data: propertiesData, isLoading: propertiesLoading, mutate: mutateProperties } = useInstantData(
+    '/api/properties',
+    (url) => fetch(url).then(r => r.json())
+  );
+  
+  const { data: unitsData, isLoading: unitsLoading, mutate: mutateUnits } = useInstantData(
+    '/api/admin/units',
+    (url) => fetch(url).then(r => r.json())
+  );
+  
+  const { data: customersData, isLoading: customersLoading, mutate: mutateCustomers } = useInstantData(
+    '/api/customers',
+    (url) => fetch(url).then(r => r.json())
+  );
+  
+  const properties = propertiesData?.items || [];
+  const units = unitsData?.units || [];
+  const customers = customersData?.customers || [];
+  const loading = propertiesLoading || unitsLoading || customersLoading;
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedType, setSelectedType] = useState('');
@@ -122,7 +140,7 @@ export default function UnifiedPropertyManagement() {
   // Bulk Actions Handler
   const handleBulkAction = async (action: string) => {
     if (selectedProperties.size === 0) {
-      alert('áã íÊã ÊÍÏíÏ Ãí ÚÞÇÑ');
+      alert('ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½');
       return;
     }
 
@@ -130,7 +148,7 @@ export default function UnifiedPropertyManagement() {
     
     switch (action) {
       case 'delete':
-        if (confirm(`åá ÃäÊ ãÊÃßÏ ãä ÍÐÝ ${selectedIds.length} ÚÞÇÑ¿`)) {
+        if (confirm(`ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ${selectedIds.length} ï¿½ï¿½ï¿½Ñ¿`)) {
           selectedIds.forEach(id => deleteProperty(id));
           setSelectedProperties(new Set());
         }
@@ -188,45 +206,14 @@ export default function UnifiedPropertyManagement() {
     setSelectedProperties(newSelected);
   };
 
-  // ÌáÈ ÇáÈíÇäÇÊ
+  // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const [propertiesRes, unitsRes, customersRes] = await Promise.all([
-        fetch('/api/properties'),
-        fetch('/api/admin/units'),
-        fetch('/api/customers')
-      ]);
-
-      if (propertiesRes.ok) {
-        const propertiesData = await propertiesRes.json();
-        setProperties(propertiesData.items || []);
-      }
-
-      if (unitsRes.ok) {
-        const unitsData = await unitsRes.json();
-        setUnits(unitsData.units || []);
-      }
-
-      if (customersRes.ok) {
-        const customersData = await customersRes.json();
-        setCustomers(customersData.customers || []);
-      }
-
-      // ÊæáíÏ ÑÄì ÇáÐßÇÁ ÇáÇÕØäÇÚí
+    if (properties.length > 0) {
       generateAIInsights();
-    } catch (error) {
-
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [properties.length, units.length, customers.length]);
 
-  // ÊæáíÏ ÑÄì ÇáÐßÇÁ ÇáÇÕØäÇÚí
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   const generateAIInsights = () => {
     const insights = {
       totalProperties: properties.length,
@@ -252,7 +239,7 @@ export default function UnifiedPropertyManagement() {
       return acc;
     }, {} as Record<string, number>);
     
-    return Object.entries(locations).sort(([,a], [,b]) => b - a)[0]?.[0] || 'ÛíÑ ãÍÏÏ';
+    return Object.entries(locations).sort(([,a], [,b]) => b - a)[0]?.[0] || 'ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½';
   };
 
   const generateRecommendations = () => {
@@ -261,47 +248,47 @@ export default function UnifiedPropertyManagement() {
     if (properties.filter(p => !p.published).length > 0) {
       recommendations.push({
         type: 'warning',
-        message: `áÏíß ${properties.filter(p => !p.published).length} ÚÞÇÑ ÛíÑ ãäÔæÑ. íõäÕÍ ÈäÔÑåÇ áÒíÇÏÉ ÇáæÖæÍ.`,
-        action: 'äÔÑ ÇáÚÞÇÑÇÊ'
+        message: `ï¿½ï¿½ï¿½ï¿½ ${properties.filter(p => !p.published).length} ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½. ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.`,
+        action: 'ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'
       });
     }
     
     if (properties.filter(p => p.status === 'vacant').length > 5) {
       recommendations.push({
         type: 'info',
-        message: `áÏíß ${properties.filter(p => p.status === 'vacant').length} ÚÞÇÑ ÔÇÛÑ. íõäÕÍ ÈÊÍÏíË ÇáÃÓÚÇÑ Ãæ ÊÍÓíä ÇáÊÓæíÞ.`,
-        action: 'ÊÍÓíä ÇáÊÓæíÞ'
+        message: `ï¿½ï¿½ï¿½ï¿½ ${properties.filter(p => p.status === 'vacant').length} ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½. ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.`,
+        action: 'ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'
       });
     }
     
     if (units.length === 0 && properties.filter(p => p.buildingType === 'multi').length > 0) {
       recommendations.push({
         type: 'error',
-        message: 'áÏíß ãÈÇäí ãÊÚÏÏÉ ÇáæÍÏÇÊ ÈÏæä æÍÏÇÊ ãÍÏÏÉ. íõäÕÍ ÈÅÖÇÝÉ ÊÝÇÕíá ÇáæÍÏÇÊ.',
-        action: 'ÅÖÇÝÉ ÇáæÍÏÇÊ'
+        message: 'ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½. ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.',
+        action: 'ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'
       });
     }
     
     return recommendations;
   };
 
-  // æÙíÝÉ ÊæáíÏ ÇáÇÞÊÑÇÍÇÊ ÇáÐßíÉ
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   const generateSmartSuggestions = () => {
-    // ÊÍáíá Ðßí ááÚÞÇÑÇÊ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     const vacantProperties = properties.filter(p => p.status === 'vacant');
     const publishedProperties = properties.filter(p => p.published);
     const draftProperties = properties.filter(p => !p.published);
     
-    // ÇÞÊÑÇÍÇÊ ÐßíÉ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     const suggestions = [];
     
     if (draftProperties.length > 0) {
       suggestions.push({
         type: 'publish',
-        title: 'äÔÑ ÇáãÓæÏÇÊ',
-        description: `áÏíß ${draftProperties.length} ÚÞÇÑ ãÍÝæÙ ßãÓæÏÉ. äÔÑåÇ ÓíÒíÏ ãä æÖæÍß Ýí ÇáÓæÞ.`,
+        title: 'ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+        description: `ï¿½ï¿½ï¿½ï¿½ ${draftProperties.length} ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½. ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.`,
         action: () => {
-          // äÔÑ ÌãíÚ ÇáãÓæÏÇÊ
+          // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
           draftProperties.forEach(property => {
             togglePropertyPublish(property.id, false);
           });
@@ -312,10 +299,10 @@ export default function UnifiedPropertyManagement() {
     if (vacantProperties.length > 3) {
       suggestions.push({
         type: 'pricing',
-        title: 'ãÑÇÌÚÉ ÇáÃÓÚÇÑ',
-        description: `áÏíß ${vacantProperties.length} ÚÞÇÑ ÔÇÛÑ. ÞÏ ÊÍÊÇÌ áãÑÇÌÚÉ ÇáÃÓÚÇÑ Ãæ ÊÍÓíä ÇáÚÑÖ.`,
+        title: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+        description: `ï¿½ï¿½ï¿½ï¿½ ${vacantProperties.length} ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½. ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.`,
         action: () => {
-          // ÝÊÍ ÕÝÍÉ ãÑÇÌÚÉ ÇáÃÓÚÇÑ
+          // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
           window.open('/admin/pricing-analysis', '_blank');
         }
       });
@@ -324,10 +311,10 @@ export default function UnifiedPropertyManagement() {
     if (properties.filter(p => !p.images || p.images.length === 0).length > 0) {
       suggestions.push({
         type: 'media',
-        title: 'ÊÍÓíä ÇáÕæÑ',
-        description: 'ÈÚÖ ÇáÚÞÇÑÇÊ áÇ ÊÍÊæí Úáì ÕæÑ. ÅÖÇÝÉ ÕæÑ ÚÇáíÉ ÇáÌæÏÉ ÓÊÍÓä ãä ÌÇÐÈíÉ ÇáÚÞÇÑÇÊ.',
+        title: 'ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½',
+        description: 'ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½. ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.',
         action: () => {
-          // ÝÊÍ ÕÝÍÉ ÅÏÇÑÉ ÇáÕæÑ
+          // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
           window.open('/admin/media-management', '_blank');
         }
       });
@@ -336,16 +323,16 @@ export default function UnifiedPropertyManagement() {
     return suggestions;
   };
 
-  // æÙíÝÉ äÔÑ ÌãíÚ ÇáãÓæÏÇÊ
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   const publishAllDrafts = async () => {
     const draftProperties = properties.filter(p => !p.published);
     
     if (draftProperties.length === 0) {
-      alert('áÇ ÊæÌÏ ãÓæÏÇÊ ááäÔÑ');
+      alert('ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½');
       return;
     }
 
-    if (confirm(`åá ÊÑíÏ äÔÑ ${draftProperties.length} ÚÞÇÑ ãÍÝæÙ ßãÓæÏÉ¿`)) {
+    if (confirm(`ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ${draftProperties.length} ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½É¿`)) {
       try {
         const promises = draftProperties.map(property => 
           fetch(`/api/properties/${property.id}`, {
@@ -357,21 +344,21 @@ export default function UnifiedPropertyManagement() {
 
         await Promise.all(promises);
         
-        // ÊÍÏíË ÇáÍÇáÉ ÇáãÍáíÉ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         setProperties(prev => prev.map(p => 
           !p.published ? { ...p, published: true } : p
         ));
         
         generateAIInsights();
-        alert(`Êã äÔÑ ${draftProperties.length} ÚÞÇÑ ÈäÌÇÍ!`);
+        alert(`ï¿½ï¿½ ï¿½ï¿½ï¿½ ${draftProperties.length} ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½!`);
       } catch (error) {
 
-        alert('ÍÏË ÎØÃ ÃËäÇÁ äÔÑ ÇáãÓæÏÇÊ');
+        alert('ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½');
       }
     }
   };
 
-  // æÙíÝÉ ÊÕÏíÑ ÇáÊÞÑíÑ
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   const exportReport = () => {
     const reportData = {
       generatedAt: new Date().toLocaleString('ar', { calendar: 'gregory', numberingSystem: 'latn' }),
@@ -408,7 +395,7 @@ export default function UnifiedPropertyManagement() {
     URL.revokeObjectURL(url);
   };
 
-  // æÙíÝÉ ØÈÇÚÉ ÞÇÆãÉ ÇáÚÞÇÑÇÊ
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   const printPropertiesList = () => {
     const printWindow = window.open('', '_blank');
     const printContent = `
@@ -416,7 +403,7 @@ export default function UnifiedPropertyManagement() {
       <html dir="rtl" lang="ar">
       <head>
         <meta charset="UTF-8">
-        <title>ÞÇÆãÉ ÇáÚÞÇÑÇÊ - Úíä ÚõãÇä</title>
+        <title>ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½</title>
         <style>
           body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; }
           .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3B82F6; padding-bottom: 20px; }
@@ -441,37 +428,37 @@ export default function UnifiedPropertyManagement() {
       </head>
       <body>
         <div class="header">
-          <h1>ÞÇÆãÉ ÇáÚÞÇÑÇÊ - Úíä ÚõãÇä</h1>
-          <p>ÊÞÑíÑ ÔÇãá áÌãíÚ ÇáÚÞÇÑÇÊ</p>
-          <p>ÊÇÑíÎ ÇáÊÞÑíÑ: ${new Date().toLocaleString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}</p>
+          <h1>ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½</h1>
+          <p>ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</p>
+          <p>ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: ${new Date().toLocaleString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}</p>
         </div>
         
         <div class="summary">
-          <h2>ãáÎÕ ÇáÅÍÕÇÆíÇÊ</h2>
+          <h2>ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</h2>
           <div class="summary-grid">
             <div class="summary-item">
               <div class="number">${properties.length}</div>
-              <div class="label">ÅÌãÇáí ÇáÚÞÇÑÇÊ</div>
+              <div class="label">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</div>
             </div>
             <div class="summary-item">
               <div class="number">${properties.filter(p => p.published).length}</div>
-              <div class="label">ãäÔæÑ</div>
+              <div class="label">ï¿½ï¿½ï¿½ï¿½ï¿½</div>
             </div>
             <div class="summary-item">
               <div class="number">${properties.filter(p => !p.published).length}</div>
-              <div class="label">ãÓæÏÉ</div>
+              <div class="label">ï¿½ï¿½ï¿½ï¿½ï¿½</div>
             </div>
             <div class="summary-item">
               <div class="number">${properties.filter(p => p.status === 'vacant').length}</div>
-              <div class="label">ÔÇÛÑ</div>
+              <div class="label">ï¿½ï¿½ï¿½ï¿½</div>
             </div>
             <div class="summary-item">
               <div class="number">${properties.filter(p => p.status === 'leased').length}</div>
-              <div class="label">ãÄÌÑ</div>
+              <div class="label">ï¿½ï¿½ï¿½ï¿½</div>
             </div>
             <div class="summary-item">
               <div class="number">${properties.filter(p => p.buildingType === 'multi').length}</div>
-              <div class="label">ãÈÇäí ãÊÚÏÏÉ</div>
+              <div class="label">ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</div>
             </div>
           </div>
         </div>
@@ -479,12 +466,12 @@ export default function UnifiedPropertyManagement() {
         <table>
           <thead>
             <tr>
-              <th>ÇáÚÞÇÑ</th>
-              <th>ÇáäæÚ</th>
-              <th>ÇáãæÞÚ</th>
-              <th>ÇáÓÚÑ</th>
-              <th>ÇáÍÇáÉ</th>
-              <th>ÇáäÔÑ</th>
+              <th>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½ï¿½</th>
             </tr>
           </thead>
           <tbody>
@@ -495,14 +482,14 @@ export default function UnifiedPropertyManagement() {
                 <td>${property.province && property.state ? `${property.province} - ${property.state}` : '-'}</td>
                 <td>${property.priceOMR ? formatPrice(property.priceOMR) : '-'}</td>
                 <td><span class="status ${property.status || 'vacant'}">${getStatusLabel(property.status || '')}</span></td>
-                <td><span class="status ${property.published ? 'published' : 'draft'}">${property.published ? 'ãäÔæÑ' : 'ãÓæÏÉ'}</span></td>
+                <td><span class="status ${property.published ? 'published' : 'draft'}">${property.published ? 'ï¿½ï¿½ï¿½ï¿½ï¿½' : 'ï¿½ï¿½ï¿½ï¿½ï¿½'}</span></td>
               </tr>
             `).join('')}
           </tbody>
         </table>
         
         <div class="footer">
-          <p>Êã ÅäÔÇÁ åÐÇ ÇáÊÞÑíÑ ÈæÇÓØÉ äÙÇã ÅÏÇÑÉ ÇáÚÞÇÑÇÊ - Úíä ÚõãÇä</p>
+          <p>ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½</p>
         </div>
       </body>
       </html>
@@ -513,7 +500,7 @@ export default function UnifiedPropertyManagement() {
     printWindow.print();
   };
 
-  // æÙÇÆÝ ÇáÊÚÇãá ãÚ ÇáÚÞÇÑÇÊ
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   const togglePropertyExpansion = (propertyId: string) => {
     const newExpanded = new Set(expandedProperties);
     if (newExpanded.has(propertyId)) {
@@ -524,7 +511,7 @@ export default function UnifiedPropertyManagement() {
     setExpandedProperties(newExpanded);
   };
 
-  // æÙíÝÉ ÊäÓíÞ ÇáÓÚÑ
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
   const formatPrice = (price: number | string) => {
     if (!price) return '-';
     const numPrice = typeof price === 'string' ? parseFloat(price) : price;
@@ -536,14 +523,14 @@ export default function UnifiedPropertyManagement() {
     }).format(numPrice);
   };
 
-  // æÙíÝÉ ÇáÍÕæá Úáì ÊÓãíÉ ÇáÍÇáÉ
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   const getStatusLabel = (status: string) => {
     const statusLabels: { [key: string]: string } = {
-      'vacant': 'ÔÇÛÑ',
-      'leased': 'ãÄÌÑ',
-      'reserved': 'ãÍÌæÒ',
-      'sold': 'ãÈÇÚ',
-      'maintenance': 'ÕíÇäÉ'
+      'vacant': 'ï¿½ï¿½ï¿½ï¿½',
+      'leased': 'ï¿½ï¿½ï¿½ï¿½',
+      'reserved': 'ï¿½ï¿½ï¿½ï¿½ï¿½',
+      'sold': 'ï¿½ï¿½ï¿½ï¿½',
+      'maintenance': 'ï¿½ï¿½ï¿½ï¿½ï¿½'
     };
     return statusLabels[status] || status;
   };
@@ -567,9 +554,11 @@ export default function UnifiedPropertyManagement() {
       });
       
       if (response.ok) {
-        setProperties(prev => prev.map(p => 
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ instant ï¿½ï¿½ï¿½ï¿½ mutate âš¡
+        const updatedItems = properties.map(p => 
           p.id === propertyId ? { ...p, published: !published } : p
-        ));
+        );
+        await mutateProperties({ items: updatedItems }, true);
         generateAIInsights();
       }
     } catch (error) {
@@ -578,7 +567,7 @@ export default function UnifiedPropertyManagement() {
   };
 
   const archiveProperty = async (propertyId: string) => {
-    if (confirm('åá ÃäÊ ãÊÃßÏ ãä ÃÑÔÝÉ åÐÇ ÇáÚÞÇÑ¿')) {
+    if (confirm('ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¿')) {
       try {
         const response = await fetch(`/api/properties/${propertyId}`, {
           method: 'PUT',
@@ -587,9 +576,11 @@ export default function UnifiedPropertyManagement() {
         });
         
         if (response.ok) {
-          setProperties(prev => prev.map(p => 
+          // ï¿½ï¿½ï¿½ï¿½ï¿½ instant ï¿½ï¿½ï¿½ï¿½ mutate âš¡
+          const updatedItems = properties.map(p => 
             p.id === propertyId ? { ...p, status: 'hidden' } : p
-          ));
+          );
+          await mutateProperties({ items: updatedItems }, true);
           generateAIInsights();
         }
       } catch (error) {
@@ -599,27 +590,28 @@ export default function UnifiedPropertyManagement() {
   };
 
   const deleteProperty = async (propertyId: string) => {
-    if (confirm('?? åá ÃäÊ ãÊÃßÏ ãä ÍÐÝ åÐÇ ÇáÚÞÇÑ äåÇÆíÇð¿\nåÐÇ ÇáÅÌÑÇÁ áÇ íãßä ÇáÊÑÇÌÚ Úäå!')) {
+    if (confirm('?? ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\nï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½!')) {
       try {
         const response = await fetch(`/api/properties/${propertyId}`, {
           method: 'DELETE'
         });
         
         if (response.ok) {
-          setProperties(prev => prev.filter(p => p.id !== propertyId));
-          alert('? Êã ÍÐÝ ÇáÚÞÇÑ ÈäÌÇÍ');
-          fetchData();
+          // ï¿½ï¿½ï¿½ï¿½ï¿½ instant ï¿½ï¿½ï¿½ï¿½ mutate âš¡
+          const updatedItems = properties.filter(p => p.id !== propertyId);
+          await mutateProperties({ items: updatedItems }, true);
+          alert('? ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½');
         } else {
-          alert('? ÍÏË ÎØÃ ÃËäÇÁ ÍÐÝ ÇáÚÞÇÑ');
+          alert('? ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½');
         }
       } catch (error) {
 
-        alert('? ÍÏË ÎØÃ ÃËäÇÁ ÍÐÝ ÇáÚÞÇÑ');
+        alert('? ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½');
       }
     }
   };
 
-  // ÝáÊÑÉ æÊÑÊíÈ ÇáÈíÇäÇÊ
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   const getFilteredData = () => {
     let data: any[] = [];
     
@@ -635,7 +627,7 @@ export default function UnifiedPropertyManagement() {
         break;
     }
 
-    // ÝáÊÑÉ ÍÓÈ ÇáÈÍË
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
     if (searchTerm) {
       data = data.filter(item => {
         if (activeTab === 'properties') {
@@ -658,22 +650,22 @@ export default function UnifiedPropertyManagement() {
       });
     }
 
-    // ÝáÊÑÉ ÍÓÈ ÇáÍÇáÉ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     if (selectedStatus) {
       data = data.filter(item => item.status === selectedStatus);
     }
 
-    // ÝáÊÑÉ ÍÓÈ ÇáäæÚ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
     if (selectedType) {
       data = data.filter(item => item.type === selectedType);
     }
 
-    // ÝáÊÑÉ ÍÓÈ äæÚ ÇáãÈäì
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     if (selectedBuildingType) {
       data = data.filter(item => item.buildingType === selectedBuildingType);
     }
 
-    // ÊÑÊíÈ ÇáÈíÇäÇÊ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     data.sort((a, b) => {
       let aValue = a[sortBy];
       let bValue = b[sortBy];
@@ -727,17 +719,17 @@ export default function UnifiedPropertyManagement() {
   };
 
   const getTitleFromProperty = (property: Property) => {
-    // ÃæáæíÉ áÜ titleAr/titleEn
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ titleAr/titleEn
     if (property.titleAr) return property.titleAr;
     if (property.titleEn) return property.titleEn;
-    // Ëã title object
+    // ï¿½ï¿½ title object
     if (property.title) {
       if (typeof property.title === 'string') return property.title;
       if (typeof property.title === 'object' && property.title) {
         return property.title.ar || property.title.en || '';
       }
     }
-    return `ÇáÚÞÇÑ ${property.id}`;
+    return `ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ${property.id}`;
   };
 
   const getPropertyUnits = (propertyId: string) => {
@@ -764,17 +756,17 @@ export default function UnifiedPropertyManagement() {
   const getUnitStatusLabel = (status: string) => {
     switch (status) {
       case 'available':
-        return 'ãÊÇÍ';
+        return 'ï¿½ï¿½ï¿½ï¿½';
       case 'vacant':
-        return 'ÔÇÛÑ';
+        return 'ï¿½ï¿½ï¿½ï¿½';
       case 'reserved':
-        return 'ãÍÌæÒ';
+        return 'ï¿½ï¿½ï¿½ï¿½ï¿½';
       case 'rented':
-        return 'ãÄÌÑ';
+        return 'ï¿½ï¿½ï¿½ï¿½';
       case 'leased':
-        return 'ãÄÌÑ';
+        return 'ï¿½ï¿½ï¿½ï¿½';
       case 'maintenance':
-        return 'ÕíÇäÉ';
+        return 'ï¿½ï¿½ï¿½ï¿½ï¿½';
       default:
         return status;
     }
@@ -793,7 +785,7 @@ export default function UnifiedPropertyManagement() {
   return (
     <>
       <Head>
-        <title>ÅÏÇÑÉ ÇáÚÞÇÑÇÊ æÇáæÍÏÇÊ - Úíä ÚõãÇä</title>
+        <title>ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½</title>
       </Head>
 
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
@@ -804,11 +796,11 @@ export default function UnifiedPropertyManagement() {
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 flex items-center">
                   <FaBuilding className="ml-3 text-blue-600" />
-                  ÅÏÇÑÉ ÇáÚÞÇÑÇÊ æÇáæÍÏÇÊ
+                  ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 </h1>
                 <p className="text-gray-600 mt-2 flex items-center">
                   <FaRobot className="ml-2 text-purple-500" />
-                  äÙÇã ÅÏÇÑÉ Ðßí æãÊØæÑ ááÚÞÇÑÇÊ æÇáæÍÏÇÊ
+                  ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 </p>
               </div>
               <div className="flex space-x-3">
@@ -817,14 +809,14 @@ export default function UnifiedPropertyManagement() {
                   className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center"
                 >
                   <FaPlus className="ml-2" />
-                  ÅÖÇÝÉ ÚÞÇÑ
+                  ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 </InstantLink>
                 <button
                   onClick={() => setShowFilters(!showFilters)}
                   className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center"
                 >
                   <FaFilter className="ml-2" />
-                  {showFilters ? 'ÅÎÝÇÁ ÇáÝáÇÊÑ' : 'ÚÑÖ ÇáÝáÇÊÑ'}
+                  {showFilters ? 'ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' : 'ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'}
                 </button>
               </div>
             </div>
@@ -836,13 +828,13 @@ export default function UnifiedPropertyManagement() {
                   <div className="flex items-center gap-3">
                     <FaCheck className="text-blue-600 text-xl" />
                     <span className="font-bold text-gray-900">
-                      Êã ÊÍÏíÏ {selectedProperties.size} ÚÞÇÑ
+                      ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ {selectedProperties.size} ï¿½ï¿½ï¿½ï¿½
                     </span>
                     <button
                       onClick={() => setSelectedProperties(new Set())}
                       className="text-sm text-red-600 hover:text-red-700 underline"
                     >
-                      ÅáÛÇÁ ÇáÊÍÏíÏ
+                      ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                     </button>
                   </div>
                   <div className="flex gap-2">
@@ -851,28 +843,28 @@ export default function UnifiedPropertyManagement() {
                       className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition flex items-center gap-2"
                     >
                       <FaGlobe />
-                      äÔÑ
+                      ï¿½ï¿½ï¿½
                     </button>
                     <button
                       onClick={() => handleBulkAction('unpublish')}
                       className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium transition flex items-center gap-2"
                     >
                       <FaEyeSlash />
-                      ÅÎÝÇÁ
+                      ï¿½ï¿½ï¿½ï¿½ï¿½
                     </button>
                     <button
                       onClick={() => handleBulkAction('export')}
                       className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition flex items-center gap-2"
                     >
                       <FaDownload />
-                      ÊÕÏíÑ
+                      ï¿½ï¿½ï¿½ï¿½ï¿½
                     </button>
                     <button
                       onClick={() => handleBulkAction('delete')}
                       className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition flex items-center gap-2"
                     >
                       <FaTrash />
-                      ÍÐÝ
+                      ï¿½ï¿½ï¿½
                     </button>
                   </div>
                 </div>
@@ -882,9 +874,9 @@ export default function UnifiedPropertyManagement() {
             {/* Tabs */}
             <div className="flex space-x-1 mt-6">
               {[
-                { id: 'properties', label: 'ÇáÚÞÇÑÇÊ', icon: '??', count: properties.length },
-                { id: 'units', label: 'ÇáæÍÏÇÊ', icon: '??', count: units.length },
-                { id: 'customers', label: 'ÇáÚãáÇÁ', icon: '??', count: customers.length }
+                { id: 'properties', label: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½', icon: '??', count: properties.length },
+                { id: 'units', label: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½', icon: '??', count: units.length },
+                { id: 'customers', label: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½', icon: '??', count: customers.length }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -918,71 +910,71 @@ export default function UnifiedPropertyManagement() {
                     <div className="bg-white/20 p-1.5 rounded-lg ml-2">
                       <FaRobot className="text-lg" />
                     </div>
-                    ãÑßÒ ÇáÐßÇÁ ÇáÇÕØäÇÚí
+                    ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                   </h2>
                 </div>
                 <div className="flex space-x-2">
                   <button
                     onClick={generateAIInsights}
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center border border-white/20 hover:border-white/40 text-sm"
-                    title="ÊÍÏíË ÌãíÚ ÇáÅÍÕÇÆíÇÊ æÇáÊÍáíáÇÊ"
+                    title="ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                   >
                     <FaMagic className="ml-1 text-sm" />
-                    ÊÍÏíË
+                    ï¿½ï¿½ï¿½ï¿½ï¿½
                   </button>
                   <button
                     onClick={() => setShowFilters(!showFilters)}
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center border border-white/20 hover:border-white/40 text-sm"
-                    title="ÚÑÖ/ÅÎÝÇÁ ÇáÝáÇÊÑ ÇáãÊÞÏãÉ"
+                    title="ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                   >
                     <FaFilter className="ml-1 text-sm" />
-                    {showFilters ? 'ÅÎÝÇÁ' : 'ÝáÇÊÑ'}
+                    {showFilters ? 'ï¿½ï¿½ï¿½ï¿½ï¿½' : 'ï¿½ï¿½ï¿½ï¿½ï¿½'}
                   </button>
                 </div>
               </div>
               
               <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-3">
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="ÅÌãÇáí ÚÏÏ ÇáÚÞÇÑÇÊ Ýí ÇáäÙÇã">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½">
                   <div className="bg-blue-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
                     <FaBuilding className="text-sm" />
                   </div>
                   <div className="text-lg font-bold mb-0.5">{aiInsights.totalProperties}</div>
-                  <div className="text-xs text-blue-100">ÅÌãÇáí</div>
+                  <div className="text-xs text-blue-100">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</div>
                 </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="ÇáÚÞÇÑÇÊ ÇáãäÔæÑÉ æÇáãÊÇÍÉ ááÌãåæÑ">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½">
                   <div className="bg-green-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
                     <FaGlobe className="text-sm" />
                   </div>
                   <div className="text-lg font-bold mb-0.5">{aiInsights.publishedProperties}</div>
-                  <div className="text-xs text-blue-100">ãäÔæÑ</div>
+                  <div className="text-xs text-blue-100">ï¿½ï¿½ï¿½ï¿½ï¿½</div>
                 </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="ÇáÚÞÇÑÇÊ ÇáãÍÝæÙÉ ßãÓæÏÇÊ">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½">
                   <div className="bg-yellow-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
                     <FaEyeSlash className="text-sm" />
                   </div>
                   <div className="text-lg font-bold mb-0.5">{aiInsights.draftProperties}</div>
-                  <div className="text-xs text-blue-100">ãÓæÏÉ</div>
+                  <div className="text-xs text-blue-100">ï¿½ï¿½ï¿½ï¿½ï¿½</div>
                 </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="ÇáãÈÇäí ÇáÊí ÊÍÊæí Úáì æÍÏÇÊ ãÊÚÏÏÉ">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½">
                   <div className="bg-purple-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
                     <FaHome className="text-sm" />
                   </div>
                   <div className="text-lg font-bold mb-0.5">{aiInsights.multiUnitBuildings}</div>
-                  <div className="text-xs text-blue-100">ãÊÚÏÏ</div>
+                  <div className="text-xs text-blue-100">ï¿½ï¿½ï¿½ï¿½ï¿½</div>
                 </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="ÇáÚÞÇÑÇÊ ÇáãÊÇÍÉ ááÅíÌÇÑ Ãæ ÇáÈíÚ">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½">
                   <div className="bg-orange-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
                     <FaTag className="text-sm" />
                   </div>
                   <div className="text-lg font-bold mb-0.5">{aiInsights.vacantProperties}</div>
-                  <div className="text-xs text-blue-100">ÔÇÛÑ</div>
+                  <div className="text-xs text-blue-100">ï¿½ï¿½ï¿½ï¿½</div>
                 </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="ÇáÚÞÇÑÇÊ ÇáãÄÌÑÉ ÍÇáíÇð">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½">
                   <div className="bg-indigo-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
                     <FaCheck className="text-sm" />
                   </div>
                   <div className="text-lg font-bold mb-0.5">{aiInsights.leasedProperties}</div>
-                  <div className="text-xs text-blue-100">ãÄÌÑ</div>
+                  <div className="text-xs text-blue-100">ï¿½ï¿½ï¿½ï¿½</div>
                 </div>
               </div>
 
@@ -993,7 +985,7 @@ export default function UnifiedPropertyManagement() {
                     <div className="bg-yellow-500/30 p-1 rounded-lg ml-2">
                       <FaLightbulb className="text-sm" />
                     </div>
-                    ÇáÊæÕíÇÊ ÇáÐßíÉ
+                    ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {aiInsights.recommendations.map((rec: any, index: number) => (
@@ -1031,40 +1023,40 @@ export default function UnifiedPropertyManagement() {
                   <div className="bg-green-500/30 p-1 rounded-lg ml-2">
                     <FaMagic className="text-sm" />
                   </div>
-                  ÅÌÑÇÁÇÊ ÓÑíÚÉ
+                  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   <InstantLink 
                     href="/properties/new"
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
-                    title="ÅÖÇÝÉ ÚÞÇÑ ÌÏíÏ"
+                    title="ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½"
                   >
                     <FaPlus className="text-sm" />
-                    <span className="text-xs font-medium">ÚÞÇÑ ÌÏíÏ</span>
+                    <span className="text-xs font-medium">ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</span>
                   </InstantLink>
                   <button 
                     onClick={publishAllDrafts}
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
-                    title="äÔÑ ÌãíÚ ÇáãÓæÏÇÊ"
+                    title="ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                   >
                     <FaGlobe className="text-sm" />
-                    <span className="text-xs font-medium">äÔÑ ÇáãÓæÏÇÊ</span>
+                    <span className="text-xs font-medium">ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</span>
                   </button>
                   <button 
                     onClick={exportReport}
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
-                    title="ÊÕÏíÑ ÊÞÑíÑ ÔÇãá"
+                    title="ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½"
                   >
                     <FaDownload className="text-sm" />
-                    <span className="text-xs font-medium">ÊÕÏíÑ ÊÞÑíÑ</span>
+                    <span className="text-xs font-medium">ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½</span>
                   </button>
                   <button 
                     onClick={printPropertiesList}
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
-                    title="ØÈÇÚÉ ÞÇÆãÉ ÇáÚÞÇÑÇÊ"
+                    title="ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                   >
                     <FaPrint className="text-sm" />
-                    <span className="text-xs font-medium">ØÈÇÚÉ</span>
+                    <span className="text-xs font-medium">ï¿½ï¿½ï¿½ï¿½ï¿½</span>
                   </button>
                 </div>
               </div>
@@ -1077,7 +1069,7 @@ export default function UnifiedPropertyManagement() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                   <FaFilter className="ml-2 text-blue-600" />
-                  ÝáÇÊÑ ÇáÈÍË ÇáãÊÞÏãÉ
+                  ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 </h3>
                 <div className="flex space-x-2">
                   <button
@@ -1085,7 +1077,7 @@ export default function UnifiedPropertyManagement() {
                     className="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors flex items-center"
                   >
                     {viewMode === 'grid' ? <FaExpand className="ml-1" /> : <FaSort className="ml-1" />}
-                    {viewMode === 'grid' ? 'ÚÑÖ ÔÈßí' : 'ÚÑÖ ÞÇÆãÉ'}
+                    {viewMode === 'grid' ? 'ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½' : 'ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½'}
                   </button>
                 </div>
               </div>
@@ -1094,13 +1086,13 @@ export default function UnifiedPropertyManagement() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <FaSearch className="ml-1" />
-                    ÇáÈÍË
+                    ï¿½ï¿½ï¿½ï¿½ï¿½
                   </label>
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="ÇÈÍË Ýí ÇáÚÞÇÑÇÊ..."
+                    placeholder="ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½..."
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   />
                 </div>
@@ -1108,29 +1100,29 @@ export default function UnifiedPropertyManagement() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <FaTag className="ml-1" />
-                    ÇáÍÇáÉ
+                    ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                   </label>
                   <select
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   >
-                    <option value="">ÌãíÚ ÇáÍÇáÇÊ</option>
+                    <option value="">ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</option>
                     {activeTab === 'properties' && (
                       <>
-                        <option value="vacant">ÔÇÛÑ</option>
-                        <option value="reserved">ãÍÌæÒ</option>
-                        <option value="leased">ãÄÌÑ</option>
-                        <option value="hidden">ãÎÝí</option>
-                        <option value="draft">ãÓæÏÉ</option>
+                        <option value="vacant">ï¿½ï¿½ï¿½ï¿½</option>
+                        <option value="reserved">ï¿½ï¿½ï¿½ï¿½ï¿½</option>
+                        <option value="leased">ï¿½ï¿½ï¿½ï¿½</option>
+                        <option value="hidden">ï¿½ï¿½ï¿½ï¿½</option>
+                        <option value="draft">ï¿½ï¿½ï¿½ï¿½ï¿½</option>
                       </>
                     )}
                     {activeTab === 'units' && (
                       <>
-                        <option value="available">ãÊÇÍ</option>
-                        <option value="rented">ãÄÌÑ</option>
-                        <option value="maintenance">ÕíÇäÉ</option>
-                        <option value="reserved">ãÍÌæÒ</option>
+                        <option value="available">ï¿½ï¿½ï¿½ï¿½</option>
+                        <option value="rented">ï¿½ï¿½ï¿½ï¿½</option>
+                        <option value="maintenance">ï¿½ï¿½ï¿½ï¿½ï¿½</option>
+                        <option value="reserved">ï¿½ï¿½ï¿½ï¿½ï¿½</option>
                       </>
                     )}
                   </select>
@@ -1139,36 +1131,36 @@ export default function UnifiedPropertyManagement() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <FaBuilding className="ml-1" />
-                    ÇáäæÚ
+                    ï¿½ï¿½ï¿½ï¿½ï¿½
                   </label>
                   <select
                     value={selectedType}
                     onChange={(e) => setSelectedType(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   >
-                    <option value="">ÌãíÚ ÇáÃäæÇÚ</option>
+                    <option value="">ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</option>
                     {activeTab === 'properties' && (
                       <>
-                        <option value="apartment">ÔÞÉ</option>
-                        <option value="villa">ÝíáÇ</option>
-                        <option value="office">ãßÊÈ</option>
-                        <option value="shop">ãÍá</option>
-                        <option value="land">ÃÑÖ</option>
+                        <option value="apartment">ï¿½ï¿½ï¿½</option>
+                        <option value="villa">ï¿½ï¿½ï¿½ï¿½</option>
+                        <option value="office">ï¿½ï¿½ï¿½ï¿½</option>
+                        <option value="shop">ï¿½ï¿½ï¿½</option>
+                        <option value="land">ï¿½ï¿½ï¿½</option>
                       </>
                     )}
                     {activeTab === 'units' && (
                       <>
-                        <option value="apartment">ÔÞÉ</option>
-                        <option value="villa">ÝíáÇ</option>
-                        <option value="office">ãßÊÈ</option>
-                        <option value="shop">ãÍá</option>
-                        <option value="warehouse">ãÓÊæÏÚ</option>
+                        <option value="apartment">ï¿½ï¿½ï¿½</option>
+                        <option value="villa">ï¿½ï¿½ï¿½ï¿½</option>
+                        <option value="office">ï¿½ï¿½ï¿½ï¿½</option>
+                        <option value="shop">ï¿½ï¿½ï¿½</option>
+                        <option value="warehouse">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</option>
                       </>
                     )}
                     {activeTab === 'customers' && (
                       <>
-                        <option value="individual">ÝÑÏ</option>
-                        <option value="company">ÔÑßÉ</option>
+                        <option value="individual">ï¿½ï¿½ï¿½</option>
+                        <option value="company">ï¿½ï¿½ï¿½ï¿½</option>
                       </>
                     )}
                   </select>
@@ -1177,7 +1169,7 @@ export default function UnifiedPropertyManagement() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <FaSort className="ml-1" />
-                    ÊÑÊíÈ ÍÓÈ
+                    ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
                   </label>
                   <select
                     value={`${sortBy}-${sortOrder}`}
@@ -1188,15 +1180,15 @@ export default function UnifiedPropertyManagement() {
                     }}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   >
-                    <option value="createdAt-desc">ÇáÃÍÏË ÃæáÇð</option>
-                    <option value="createdAt-asc">ÇáÃÞÏã ÃæáÇð</option>
-                    <option value="updatedAt-desc">ÂÎÑ ÊÍÏíË</option>
-                    <option value="title-asc">ÇáÇÓã (Ã-í)</option>
-                    <option value="title-desc">ÇáÇÓã (í-Ã)</option>
+                    <option value="createdAt-desc">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½</option>
+                    <option value="createdAt-asc">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½</option>
+                    <option value="updatedAt-desc">ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½</option>
+                    <option value="title-asc">ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½-ï¿½)</option>
+                    <option value="title-desc">ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½-ï¿½)</option>
                     {activeTab !== 'customers' && (
                       <>
-                        <option value="priceOMR-desc">ÇáÓÚÑ (ÇáÃÚáì)</option>
-                        <option value="priceOMR-asc">ÇáÓÚÑ (ÇáÃÞá)</option>
+                        <option value="priceOMR-desc">ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)</option>
+                        <option value="priceOMR-asc">ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½)</option>
                       </>
                     )}
                   </select>
@@ -1208,7 +1200,7 @@ export default function UnifiedPropertyManagement() {
                 <div className="mt-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <FaHome className="ml-1" />
-                    äæÚ ÇáãÈäì
+                    ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                   </label>
                   <div className="flex space-x-4">
                     <label className="flex items-center">
@@ -1220,7 +1212,7 @@ export default function UnifiedPropertyManagement() {
                         onChange={(e) => setSelectedBuildingType(e.target.value)}
                         className="ml-2"
                       />
-                      ÌãíÚ ÇáÃäæÇÚ
+                      ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                     </label>
                     <label className="flex items-center">
                       <input
@@ -1231,7 +1223,7 @@ export default function UnifiedPropertyManagement() {
                         onChange={(e) => setSelectedBuildingType(e.target.value)}
                         className="ml-2"
                       />
-                      æÍíÏ ÇáæÍÏÉ
+                      ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                     </label>
                     <label className="flex items-center">
                       <input
@@ -1242,7 +1234,7 @@ export default function UnifiedPropertyManagement() {
                         onChange={(e) => setSelectedBuildingType(e.target.value)}
                         className="ml-2"
                       />
-                      ãÊÚÏÏ ÇáæÍÏÇÊ
+                      ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                     </label>
                   </div>
                 </div>
@@ -1256,7 +1248,7 @@ export default function UnifiedPropertyManagement() {
               {loading ? (
                 <div className="p-8 text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                  <p className="text-gray-600">ÌÇÑí ÇáÊÍãíá...</p>
+                  <p className="text-gray-600">ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
@@ -1265,19 +1257,19 @@ export default function UnifiedPropertyManagement() {
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                         <FaBuilding className="ml-2 text-blue-600" />
-                        ÞÇÆãÉ ÇáÚÞÇÑÇÊ
+                        ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                       </h3>
                       <div className="flex items-center space-x-3">
                         <span className="text-sm text-gray-600">
-                          {getFilteredData().length} ãä {properties.length} ÚÞÇÑ
+                          {getFilteredData().length} ï¿½ï¿½ {properties.length} ï¿½ï¿½ï¿½ï¿½
                         </span>
                         <button
                           onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
                           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors flex items-center text-sm"
-                          title={viewMode === 'grid' ? 'ÇáÊÈÏíá Åáì ÇáÚÑÖ ÇáÔÈßí' : 'ÇáÊÈÏíá Åáì ÚÑÖ ÇáÞÇÆãÉ'}
+                          title={viewMode === 'grid' ? 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' : 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'}
                         >
                           {viewMode === 'grid' ? <FaExpand className="ml-1" /> : <FaSort className="ml-1" />}
-                          {viewMode === 'grid' ? 'ÚÑÖ ÔÈßí' : 'ÚÑÖ ÞÇÆãÉ'}
+                          {viewMode === 'grid' ? 'ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½' : 'ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½'}
                         </button>
                       </div>
                     </div>
@@ -1289,25 +1281,25 @@ export default function UnifiedPropertyManagement() {
                       <thead className="bg-gray-50">
                         <tr>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            ÇáÚÞÇÑ
+                            ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                           </th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            ÇáäæÚ
+                            ï¿½ï¿½ï¿½ï¿½ï¿½
                           </th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            ÇáãæÞÚ
+                            ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                           </th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            ÇáÓÚÑ
+                            ï¿½ï¿½ï¿½ï¿½ï¿½
                           </th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            ÇáÍÇáÉ
+                            ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                           </th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            ÇáäÔÑ
+                            ï¿½ï¿½ï¿½ï¿½ï¿½
                           </th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            ÇáÅÌÑÇÁÇÊ
+                            ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                           </th>
                         </tr>
                       </thead>
@@ -1333,7 +1325,7 @@ export default function UnifiedPropertyManagement() {
                                     <InstantLink 
                                       href={`/properties/${property.id}`}
                                       className="hover:text-blue-600 transition-colors"
-                                      title="ÚÑÖ ÊÝÇÕíá ÇáÚÞÇÑ"
+                                      title="ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                                     >
                                       {getTitleFromProperty(property)}
                                     </InstantLink>
@@ -1344,7 +1336,7 @@ export default function UnifiedPropertyManagement() {
                                   {property.buildingType === 'multi' && (
                                     <div className="flex items-center text-xs text-blue-600 mt-1">
                                       <FaBuilding className="ml-1" />
-                                      ãÊÚÏÏ ÇáæÍÏÇÊ
+                                      ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                                     </div>
                                   )}
                                 </div>
@@ -1371,11 +1363,11 @@ export default function UnifiedPropertyManagement() {
                                   {formatPrice(property.priceOMR)}
                                 </div>
                               ) : (
-                                <div className="text-sm text-gray-400">ÛíÑ ãÍÏÏ</div>
+                                <div className="text-sm text-gray-400">ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</div>
                               )}
                               {property.rentalPrice && (
                                 <div className="text-xs text-gray-500">
-                                  ÅíÌÇÑ: {formatPrice(property.rentalPrice)}
+                                  ï¿½ï¿½ï¿½ï¿½ï¿½: {formatPrice(property.rentalPrice)}
                                 </div>
                               )}
                             </td>
@@ -1388,12 +1380,12 @@ export default function UnifiedPropertyManagement() {
                               {property.published ? (
                                 <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                                   <FaGlobe className="ml-1" />
-                                  ãäÔæÑ
+                                  ï¿½ï¿½ï¿½ï¿½ï¿½
                                 </span>
                               ) : (
                                 <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
                                   <FaEyeSlash className="ml-1" />
-                                  ãÓæÏÉ
+                                  ï¿½ï¿½ï¿½ï¿½ï¿½
                                 </span>
                               )}
                             </td>
@@ -1402,21 +1394,21 @@ export default function UnifiedPropertyManagement() {
                                 <InstantLink 
                                   href={`/properties/${property.id}`}
                                   className="text-blue-600 hover:text-blue-900 p-1 rounded transition-colors"
-                                  title="ÚÑÖ ÊÝÇÕíá ÇáÚÞÇÑ"
+                                  title="ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                                 >
                                   <FaEye />
                                 </InstantLink>
                                 <InstantLink 
                                   href={`/properties/${property.id}/edit`}
                                   className="text-green-600 hover:text-green-900 p-1 rounded transition-colors"
-                                  title="ÊÚÏíá ÇáÚÞÇÑ"
+                                  title="ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                                 >
                                   <FaEdit />
                                 </InstantLink>
                                 <InstantLink 
                                   href={`/property/${property.id}/admin`}
                                   className="text-purple-600 hover:text-purple-900 p-1 rounded transition-colors"
-                                  title="ÅÏÇÑÉ ÇáÚÞÇÑ"
+                                  title="ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                                 >
                                   <FaCog />
                                 </InstantLink>
@@ -1427,21 +1419,21 @@ export default function UnifiedPropertyManagement() {
                                       ? 'text-orange-600 hover:text-orange-900' 
                                       : 'text-green-600 hover:text-green-900'
                                   }`}
-                                  title={property.published ? 'ÅáÛÇÁ äÔÑ ÇáÚÞÇÑ' : 'äÔÑ ÇáÚÞÇÑ'}
+                                  title={property.published ? 'ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' : 'ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'}
                                 >
                                   {property.published ? <FaEyeSlash /> : <FaGlobe />}
                                 </button>
                                 <button
                                   onClick={() => archiveProperty(property.id)}
                                   className="text-gray-600 hover:text-gray-900 p-1 rounded transition-colors"
-                                  title="ÃÑÔÝÉ ÇáÚÞÇÑ"
+                                  title="ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                                 >
                                   <FaArchive />
                                 </button>
                                 <button
                                   onClick={() => deleteProperty(property.id)}
                                   className="text-red-600 hover:text-red-900 p-1 rounded transition-colors"
-                                  title="ÍÐÝ ÇáÚÞÇÑ äåÇÆíÇð"
+                                  title="ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                                 >
                                   <FaTrash />
                                 </button>
@@ -1456,15 +1448,15 @@ export default function UnifiedPropertyManagement() {
                   {getFilteredData().length === 0 && (
                     <div className="text-center py-12">
                       <FaBuilding className="text-6xl text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">áÇ ÊæÌÏ ÚÞÇÑÇÊ</h3>
-                      <p className="text-gray-500 mb-6">ÇÈÏÃ ÈÅÖÇÝÉ ÚÞÇÑ ÌÏíÏ</p>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</h3>
+                      <p className="text-gray-500 mb-6">ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</p>
                       <InstantLink 
                         href="/properties/new"
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center"
-                        title="ÅÖÇÝÉ ÚÞÇÑ ÌÏíÏ"
+                        title="ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½"
                       >
                         <FaPlus className="ml-2" />
-                        ÅÖÇÝÉ ÚÞÇÑ ÌÏíÏ
+                        ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                       </InstantLink>
                     </div>
                   )}
@@ -1505,7 +1497,7 @@ export default function UnifiedPropertyManagement() {
                           <div className="absolute top-3 left-3">
                             <span className="bg-blue-600 text-white px-2 py-1 text-xs font-semibold rounded-full flex items-center">
                               <FaBuilding className="ml-1" />
-                              ãÊÚÏÏ ÇáæÍÏÇÊ
+                              ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                             </span>
                           </div>
                         )}
@@ -1515,12 +1507,12 @@ export default function UnifiedPropertyManagement() {
                           {property.published ? (
                             <span className="bg-green-600 text-white px-2 py-1 text-xs font-semibold rounded-full flex items-center">
                               <FaGlobe className="ml-1" />
-                              ãäÔæÑ
+                              ï¿½ï¿½ï¿½ï¿½ï¿½
                             </span>
                           ) : (
                             <span className="bg-gray-600 text-white px-2 py-1 text-xs font-semibold rounded-full flex items-center">
                               <FaEyeSlash className="ml-1" />
-                              ãÓæÏÉ
+                              ï¿½ï¿½ï¿½ï¿½ï¿½
                             </span>
                           )}
                         </div>
@@ -1534,7 +1526,7 @@ export default function UnifiedPropertyManagement() {
                               <InstantLink 
                                 href={`/properties/${property.id}`}
                                 className="hover:text-blue-600 transition-colors"
-                                title="ÚÑÖ ÊÝÇÕíá ÇáÚÞÇÑ"
+                                title="ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                               >
                                 {getTitleFromProperty(property)}
                               </InstantLink>
@@ -1560,19 +1552,19 @@ export default function UnifiedPropertyManagement() {
                           {property.area && (
                             <div className="flex items-center text-sm text-gray-600">
                               <FaRuler className="ml-1" />
-                              {property.area} ã²
+                              {property.area} ï¿½
                             </div>
                           )}
                           {property.beds && (
                             <div className="flex items-center text-sm text-gray-600">
                               <FaBed className="ml-1" />
-                              {property.beds} ÛÑÝ
+                              {property.beds} ï¿½ï¿½ï¿½
                             </div>
                           )}
                           {property.baths && (
                             <div className="flex items-center text-sm text-gray-600">
                               <FaBath className="ml-1" />
-                              {property.baths} ÍãÇãÇÊ
+                              {property.baths} ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                             </div>
                           )}
                         </div>
@@ -1590,10 +1582,10 @@ export default function UnifiedPropertyManagement() {
                             <button
                               onClick={() => togglePropertyExpansion(property.id)}
                               className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
-                              title="ÚÑÖ/ÅÎÝÇÁ æÍÏÇÊ ÇáãÈäì"
+                              title="ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                             >
                               <span className="ml-2">
-                                {expandedProperties.has(property.id) ? 'ÅÎÝÇÁ ÇáæÍÏÇÊ' : 'ÚÑÖ ÇáæÍÏÇÊ'}
+                                {expandedProperties.has(property.id) ? 'ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' : 'ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'}
                               </span>
                               {expandedProperties.has(property.id) ? <FaChevronUp /> : <FaChevronDown />}
                             </button>
@@ -1605,26 +1597,26 @@ export default function UnifiedPropertyManagement() {
                           <InstantLink 
                             href={`/properties/${property.id}`}
                             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
-                            title="ÚÑÖ ÊÝÇÕíá ÇáÚÞÇÑ"
+                            title="ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                           >
                             <FaEye className="ml-1" />
-                            ÚÑÖ
+                            ï¿½ï¿½ï¿½
                           </InstantLink>
                           <InstantLink 
                             href={`/properties/${property.id}/edit`}
                             className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
-                            title="ÊÚÏíá ÇáÚÞÇÑ"
+                            title="ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                           >
                             <FaEdit className="ml-1" />
-                            ÊÚÏíá
+                            ï¿½ï¿½ï¿½ï¿½ï¿½
                           </InstantLink>
                           <button
                             onClick={() => deleteProperty(property.id)}
                             className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
-                            title="ÍÐÝ ÇáÚÞÇÑ"
+                            title="ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                           >
                             <FaTrash className="ml-1" />
-                            ÍÐÝ
+                            ï¿½ï¿½ï¿½
                           </button>
                         </div>
                       </div>
@@ -1632,7 +1624,7 @@ export default function UnifiedPropertyManagement() {
                       {/* Units List (if expanded) */}
                       {property.buildingType === 'multi' && expandedProperties.has(property.id) && (
                         <div className="border-t border-gray-200 p-4 bg-gray-50">
-                          <h4 className="text-sm font-semibold text-gray-700 mb-3">æÍÏÇÊ ÇáãÈäì ({(property.units || []).length})</h4>
+                          <h4 className="text-sm font-semibold text-gray-700 mb-3">ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ({(property.units || []).length})</h4>
                           <div className="space-y-2">
                             {((property.units || []).length > 0 ? property.units : getPropertyUnits(property.id)).map((unit: any) => (
                               <div key={unit.id} className="bg-white rounded-lg p-3 border border-gray-200">
@@ -1640,7 +1632,7 @@ export default function UnifiedPropertyManagement() {
                                   <div>
                                     <div className="font-medium text-sm">{unit.unitNo || unit.unitNumber}</div>
                                     <div className="text-xs text-gray-500">
-                                      {unit.area} ã² • {unit.beds} ÛÑÝ • {unit.baths} ÍãÇãÇÊ
+                                      {unit.area} ï¿½ ï¿½ {unit.beds} ï¿½ï¿½ï¿½ ï¿½ {unit.baths} ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                                     </div>
                                   </div>
                                   <div className="flex items-center space-x-2">
@@ -1658,13 +1650,13 @@ export default function UnifiedPropertyManagement() {
                             ))}
                             {(property.units || []).length === 0 && getPropertyUnits(property.id).length === 0 && (
                               <div className="text-center text-gray-500 text-sm py-4">
-                                áÇ ÊæÌÏ æÍÏÇÊ ãÍÏÏÉ áåÐÇ ÇáãÈäì
+                                ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                                 <br />
                                 <InstantLink 
                                   href={`/properties/${property.id}/edit`}
                                   className="text-blue-600 hover:text-blue-700 text-xs underline mt-2 inline-block"
                                 >
-                                  ÅÖÇÝÉ æÍÏÇÊ ?
+                                  ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ?
                                 </InstantLink>
                               </div>
                             )}
@@ -1685,46 +1677,46 @@ export default function UnifiedPropertyManagement() {
                 <div className="bg-green-500/20 p-1 rounded-lg ml-2">
                   <FaLightbulb className="text-green-600 text-sm" />
                 </div>
-                ÇÞÊÑÇÍÇÊ ÐßíÉ
+                ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
               </h3>
               <button
                 onClick={() => generateSmartSuggestions()}
                 className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg transition-colors flex items-center text-xs"
-                title="ÊÍÏíË ÇáÇÞÊÑÇÍÇÊ ÇáÐßíÉ"
+                title="ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
               >
                 <FaMagic className="ml-1 text-xs" />
-                ÊÍÏíË
+                ï¿½ï¿½ï¿½ï¿½ï¿½
               </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <div className="bg-white rounded-lg p-2 border border-green-200 hover:shadow-md transition-shadow">
                 <div className="flex items-center mb-1">
                   <FaChartLine className="text-blue-600 ml-1 text-sm" />
-                  <h4 className="font-medium text-gray-900 text-sm">ÊÍáíá ÇáÃÏÇÁ</h4>
+                  <h4 className="font-medium text-gray-900 text-sm">ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</h4>
                 </div>
-                <p className="text-xs text-gray-600 mb-2">ÊÍáíá ÃÏÇÁ ÚÞÇÑÇÊß æãÞÇÑäÊåÇ ÈÇáÓæÞ</p>
+                <p className="text-xs text-gray-600 mb-2">ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</p>
                 <button className="text-blue-600 hover:text-blue-800 text-xs font-medium">
-                  ÚÑÖ ÇáÊÍáíá ?
+                  ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ?
                 </button>
               </div>
               <div className="bg-white rounded-lg p-2 border border-green-200 hover:shadow-md transition-shadow">
                 <div className="flex items-center mb-1">
                   <FaTag className="text-green-600 ml-1 text-sm" />
-                  <h4 className="font-medium text-gray-900 text-sm">ÊÍÓíä ÇáÃÓÚÇÑ</h4>
+                  <h4 className="font-medium text-gray-900 text-sm">ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</h4>
                 </div>
-                <p className="text-xs text-gray-600 mb-2">ÇÞÊÑÇÍÇÊ áÊÍÓíä ÃÓÚÇÑ ÇáÚÞÇÑÇÊ</p>
+                <p className="text-xs text-gray-600 mb-2">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</p>
                 <button className="text-green-600 hover:text-green-800 text-xs font-medium">
-                  ÚÑÖ ÇáÇÞÊÑÇÍÇÊ ?
+                  ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ?
                 </button>
               </div>
               <div className="bg-white rounded-lg p-2 border border-green-200 hover:shadow-md transition-shadow">
                 <div className="flex items-center mb-1">
                   <FaGlobe className="text-purple-600 ml-1 text-sm" />
-                  <h4 className="font-medium text-gray-900 text-sm">ÊÍÓíä ÇáÊÓæíÞ</h4>
+                  <h4 className="font-medium text-gray-900 text-sm">ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</h4>
                 </div>
-                <p className="text-xs text-gray-600 mb-2">äÕÇÆÍ áÊÍÓíä ÚÑÖ ÇáÚÞÇÑÇÊ</p>
+                <p className="text-xs text-gray-600 mb-2">ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</p>
                 <button className="text-purple-600 hover:text-purple-800 text-xs font-medium">
-                  ÚÑÖ ÇáäÕÇÆÍ ?
+                  ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ?
                 </button>
               </div>
             </div>

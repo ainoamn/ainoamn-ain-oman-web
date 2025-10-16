@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import InstantLink, { InstantButton } from '@/components/InstantLink';
+import { useInstantData } from '@/hooks/useInstantData';
 import { 
   FaBuilding, 
   FaHome, 
@@ -278,9 +279,16 @@ interface User {
 function PropertyDetailsPage() {
   const router = useRouter();
   const { id } = router.query;
-  const [property, setProperty] = useState<Property | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  
+  // ������ useInstantData ������ ����� ������� ⚡
+  const { data: propertyResponse, isLoading: propertyLoading, error: propertyError } = useInstantData(
+    id ? `/api/properties/${id}` : null,
+    (url) => fetch(url).then(r => r.json())
+  );
+  
+  const property = propertyResponse?.item || null;
+  const loading = propertyLoading;
+  const error = propertyError ? propertyError.message : null;
   
   // Image Gallery State
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -338,10 +346,9 @@ function PropertyDetailsPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userCanRate, setUserCanRate] = useState(false);
 
-  // تحميل بيانات العقار من API
+  // تحميل البيانات الإضافية بعد تحميل العقار ⚡
   useEffect(() => {
-    if (id) {
-      loadPropertyData();
+    if (id && property) {
       loadAIInsights();
       loadReviews();
       loadStatistics();
@@ -355,7 +362,7 @@ function PropertyDetailsPage() {
       loadCurrentUser();
       checkMultiUnitBuilding();
     }
-  }, [id]);
+  }, [id, property?.id]);
 
   // تحميل رؤى الذكاء الاصطناعي
   const loadAIInsights = async () => {
