@@ -11,10 +11,13 @@
    - تأكد من استبدال جميع الملفات المحلية بالنسخة من Git
    - لا تترك أي ملفات قديمة
 
-2. اقرأ الملفات التالية لفهم النظام:
+2. اقرأ ملفات المعايير والتعليمات البرمجية (إلزامي):
+   - C:\dev\ain-oman-web\PROJECT_GUIDE.md (المعايير والتقنيات - التزم بها بشكل كامل)
+   - C:\dev\ain-oman-web\SYSTEM_ARCHITECTURE.md (معمارية النظام وتفاصيل البناء)
+   - C:\dev\ain-oman-web\LAYOUT_STANDARDS.md (معايير التصميم والواجهات)
    - C:\dev\ain-oman-web\CONVERSATION_HISTORY.md (آخر 3 مراحل على الأقل)
-   - C:\dev\ain-oman-web\PROJECT_GUIDE.md (المعايير والتقنيات)
    - C:\dev\ain-oman-web\sessions\ (آخر 3 جلسات)
+   - أي ملف README في المجلدات الرئيسية (src/components/, src/lib/, etc.)
    
 3. اقرأ آخر 3 محادثات كاملة من مجلد conversations:
    - افتح مجلد C:\dev\ain-oman-web\conversations\
@@ -76,10 +79,35 @@
 
 8. ثم اسألني: "🎯 ما الذي تريد العمل عليه اليوم؟"
 
-⚠️ ملاحظات مهمة:
-- التزم بجميع المعايير في PROJECT_GUIDE.md
-- استخدم: InstantLink، toSafeText، useBookings، formatDate (ميلادي)
-- لا تستورد Header/Footer مباشرة
-- عند إنشاء/تعديل ملفات، تجنب التكرار والتضارب
+⚠️ ملاحظات مهمة - التزم بها بشكل صارم:
+
+**تعليمات البرمجة الإلزامية:**
+- التزم بجميع المعايير في PROJECT_GUIDE.md (لا تخالفها أبداً)
+- التزم بمعمارية النظام في SYSTEM_ARCHITECTURE.md
+- التزم بمعايير التصميم في LAYOUT_STANDARDS.md
+- اتبع نفس أسلوب الكود الموجود في الملفات الحالية
+
+**المكتبات والـ Utilities الإلزامية:**
+- استخدم: InstantLink (للروابط)، InstantImage (للصور)
+- استخدم: toSafeText (للنصوص)، formatDate (التاريخ الميلادي فقط)
+- استخدم: useBookings، usePermissions، useFeatureAccess (Hooks)
+- لا تستورد Header/Footer مباشرة - استخدم Layout
+
+**قواعد الكود:**
+- TypeScript فقط (لا JavaScript عادي)
+- RTL support (العربية من اليمين)
+- Responsive design (جميع الأحجام)
+- Performance first (تحسين الأداء أولاً)
+- No console.log في Production
+
+**قبل البدء بأي عمل:**
+- راجع الكود المشابه الموجود أولاً
+- التزم بنفس النمط والأسلوب
+- لا تخترع طرق جديدة إذا كان هناك طريقة معتمدة
+- عند الشك، ارجع للملفات الموجودة
+
+**أثناء العمل:**
 - اعمل بدون توقف حتى تنتهي من جميع الخطوات
 - لا تترك أي خطوة غير مكتملة
+- عند إنشاء/تعديل ملفات، تجنب التكرار والتضارب
+- اختبر كل تغيير قبل الانتقال للتالي
