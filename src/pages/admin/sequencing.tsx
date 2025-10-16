@@ -19,7 +19,7 @@ export default function SequencingPage() {
       const j = await r.json();
       setCurrentNumber(Number(j?.value ?? 0));
     } catch (error) {
-      console.error("Failed to load current sequence number:", error);
+
     }
   };
 
@@ -40,7 +40,7 @@ export default function SequencingPage() {
       setNewValue("");
       await loadCurrentNumber();
     } catch (error) {
-      console.error("Failed to reset counter:", error);
+
       setMessage("فشل في إعادة تعيين العداد");
     } finally {
       setLoading(false);

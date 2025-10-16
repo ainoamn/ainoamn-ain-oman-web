@@ -79,7 +79,7 @@ export default function NewCheckPage() {
         setTenants(tenantsData.tenants || []);
       }
     } catch (error) {
-      console.error('Error loading data:', error);
+
     }
   };
 

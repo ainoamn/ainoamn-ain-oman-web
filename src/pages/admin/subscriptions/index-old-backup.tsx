@@ -58,7 +58,7 @@ export default function AdminSubscriptionsManagement() {
         setUsers([currentUser]);
       }
     } catch (error) {
-      console.error('Error:', error);
+
     } finally {
       setLoading(false);
     }

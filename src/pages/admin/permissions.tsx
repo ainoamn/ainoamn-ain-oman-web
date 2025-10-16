@@ -60,7 +60,7 @@ export default function PermissionsManagementPage() {
         setUsers(data.users || []);
       }
     } catch (error) {
-      console.error('Error loading users:', error);
+
     } finally {
       setLoading(false);
     }
@@ -98,7 +98,7 @@ export default function PermissionsManagementPage() {
         loadUsers();
       }
     } catch (error) {
-      console.error('Error saving permissions:', error);
+
       alert('حدث خطأ أثناء الحفظ');
     }
   };

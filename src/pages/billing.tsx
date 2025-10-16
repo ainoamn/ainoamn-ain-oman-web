@@ -95,7 +95,7 @@ export default function BillingPage() {
         setProperties(propertiesData.properties || []);
       }
     } catch (error) {
-      console.error('Error loading data:', error);
+
     } finally {
       setLoading(false);
     }
@@ -223,7 +223,7 @@ export default function BillingPage() {
         document.body.removeChild(a);
       }
     } catch (error) {
-      console.error('Error exporting invoices:', error);
+
     }
   };
 
@@ -242,7 +242,7 @@ export default function BillingPage() {
         ));
       }
     } catch (error) {
-      console.error('Error sending invoice:', error);
+
     }
   };
 

@@ -23,7 +23,7 @@ export default function TestBookingToTaskPage() {
         priority: "medium"
       };
 
-      console.log("Creating test task:", testTask);
+
 
       const response = await fetch("/api/tasks/simple", {
         method: "POST",
@@ -35,14 +35,14 @@ export default function TestBookingToTaskPage() {
       if (response.ok) {
         const data = await response.json();
         setResult({ success: true, data });
-        console.log("Test task created successfully:", data);
+
       } else {
         const errorData = await response.json().catch(() => ({}));
         setResult({ success: false, error: errorData.error || "فشل في إنشاء المهمة" });
       }
     } catch (error: any) {
       setResult({ success: false, error: error.message });
-      console.error("Test error:", error);
+
     } finally {
       setLoading(false);
     }
@@ -61,14 +61,14 @@ export default function TestBookingToTaskPage() {
       if (response.ok) {
         const data = await response.json();
         setResult({ success: true, data });
-        console.log("Tasks retrieved successfully:", data);
+
       } else {
         const errorData = await response.json().catch(() => ({}));
         setResult({ success: false, error: errorData.error || "فشل في جلب المهام" });
       }
     } catch (error: any) {
       setResult({ success: false, error: error.message });
-      console.error("Test error:", error);
+
     } finally {
       setLoading(false);
     }

@@ -19,14 +19,14 @@ export default function TestBookingsPage() {
       if (response.ok) {
         const data = await response.json();
         setResult({ success: true, data });
-        console.log("Test booking created successfully:", data);
+
       } else {
         const errorData = await response.json().catch(() => ({}));
         setResult({ success: false, error: errorData.error || "فشل في إنشاء الحجز التجريبي" });
       }
     } catch (error: any) {
       setResult({ success: false, error: error.message });
-      console.error("Test error:", error);
+
     } finally {
       setLoading(false);
     }
@@ -45,14 +45,14 @@ export default function TestBookingsPage() {
       if (response.ok) {
         const data = await response.json();
         setResult({ success: true, data });
-        console.log("Bookings retrieved successfully:", data);
+
       } else {
         const errorData = await response.json().catch(() => ({}));
         setResult({ success: false, error: errorData.error || "فشل في جلب الحجوزات" });
       }
     } catch (error: any) {
       setResult({ success: false, error: error.message });
-      console.error("Test error:", error);
+
     } finally {
       setLoading(false);
     }
@@ -71,14 +71,14 @@ export default function TestBookingsPage() {
       if (response.ok) {
         const data = await response.json();
         setResult({ success: true, data });
-        console.log("Booking detail retrieved successfully:", data);
+
       } else {
         const errorData = await response.json().catch(() => ({}));
         setResult({ success: false, error: errorData.error || "فشل في جلب تفاصيل الحجز" });
       }
     } catch (error: any) {
       setResult({ success: false, error: error.message });
-      console.error("Test error:", error);
+
     } finally {
       setLoading(false);
     }

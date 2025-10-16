@@ -288,7 +288,7 @@ export default function HomePage() {
         setDevelopers(developersData);
         
       } catch (error) {
-        console.error('Error fetching homepage data:', error);
+
       } finally {
         setLoading(false);
       }

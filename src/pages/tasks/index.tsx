@@ -30,7 +30,7 @@ export function Content() {
     try {
       setLoading(true);
       setError(null);
-      console.log("Fetching tasks from unified API...");
+
       
       // استخدام API المبسط
       const response = await fetch("/api/tasks/simple", {
@@ -40,14 +40,14 @@ export function Content() {
       
       if (response.ok) {
         const data = await response.json();
-        console.log("Received tasks:", data.tasks?.length || 0);
+
         setTasks(Array.isArray(data.tasks) ? data.tasks : []);
       } else {
-        console.error("Failed to fetch tasks:", response.status);
+
         setError("فشل في جلب البيانات");
       }
     } catch (e) {
-      console.error("Error fetching tasks:", e);
+
       setError("خطأ في الاتصال");
     } finally {
       setLoading(false);
@@ -63,21 +63,21 @@ export function Content() {
       bc = new BroadcastChannel("ao_tasks");
       bc.onmessage = (ev) => {
         if (ev?.data?.type === "updated") {
-          console.log("Received task update broadcast:", ev.data);
+
           // إعادة تحميل البيانات مع تأخير صغير
           setTimeout(() => {
-            console.log("Reloading tasks after broadcast");
+
             fetchTasks();
           }, 100);
         }
       };
     } catch (error) {
-      console.error("BroadcastChannel error:", error);
+
     }
 
     function onStorage(ev: StorageEvent) {
       if (ev.key === "ao_tasks_bump") {
-        console.log("Storage event triggered reload");
+
         fetchTasks();
       }
     }

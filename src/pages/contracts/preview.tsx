@@ -1,4 +1,4 @@
-ï»¿// src/pages/contracts/preview.tsx
+// src/pages/contracts/preview.tsx
 import Head from "next/head";
 // Header is now handled by MainLayout in _app.tsx
 
@@ -21,7 +21,7 @@ export default function EffectiveContractPreview(){
         url.searchParams.set("propertyId", propertyId);
         if(buildingId) url.searchParams.set("buildingId", buildingId);
         const r = await fetch(url.toString()); if(!r.ok) throw 0; const d = await r.json(); setEff(d||null);
-      }catch{ setErr("ØªØ¹Ø°Ù‘Ø± Ø¬Ù„Ø¨ Ø§Ù„Ø¹Ù‚Ø¯ Ø§Ù„ÙØ¹Ù‘Ø§Ù„"); } finally{ setLoading(false); }
+      }catch{ setErr("ÊÚĞøÑ ÌáÈ ÇáÚŞÏ ÇáİÚøÇá"); } finally{ setLoading(false); }
     })();
   },[propertyId,buildingId]);
 
@@ -30,15 +30,15 @@ export default function EffectiveContractPreview(){
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Head><title>Ø§Ù„Ø¹Ù‚Ø¯ Ø§Ù„ÙØ¹Ù‘Ø§Ù„</title></Head>
+      <Head><title>ÇáÚŞÏ ÇáİÚøÇá</title></Head>
       
       <main className="container mx-auto p-4 flex-1 space-y-4">
-        <h1 className="text-xl font-semibold">Ø§Ù„Ø¹Ù‚Ø¯ Ø§Ù„ÙØ¹Ù‘Ø§Ù„</h1>
-        {loading? <div>Ø¬Ø§Ø±Ù Ø§Ù„ØªØ­Ù…ÙŠÙ„â€¦</div> : err? <div className="text-red-600">{err}</div> : eff ? (
+        <h1 className="text-xl font-semibold">ÇáÚŞÏ ÇáİÚøÇá</h1>
+        {loading? <div>ÌÇÑò ÇáÊÍãíá…</div> : err? <div className="text-red-600">{err}</div> : eff ? (
           <>
-            <div className="text-sm text-gray-600">Ø§Ù„Ù‚Ø§Ù„Ø¨: {eff.templateName} â€” Ø§Ù„Ù†Ø·Ø§Ù‚: {eff.scope}</div>
+            <div className="text-sm text-gray-600">ÇáŞÇáÈ: {eff.templateName} — ÇáäØÇŞ: {eff.scope}</div>
             <section className="border rounded-2xl p-3 space-y-2">
-              <div className="font-semibold">Ø§Ù„Ù†Øµ Ø§Ù„Ø¹Ø±Ø¨ÙŠ</div>
+              <div className="font-semibold">ÇáäÕ ÇáÚÑÈí</div>
               <div className="text-sm whitespace-pre-wrap">{ar}</div>
             </section>
             <section className="border rounded-2xl p-3 space-y-2">
@@ -46,7 +46,7 @@ export default function EffectiveContractPreview(){
               <div className="text-sm whitespace-pre-wrap">{en}</div>
             </section>
           </>
-        ) : <div>Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø¹Ù‚Ø¯ Ù…Ù‡ÙŠØ£.</div>}
+        ) : <div>áÇ íæÌÏ ÚŞÏ ãåíÃ.</div>}
       </main>
       
     </div>

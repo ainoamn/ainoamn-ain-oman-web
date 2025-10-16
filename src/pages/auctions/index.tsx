@@ -1,4 +1,4 @@
-๏ปฟimport Head from "next/head";
+import Head from "next/head";
 import InstantImage from '@/components/InstantImage';
 import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState, useCallback } from "react";
@@ -8,12 +8,12 @@ import dynamic from "next/dynamic";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/context/ThemeContext";
 
-// ุงูุชุญู…ูู ุงูุฏููุงู…ููู ููุฎุฑุงุฆุท
+// วแสอใํแ วแฯํไวใํ฿ํ แแฮัวฦุ
 const LoadScript = dynamic(() => import("@react-google-maps/api").then(m => m.LoadScript), { ssr: false });
 const GoogleMap = dynamic(() => import("@react-google-maps/api").then(m => m.GoogleMap), { ssr: false });
 const Marker = dynamic(() => import("@react-google-maps/api").then(m => m.Marker), { ssr: false });
 
-// ุฃูู…ุงุท ุงูุฎุฑูุทุฉ ุงูู…ุธูู…ุฉ
+// รไใวุ วแฮัํุษ วแใูแใษ
 const darkMapStyle: any[] = [
   { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
   { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
@@ -35,7 +35,7 @@ const darkMapStyle: any[] = [
   { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }] },
 ];
 
-// ุฏุงูุฉ ุงูู…ุณุงุนุฏุฉ ููุฌูุณุฉ
+// ฯวแษ วแใำวฺฯษ แแฬแำษ
 function getSession() {
   try {
     const raw = typeof window !== "undefined" ? localStorage.getItem("ain_auth") : null;
@@ -57,7 +57,7 @@ function SubscriptionBanner({ needFeature }: { needFeature?: string }) {
   
   return (
     <div dir={dir} className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-4 mb-6 flex items-center justify-between">
-      <div className="text-sm">{t("subs.view.paywall")} โ€” {t("subs.required")}</div>
+      <div className="text-sm">{t("subs.view.paywall")} — {t("subs.required")}</div>
       <InstantLink href="/subscriptions" className="btn btn-primary text-sm">
         {t("subs.upgrade")}
       </InstantLink>
@@ -65,7 +65,7 @@ function SubscriptionBanner({ needFeature }: { needFeature?: string }) {
   );
 }
 
-// ุฃููุงุน ุงูุจูุงูุงุช
+// รไๆวฺ วแศํวไวส
 type Auction = {
   id: string;
   title: string;
@@ -86,7 +86,7 @@ type Auction = {
   status: 'active' | 'upcoming' | 'ended';
 };
 
-// ุฃููุงุน ุงูููุงุชุฑ
+// รไๆวฺ วแÝแวสั
 interface FilterOptions {
   searchTerm: string;
   propertyType: string;
@@ -126,7 +126,7 @@ export default function AuctionsPage() {
   const [mapError, setMapError] = useState(false);
   const defaultCenter = { lat: 23.5880, lng: 58.3829 };
 
-  // ุงุณุชุฎุฑุงุฌ ุงูู…ูุงูุน ุงููุฑูุฏุฉ ููููุชุฑ
+  // วำสฮัวฬ วแใๆวÞฺ วแÝัํฯษ แแÝแสั
   const locations = useMemo(() => {
     const uniqueLocations = Array.from(new Set(allAuctions.map(a => a.location)));
     return uniqueLocations.sort();
@@ -137,149 +137,149 @@ export default function AuctionsPage() {
     const mock: Auction[] = [
       { 
         id: "auction1", 
-        title: "ูููุง ูุงุฎุฑุฉ ูู ุญู ุงูุณูุงุฑุงุช", 
-        description: "ูููุง ูุงุฎุฑุฉ ุจู…ุณุงุญุฉ 450 ู…ยฒ ู…ุน ู…ุณุจุญ ูุญุฏููุฉ.", 
-        location: "ู…ุณูุทุ ุงูุฎูุถ", 
+        title: "Ýํแว Ýวฮัษ Ýํ อํ วแำÝวัวส", 
+        description: "Ýํแว Ýวฮัษ ศใำวอษ 450 ใฒ ใฺ ใำศอ ๆอฯํÞษ.", 
+        location: "ใำÞุก วแฮๆึ", 
         price: 250000, 
         currentBid: 225000, 
         area: 450, 
         bedrooms: 5, 
         bathrooms: 4, 
-        startTime: now + 24*3600*1000, // ูุจุฏุฃ ุจุนุฏ ููู…
-        endTime: now + 72*3600*1000,   // ููุชูู ุจุนุฏ 3 ุฃูุงู…
+        startTime: now + 24*3600*1000, // ํศฯร ศฺฯ ํๆใ
+        endTime: now + 72*3600*1000,   // ํไสๅํ ศฺฯ 3 รํวใ
         image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1470&q=80", 
-        features: ["ู…ุณุจุญ","ุญุฏููุฉ","ู…ูุงูู"], 
-        auctionType: "ู…ุฒุงุฏ ุนููู", 
+        features: ["ใำศอ","อฯํÞษ","ใๆวÞÝ"], 
+        auctionType: "ใาวฯ ฺแไํ", 
         coords: { lat: 23.6005, lng: 58.1606 },
         featured: true,
         status: 'upcoming'
       },
       { 
         id: "auction2", 
-        title: "ุดูุฉ ุฑุงููุฉ ุจุฅุทูุงูุฉ ุจุญุฑูุฉ", 
-        description: "ุดูุฉ 180 ู…ยฒ ุจุฅุทูุงูุฉ ู…ุจุงุดุฑุฉ ุนูู ุงูุจุญุฑ.", 
-        location: "ู…ุณูุทุ ุดุงุทุฆ ุงููุฑู…", 
+        title: "ิÞษ ัวÞํษ ศลุแวแษ ศอัํษ", 
+        description: "ิÞษ 180 ใฒ ศลุแวแษ ใศวิัษ ฺแ์ วแศอั.", 
+        location: "ใำÞุก ิวุฦ วแÞัใ", 
         price: 120000, 
         currentBid: 98000, 
         area: 180, 
         bedrooms: 3, 
         bathrooms: 2, 
-        startTime: now - 24*3600*1000, // ุจุฏุฃ ู…ูุฐ ููู…
-        endTime: now + 24*3600*1000,   // ููุชูู ุจุนุฏ ููู…
+        startTime: now - 24*3600*1000, // ศฯร ใไะ ํๆใ
+        endTime: now + 24*3600*1000,   // ํไสๅํ ศฺฯ ํๆใ
         image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1470&q=80", 
-        features: ["ุฅุทูุงูุฉ ุจุญุฑูุฉ","ุตุงูุฉ ุฑูุงุถูุฉ"], 
-        auctionType: "ู…ุฒุงุฏ ุฅููุชุฑููู", 
+        features: ["ลุแวแษ ศอัํษ","ีวแษ ัํวึํษ"], 
+        auctionType: "ใาวฯ ลแ฿สัๆไํ", 
         coords: { lat: 23.6139, lng: 58.5334 },
         featured: true,
         status: 'active'
       },
       { 
         id: "auction3", 
-        title: "ุฃุฑุถ ุณูููุฉ ู…ู…ูุฒุฉ", 
-        description: "ุฃุฑุถ 800 ู…ยฒ ุนูู ุดุงุฑุน ุฑุฆูุณู.", 
-        location: "ุจุฑูุงุก", 
+        title: "รัึ ำ฿ไํษ ใใําษ", 
+        description: "รัึ 800 ใฒ ฺแ์ ิวัฺ ัฦํำํ.", 
+        location: "ศั฿วม", 
         price: 90000, 
         currentBid: 72000, 
         area: 800, 
         bedrooms: 0, 
         bathrooms: 0, 
-        startTime: now - 48*3600*1000, // ุจุฏุฃ ู…ูุฐ ููู…ูู
-        endTime: now + 48*3600*1000,   // ููุชูู ุจุนุฏ ููู…ูู
+        startTime: now - 48*3600*1000, // ศฯร ใไะ ํๆใํไ
+        endTime: now + 48*3600*1000,   // ํไสๅํ ศฺฯ ํๆใํไ
         image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1475&q=80", 
-        features: ["ู…ููุน ู…ู…ูุฒ","ูุฑูุจุฉ ู…ู ุงูุฎุฏู…ุงุช"], 
-        auctionType: "ู…ุฒุงุฏ ุนููู", 
+        features: ["ใๆÞฺ ใใํา","Þัํศษ ใไ วแฮฯใวส"], 
+        auctionType: "ใาวฯ ฺแไํ", 
         coords: { lat: 23.6800, lng: 57.9000 },
         status: 'active'
       },
       { 
         id: "auction4", 
-        title: "ุดูุฉ ุฏูุจููุณ ูุงุฎุฑุฉ", 
-        description: "ุฏูุจููุณ 220 ู…ยฒ ุจุฅุทูุงูุฉ ุจุงููุฑุงู…ูุฉ.", 
-        location: "ู…ุณูุทุ ู…ุฏููุฉ ุงูุณูุทุงู ูุงุจูุณ", 
+        title: "ิÞษ ฯๆศแ฿ำ Ýวฮัษ", 
+        description: "ฯๆศแ฿ำ 220 ใฒ ศลุแวแษ ศวไๆัวใํษ.", 
+        location: "ใำÞุก ใฯํไษ วแำแุวไ Þวศๆำ", 
         price: 160000, 
         currentBid: 130000, 
         area: 220, 
         bedrooms: 4, 
         bathrooms: 3, 
-        startTime: now + 48*3600*1000, // ูุจุฏุฃ ุจุนุฏ ููู…ูู
-        endTime: now + 120*3600*1000,  // ููุชูู ุจุนุฏ 5 ุฃูุงู…
+        startTime: now + 48*3600*1000, // ํศฯร ศฺฯ ํๆใํไ
+        endTime: now + 120*3600*1000,  // ํไสๅํ ศฺฯ 5 รํวใ
         image: "https://images.unsplash.com/photo-1605146769289-440113cc3d00?auto=format&fit=crop&w=1470&q=80", 
-        features: ["ุฏูุจููุณ","ู…ูุงูู ู…ุบููุฉ"], 
-        auctionType: "ู…ุฒุงุฏ ุฅููุชุฑููู", 
+        features: ["ฯๆศแ฿ำ","ใๆวÞÝ ใÛแÞษ"], 
+        auctionType: "ใาวฯ ลแ฿สัๆไํ", 
         coords: { lat: 23.5950, lng: 58.4200 },
         status: 'upcoming'
       },
       { 
         id: "auction5", 
-        title: "ูุตุฑ ูุฎู…", 
-        description: "ูุตุฑ ุจู…ุณุงุญุฉ 1200 ู…ยฒ ูุญุฏุงุฆู ุฎุงุตุฉ.", 
-        location: "ูุฒูู", 
+        title: "Þีั Ýฮใ", 
+        description: "Þีั ศใำวอษ 1200 ใฒ ๆอฯวฦÞ ฮวีษ.", 
+        location: "ไาๆ์", 
         price: 950000, 
         currentBid: 850000, 
         area: 1200, 
         bedrooms: 8, 
         bathrooms: 6, 
-        startTime: now - 120*3600*1000, // ุจุฏุฃ ู…ูุฐ 5 ุฃูุงู…
-        endTime: now - 24*3600*1000,    // ุงูุชูู ู…ูุฐ ููู…
+        startTime: now - 120*3600*1000, // ศฯร ใไะ 5 รํวใ
+        endTime: now - 24*3600*1000,    // วไสๅ์ ใไะ ํๆใ
         image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1453&q=80", 
-        features: ["ูุตุฑ","ุญุฏุงุฆู","ู…ูุงุนุจ"], 
-        auctionType: "ู…ุฒุงุฏ ุนููู", 
+        features: ["Þีั","อฯวฦÞ","ใแวฺศ"], 
+        auctionType: "ใาวฯ ฺแไํ", 
         coords: { lat: 22.9333, lng: 57.5333 },
         featured: true,
         status: 'ended'
       },
       { 
         id: "auction6", 
-        title: "ุจูุช ุดุงุทุฆู", 
-        description: "ุจูุช ุดุงุทุฆู 680 ู…ยฒ ุจุฅุทูุงูุฉ ู…ุจุงุดุฑุฉ.", 
-        location: "ุตูุฑ", 
+        title: "ศํส ิวุฦํ", 
+        description: "ศํส ิวุฦํ 680 ใฒ ศลุแวแษ ใศวิัษ.", 
+        location: "ีๆั", 
         price: 450000, 
         currentBid: 420000, 
         area: 680, 
         bedrooms: 6, 
         bathrooms: 5, 
-        startTime: now - 96*3600*1000, // ุจุฏุฃ ู…ูุฐ 4 ุฃูุงู…
-        endTime: now - 48*3600*1000,   // ุงูุชูู ู…ูุฐ ููู…ูู
+        startTime: now - 96*3600*1000, // ศฯร ใไะ 4 รํวใ
+        endTime: now - 48*3600*1000,   // วไสๅ์ ใไะ ํๆใํไ
         image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1470&q=80", 
-        features: ["ุดุงุทุฆ ุฎุงุต","ุฏูููุฑ ูุงุฎุฑ"], 
-        auctionType: "ู…ุฒุงุฏ ุนููู", 
+        features: ["ิวุฦ ฮวี","ฯํ฿ๆั Ýวฮั"], 
+        auctionType: "ใาวฯ ฺแไํ", 
         coords: { lat: 22.5667, lng: 59.5289 },
         status: 'ended'
       },
       { 
         id: "auction7", 
-        title: "ุดูุฉ ููุฏููุฉ ูุงุฎุฑุฉ", 
-        description: "ุดูุฉ ููุฏููุฉ 120 ู…ยฒ ุจู…ุฑุงูู ู…ุชูุงู…ูุฉ.", 
-        location: "ุตูุงูุฉ", 
+        title: "ิÞษ ÝไฯÞํษ Ýวฮัษ", 
+        description: "ิÞษ ÝไฯÞํษ 120 ใฒ ศใัวÝÞ ใส฿วใแษ.", 
+        location: "ีแวแษ", 
         price: 180000, 
         currentBid: 160000, 
         area: 120, 
         bedrooms: 2, 
         bathrooms: 2, 
-        startTime: now - 12*3600*1000, // ุจุฏุฃ ู…ูุฐ 12 ุณุงุนุฉ
-        endTime: now + 36*3600*1000,   // ููุชูู ุจุนุฏ ููู… ููุตู
+        startTime: now - 12*3600*1000, // ศฯร ใไะ 12 ำวฺษ
+        endTime: now + 36*3600*1000,   // ํไสๅํ ศฺฯ ํๆใ ๆไีÝ
         image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1470&q=80", 
-        features: ["ููุฏููุฉ","ุฎุฏู…ุงุช ู…ุชูุงู…ูุฉ"], 
-        auctionType: "ู…ุฒุงุฏ ุฅููุชุฑููู", 
+        features: ["ÝไฯÞํษ","ฮฯใวส ใส฿วใแษ"], 
+        auctionType: "ใาวฯ ลแ฿สัๆไํ", 
         coords: { lat: 17.0151, lng: 54.0924 },
         featured: true,
         status: 'active'
       },
       { 
         id: "auction8", 
-        title: "ู…ุฒุฑุนุฉ ุญุฏูุซุฉ", 
-        description: "ู…ุฒุฑุนุฉ 2000 ู…ยฒ ุจูุธุงู… ุฑู ู…ุชูุงู…ู.", 
-        location: "ุงูุจุฑูู…ู", 
+        title: "ใาัฺษ อฯํหษ", 
+        description: "ใาัฺษ 2000 ใฒ ศไูวใ ัํ ใส฿วใแ.", 
+        location: "วแศัํใํ", 
         price: 320000, 
         currentBid: 285000, 
         area: 2000, 
         bedrooms: 4, 
         bathrooms: 3, 
-        startTime: now + 72*3600*1000, // ูุจุฏุฃ ุจุนุฏ 3 ุฃูุงู…
-        endTime: now + 240*3600*1000,  // ููุชูู ุจุนุฏ 10 ุฃูุงู…
+        startTime: now + 72*3600*1000, // ํศฯร ศฺฯ 3 รํวใ
+        endTime: now + 240*3600*1000,  // ํไสๅํ ศฺฯ 10 รํวใ
         image: "https://images.unsplash.com/photo-1589923188937-cb64779b46a0?auto=format&fit=crop&w=1471&q=80", 
-        features: ["ู…ุฒุฑุนุฉ","ูุธุงู… ุฑู"], 
-        auctionType: "ู…ุฒุงุฏ ุนููู", 
+        features: ["ใาัฺษ","ไูวใ ัํ"], 
+        auctionType: "ใาวฯ ฺแไํ", 
         coords: { lat: 24.2509, lng: 55.7931 },
         status: 'upcoming'
       },
@@ -288,7 +288,7 @@ export default function AuctionsPage() {
     setLoading(false);
   }, []);
 
-  // ุชุตููู ุงูู…ุฒุงุฏุงุช ุญุณุจ ุงูุญุงูุฉ ูุงูู…ู…ูุฒุฉ
+  // สีไํÝ วแใาวฯวส อำศ วแอวแษ ๆวแใใําษ
   const { featuredActive, active, upcoming, featuredEnded, ended } = useMemo(() => {
     const now = Date.now();
     return {
@@ -300,11 +300,11 @@ export default function AuctionsPage() {
     };
   }, [allAuctions]);
 
-  // ุชุทุจูู ุงูููุงุชุฑ ูุงูุจุญุซ
+  // สุศํÞ วแÝแวสั ๆวแศอห
   const filteredAuctions = useMemo(() => {
     let result = [...allAuctions];
     
-    // ุชุทุจูู ุงูุจุญุซ
+    // สุศํÞ วแศอห
     if (filterOptions.searchTerm) {
       const term = filterOptions.searchTerm.toLowerCase();
       result = result.filter(a => 
@@ -314,7 +314,7 @@ export default function AuctionsPage() {
       );
     }
     
-    // ุชุทุจูู ููุชุฑ ููุน ุงูุนูุงุฑ
+    // สุศํÞ Ýแสั ไๆฺ วแฺÞวั
     if (filterOptions.propertyType !== "all") {
       if (filterOptions.propertyType === "villas") {
         result = result.filter(a => a.bedrooms >= 4);
@@ -325,12 +325,12 @@ export default function AuctionsPage() {
       }
     }
     
-    // ุชุทุจูู ููุชุฑ ุงูู…ููุน
+    // สุศํÞ Ýแสั วแใๆÞฺ
     if (filterOptions.location !== "all") {
       result = result.filter(a => a.location === filterOptions.location);
     }
     
-    // ุชุทุจูู ููุชุฑ ุงูุณุนุฑ
+    // สุศํÞ Ýแสั วแำฺั
     if (filterOptions.minPrice !== null) {
       result = result.filter(a => a.currentBid >= filterOptions.minPrice!);
     }
@@ -338,17 +338,17 @@ export default function AuctionsPage() {
       result = result.filter(a => a.currentBid <= filterOptions.maxPrice!);
     }
     
-    // ุชุทุจูู ููุชุฑ ุนุฏุฏ ุงูุบุฑู
+    // สุศํÞ Ýแสั ฺฯฯ วแÛัÝ
     if (filterOptions.minBedrooms !== null) {
       result = result.filter(a => a.bedrooms >= filterOptions.minBedrooms!);
     }
     
-    // ุชุทุจูู ููุชุฑ ุงูู…ุณุงุญุฉ
+    // สุศํÞ Ýแสั วแใำวอษ
     if (filterOptions.minArea !== null) {
       result = result.filter(a => a.area >= filterOptions.minArea!);
     }
     
-    // ุชุทุจูู ููุชุฑ ุญุงูุฉ ุงูู…ุฒุงุฏ
+    // สุศํÞ Ýแสั อวแษ วแใาวฯ
     const now = Date.now();
     if (filterOptions.auctionStatus !== "all") {
       if (filterOptions.auctionStatus === "active") {
@@ -360,7 +360,7 @@ export default function AuctionsPage() {
       }
     }
     
-    // ุชุทุจูู ุงูุชุฑุชูุจ
+    // สุศํÞ วแสัสํศ
     if (filterOptions.sortBy === "price-low") {
       result.sort((a, b) => a.currentBid - b.currentBid);
     } else if (filterOptions.sortBy === "price-high") {
@@ -378,7 +378,7 @@ export default function AuctionsPage() {
     return result;
   }, [allAuctions, filterOptions]);
 
-  // ุชุตููู ุงููุชุงุฆุฌ ุจุนุฏ ุงูุชุตููุฉ
+  // สีไํÝ วแไสวฦฬ ศฺฯ วแสีÝํษ
   const { filteredFeaturedActive, filteredActive, filteredUpcoming, filteredFeaturedEnded, filteredEnded } = useMemo(() => {
     return {
       filteredFeaturedActive: filteredAuctions.filter(a => a.featured && a.status === 'active'),
@@ -389,7 +389,7 @@ export default function AuctionsPage() {
     };
   }, [filteredAuctions]);
 
-  const formatPrice = (n: number) => new Intl.NumberFormat("ar-OM").format(n) + " ุฑ.ุน";
+  const formatPrice = (n: number) => new Intl.NumberFormat("ar-OM").format(n) + " ั.ฺ";
   const mapContainerStyle = { width: "100%", height: "500px", borderRadius: "12px" } as const;
 
   const onMapLoad = useCallback((map: any) => {
@@ -406,7 +406,7 @@ export default function AuctionsPage() {
       filteredAuctions.forEach(p => bounds.extend(p.coords));
       mapInstance.fitBounds(bounds);
     } catch (e) {
-      console.error(e);
+
       setMapError(true);
     }
   }, [filteredAuctions, mapLoaded, mapInstance]);
@@ -429,19 +429,19 @@ export default function AuctionsPage() {
 
   const getTimeRemaining = (endTime: number) => {
     const diff = endTime - Date.now();
-    if (diff <= 0) return "ู…ูุชูู";
+    if (diff <= 0) return "ใไสๅํ";
     
     const days = Math.max(0, Math.floor(diff / 86400000));
     const hours = Math.max(0, Math.floor((diff % 86400000) / 3600000));
     const minutes = Math.max(0, Math.floor((diff % 3600000) / 60000));
     
-    return `${days} ููู… ${hours} ุณุงุนุฉ ${minutes} ุฏูููุฉ`;
+    return `${days} ํๆใ ${hours} ำวฺษ ${minutes} ฯÞํÞษ`;
   };
 
   const getStatusBadge = (status: string, featured?: boolean) => {
-    if (status === 'ended') return "ู…ูุชูู";
-    if (status === 'upcoming') return "ูุงุฏู…";
-    return featured ? "ู…ู…ูุฒ" : "ูุดุท";
+    if (status === 'ended') return "ใไสๅํ";
+    if (status === 'upcoming') return "Þวฯใ";
+    return featured ? "ใใํา" : "ไิุ";
   };
 
   const getStatusColor = (status: string, featured?: boolean) => {
@@ -462,16 +462,16 @@ export default function AuctionsPage() {
           <div className="mb-4 flex gap-3 justify-end">
             {isManager && (
               <InstantLink href="/dashboard/auctions" className="btn btn-primary text-sm">
-                ุฅุฏุงุฑุฉ ุงูู…ุฒุงุฏุงุช
+                ลฯวัษ วแใาวฯวส
               </InstantLink>
             )}
             {canCreate ? (
               <InstantLink href="/auctions/sell" className="btn btn-primary text-sm">
-                ุจูุน ุนุจุฑ ุงูู…ุฒุงุฏ
+                ศํฺ ฺศั วแใาวฯ
               </InstantLink>
             ) : (
               <InstantLink href="/subscriptions" className="btn btn-primary text-sm">
-                ุจูุน ุนุจุฑ ุงูู…ุฒุงุฏ โ€” ุชุฑููุฉ ุงูุจุงูุฉ
+                ศํฺ ฺศั วแใาวฯ — สัÞํษ วแศวÞษ
               </InstantLink>
             )}
           </div>
@@ -491,37 +491,37 @@ export default function AuctionsPage() {
                 onClick={() => setShowFilters(!showFilters)}
                 className="p-4 rounded-full bg-white text-gray-800 focus:outline-none shadow-lg"
               >
-                {showFilters ? "ุฅุฎูุงุก ุงูููุงุชุฑ" : "ุนุฑุถ ุงูููุงุชุฑ"}
+                {showFilters ? "ลฮÝวม วแÝแวสั" : "ฺัึ วแÝแวสั"}
               </button>
             </div>
           </div>
 
-          {/* ุงูููุงุชุฑ ุงูู…ุชูุฏู…ุฉ */}
+          {/* วแÝแวสั วแใสÞฯใษ */}
           {showFilters && (
             <div className={`mb-8 p-6 rounded-2xl shadow-lg ${isDark ? "bg-gray-800" : "bg-white"}`}>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">ููุน ุงูุนูุงุฑ</label>
+                  <label className="block text-sm font-medium mb-2">ไๆฺ วแฺÞวั</label>
                   <select 
                     className="w-full p-3 rounded-lg border"
                     value={filterOptions.propertyType}
                     onChange={(e) => setFilterOptions({...filterOptions, propertyType: e.target.value})}
                   >
-                    <option value="all">ุฌู…ูุน ุงูุฃููุงุน</option>
-                    <option value="villas">ูููุงุช</option>
-                    <option value="apartments">ุดูู</option>
-                    <option value="lands">ุฃุฑุงุถู</option>
+                    <option value="all">ฬใํฺ วแรไๆวฺ</option>
+                    <option value="villas">Ýํแวส</option>
+                    <option value="apartments">ิÞÞ</option>
+                    <option value="lands">รัวึํ</option>
                   </select>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-2">ุงูู…ุญุงูุธุฉ</label>
+                  <label className="block text-sm font-medium mb-2">วแใอวÝูษ</label>
                   <select 
                     className="w-full p-3 rounded-lg border"
                     value={filterOptions.location}
                     onChange={(e) => setFilterOptions({...filterOptions, location: e.target.value})}
                   >
-                    <option value="all">ุฌู…ูุน ุงูู…ุญุงูุธุงุช</option>
+                    <option value="all">ฬใํฺ วแใอวÝูวส</option>
                     {locations.map(location => (
                       <option key={location} value={location}>{location}</option>
                     ))}
@@ -529,75 +529,75 @@ export default function AuctionsPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-2">ุญุงูุฉ ุงูู…ุฒุงุฏ</label>
+                  <label className="block text-sm font-medium mb-2">อวแษ วแใาวฯ</label>
                   <select 
                     className="w-full p-3 rounded-lg border"
                     value={filterOptions.auctionStatus}
                     onChange={(e) => setFilterOptions({...filterOptions, auctionStatus: e.target.value})}
                   >
-                    <option value="all">ุฌู…ูุน ุงูุญุงูุงุช</option>
-                    <option value="active">ูุดุทุฉ</option>
-                    <option value="upcoming">ูุงุฏู…ุฉ</option>
-                    <option value="ended">ู…ูุชููุฉ</option>
+                    <option value="all">ฬใํฺ วแอวแวส</option>
+                    <option value="active">ไิุษ</option>
+                    <option value="upcoming">Þวฯใษ</option>
+                    <option value="ended">ใไสๅํษ</option>
                   </select>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-2">ุงูุชุฑุชูุจ ุญุณุจ</label>
+                  <label className="block text-sm font-medium mb-2">วแสัสํศ อำศ</label>
                   <select 
                     className="w-full p-3 rounded-lg border"
                     value={filterOptions.sortBy}
                     onChange={(e) => setFilterOptions({...filterOptions, sortBy: e.target.value})}
                   >
-                    <option value="featured">ุงูู…ู…ูุฒุฉ ุฃููุงู</option>
-                    <option value="price-low">ุงูุณุนุฑ (ู…ูุฎูุถ ุฅูู ู…ุฑุชูุน)</option>
-                    <option value="price-high">ุงูุณุนุฑ (ู…ุฑุชูุน ุฅูู ู…ูุฎูุถ)</option>
-                    <option value="ending">ุชูุชูู ูุฑูุจุงู</option>
+                    <option value="featured">วแใใําษ รๆแว๐</option>
+                    <option value="price-low">วแำฺั (ใไฮÝึ ลแ์ ใัสÝฺ)</option>
+                    <option value="price-high">วแำฺั (ใัสÝฺ ลแ์ ใไฮÝึ)</option>
+                    <option value="ending">สไสๅํ Þัํศว๐</option>
                   </select>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-2">ุฃูู ุณุนุฑ (ุฑ.ุน)</label>
+                  <label className="block text-sm font-medium mb-2">รÞแ ำฺั (ั.ฺ)</label>
                   <input
                     type="number"
                     className="w-full p-3 rounded-lg border"
                     value={filterOptions.minPrice || ""}
                     onChange={(e) => setFilterOptions({...filterOptions, minPrice: e.target.value ? Number(e.target.value) : null})}
-                    placeholder="ุฃูู ุณุนุฑ"
+                    placeholder="รÞแ ำฺั"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-2">ุฃุนูู ุณุนุฑ (ุฑ.ุน)</label>
+                  <label className="block text-sm font-medium mb-2">รฺแ์ ำฺั (ั.ฺ)</label>
                   <input
                     type="number"
                     className="w-full p-3 rounded-lg border"
                     value={filterOptions.maxPrice || ""}
                     onChange={(e) => setFilterOptions({...filterOptions, maxPrice: e.target.value ? Number(e.target.value) : null})}
-                    placeholder="ุฃุนูู ุณุนุฑ"
+                    placeholder="รฺแ์ ำฺั"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-2">ุฃูู ุนุฏุฏ ุบุฑู</label>
+                  <label className="block text-sm font-medium mb-2">รÞแ ฺฯฯ ÛัÝ</label>
                   <input
                     type="number"
                     className="w-full p-3 rounded-lg border"
                     value={filterOptions.minBedrooms || ""}
                     onChange={(e) => setFilterOptions({...filterOptions, minBedrooms: e.target.value ? Number(e.target.value) : null})}
-                    placeholder="ุฃูู ุนุฏุฏ ุบุฑู"
+                    placeholder="รÞแ ฺฯฯ ÛัÝ"
                     min="0"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-2">ุฃูู ู…ุณุงุญุฉ (ู…ยฒ)</label>
+                  <label className="block text-sm font-medium mb-2">รÞแ ใำวอษ (ใฒ)</label>
                   <input
                     type="number"
                     className="w-full p-3 rounded-lg border"
                     value={filterOptions.minArea || ""}
                     onChange={(e) => setFilterOptions({...filterOptions, minArea: e.target.value ? Number(e.target.value) : null})}
-                    placeholder="ุฃูู ู…ุณุงุญุฉ"
+                    placeholder="รÞแ ใำวอษ"
                     min="0"
                   />
                 </div>
@@ -608,10 +608,10 @@ export default function AuctionsPage() {
                   onClick={resetFilters}
                   className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800"
                 >
-                  ุฅุนุงุฏุฉ ุงูุถุจุท
+                  ลฺวฯษ วแึศุ
                 </button>
                 <div className="text-sm text-gray-500">
-                  {filteredAuctions.length} ูุชูุฌุฉ
+                  {filteredAuctions.length} ไสํฬษ
                 </div>
               </div>
             </div>
@@ -621,15 +621,15 @@ export default function AuctionsPage() {
             <div className={`min-h-[200px] flex items-center justify-center ${isDark ? "text-white" : "text-gray-800"}`}>
               <div className="text-center">
                 <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-500 mx-auto mb-6"></div>
-                <p className="text-xl">ุฌุงุฑู ุชุญู…ูู ุงูุนูุงุฑุงุช...</p>
+                <p className="text-xl">ฬวัํ สอใํแ วแฺÞวัวส...</p>
               </div>
             </div>
           ) : (
             <>
-              {/* ุงูู…ุฒุงุฏุงุช ุงูู…ู…ูุฒุฉ ุงููุดุทุฉ */}
+              {/* วแใาวฯวส วแใใําษ วแไิุษ */}
               {filteredFeaturedActive.length > 0 && (
                 <section className="mb-12">
-                  <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>ุงูู…ุฒุงุฏุงุช ุงูู…ู…ูุฒุฉ ุงููุดุทุฉ</h2>
+                  <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>วแใาวฯวส วแใใําษ วแไิุษ</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredFeaturedActive.map((p) => {
                       const diff = p.endTime - Date.now();
@@ -642,16 +642,16 @@ export default function AuctionsPage() {
                             <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy" width={400} height={300}/>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                             <div className="absolute top-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                              ู…ู…ูุฒ
+                              ใใํา
                             </div>
                             <div className="absolute bottom-4 left-4 right-4">
                               <div className={`p-3 rounded-lg backdrop-blur-sm ${isDark ? "bg-black/30 text-white" : "bg-white/90 text-gray-800"}`}>
                                 <div className="flex justify-between items-center">
-                                  <div className="font-medium">ุงูููุช ุงูู…ุชุจูู</div>
+                                  <div className="font-medium">วแๆÞส วแใสศÞํ</div>
                                   <div className="flex gap-3 text-sm">
-                                    <span className="text-center"><b>{days}</b> ููู…</span>
-                                    <span className="text-center"><b>{hours}</b> ุณุงุนุฉ</span>
-                                    <span className="text-center"><b>{minutes}</b> ุฏูููุฉ</span>
+                                    <span className="text-center"><b>{days}</b> ํๆใ</span>
+                                    <span className="text-center"><b>{hours}</b> ำวฺษ</span>
+                                    <span className="text-center"><b>{minutes}</b> ฯÞํÞษ</span>
                                   </div>
                                 </div>
                               </div>
@@ -667,21 +667,21 @@ export default function AuctionsPage() {
                             <div className={`p-4 rounded-lg mb-4 ${isDark ? "bg-gray-700" : "bg-gray-100"}`}>
                               <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                  <div className="text-xs text-gray-500">ุงูุณุนุฑ ุงูุงุจุชุฏุงุฆู</div>
+                                  <div className="text-xs text-gray-500">วแำฺั วแวศสฯวฦํ</div>
                                   <div className={isDark ? "text-blue-300 font-semibold" : "text-blue-600 font-semibold"}>{formatPrice(p.price)}</div>
                                 </div>
                                 <div>
-                                  <div className="text-xs text-gray-500">ุงูู…ุฒุงูุฏุฉ ุงูุญุงููุฉ</div>
+                                  <div className="text-xs text-gray-500">วแใาวํฯษ วแอวแํษ</div>
                                   <div className={isDark ? "text-green-300 font-semibold" : "text-green-600 font-semibold"}>{formatPrice(p.currentBid)}</div>
                                 </div>
                               </div>
                             </div>
                             <div className="flex gap-3">
                               <InstantLink href={`/auctions/${p.id}`} className="btn btn-primary flex-1 font-medium text-center">
-                                ุนุฑุถ ุงูุชูุงุตูู
+                                ฺัึ วแสÝวีํแ
                               </InstantLink>
                               <InstantLink href={`/auctions/${p.id}`} className="btn font-medium text-center px-4">
-                                ูุฏู‘ู… ู…ุฒุงูุฏุฉ
+                                Þฯ๘ใ ใาวํฯษ
                               </InstantLink>
                             </div>
                           </div>
@@ -692,10 +692,10 @@ export default function AuctionsPage() {
                 </section>
               )}
 
-              {/* ุงูู…ุฒุงุฏุงุช ุงููุดุทุฉ ุงูุนุงุฏูุฉ */}
+              {/* วแใาวฯวส วแไิุษ วแฺวฯํษ */}
               {filteredActive.length > 0 && (
                 <section className="mb-12">
-                  <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>ุงูู…ุฒุงุฏุงุช ุงููุดุทุฉ</h2>
+                  <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>วแใาวฯวส วแไิุษ</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredActive.map((p) => {
                       const diff = p.endTime - Date.now();
@@ -713,11 +713,11 @@ export default function AuctionsPage() {
                             <div className="absolute bottom-4 left-4 right-4">
                               <div className={`p-3 rounded-lg backdrop-blur-sm ${isDark ? "bg-black/30 text-white" : "bg-white/90 text-gray-800"}`}>
                                 <div className="flex justify-between items-center">
-                                  <div className="font-medium">ุงูููุช ุงูู…ุชุจูู</div>
+                                  <div className="font-medium">วแๆÞส วแใสศÞํ</div>
                                   <div className="flex gap-3 text-sm">
-                                    <span className="text-center"><b>{days}</b> ููู…</span>
-                                    <span className="text-center"><b>{hours}</b> ุณุงุนุฉ</span>
-                                    <span className="text-center"><b>{minutes}</b> ุฏูููุฉ</span>
+                                    <span className="text-center"><b>{days}</b> ํๆใ</span>
+                                    <span className="text-center"><b>{hours}</b> ำวฺษ</span>
+                                    <span className="text-center"><b>{minutes}</b> ฯÞํÞษ</span>
                                   </div>
                                 </div>
                               </div>
@@ -733,21 +733,21 @@ export default function AuctionsPage() {
                             <div className={`p-4 rounded-lg mb-4 ${isDark ? "bg-gray-700" : "bg-gray-100"}`}>
                               <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                  <div className="text-xs text-gray-500">ุงูุณุนุฑ ุงูุงุจุชุฏุงุฆู</div>
+                                  <div className="text-xs text-gray-500">วแำฺั วแวศสฯวฦํ</div>
                                   <div className={isDark ? "text-blue-300 font-semibold" : "text-blue-600 font-semibold"}>{formatPrice(p.price)}</div>
                                 </div>
                                 <div>
-                                  <div className="text-xs text-gray-500">ุงูู…ุฒุงูุฏุฉ ุงูุญุงููุฉ</div>
+                                  <div className="text-xs text-gray-500">วแใาวํฯษ วแอวแํษ</div>
                                   <div className={isDark ? "text-green-300 font-semibold" : "text-green-600 font-semibold"}>{formatPrice(p.currentBid)}</div>
                                 </div>
                               </div>
                             </div>
                             <div className="flex gap-3">
                               <InstantLink href={`/auctions/${p.id}`} className="btn btn-primary flex-1 font-medium text-center">
-                                ุนุฑุถ ุงูุชูุงุตูู
+                                ฺัึ วแสÝวีํแ
                               </InstantLink>
                               <InstantLink href={`/auctions/${p.id}`} className="btn font-medium text-center px-4">
-                                ูุฏู‘ู… ู…ุฒุงูุฏุฉ
+                                Þฯ๘ใ ใาวํฯษ
                               </InstantLink>
                             </div>
                           </div>
@@ -758,10 +758,10 @@ export default function AuctionsPage() {
                 </section>
               )}
 
-              {/* ุงูู…ุฒุงุฏุงุช ุงููุงุฏู…ุฉ */}
+              {/* วแใาวฯวส วแÞวฯใษ */}
               {filteredUpcoming.length > 0 && (
                 <section className="mb-12">
-                  <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>ุงูู…ุฒุงุฏุงุช ุงููุงุฏู…ุฉ</h2>
+                  <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>วแใาวฯวส วแÞวฯใษ</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredUpcoming.map((p) => {
                       const startDiff = p.startTime - Date.now();
@@ -773,11 +773,11 @@ export default function AuctionsPage() {
                             <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy" width={400} height={300}/>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                             <div className="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                              ูุงุฏู…
+                              Þวฯใ
                             </div>
                             {p.featured && (
                               <div className="absolute top-14 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                ู…ู…ูุฒ
+                                ใใํา
                               </div>
                             )}
                           </div>
@@ -791,23 +791,23 @@ export default function AuctionsPage() {
                             <div className={`p-4 rounded-lg mb-4 ${isDark ? "bg-gray-700" : "bg-gray-100"}`}>
                               <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                  <div className="text-xs text-gray-500">ุงูุณุนุฑ ุงูุงุจุชุฏุงุฆู</div>
+                                  <div className="text-xs text-gray-500">วแำฺั วแวศสฯวฦํ</div>
                                   <div className={isDark ? "text-blue-300 font-semibold" : "text-blue-600 font-semibold"}>{formatPrice(p.price)}</div>
                                 </div>
                                 <div>
-                                  <div className="text-xs text-gray-500">ูุจุฏุฃ ุจุนุฏ</div>
+                                  <div className="text-xs text-gray-500">ํศฯร ศฺฯ</div>
                                   <div className={isDark ? "text-purple-300 font-semibold" : "text-purple-600 font-semibold"}>
-                                    {startDays} ููู… {startHours} ุณุงุนุฉ
+                                    {startDays} ํๆใ {startHours} ำวฺษ
                                   </div>
                                 </div>
                               </div>
                             </div>
                             <div className="flex gap-3">
                               <InstantLink href={`/auctions/${p.id}`} className="btn btn-primary flex-1 font-medium text-center">
-                                ุนุฑุถ ุงูุชูุงุตูู
+                                ฺัึ วแสÝวีํแ
                               </InstantLink>
                               <button className="btn font-medium text-center px-4" disabled>
-                                ูุฑูุจุงู
+                                Þัํศว๐
                               </button>
                             </div>
                           </div>
@@ -818,10 +818,10 @@ export default function AuctionsPage() {
                 </section>
               )}
 
-              {/* ุงูู…ุฒุงุฏุงุช ุงูู…ูุชููุฉ ุงูู…ู…ูุฒุฉ */}
+              {/* วแใาวฯวส วแใไสๅํษ วแใใําษ */}
               {filteredFeaturedEnded.length > 0 && (
                 <section className="mb-12">
-                  <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>ุงูู…ุฒุงุฏุงุช ุงูู…ูุชููุฉ ุงูู…ู…ูุฒุฉ</h2>
+                  <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>วแใาวฯวส วแใไสๅํษ วแใใําษ</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredFeaturedEnded.map((p) => (
                       <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl ${isDark ? "bg-gray-800" : "bg-white"}`}>
@@ -829,7 +829,7 @@ export default function AuctionsPage() {
                           <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy" width={400} height={300}/>
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                           <div className="absolute top-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                            ู…ู…ูุฒ ู…ูุชูู
+                            ใใํา ใไสๅํ
                           </div>
                         </div>
                         <div className="p-6">
@@ -842,18 +842,18 @@ export default function AuctionsPage() {
                           <div className={`p-4 rounded-lg mb-4 ${isDark ? "bg-gray-700" : "bg-gray-100"}`}>
                             <div className="grid grid-cols-2 gap-3">
                               <div>
-                                <div className="text-xs text-gray-500">ุงูุณุนุฑ ุงูุงุจุชุฏุงุฆู</div>
+                                <div className="text-xs text-gray-500">วแำฺั วแวศสฯวฦํ</div>
                                 <div className={isDark ? "text-blue-300 font-semibold" : "text-blue-600 font-semibold"}>{formatPrice(p.price)}</div>
                               </div>
                               <div>
-                                <div className="text-xs text-gray-500">ุงูุณุนุฑ ุงูููุงุฆู</div>
+                                <div className="text-xs text-gray-500">วแำฺั วแไๅวฦํ</div>
                                 <div className={isDark ? "text-green-300 font-semibold" : "text-green-600 font-semibold"}>{formatPrice(p.currentBid)}</div>
                               </div>
                             </div>
                           </div>
                           <div className="flex gap-3">
                             <InstantLink href={`/auctions/${p.id}`} className="btn btn-primary flex-1 font-medium text-center">
-                              ุนุฑุถ ุงูุชูุงุตูู
+                              ฺัึ วแสÝวีํแ
                             </InstantLink>
                           </div>
                         </div>
@@ -863,10 +863,10 @@ export default function AuctionsPage() {
                 </section>
               )}
 
-              {/* ุงูู…ุฒุงุฏุงุช ุงูู…ูุชููุฉ ุงูุนุงุฏูุฉ */}
+              {/* วแใาวฯวส วแใไสๅํษ วแฺวฯํษ */}
               {filteredEnded.length > 0 && (
                 <section className="mb-12">
-                  <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>ุงูู…ุฒุงุฏุงุช ุงูู…ูุชููุฉ</h2>
+                  <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>วแใาวฯวส วแใไสๅํษ</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredEnded.map((p) => (
                       <article key={p.id} className={`rounded-xl overflow-hidden shadow-xl ${isDark ? "bg-gray-800" : "bg-white"}`}>
@@ -874,7 +874,7 @@ export default function AuctionsPage() {
                           <InstantImage src={p.image} alt={p.title} className="w-full h-56 object-cover"  loading="lazy" width={400} height={300}/>
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                           <div className="absolute top-4 right-4 bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                            ู…ูุชูู
+                            ใไสๅํ
                           </div>
                         </div>
                         <div className="p-6">
@@ -887,18 +887,18 @@ export default function AuctionsPage() {
                           <div className={`p-4 rounded-lg mb-4 ${isDark ? "bg-gray-700" : "bg-gray-100"}`}>
                             <div className="grid grid-cols-2 gap-3">
                               <div>
-                                <div className="text-xs text-gray-500">ุงูุณุนุฑ ุงูุงุจุชุฏุงุฆู</div>
+                                <div className="text-xs text-gray-500">วแำฺั วแวศสฯวฦํ</div>
                                 <div className={isDark ? "text-blue-300 font-semibold" : "text-blue-600 font-semibold"}>{formatPrice(p.price)}</div>
                               </div>
                               <div>
-                                <div className="text-xs text-gray-500">ุงูุณุนุฑ ุงูููุงุฆู</div>
+                                <div className="text-xs text-gray-500">วแำฺั วแไๅวฦํ</div>
                                 <div className={isDark ? "text-green-300 font-semibold" : "text-green-600 font-semibold"}>{formatPrice(p.currentBid)}</div>
                               </div>
                             </div>
                           </div>
                           <div className="flex gap-3">
                             <InstantLink href={`/auctions/${p.id}`} className="btn btn-primary flex-1 font-medium text-center">
-                              ุนุฑุถ ุงูุชูุงุตูู
+                              ฺัึ วแสÝวีํแ
                             </InstantLink>
                           </div>
                         </div>
@@ -910,21 +910,21 @@ export default function AuctionsPage() {
 
               {filteredAuctions.length === 0 && (
                 <div className={`text-center py-12 rounded-xl ${isDark ? "bg-gray-800 text-gray-300" : "bg-white text-gray-600"} shadow-lg`}>
-                  ูุง ุชูุฌุฏ ุนูุงุฑุงุช ุชุทุงุจู ุจุญุซู
+                  แว สๆฬฯ ฺÞวัวส สุวศÞ ศอห฿
                 </div>
               )}
 
-              {/* ุฎุฑูุทุฉ ุงูู…ูุงูุน */}
+              {/* ฮัํุษ วแใๆวÞฺ */}
               <section className="mb-12">
-                <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>ู…ูุงูุน ุงูู…ุฒุงูุฏุงุช</h2>
+                <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>ใๆวÞฺ วแใาวํฯวส</h2>
                 <div className="rounded-xl overflow-hidden shadow-xl">
                   {!hasMapsKey ? (
                     <div className={`p-12 text-center ${isDark ? "bg-gray-800 text-gray-200" : "bg-white text-gray-600"}`}>
-                      ูู… ูุชู… ุถุจุท ู…ูุชุงุญ Google Maps (NEXT_PUBLIC_GOOGLE_MAPS_API_KEY)
+                      แใ ํสใ ึศุ ใÝสวอ Google Maps (NEXT_PUBLIC_GOOGLE_MAPS_API_KEY)
                     </div>
                   ) : mapError ? (
                     <div className={`p-12 text-center ${isDark ? "bg-gray-800 text-red-400" : "bg-white text-red-600"}`}>
-                      ุชุนุฐู‘ุฑ ุชุญู…ูู ุฎุฑุงุฆุท Google
+                      สฺะ๘ั สอใํแ ฮัวฦุ Google
                     </div>
                   ) : (
                     <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string} onError={() => setMapError(true)} onLoad={() => setMapLoaded(true)}>

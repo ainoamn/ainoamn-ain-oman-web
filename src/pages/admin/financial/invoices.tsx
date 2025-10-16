@@ -31,7 +31,7 @@ export default function InvoicesPage() {
 
       setInvoices([]); // تم استبدال mockInvoices ببيانات فارغة
     } catch (error) {
-      console.error('Error fetching invoices:', error);
+
     } finally {
       setLoading(false);
     }

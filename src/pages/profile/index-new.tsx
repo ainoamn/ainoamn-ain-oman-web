@@ -48,9 +48,9 @@ export default function ProfilePage() {
     try {
       channel = new BroadcastChannel('permissions_channel');
       channel.onmessage = (event) => {
-        console.log('📡 Profile: Broadcast received:', event.data);
+
         if (event.data.type === 'PERMISSIONS_UPDATED' || event.data.type === 'PERMISSIONS_INITIALIZED') {
-          console.log('🔄 Profile: Reloading in 200ms...');
+
           setTimeout(() => {
             setLoading(true); // إظهار loading
             loadUserData();
@@ -58,14 +58,14 @@ export default function ProfilePage() {
           }, 200);
         }
       };
-      console.log('👂 Profile: BroadcastChannel connected');
+
     } catch (error) {
-      console.error('❌ BroadcastChannel not supported:', error);
+
     }
 
     // CustomEvents للتبويب الحالي
     const handleUpdate = () => {
-      console.log('🔔 Profile: Update event received');
+
       setLoading(true);
       setTimeout(() => {
         loadUserData();
@@ -84,21 +84,21 @@ export default function ProfilePage() {
   }, [mounted]);
 
   const loadUserData = () => {
-    console.log('🔄 Profile: Loading user data...');
+
     
     try {
       const authData = localStorage.getItem('ain_auth');
       if (!authData) {
-        console.log('❌ Profile: No auth data, redirecting to login');
+
         router.push('/login');
         return;
       }
 
       const userData = JSON.parse(authData);
-      console.log('👤 Profile: User data from localStorage:', userData.name, 'Role:', userData.role);
+
       
       let permissions = userData.permissions || [];
-      console.log('📋 Profile: Default permissions:', permissions.length);
+
       
       const rolesConfig = localStorage.getItem('roles_permissions_config');
       if (rolesConfig) {
@@ -107,13 +107,13 @@ export default function ProfilePage() {
         
         if (userRole) {
           permissions = userRole.permissions;
-          console.log('✅ Profile: Loaded from roles config:', permissions.length, 'permissions');
-          console.log('📝 Profile: Permissions array:', permissions);
+
+
         } else {
-          console.log('⚠️ Profile: Role not found in config');
+
         }
       } else {
-        console.log('⚠️ Profile: No roles config found');
+
       }
 
       setUser({
@@ -121,10 +121,10 @@ export default function ProfilePage() {
         permissions
       });
       setLoading(false);
-      console.log('🎯 Profile: Final permissions count:', permissions.length);
-      console.log('---');
+
+
     } catch (error) {
-      console.error('❌ Profile: Error:', error);
+
       router.push('/login');
     }
   };

@@ -62,7 +62,7 @@ export default function ChatPage() {
         setMessages(data.messages || []);
       }
     } catch (error) {
-      console.error('Failed to load messages:', error);
+
     }
   };
 
@@ -90,7 +90,7 @@ export default function ChatPage() {
         await loadMessages();
       }
     } catch (error) {
-      console.error('Send message error:', error);
+
       alert('فشل في إرسال الرسالة');
     } finally {
       setSending(false);
@@ -227,7 +227,7 @@ export default function ChatPage() {
               className="hidden"
               onChange={(e) => {
                 // معالجة رفع الملفات
-                console.log('File selected:', e.target.files);
+
               }}
             />
             

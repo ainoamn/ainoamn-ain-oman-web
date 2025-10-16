@@ -48,9 +48,9 @@ export default function AdminSubscriptionsPage() {
       if (customPlansStr) {
         const customPlans = JSON.parse(customPlansStr);
         setPlans(customPlans);
-        console.log('✅ تم تحميل الباقات من localStorage:', customPlans.length);
+
       } else {
-        console.log('ℹ️ استخدام الباقات الافتراضية');
+
       }
 
       // 2. تحميل الصلاحيات من localStorage
@@ -60,7 +60,7 @@ export default function AdminSubscriptionsPage() {
         setPlansConfig(customFeatures);
         console.log('✅ تم تحميل الصلاحيات من localStorage:', Object.keys(customFeatures).length);
       } else {
-        console.log('ℹ️ استخدام الصلاحيات الافتراضية');
+
       }
 
       // 3. تحميل المستخدمين
@@ -70,7 +70,7 @@ export default function AdminSubscriptionsPage() {
         setUsers([currentUser]);
       }
     } catch (error) {
-      console.error('Error loading data:', error);
+
     } finally {
       setLoading(false);
     }
@@ -131,7 +131,7 @@ export default function AdminSubscriptionsPage() {
     window.dispatchEvent(new Event('ain_auth:change'));
     window.dispatchEvent(new CustomEvent('plans_updated', { detail: { plans, features: plansConfig } }));
     
-    console.log('💾 تم حفظ البيانات:', { plans, features: plansConfig });
+
     alert('✅ تم حفظ جميع التغييرات بنجاح!');
   };
 

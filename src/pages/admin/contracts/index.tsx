@@ -1,4 +1,4 @@
-ï»¿// src/pages/admin/contracts/index.tsx
+// src/pages/admin/contracts/index.tsx
 import Head from "next/head";
 import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState } from "react";
@@ -25,50 +25,50 @@ export default function AdminContractsList(){
   const [q,setQ]=useState("");
 
   useEffect(()=>{ setLoading(true); setErr(null);
-    fetch("/api/contracts").then(r=>r.json()).then(d=>setItems(Array.isArray(d?.items)?d.items:[])).catch(()=>setErr("ØªØ¹Ø°Ù‘Ø± Ø¬Ù„Ø¨ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª")).finally(()=>setLoading(false));
+    fetch("/api/contracts").then(r=>r.json()).then(d=>setItems(Array.isArray(d?.items)?d.items:[])).catch(()=>setErr("ÊÚĞøÑ ÌáÈ ÇáÈíÇäÇÊ")).finally(()=>setLoading(false));
   },[]);
 
   const filtered = useMemo(()=> items.filter(x=> x.contractNumber.includes(q) || (x.parties?.tenant?.name||"").includes(q) ), [items,q]);
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Head><title>Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø¹Ù‚ÙˆØ¯</title></Head>
+      <Head><title>ÅÏÇÑÉ ÇáÚŞæÏ</title></Head>
       
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Ø§Ù„Ø¹Ù‚ÙˆØ¯</h1>
-          <InstantLink href="/admin/contracts/new" className="btn btn-primary">Ø¹Ù‚Ø¯ Ø¬Ø¯ÙŠØ¯</InstantLink>
+          <h1 className="text-xl font-semibold">ÇáÚŞæÏ</h1>
+          <InstantLink href="/admin/contracts/new" className="btn btn-primary">ÚŞÏ ÌÏíÏ</InstantLink>
         </div>
 
-        <input className="form-input w-full max-w-sm" placeholder="Ø¨Ø­Ø« Ø¨Ø±Ù‚Ù… Ø§Ù„Ø¹Ù‚Ø¯ Ø£Ùˆ Ø§Ø³Ù… Ø§Ù„Ù…Ø³ØªØ£Ø¬Ø±" value={q} onChange={e=>setQ(e.target.value)} />
+        <input className="form-input w-full max-w-sm" placeholder="ÈÍË ÈÑŞã ÇáÚŞÏ Ãæ ÇÓã ÇáãÓÊÃÌÑ" value={q} onChange={e=>setQ(e.target.value)} />
 
-        {loading? <div>Ø¬Ø§Ø±Ù Ø§Ù„ØªØ­Ù…ÙŠÙ„â€¦</div> : err? <div className="text-red-600">{err}</div> : (
+        {loading? <div>ÌÇÑò ÇáÊÍãíá…</div> : err? <div className="text-red-600">{err}</div> : (
           <div className="overflow-auto">
             <table className="w-full text-sm border">
               <thead>
                 <tr className="border-b bg-gray-50">
-                  <th className="p-2 text-left">Ø±Ù‚Ù… Ø§Ù„Ø¹Ù‚Ø¯</th>
-                  <th className="p-2 text-left">Ø§Ù„Ù†Ø·Ø§Ù‚</th>
-                  <th className="p-2 text-left">Ø§Ù„ÙˆØ­Ø¯Ø©</th>
-                  <th className="p-2 text-left">Ø§Ù„Ù…Ø³ØªØ£Ø¬Ø±</th>
-                  <th className="p-2 text-left">Ø§Ù„Ø¨Ø¯Ø§ÙŠØ©</th>
-                  <th className="p-2 text-left">Ø§Ù„Ù†Ù‡Ø§ÙŠØ©</th>
-                  <th className="p-2 text-left">Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ</th>
-                  <th className="p-2 text-left">Ø§Ù„Ù‚ÙŠÙ…Ø©</th>
-                  <th className="p-2 text-left">Ø§Ù„Ø­Ø§Ù„Ø©</th>
-                  <th className="p-2 text-left">Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª</th>
+                  <th className="p-2 text-left">ÑŞã ÇáÚŞÏ</th>
+                  <th className="p-2 text-left">ÇáäØÇŞ</th>
+                  <th className="p-2 text-left">ÇáæÍÏÉ</th>
+                  <th className="p-2 text-left">ÇáãÓÊÃÌÑ</th>
+                  <th className="p-2 text-left">ÇáÈÏÇíÉ</th>
+                  <th className="p-2 text-left">ÇáäåÇíÉ</th>
+                  <th className="p-2 text-left">ÇáãÊÈŞí</th>
+                  <th className="p-2 text-left">ÇáŞíãÉ</th>
+                  <th className="p-2 text-left">ÇáÍÇáÉ</th>
+                  <th className="p-2 text-left">ÅÌÑÇÁÇÊ</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map(c=>{
                   const days = left(c.endDate);
                   const badge = typeof days==="number" ? (
-                    <span className={`px-2 py-1 rounded text-xs ${days<=0?"bg-red-100 text-red-800":days<=30?"bg-yellow-100 text-yellow-800":"bg-green-100 text-green-800"}`}>{days<=0?"Ù…Ù†ØªÙ‡ÙŠ":`ÙŠØ¨Ù‚Ù‰ ${days} ÙŠÙˆÙ…Ù‹Ø§`}</span>
+                    <span className={`px-2 py-1 rounded text-xs ${days<=0?"bg-red-100 text-red-800":days<=30?"bg-yellow-100 text-yellow-800":"bg-green-100 text-green-800"}`}>{days<=0?"ãäÊåí":`íÈŞì ${days} íæãğÇ`}</span>
                   ) : "-";
                   return (
                     <tr key={c.id} className="border-b">
                       <td className="p-2">{c.contractNumber}</td>
-                      <td className="p-2">{c.scope==="unified"?"Ù…ÙˆØ­Ù‘Ø¯":"Ù…Ø®ØµØµ Ù„ÙˆØ­Ø¯Ø©"}</td>
+                      <td className="p-2">{c.scope==="unified"?"ãæÍøÏ":"ãÎÕÕ áæÍÏÉ"}</td>
                       <td className="p-2">{c.propertyId || "-"}</td>
                       <td className="p-2">{c.parties?.tenant?.name || "-"}</td>
                       <td className="p-2">{dstr(c.startDate)}</td>
@@ -76,11 +76,11 @@ export default function AdminContractsList(){
                       <td className="p-2">{badge}</td>
                       <td className="p-2">{money(c.totals?.amount, c.totals?.currency||"OMR")}</td>
                       <td className="p-2">{c.status}</td>
-                      <td className="p-2"><InstantLink href={`/admin/contracts/${encodeURIComponent(c.id)}`} className="btn btn-outline">ÙØªØ­</InstantLink></td>
+                      <td className="p-2"><InstantLink href={`/admin/contracts/${encodeURIComponent(c.id)}`} className="btn btn-outline">İÊÍ</InstantLink></td>
                     </tr>
                   );
                 })}
-                {filtered.length===0 && <tr><td className="p-3 text-center text-gray-600" colSpan={10}>Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¹Ù‚ÙˆØ¯.</td></tr>}
+                {filtered.length===0 && <tr><td className="p-3 text-center text-gray-600" colSpan={10}>áÇ ÊæÌÏ ÚŞæÏ.</td></tr>}
               </tbody>
             </table>
           </div>

@@ -51,7 +51,7 @@ export default function TestAdvancedSystem() {
 
       setTestResults(results);
     } catch (error) {
-      console.error('Test error:', error);
+
     } finally {
       setLoading(false);
     }
@@ -68,7 +68,7 @@ export default function TestAdvancedSystem() {
       
       return roles.length > 0 && permissions.length > 0 && hasPermission;
     } catch (error) {
-      console.error('User roles test failed:', error);
+
       return false;
     }
   };
@@ -84,7 +84,7 @@ export default function TestAdvancedSystem() {
       
       return plans.length > 0 && features.length > 0 && limits.maxProperties > 0;
     } catch (error) {
-      console.error('Subscription system test failed:', error);
+
       return false;
     }
   };
@@ -105,7 +105,7 @@ export default function TestAdvancedSystem() {
       
       return insights.length > 0 && marketAnalysis.id !== undefined;
     } catch (error) {
-      console.error('AI system test failed:', error);
+
       return false;
     }
   };
@@ -126,7 +126,7 @@ export default function TestAdvancedSystem() {
       
       return quickResults.items.length >= 0 && advancedResults.items.length >= 0;
     } catch (error) {
-      console.error('Advanced search test failed:', error);
+
       return false;
     }
   };
@@ -143,7 +143,7 @@ export default function TestAdvancedSystem() {
       return englishTranslation !== arabicTranslation && 
              SUPPORTED_LANGUAGES.length > 0;
     } catch (error) {
-      console.error('Multilingual test failed:', error);
+
       return false;
     }
   };
@@ -165,7 +165,7 @@ export default function TestAdvancedSystem() {
       
       return property.id !== undefined && stats.totalProperties >= 0 && analytics.propertyId !== undefined;
     } catch (error) {
-      console.error('Property management test failed:', error);
+
       return false;
     }
   };

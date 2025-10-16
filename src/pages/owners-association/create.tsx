@@ -108,7 +108,7 @@ export default function CreateHoaPage() {
       router.push(`/owners-association/properties/${newHOA.id}`);
       
     } catch (error) {
-      console.error("Create error:", error);
+
       setErrors({ submit: t("validation.submitError", "حدث خطأ أثناء الحفظ") });
     } finally {
       setSubmitting(false);

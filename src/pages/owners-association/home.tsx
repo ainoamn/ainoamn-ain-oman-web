@@ -36,7 +36,7 @@ export default function OwnersAssociationHome() {
       } catch (err) {
         if (mounted) {
           setError(err instanceof Error ? err.message : "Unknown error");
-          console.error("Fetch error:", err);
+
         }
       } finally {
         if (mounted) {
@@ -226,7 +226,7 @@ function HoaRow({ hoa }: { hoa: HoaSummary }) {
           setDetail(data);
         }
       } catch (err) {
-        console.error("Fetch detail error:", err);
+
       } finally {
         if (mounted) {
           setLoading(false);

@@ -21,7 +21,7 @@ export default function CustomerDashboard() {
           setBookings(Array.isArray(data.items) ? data.items : []);
         }
       } catch (error) {
-        console.error('Error fetching bookings:', error);
+
       } finally {
         setLoading(false);
       }

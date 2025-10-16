@@ -1,4 +1,4 @@
-๏ปฟ// src/pages/dashboard/auctions/index.tsx
+// src/pages/dashboard/auctions/index.tsx
 import { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import { useRouter } from 'next/router';
@@ -40,7 +40,7 @@ export default function AuctionDashboard() {
       const data = await auctionService.getUserAuctions(activeTab);
       setAuctions(data);
     } catch (error) {
-      console.error('Failed to load auctions:', error);
+
     } finally {
       setLoading(false);
     }
@@ -51,73 +51,73 @@ export default function AuctionDashboard() {
       const data = await auctionService.getDashboardStats();
       setStats(data);
     } catch (error) {
-      console.error('Failed to load stats:', error);
+
     }
   };
 
   const createAuction = async () => {
-    // ุงูุชุญูู ู…ู ุงูุงุดุชุฑุงู ุงููุดุท
+    // วแสอÞÞ ใไ วแวิสัว฿ วแไิุ
     if (!user.subscription.active) {
-      alert('ูุฌุจ ุฃู ูููู ูุฏูู ุงุดุชุฑุงู ูุดุท ูุฅูุดุงุก ู…ุฒุงุฏ');
+      alert('ํฬศ รไ ํ฿ๆไ แฯํ฿ วิสัว฿ ไิุ แลไิวม ใาวฯ');
       await router.push('/subscriptions');
       return;
     }
 
-    // ุงูุชุญูู ู…ู ุงูุฑุตูุฏ ูุฏูุน ุฑุณูู… ุงูุฅุฏุฑุงุฌ
-    const listingFee = 100; // ุฑุณูู… ุงูุฅุฏุฑุงุฌ
+    // วแสอÞÞ ใไ วแัีํฯ แฯÝฺ ัำๆใ วแลฯัวฬ
+    const listingFee = 100; // ัำๆใ วแลฯัวฬ
     if (user.balance < listingFee) {
-      alert('ุฑุตูุฏู ุบูุฑ ูุงูู ูุฏูุน ุฑุณูู… ุงูุฅุฏุฑุงุฌ');
+      alert('ัีํฯ฿ Ûํั ฿วÝ๒ แฯÝฺ ัำๆใ วแลฯัวฬ');
       await router.push('/dashboard/wallet');
       return;
     }
 
-    // ุฎุตู… ุฑุณูู… ุงูุฅุฏุฑุงุฌ ูุฅูุดุงุก ุงูู…ุฒุงุฏ
+    // ฮีใ ัำๆใ วแลฯัวฬ ๆลไิวม วแใาวฯ
     try {
       await paymentService.deductListingFee(listingFee);
       await router.push('/dashboard/auctions/create');
     } catch (error) {
-      alert('ูุดู ูู ุฎุตู… ุงูุฑุณูู…: ' + (error as any).message);
+      alert('Ýิแ Ýํ ฮีใ วแัำๆใ: ' + (error as any).message);
     }
   };
 
   if (loading) {
-    return <div>ุฌุงุฑู ุงูุชุญู…ูู...</div>;
+    return <div>ฬวัํ วแสอใํแ...</div>;
   }
 
   return (
     <DashboardLayout>
       <Head>
-        <title>ููุญุฉ ุชุญูู… ุงูู…ุฒุงุฏุงุช | Ain Oman</title>
+        <title>แๆอษ สอ฿ใ วแใาวฯวส | Ain Oman</title>
       </Head>
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">ุฅุฏุงุฑุฉ ุงูู…ุฒุงุฏุงุช</h1>
+          <h1 className="text-2xl font-bold">ลฯวัษ วแใาวฯวส</h1>
           <button 
             onClick={createAuction}
             className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700"
           >
-            ุฅูุดุงุก ู…ุฒุงุฏ ุฌุฏูุฏ
+            ลไิวม ใาวฯ ฬฯํฯ
           </button>
         </div>
 
-        {/* ุฅุญุตุงุฆูุงุช ุณุฑูุนุฉ */}
+        {/* ลอีวฦํวส ำัํฺษ */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-blue-50 p-4 rounded-lg">
             <div className="text-blue-600 font-bold text-2xl">{stats.total}</div>
-            <div className="text-blue-800">ุฅุฌู…ุงูู ุงูู…ุฒุงุฏุงุช</div>
+            <div className="text-blue-800">ลฬใวแํ วแใาวฯวส</div>
           </div>
           <div className="bg-green-50 p-4 rounded-lg">
             <div className="text-green-600 font-bold text-2xl">{stats.active}</div>
-            <div className="text-green-800">ู…ุฒุงุฏุงุช ูุดุทุฉ</div>
+            <div className="text-green-800">ใาวฯวส ไิุษ</div>
           </div>
           <div className="bg-yellow-50 p-4 rounded-lg">
             <div className="text-yellow-600 font-bold text-2xl">{stats.scheduled}</div>
-            <div className="text-yellow-800">ู…ุฌุฏููุฉ</div>
+            <div className="text-yellow-800">ใฬฯๆแษ</div>
           </div>
           <div className="bg-purple-50 p-4 rounded-lg">
-            <div className="text-purple-600 font-bold text-2xl">{stats.revenue} ุฑ.ุน</div>
-            <div className="text-purple-800">ุฅุฌู…ุงูู ุงูุฅูุฑุงุฏุงุช</div>
+            <div className="text-purple-600 font-bold text-2xl">{stats.revenue} ั.ฺ</div>
+            <div className="text-purple-800">ลฬใวแํ วแลํัวฯวส</div>
           </div>
         </div>
 
@@ -140,28 +140,28 @@ export default function AuctionDashboard() {
           </nav>
         </div>
 
-        {/* ูุงุฆู…ุฉ ุงูู…ุฒุงุฏุงุช */}
+        {/* Þวฦใษ วแใาวฯวส */}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ุงูุนูุงุฑ
+                  วแฺÞวั
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ุงูุญุงูุฉ
+                  วแอวแษ
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ุงูุณุนุฑ ุงูุญุงูู
+                  วแำฺั วแอวแํ
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ุนุฏุฏ ุงูู…ุฒุงูุฏุงุช
+                  ฺฯฯ วแใาวํฯวส
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ุงูููุช ุงูู…ุชุจูู
+                  วแๆÞส วแใสศÞํ
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ุงูุฅุฌุฑุงุกุงุช
+                  วแลฬัวมวส
                 </th>
               </tr>
             </thead>
@@ -202,7 +202,7 @@ function AuctionRow({ auction, onUpdate }) {
         onUpdate();
         break;
       case 'delete':
-        if (confirm('ูู ุฃูุช ู…ุชุฃูุฏ ู…ู ุญุฐู ูุฐุง ุงูู…ุฒุงุฏุ')) {
+        if (confirm('ๅแ รไส ใสร฿ฯ ใไ อะÝ ๅะว วแใาวฯฟ')) {
           await auctionService.deleteAuction(auctionId);
           onUpdate();
         }
@@ -240,30 +240,30 @@ function AuctionRow({ auction, onUpdate }) {
       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
         <div className="flex space-x-2">
           <InstantLink href={`/auctions/${auction.id}`} className="text-blue-600 hover:text-blue-900">
-            ุนุฑุถ
+            ฺัึ
           </InstantLink>
           {['draft', 'rejected'].includes(auction.status) && (
             <button onClick={() => handleAction('edit', auction.id)} className="text-yellow-600 hover:text-yellow-900">
-              ุชุนุฏูู
+              สฺฯํแ
             </button>
           )}
           {auction.status === 'pending' && hasRole('admin') && (
             <>
               <button onClick={() => handleAction('approve', auction.id)} className="text-green-600 hover:text-green-900">
-                ุงูู…ูุงููุฉ
+                วแใๆวÝÞษ
               </button>
               <button onClick={() => handleAction('reject', auction.id)} className="text-red-600 hover:text-red-900">
-                ุฑูุถ
+                ัÝึ
               </button>
             </>
           )}
           {auction.status === 'active' && (
             <button onClick={() => handleAction('promote', auction.id)} className="text-purple-600 hover:text-purple-900">
-              ุชุฑููุฌ
+              สัๆํฬ
             </button>
           )}
           <button onClick={() => handleAction('delete', auction.id)} className="text-red-600 hover:text-red-900">
-            ุญุฐู
+            อะÝ
           </button>
         </div>
       </td>

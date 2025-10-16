@@ -187,7 +187,7 @@ export default function ProfileBookingsPage() {
       await fetchBookings();
       alert("تمت المزامنة مع المخزن المركزي بنجاح.");
     } catch (error) {
-      console.error('Manual sync failed:', error);
+
       alert("فشلت المزامنة. يرجى المحاولة مرة أخرى.");
     } finally {
       setSyncing(false);

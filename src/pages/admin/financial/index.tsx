@@ -52,7 +52,7 @@ function FinancialDashboardContent() {
         setSummary(emptySummary);
       }
     } catch (error) {
-      console.error('Error fetching financial summary:', error);
+
       // في حالة الخطأ، عرض بيانات فارغة (النظام مُصفّر)
       const emptySummary: FinancialSummary = {
         revenue: { total: 0, monthly: 0, growth: 0, bySource: { rent: 0, service: 0, subscription: 0, auction: 0, other: 0 } },

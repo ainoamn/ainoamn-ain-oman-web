@@ -35,7 +35,7 @@ export default function AdminSubscriptionsPage() {
         setUsers([currentUser]);
       }
     } catch (error) {
-      console.error('Error loading users:', error);
+
     } finally {
       setLoading(false);
     }

@@ -37,7 +37,7 @@ export default function CustomersPage() {
         setContacts([]);
       }
     } catch (error) {
-      console.error('Error fetching contacts:', error);
+
       // في حالة الخطأ، عرض قائمة فارغة (النظام مُصفّر)
       setContacts([]);
     } finally {

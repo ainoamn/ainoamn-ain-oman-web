@@ -33,7 +33,7 @@ export default function ChecksManagementPage() {
         setChecks(data.checks || []);
       }
     } catch (error) {
-      console.error('Error loading checks:', error);
+
     } finally {
       setLoading(false);
     }

@@ -126,7 +126,7 @@ export default function AdminUsersPage() {
 
       setUsers(mockUsers);
     } catch (error) {
-      console.error('Error fetching users:', error);
+
     } finally {
       setLoading(false);
     }
@@ -165,7 +165,7 @@ export default function AdminUsersPage() {
 
       setStats(calculatedStats);
     } catch (error) {
-      console.error('Error fetching stats:', error);
+
     }
   };
 
@@ -351,7 +351,7 @@ export default function AdminUsersPage() {
     if (!userToAction) return;
     
     // في التطبيق الحقيقي، سيتم إرسال إشعار عبر API
-    console.log(`Sending ${type} notification to ${userToAction.name}: ${message}`);
+
     
     setShowNotificationModal(false);
     setUserToAction(null);
@@ -363,7 +363,7 @@ export default function AdminUsersPage() {
     if (!userToAction) return;
     
     const tempPassword = Math.random().toString(36).slice(-8);
-    console.log(`Temporary password for ${userToAction.email}: ${tempPassword}`);
+
     
     setShowResetPasswordModal(false);
     setUserToAction(null);

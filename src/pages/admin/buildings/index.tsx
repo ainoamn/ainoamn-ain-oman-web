@@ -29,7 +29,7 @@ export default function BuildingsManagementPage() {
         setBuildings(data.buildings || []);
       }
     } catch (error) {
-      console.error('Error loading buildings:', error);
+
     } finally {
       setLoading(false);
     }

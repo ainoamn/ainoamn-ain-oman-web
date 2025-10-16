@@ -52,7 +52,7 @@ export default function PropertyRequestsPage() {
         setRequests(data.requests || []);
       }
     } catch (error) {
-      console.error('Error loading requests:', error);
+
     } finally {
       setLoading(false);
     }
@@ -149,7 +149,7 @@ export default function PropertyRequestsPage() {
         loadRequests();
       }
     } catch (error) {
-      console.error('Error approving request:', error);
+
     }
   };
 
@@ -167,7 +167,7 @@ export default function PropertyRequestsPage() {
         loadRequests();
       }
     } catch (error) {
-      console.error('Error rejecting request:', error);
+
     }
   };
 

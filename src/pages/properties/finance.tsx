@@ -91,7 +91,7 @@ export default function PropertiesFinancePage() {
         setProperties(propertiesData.properties || []);
       }
     } catch (error) {
-      console.error('Error loading financial data:', error);
+
     } finally {
       setLoading(false);
     }
@@ -161,7 +161,7 @@ export default function PropertiesFinancePage() {
         document.body.removeChild(a);
       }
     } catch (error) {
-      console.error('Error exporting PDF:', error);
+
     }
   };
 

@@ -1,4 +1,4 @@
-ï»¿// src/pages/auctions/add.tsx
+// src/pages/auctions/add.tsx
 import Head from "next/head";
 import InstantImage from '@/components/InstantImage';
 import { useRouter } from "next/router";
@@ -9,7 +9,7 @@ import InstantLink from '@/components/InstantLink';
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/context/ThemeContext";
 
-// Ø¯Ø§Ù„Ø© Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø© Ù„Ù„Ø¬Ù„Ø³Ø©
+// ÏÇáÉ ÇáãÓÇÚÏÉ ááÌáÓÉ
 function getSession() {
   try {
     const raw = typeof window !== "undefined" ? localStorage.getItem("ain_auth") : null;
@@ -31,7 +31,7 @@ function SubscriptionBanner({ needFeature }: { needFeature?: string }) {
 
   return (
     <div dir={dir} className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-4 mb-6 flex items-center justify-between">
-      <div className="text-sm">{t("subs.view.paywall")} â€” {t("subs.required")}</div>
+      <div className="text-sm">{t("subs.view.paywall")} — {t("subs.required")}</div>
       <InstantLink 
         href="/subscriptions?return=/auctions/add&need=CREATE_AUCTION"
         className="btn btn-primary text-sm"
@@ -48,7 +48,7 @@ export default function AddAuctionPage() {
   const router = useRouter();
   const session = getSession();
 
-  // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ©: Ø¥Ø¹Ø§Ø¯Ø© ØªÙˆØ¬ÙŠÙ‡ Ù…Ø¹ return + need
+  // ÇáÊÍŞŞ ãä ÇáÕáÇÍíÉ: ÅÚÇÏÉ ÊæÌíå ãÚ return + need
   useEffect(() => {
     if (session.role === "guest" || !hasFeature("CREATE_AUCTION", session)) {
       router.push("/subscriptions?return=/auctions/add&need=CREATE_AUCTION");
@@ -77,17 +77,17 @@ export default function AddAuctionPage() {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
 
   const propertyTypes = [
-    { value: "villa", label: "ÙÙŠÙ„Ø§" },
-    { value: "apartment", label: "Ø´Ù‚Ø©" },
-    { value: "land", label: "Ø£Ø±Ø¶" },
-    { value: "commercial", label: "ØªØ¬Ø§Ø±ÙŠ" },
+    { value: "villa", label: "İíáÇ" },
+    { value: "apartment", label: "ÔŞÉ" },
+    { value: "land", label: "ÃÑÖ" },
+    { value: "commercial", label: "ÊÌÇÑí" },
   ];
 
   const availableFeatures = [
-    "Ù…Ø³Ø¨Ø­", "Ø­Ø¯ÙŠÙ‚Ø©", "Ù…ÙˆØ§Ù‚Ù Ø³ÙŠØ§Ø±Ø§Øª", "Ù†Ø¸Ø§Ù… Ø£Ù…Ù†",
-    "ØµØ§Ù„Ø© Ø±ÙŠØ§Ø¶ÙŠØ©", "Ø¥Ø·Ù„Ø§Ù„Ø© Ø¨Ø­Ø±ÙŠØ©", "ØªØ´Ø·ÙŠØ¨ ÙØ§Ø®Ø±",
-    "Ù…Ø³Ø¨Ø­ Ø¯Ø§Ø®Ù„ÙŠ", "Ø¬Ø§ÙƒÙˆØ²ÙŠ", "Ø³Ø§ÙˆÙ†Ø§", "Ù…Ø³Ø§Ø­Ø§Øª Ø®Ø¶Ø±Ø§Ø¡",
-    "ØºØ±ÙØ© Ø³ÙŠÙ†Ù…Ø§", "ØºØ±ÙØ© Ø¶ÙŠÙˆÙ", "Ø´Ø±ÙØ©", "ØªØ±Ø§Ø³"
+    "ãÓÈÍ", "ÍÏíŞÉ", "ãæÇŞİ ÓíÇÑÇÊ", "äÙÇã Ããä",
+    "ÕÇáÉ ÑíÇÖíÉ", "ÅØáÇáÉ ÈÍÑíÉ", "ÊÔØíÈ İÇÎÑ",
+    "ãÓÈÍ ÏÇÎáí", "ÌÇßæÒí", "ÓÇæäÇ", "ãÓÇÍÇÊ ÎÖÑÇÁ",
+    "ÛÑİÉ ÓíäãÇ", "ÛÑİÉ Öíæİ", "ÔÑİÉ", "ÊÑÇÓ"
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -128,16 +128,16 @@ export default function AddAuctionPage() {
     const newErrors: Record<string, string> = {};
 
     if (step === 1) {
-      if (!formData.title.trim()) newErrors.title = "Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ù…Ø·Ù„ÙˆØ¨";
-      if (!formData.description.trim()) newErrors.description = "Ø§Ù„ÙˆØµÙ Ù…Ø·Ù„ÙˆØ¨";
-      if (!formData.location.trim()) newErrors.location = "Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ù…Ø·Ù„ÙˆØ¨";
-      if (!formData.price || Number(formData.price) <= 0) newErrors.price = "Ø§Ù„Ø³Ø¹Ø± ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† Ø£ÙƒØ¨Ø± Ù…Ù† ØµÙØ±";
+      if (!formData.title.trim()) newErrors.title = "ÇáÚäæÇä ãØáæÈ";
+      if (!formData.description.trim()) newErrors.description = "ÇáæÕİ ãØáæÈ";
+      if (!formData.location.trim()) newErrors.location = "ÇáãæŞÚ ãØáæÈ";
+      if (!formData.price || Number(formData.price) <= 0) newErrors.price = "ÇáÓÚÑ íÌÈ Ãä íßæä ÃßÈÑ ãä ÕİÑ";
     }
 
     if (step === 2) {
-      if (!formData.area || Number(formData.area) <= 0) newErrors.area = "Ø§Ù„Ù…Ø³Ø§Ø­Ø© Ù…Ø·Ù„ÙˆØ¨Ø©";
-      if (!formData.bedrooms || Number(formData.bedrooms) < 0) newErrors.bedrooms = "Ø¹Ø¯Ø¯ Ø§Ù„ØºØ±Ù ØºÙŠØ± ØµØ­ÙŠØ­";
-      if (!formData.bathrooms || Number(formData.bathrooms) < 0) newErrors.bathrooms = "Ø¹Ø¯Ø¯ Ø§Ù„Ø­Ù…Ø§Ù…Ø§Øª ØºÙŠØ± ØµØ­ÙŠØ­";
+      if (!formData.area || Number(formData.area) <= 0) newErrors.area = "ÇáãÓÇÍÉ ãØáæÈÉ";
+      if (!formData.bedrooms || Number(formData.bedrooms) < 0) newErrors.bedrooms = "ÚÏÏ ÇáÛÑİ ÛíÑ ÕÍíÍ";
+      if (!formData.bathrooms || Number(formData.bathrooms) < 0) newErrors.bathrooms = "ÚÏÏ ÇáÍãÇãÇÊ ÛíÑ ÕÍíÍ";
     }
 
     if (step === 3) {
@@ -145,10 +145,10 @@ export default function AddAuctionPage() {
       const startDate = new Date(formData.startDate);
       const endDate = new Date(formData.endDate);
 
-      if (!formData.startDate) newErrors.startDate = "ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø¯Ø§ÙŠØ© Ù…Ø·Ù„ÙˆØ¨";
-      if (!formData.endDate) newErrors.endDate = "ØªØ§Ø±ÙŠØ® Ø§Ù„Ù†Ù‡Ø§ÙŠØ© Ù…Ø·Ù„ÙˆØ¨";
-      if (formData.startDate && startDate <= now) newErrors.startDate = "ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø¯Ø§ÙŠØ© ÙÙŠ Ø§Ù„Ù…Ø³ØªÙ‚Ø¨Ù„";
-      if (formData.startDate && formData.endDate && endDate <= startDate) newErrors.endDate = "ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† ØªØ§Ø±ÙŠØ® Ø§Ù„Ù†Ù‡Ø§ÙŠØ© Ø¨Ø¹Ø¯ ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø¯Ø§ÙŠØ©";
+      if (!formData.startDate) newErrors.startDate = "ÊÇÑíÎ ÇáÈÏÇíÉ ãØáæÈ";
+      if (!formData.endDate) newErrors.endDate = "ÊÇÑíÎ ÇáäåÇíÉ ãØáæÈ";
+      if (formData.startDate && startDate <= now) newErrors.startDate = "íÌÈ Ãä íßæä ÊÇÑíÎ ÇáÈÏÇíÉ İí ÇáãÓÊŞÈá";
+      if (formData.startDate && formData.endDate && endDate <= startDate) newErrors.endDate = "íÌÈ Ãä íßæä ÊÇÑíÎ ÇáäåÇíÉ ÈÚÏ ÊÇÑíÎ ÇáÈÏÇíÉ";
     }
 
     setErrors(newErrors);
@@ -169,10 +169,10 @@ export default function AddAuctionPage() {
     setIsSubmitting(true);
 
     try {
-      // Ø¥Ø±Ø³Ø§Ù„ ÙØ¹Ù„ÙŠ Ø¥Ù„Ù‰ API Ø¹Ù†Ø¯ ØªÙˆÙØ±Ù‡
+      // ÅÑÓÇá İÚáí Åáì API ÚäÏ ÊæİÑå
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      console.log("Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø²Ø§Ø¯:", {
+      console.log("ÈíÇäÇÊ ÇáãÒÇÏ:", {
         ...formData,
         price: Number(formData.price),
         area: Number(formData.area),
@@ -182,11 +182,11 @@ export default function AddAuctionPage() {
         endTime: new Date(formData.endDate).getTime(),
       });
 
-      alert("ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ø²Ø§Ø¯ Ø¨Ù†Ø¬Ø§Ø­ ÙˆØ³ÙŠØªÙ… Ù…Ø±Ø§Ø¬Ø¹ØªÙ‡ Ù…Ù† Ù‚Ø¨Ù„ Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©");
+      alert("Êã ÅÖÇİÉ ÇáãÒÇÏ ÈäÌÇÍ æÓíÊã ãÑÇÌÚÊå ãä ŞÈá ÇáÅÏÇÑÉ");
       router.push("/auctions");
     } catch (error) {
-      console.error("ÙØ´Ù„ ÙÙŠ Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ø²Ø§Ø¯:", error);
-      alert("Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ø²Ø§Ø¯. ÙŠØ±Ø¬Ù‰ Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø© Ù…Ø±Ø© Ø£Ø®Ø±Ù‰.");
+
+      alert("ÍÏË ÎØÃ ÃËäÇÁ ÅÖÇİÉ ÇáãÒÇÏ. íÑÌì ÇáãÍÇæáÉ ãÑÉ ÃÎÑì.");
     } finally {
       setIsSubmitting(false);
     }
@@ -195,12 +195,12 @@ export default function AddAuctionPage() {
   if (session.role === "guest" || !hasFeature("CREATE_AUCTION", session)) {
     return (
       <main dir={dir} className={isDark ? "bg-gray-900 min-h-screen" : "bg-gray-50 min-h-screen"}>
-        <Head><title>Ø¥Ø¶Ø§ÙØ© Ù…Ø²Ø§Ø¯ | Ain Oman</title></Head>
+        <Head><title>ÅÖÇİÉ ãÒÇÏ | Ain Oman</title></Head>
         
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-500 mx-auto mb-6"></div>
-            <p className={`text-xl ${isDark ? "text-white" : "text-gray-800"}`}>Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ­Ù…ÙŠÙ„...</p>
+            <p className={`text-xl ${isDark ? "text-white" : "text-gray-800"}`}>ÌÇÑí ÇáÊÍãíá...</p>
           </div>
         </div>
         
@@ -211,7 +211,7 @@ export default function AddAuctionPage() {
   return (
     <main dir={dir} className={isDark ? "bg-gray-900 min-h-screen py-8" : "bg-gray-50 min-h-screen py-8"}>
       <Head>
-        <title>Ø¥Ø¶Ø§ÙØ© Ù…Ø²Ø§Ø¯ Ø¬Ø¯ÙŠØ¯ | Ain Oman</title>
+        <title>ÅÖÇİÉ ãÒÇÏ ÌÏíÏ | Ain Oman</title>
       </Head>
       
 
@@ -221,16 +221,16 @@ export default function AddAuctionPage() {
             onClick={() => router.back()}
             className={`p-2 rounded-full mr-4 ${isDark ? "bg-gray-700 text-white" : "bg-white text-gray-700"} shadow-md`}
           >
-            â†
+            ?
           </button>
-          <h1 className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-800"}`}>Ø¥Ø¶Ø§ÙØ© Ù…Ø²Ø§Ø¯ Ø¬Ø¯ÙŠØ¯</h1>
+          <h1 className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-800"}`}>ÅÖÇİÉ ãÒÇÏ ÌÏíÏ</h1>
         </div>
 
-        {/* Ø´Ø±ÙŠØ· Ø§Ù„ØªÙ‚Ø¯Ù… */}
+        {/* ÔÑíØ ÇáÊŞÏã */}
         <div className="mb-8">
           <div className="flex justify-between mb-2">
-            <span className="text-sm font-medium">Ø®Ø·ÙˆØ© {currentStep} Ù…Ù† 3</span>
-            <span className="text-sm font-medium">{Math.round((currentStep / 3) * 100)}% Ù…ÙƒØªÙ…Ù„</span>
+            <span className="text-sm font-medium">ÎØæÉ {currentStep} ãä 3</span>
+            <span className="text-sm font-medium">{Math.round((currentStep / 3) * 100)}% ãßÊãá</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div
@@ -243,11 +243,11 @@ export default function AddAuctionPage() {
         <form onSubmit={handleSubmit} className={`rounded-xl p-6 shadow-lg ${isDark ? "bg-gray-800" : "bg-white"}`}>
           {currentStep === 1 && (
             <div>
-              <h2 className={`text-xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ©</h2>
+              <h2 className={`text-xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>ÇáãÚáæãÇÊ ÇáÃÓÇÓíÉ</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                  <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Ù†ÙˆØ¹ Ø§Ù„Ø¹Ù‚Ø§Ø±</label>
+                  <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>äæÚ ÇáÚŞÇÑ</label>
                   <select
                     name="propertyType"
                     value={formData.propertyType}
@@ -262,68 +262,68 @@ export default function AddAuctionPage() {
                 </div>
 
                 <div>
-                  <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Ù†ÙˆØ¹ Ø§Ù„Ù…Ø²Ø§Ø¯</label>
+                  <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>äæÚ ÇáãÒÇÏ</label>
                   <select
                     name="auctionType"
                     value={formData.auctionType}
                     onChange={handleInputChange}
                     className={`w-full p-3 rounded-lg border ${isDark ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-800"} ${errors.auctionType ? "border-red-500" : ""}`}
                   >
-                    <option value="public">Ù…Ø²Ø§Ø¯ Ø¹Ù„Ù†ÙŠ</option>
-                    <option value="electronic">Ù…Ø²Ø§Ø¯ Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ</option>
+                    <option value="public">ãÒÇÏ Úáäí</option>
+                    <option value="electronic">ãÒÇÏ ÅáßÊÑæäí</option>
                   </select>
                   {errors.auctionType && <p className="text-red-500 text-sm mt-1">{errors.auctionType}</p>}
                 </div>
               </div>
 
               <div className="mb-6">
-                <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ø¹Ù‚Ø§Ø±</label>
+                <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>ÚäæÇä ÇáÚŞÇÑ</label>
                 <input
                   type="text"
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
                   className={`w-full p-3 rounded-lg border ${isDark ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-800"} ${errors.title ? "border-red-500" : ""}`}
-                  placeholder="Ø£Ø¯Ø®Ù„ Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ø¹Ù‚Ø§Ø±"
+                  placeholder="ÃÏÎá ÚäæÇä ÇáÚŞÇÑ"
                 />
                 {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
               </div>
 
               <div className="mb-6">
-                <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>ÙˆØµÙ Ø§Ù„Ø¹Ù‚Ø§Ø±</label>
+                <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>æÕİ ÇáÚŞÇÑ</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
                   rows={4}
                   className={`w-full p-3 rounded-lg border ${isDark ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-800"} ${errors.description ? "border-red-500" : ""}`}
-                  placeholder="Ø£Ø¯Ø®Ù„ ÙˆØµÙØ§Ù‹ Ù…ÙØµÙ„Ø§Ù‹ Ù„Ù„Ø¹Ù‚Ø§Ø±"
+                  placeholder="ÃÏÎá æÕİÇğ ãİÕáÇğ ááÚŞÇÑ"
                 ></textarea>
                 {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
               </div>
 
               <div className="mb-6">
-                <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Ø§Ù„Ù…ÙˆÙ‚Ø¹</label>
+                <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>ÇáãæŞÚ</label>
                 <input
                   type="text"
                   name="location"
                   value={formData.location}
                   onChange={handleInputChange}
                   className={`w-full p-3 rounded-lg border ${isDark ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-800"} ${errors.location ? "border-red-500" : ""}`}
-                  placeholder="Ø£Ø¯Ø®Ù„ Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ø¹Ù‚Ø§Ø±"
+                  placeholder="ÃÏÎá ãæŞÚ ÇáÚŞÇÑ"
                 />
                 {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
               </div>
 
               <div className="mb-6">
-                <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Ø§Ù„Ø³Ø¹Ø± Ø§Ù„Ø§Ø¨ØªØ¯Ø§Ø¦ÙŠ (Ø±.Ø¹)</label>
+                <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>ÇáÓÚÑ ÇáÇÈÊÏÇÆí (Ñ.Ú)</label>
                 <input
                   type="number"
                   name="price"
                   value={formData.price}
                   onChange={handleInputChange}
                   className={`w-full p-3 rounded-lg border ${isDark ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-800"} ${errors.price ? "border-red-500" : ""}`}
-                  placeholder="Ø£Ø¯Ø®Ù„ Ø§Ù„Ø³Ø¹Ø± Ø§Ù„Ø§Ø¨ØªØ¯Ø§Ø¦ÙŠ"
+                  placeholder="ÃÏÎá ÇáÓÚÑ ÇáÇÈÊÏÇÆí"
                   min="0"
                 />
                 {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
@@ -333,46 +333,46 @@ export default function AddAuctionPage() {
 
           {currentStep === 2 && (
             <div>
-              <h2 className={`text-xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>Ø§Ù„ØªÙØ§ØµÙŠÙ„ Ø§Ù„ÙÙ†ÙŠØ©</h2>
+              <h2 className={`text-xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>ÇáÊİÇÕíá ÇáİäíÉ</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div>
-                  <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Ø§Ù„Ù…Ø³Ø§Ø­Ø© (Ù…Â²)</label>
+                  <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>ÇáãÓÇÍÉ (ã²)</label>
                   <input
                     type="number"
                     name="area"
                     value={formData.area}
                     onChange={handleInputChange}
                     className={`w-full p-3 rounded-lg border ${isDark ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-800"} ${errors.area ? "border-red-500" : ""}`}
-                    placeholder="Ø§Ù„Ù…Ø³Ø§Ø­Ø© Ø¨Ø§Ù„Ù…ØªØ± Ø§Ù„Ù…Ø±Ø¨Ø¹"
+                    placeholder="ÇáãÓÇÍÉ ÈÇáãÊÑ ÇáãÑÈÚ"
                     min="0"
                   />
                   {errors.area && <p className="text-red-500 text-sm mt-1">{errors.area}</p>}
                 </div>
 
                 <div>
-                  <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Ø¹Ø¯Ø¯ Ø§Ù„ØºØ±Ù</label>
+                  <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>ÚÏÏ ÇáÛÑİ</label>
                   <input
                     type="number"
                     name="bedrooms"
                     value={formData.bedrooms}
                     onChange={handleInputChange}
                     className={`w-full p-3 rounded-lg border ${isDark ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-800"} ${errors.bedrooms ? "border-red-500" : ""}`}
-                    placeholder="Ø¹Ø¯Ø¯ Ø§Ù„ØºØ±Ù"
+                    placeholder="ÚÏÏ ÇáÛÑİ"
                     min="0"
                   />
                   {errors.bedrooms && <p className="text-red-500 text-sm mt-1">{errors.bedrooms}</p>}
                 </div>
 
                 <div>
-                  <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Ø¹Ø¯Ø¯ Ø§Ù„Ø­Ù…Ø§Ù…Ø§Øª</label>
+                  <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>ÚÏÏ ÇáÍãÇãÇÊ</label>
                   <input
                     type="number"
                     name="bathrooms"
                     value={formData.bathrooms}
                     onChange={handleInputChange}
                     className={`w-full p-3 rounded-lg border ${isDark ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-800"} ${errors.bathrooms ? "border-red-500" : ""}`}
-                    placeholder="Ø¹Ø¯Ø¯ Ø§Ù„Ø­Ù…Ø§Ù…Ø§Øª"
+                    placeholder="ÚÏÏ ÇáÍãÇãÇÊ"
                     min="0"
                   />
                   {errors.bathrooms && <p className="text-red-500 text-sm mt-1">{errors.bathrooms}</p>}
@@ -380,7 +380,7 @@ export default function AddAuctionPage() {
               </div>
 
               <div className="mb-6">
-                <label className={`block mb-4 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Ø§Ù„Ù…Ù…ÙŠØ²Ø§Øª</label>
+                <label className={`block mb-4 ${isDark ? "text-gray-300" : "text-gray-700"}`}>ÇáããíÒÇÊ</label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {availableFeatures.map(feature => (
                     <div key={feature} className="flex items-center">
@@ -400,11 +400,11 @@ export default function AddAuctionPage() {
               </div>
 
               <div className="mb-6">
-                <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Ø¥Ø¶Ø§ÙØ© ØµÙˆØ± (Ø±ÙˆØ§Ø¨Ø·)</label>
+                <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>ÅÖÇİÉ ÕæÑ (ÑæÇÈØ)</label>
                 <div className="flex gap-2 mb-3">
                   <input
                     type="text"
-                    placeholder="Ø£Ø¯Ø®Ù„ Ø±Ø§Ø¨Ø· Ø§Ù„ØµÙˆØ±Ø©"
+                    placeholder="ÃÏÎá ÑÇÈØ ÇáÕæÑÉ"
                     className={`flex-1 p-3 rounded-lg border ${isDark ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-800"}`}
                     onKeyPress={(e) => {
                       if (e.key === 'Enter') {
@@ -418,14 +418,14 @@ export default function AddAuctionPage() {
                     type="button"
                     className="bg-teal-600 text-white px-4 py-2 rounded-lg"
                     onClick={() => {
-                      const input = document.querySelector('input[placeholder="Ø£Ø¯Ø®Ù„ Ø±Ø§Ø¨Ø· Ø§Ù„ØµÙˆØ±Ø©"]') as HTMLInputElement;
+                      const input = document.querySelector('input[placeholder="ÃÏÎá ÑÇÈØ ÇáÕæÑÉ"]') as HTMLInputElement;
                       if (input && input.value) {
                         handleImageAdd(input.value);
                         input.value = '';
                       }
                     }}
                   >
-                    Ø¥Ø¶Ø§ÙØ©
+                    ÅÖÇİÉ
                   </button>
                 </div>
 
@@ -433,7 +433,7 @@ export default function AddAuctionPage() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
                     {formData.images.map((image, index) => (
                       <div key={index} className="relative">
-                        <InstantImage src={image} alt={`Ø¹Ù‚Ø§Ø± ${index + 1}`} className="w-full h-24 object-cover rounded-lg"  loading="lazy" width={400} height={300}/>
+                        <InstantImage src={image} alt={`ÚŞÇÑ ${index + 1}`} className="w-full h-24 object-cover rounded-lg"  loading="lazy" width={400} height={300}/>
                         <button
                           type="button"
                           className="absolute top-1 left-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
@@ -444,7 +444,7 @@ export default function AddAuctionPage() {
                             }));
                           }}
                         >
-                          Ã—
+                          ×
                         </button>
                       </div>
                     ))}
@@ -456,11 +456,11 @@ export default function AddAuctionPage() {
 
           {currentStep === 3 && (
             <div>
-              <h2 className={`text-xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>Ù…ÙˆØ§Ø¹ÙŠØ¯ Ø§Ù„Ù…Ø²Ø§Ø¯</h2>
+              <h2 className={`text-xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-800"}`}>ãæÇÚíÏ ÇáãÒÇÏ</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                  <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>ØªØ§Ø±ÙŠØ® ÙˆÙˆÙ‚Øª Ø§Ù„Ø¨Ø¯Ø§ÙŠØ©</label>
+                  <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>ÊÇÑíÎ ææŞÊ ÇáÈÏÇíÉ</label>
                   <input
                     type="datetime-local"
                     name="startDate"
@@ -472,7 +472,7 @@ export default function AddAuctionPage() {
                 </div>
 
                 <div>
-                  <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>ØªØ§Ø±ÙŠØ® ÙˆÙˆÙ‚Øª Ø§Ù„Ù†Ù‡Ø§ÙŠØ©</label>
+                  <label className={`block mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>ÊÇÑíÎ ææŞÊ ÇáäåÇíÉ</label>
                   <input
                     type="datetime-local"
                     name="endDate"
@@ -485,25 +485,25 @@ export default function AddAuctionPage() {
               </div>
 
               <div className={`p-4 rounded-lg mb-6 ${isDark ? "bg-gray-700" : "bg-gray-100"}`}>
-                <h3 className={`font-bold mb-2 ${isDark ? "text-white" : "text-gray-800"}`}>Ù…Ù„Ø®Øµ Ø§Ù„Ù…Ø²Ø§Ø¯</h3>
+                <h3 className={`font-bold mb-2 ${isDark ? "text-white" : "text-gray-800"}`}>ãáÎÕ ÇáãÒÇÏ</h3>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className={isDark ? "text-gray-300" : "text-gray-600"}>Ø§Ù„Ø¹Ù†ÙˆØ§Ù†:</div>
-                  <div className={isDark ? "text-white" : "text-gray-800"}>{formData.title || "ØºÙŠØ± Ù…Ø­Ø¯Ø¯"}</div>
+                  <div className={isDark ? "text-gray-300" : "text-gray-600"}>ÇáÚäæÇä:</div>
+                  <div className={isDark ? "text-white" : "text-gray-800"}>{formData.title || "ÛíÑ ãÍÏÏ"}</div>
 
-                  <div className={isDark ? "text-gray-300" : "text-gray-600"}>Ø§Ù„Ø³Ø¹Ø±:</div>
-                  <div className={isDark ? "text-white" : "text-gray-800"}>{formData.price ? `${formData.price} Ø±.Ø¹` : "ØºÙŠØ± Ù…Ø­Ø¯Ø¯"}</div>
+                  <div className={isDark ? "text-gray-300" : "text-gray-600"}>ÇáÓÚÑ:</div>
+                  <div className={isDark ? "text-white" : "text-gray-800"}>{formData.price ? `${formData.price} Ñ.Ú` : "ÛíÑ ãÍÏÏ"}</div>
 
-                  <div className={isDark ? "text-gray-300" : "text-gray-600"}>Ø§Ù„Ù…Ø³Ø§Ø­Ø©:</div>
-                  <div className={isDark ? "text-white" : "text-gray-800"}>{formData.area ? `${formData.area} Ù…Â²` : "ØºÙŠØ± Ù…Ø­Ø¯Ø¯"}</div>
+                  <div className={isDark ? "text-gray-300" : "text-gray-600"}>ÇáãÓÇÍÉ:</div>
+                  <div className={isDark ? "text-white" : "text-gray-800"}>{formData.area ? `${formData.area} ã²` : "ÛíÑ ãÍÏÏ"}</div>
 
-                  <div className={isDark ? "text-gray-300" : "text-gray-600"}>Ø§Ù„ØºØ±Ù:</div>
-                  <div className={isDark ? "text-white" : "text-gray-800"}>{formData.bedrooms || "ØºÙŠØ± Ù…Ø­Ø¯Ø¯"}</div>
+                  <div className={isDark ? "text-gray-300" : "text-gray-600"}>ÇáÛÑİ:</div>
+                  <div className={isDark ? "text-white" : "text-gray-800"}>{formData.bedrooms || "ÛíÑ ãÍÏÏ"}</div>
 
-                  <div className={isDark ? "text-gray-300" : "text-gray-600"}>Ù…Ø¯Ø© Ø§Ù„Ù…Ø²Ø§Ø¯:</div>
+                  <div className={isDark ? "text-gray-300" : "text-gray-600"}>ãÏÉ ÇáãÒÇÏ:</div>
                   <div className={isDark ? "text-white" : "text-gray-800"}>
                     {formData.startDate && formData.endDate
                       ? `${new Date(formData.startDate).toLocaleString('ar', { calendar: 'gregory', numberingSystem: 'latn' })} - ${new Date(formData.endDate).toLocaleString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}`
-                      : "ØºÙŠØ± Ù…Ø­Ø¯Ø¯"
+                      : "ÛíÑ ãÍÏÏ"
                     }
                   </div>
                 </div>
@@ -518,7 +518,7 @@ export default function AddAuctionPage() {
                     required
                   />
                   <label htmlFor="terms" className="mr-2 text-sm font-medium">
-                    Ø£ÙˆØ§ÙÙ‚ Ø¹Ù„Ù‰ Ø§Ù„Ø´Ø±ÙˆØ· ÙˆØ§Ù„Ø£Ø­ÙƒØ§Ù… ÙˆØ£ØªØ­Ù…Ù„ Ø§Ù„Ù…Ø³Ø¤ÙˆÙ„ÙŠØ© Ø§Ù„ÙƒØ§Ù…Ù„Ø© Ø¹Ù† ØµØ­Ø© Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù…Ù‚Ø¯Ù…Ø©
+                    ÃæÇİŞ Úáì ÇáÔÑæØ æÇáÃÍßÇã æÃÊÍãá ÇáãÓÄæáíÉ ÇáßÇãáÉ Úä ÕÍÉ ÇáãÚáæãÇÊ ÇáãŞÏãÉ
                   </label>
                 </div>
               </div>
@@ -532,7 +532,7 @@ export default function AddAuctionPage() {
                 onClick={prevStep}
                 className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600"
               >
-                Ø§Ù„Ø³Ø§Ø¨Ù‚
+                ÇáÓÇÈŞ
               </button>
             ) : (
               <div></div>
@@ -544,7 +544,7 @@ export default function AddAuctionPage() {
                 onClick={nextStep}
                 className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700"
               >
-                Ø§Ù„ØªØ§Ù„ÙŠ
+                ÇáÊÇáí
               </button>
             ) : (
               <button
@@ -552,19 +552,19 @@ export default function AddAuctionPage() {
                 disabled={isSubmitting}
                 className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 disabled:opacity-50"
               >
-                {isSubmitting ? "Ø¬Ø§Ø±ÙŠ Ø§Ù„Ø¥Ø¶Ø§ÙØ©..." : "Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ø²Ø§Ø¯"}
+                {isSubmitting ? "ÌÇÑí ÇáÅÖÇİÉ..." : "ÅÖÇİÉ ÇáãÒÇÏ"}
               </button>
             )}
           </div>
         </form>
 
         <div className={`mt-6 rounded-xl p-6 ${isDark ? "bg-gray-800 text-gray-300" : "bg-white text-gray-600"} shadow-lg`}>
-          <h3 className="font-bold mb-2">Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ù…Ù‡Ù…Ø©:</h3>
+          <h3 className="font-bold mb-2">ãáÇÍÙÇÊ ãåãÉ:</h3>
           <ul className="list-disc pr-5 space-y-2 text-sm">
-            <li>Ø³ÙŠØªÙ… Ù…Ø±Ø§Ø¬Ø¹Ø© Ø§Ù„Ù…Ø²Ø§Ø¯ Ù…Ù† Ù‚Ø¨Ù„ Ø§Ù„Ø¥Ø¯Ø§Ø±Ø© Ù‚Ø¨Ù„ Ù†Ø´Ø±Ù‡</li>
-            <li>ØªØ£ÙƒØ¯ Ù…Ù† ØµØ­Ø© Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù…Ù‚Ø¯Ù…Ø©</li>
-            <li>ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† Ø§Ù„ØµÙˆØ± Ø­Ù‚ÙŠÙ‚ÙŠØ© ÙˆÙˆØ§Ø¶Ø­Ø© Ù„Ù„Ø¹Ù‚Ø§Ø±</li>
-            <li>Ø³ÙŠØªÙ… Ø®ØµÙ… Ø±Ø³ÙˆÙ… Ø¥Ø¯Ø±Ø§Ø¬ Ø§Ù„Ù…Ø²Ø§Ø¯ Ù…Ù† Ø±ØµÙŠØ¯Ùƒ Ø¨Ø¹Ø¯ Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„ÙŠÙ‡</li>
+            <li>ÓíÊã ãÑÇÌÚÉ ÇáãÒÇÏ ãä ŞÈá ÇáÅÏÇÑÉ ŞÈá äÔÑå</li>
+            <li>ÊÃßÏ ãä ÕÍÉ ÌãíÚ ÇáãÚáæãÇÊ ÇáãŞÏãÉ</li>
+            <li>íÌÈ Ãä Êßæä ÇáÕæÑ ÍŞíŞíÉ ææÇÖÍÉ ááÚŞÇÑ</li>
+            <li>ÓíÊã ÎÕã ÑÓæã ÅÏÑÇÌ ÇáãÒÇÏ ãä ÑÕíÏß ÈÚÏ ÇáãæÇİŞÉ Úáíå</li>
           </ul>
         </div>
       </div>

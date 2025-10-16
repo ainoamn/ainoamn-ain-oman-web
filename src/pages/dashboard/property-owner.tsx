@@ -30,7 +30,7 @@ export default function PropertyOwnerDashboard() {
           setProperties(Array.isArray(propertiesData) ? propertiesData : []);
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+
       } finally {
         setLoading(false);
       }

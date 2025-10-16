@@ -33,7 +33,7 @@ export default function SubscriptionsPage() {
 
     // الاستماع للتغييرات من صفحة الإدارة
     const handleStorageChange = () => {
-      console.log('🔄 اكتشاف تغيير في البيانات، إعادة التحميل...');
+
       loadData();
     };
 
@@ -58,10 +58,10 @@ export default function SubscriptionsPage() {
           const customPlans = JSON.parse(customPlansStr);
           if (Array.isArray(customPlans) && customPlans.length > 0) {
             loadedPlans = customPlans;
-            console.log('✅ تم تحميل الباقات من localStorage:', loadedPlans.length);
+
           }
         } catch (e) {
-          console.error('خطأ في قراءة الباقات:', e);
+
         }
       }
 
@@ -73,14 +73,14 @@ export default function SubscriptionsPage() {
           loadedFeatures = customFeatures;
           console.log('✅ تم تحميل الصلاحيات من localStorage:', Object.keys(loadedFeatures).length);
         } catch (e) {
-          console.error('خطأ في قراءة الصلاحيات:', e);
+
         }
       }
 
       // 3. إذا لم توجد باقات، استخدم الافتراضية
       if (loadedPlans.length === 0) {
         loadedPlans = [...SUBSCRIPTION_PLANS];
-        console.log('ℹ️ استخدام الباقات الافتراضية:', loadedPlans.length);
+
       }
 
       // 4. التأكد من وجود featuresAr و permissions
@@ -111,7 +111,7 @@ export default function SubscriptionsPage() {
         }
       }
     } catch (error) {
-      console.error('Error loading data:', error);
+
       setPlans([...SUBSCRIPTION_PLANS]);
     } finally {
       setLoading(false);

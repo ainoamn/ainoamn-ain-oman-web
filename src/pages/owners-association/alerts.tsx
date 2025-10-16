@@ -32,7 +32,7 @@ export default function AlertsPage() {
 
   const resolveAlert = (alertId: string) => {
     // في التطبيق الحقيقي، سنقوم بتحديث حالة التنبيه
-    console.log("Resolving alert:", alertId);
+
   };
 
   const getAlertIcon = (level: AlertLevel) => {

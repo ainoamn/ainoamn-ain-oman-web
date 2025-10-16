@@ -39,7 +39,7 @@ export default function PayablesPage() {
 
       setPayables([]); // تم استبدال mockPayables ببيانات فارغة
     } catch (error) {
-      console.error('Error fetching payables:', error);
+
     } finally {
       setLoading(false);
     }

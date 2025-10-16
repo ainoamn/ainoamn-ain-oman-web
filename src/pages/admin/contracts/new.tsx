@@ -1,4 +1,4 @@
-ï»¿// src/pages/admin/contracts/new.tsx
+// src/pages/admin/contracts/new.tsx
 import Head from "next/head";
 import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState } from "react";
@@ -31,7 +31,7 @@ export default function AdminNewContractPage(){
       const pjs = pr.ok? await pr.json():{items:[]};
       setTemplates(Array.isArray(tjs.items)?tjs.items:[]);
       setProperties(Array.isArray(pjs.items)?pjs.items:[]);
-    }catch{ setErr("ØªØ¹Ø°Ù‘Ø± Ø¬Ù„Ø¨ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª"); } finally{ setLoading(false); }
+    }catch{ setErr("ÊÚĞøÑ ÌáÈ ÇáÈíÇäÇÊ"); } finally{ setLoading(false); }
   })(); },[]);
 
   const selectedTemplate = useMemo(()=> templates.find(t=>t.id===templateId) || null, [templates, templateId]);
@@ -39,8 +39,8 @@ export default function AdminNewContractPage(){
   function onFieldChange(k:string,v:string){ setFields(s=>({ ...s, [k]: v })); }
 
   async function submit(){
-    if(!templateId) return alert("Ø§Ø®ØªØ± Ù‚Ø§Ù„Ø¨Ø§Ù‹");
-    if(scope==="per-unit" && !propertyId) return alert("Ø§Ø®ØªØ± ÙˆØ­Ø¯Ø©");
+    if(!templateId) return alert("ÇÎÊÑ ŞÇáÈÇğ");
+    if(scope==="per-unit" && !propertyId) return alert("ÇÎÊÑ æÍÏÉ");
     const body = {
       templateId, scope, propertyId: scope==="per-unit"? propertyId : undefined,
       fields,
@@ -52,60 +52,60 @@ export default function AdminNewContractPage(){
     const r = await fetch("/api/contracts",{ method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify(body) });
     const d = await r.json();
     if(r.ok && d?.item?.id){ window.location.href = `/admin/contracts/${encodeURIComponent(d.item.id)}`; }
-    else alert(d?.error || "ÙØ´Ù„ Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø¹Ù‚Ø¯");
+    else alert(d?.error || "İÔá ÅäÔÇÁ ÇáÚŞÏ");
   }
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Head><title>Ø¹Ù‚Ø¯ Ø¬Ø¯ÙŠØ¯</title></Head>
+      <Head><title>ÚŞÏ ÌÏíÏ</title></Head>
       
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Ø¥Ù†Ø´Ø§Ø¡ Ø¹Ù‚Ø¯</h1>
-          <InstantLink href="/admin/contracts" className="btn">Ø±Ø¬ÙˆØ¹</InstantLink>
+          <h1 className="text-xl font-semibold">ÅäÔÇÁ ÚŞÏ</h1>
+          <InstantLink href="/admin/contracts" className="btn">ÑÌæÚ</InstantLink>
         </div>
 
-        {loading? <div>Ø¬Ø§Ø±Ù Ø§Ù„ØªØ­Ù…ÙŠÙ„â€¦</div> : err? <div className="text-red-600">{err}</div> : (
+        {loading? <div>ÌÇÑò ÇáÊÍãíá…</div> : err? <div className="text-red-600">{err}</div> : (
           <div className="grid lg:grid-cols-3 gap-4">
             <section className="lg:col-span-2 border rounded-2xl p-3 space-y-3">
               <div className="grid sm:grid-cols-2 gap-2">
                 <select className="form-input" value={templateId} onChange={e=>setTemplateId(e.target.value)}>
-                  <option value="">Ø§Ø®ØªØ± Ø§Ù„Ù‚Ø§Ù„Ø¨</option>
-                  {templates.map(t=><option key={t.id} value={t.id}>{t.name} ({t.scope==="unified"?"Ù…ÙˆØ­Ù‘Ø¯":"Ù„Ù„ÙˆØ­Ø¯Ø©"})</option>)}
+                  <option value="">ÇÎÊÑ ÇáŞÇáÈ</option>
+                  {templates.map(t=><option key={t.id} value={t.id}>{t.name} ({t.scope==="unified"?"ãæÍøÏ":"ááæÍÏÉ"})</option>)}
                 </select>
                 <select className="form-input" value={scope} onChange={e=>setScope(e.target.value as any)}>
-                  <option value="per-unit">Ù…Ø®ØµØµ Ù„ÙˆØ­Ø¯Ø©</option>
-                  <option value="unified">Ù…ÙˆØ­Ù‘Ø¯ Ù„ÙƒÙ„ Ø§Ù„ÙˆØ­Ø¯Ø§Øª</option>
+                  <option value="per-unit">ãÎÕÕ áæÍÏÉ</option>
+                  <option value="unified">ãæÍøÏ áßá ÇáæÍÏÇÊ</option>
                 </select>
               </div>
 
               {scope==="per-unit" && (
                 <select className="form-input" value={propertyId} onChange={e=>setPropertyId(e.target.value)}>
-                  <option value="">Ø§Ø®ØªØ± Ø§Ù„ÙˆØ­Ø¯Ø©</option>
-                  {properties.map(p=><option key={p.id} value={String(p.id)}>{p.referenceNo || p.id} â€” {tTitle(p.title)}</option>)}
+                  <option value="">ÇÎÊÑ ÇáæÍÏÉ</option>
+                  {properties.map(p=><option key={p.id} value={String(p.id)}>{p.referenceNo || p.id} — {tTitle(p.title)}</option>)}
                 </select>
               )}
 
               <div className="grid sm:grid-cols-3 gap-2">
-                <input className="form-input" placeholder="Ø§Ø³Ù… Ø§Ù„Ù…Ø§Ù„Ùƒ" value={ownerName} onChange={e=>setOwnerName(e.target.value)} />
-                <input className="form-input" placeholder="Ù‡Ø§ØªÙ Ø§Ù„Ù…Ø§Ù„Ùƒ" value={ownerPhone} onChange={e=>setOwnerPhone(e.target.value)} />
-                <input className="form-input" placeholder="Ø¨Ø±ÙŠØ¯ Ø§Ù„Ù…Ø§Ù„Ùƒ" value={ownerEmail} onChange={e=>setOwnerEmail(e.target.value)} />
+                <input className="form-input" placeholder="ÇÓã ÇáãÇáß" value={ownerName} onChange={e=>setOwnerName(e.target.value)} />
+                <input className="form-input" placeholder="åÇÊİ ÇáãÇáß" value={ownerPhone} onChange={e=>setOwnerPhone(e.target.value)} />
+                <input className="form-input" placeholder="ÈÑíÏ ÇáãÇáß" value={ownerEmail} onChange={e=>setOwnerEmail(e.target.value)} />
               </div>
               <div className="grid sm:grid-cols-3 gap-2">
-                <input className="form-input" placeholder="Ø§Ø³Ù… Ø§Ù„Ù…Ø³ØªØ£Ø¬Ø±" value={tenantName} onChange={e=>setTenantName(e.target.value)} />
-                <input className="form-input" placeholder="Ù‡Ø§ØªÙ Ø§Ù„Ù…Ø³ØªØ£Ø¬Ø±" value={tenantPhone} onChange={e=>setTenantPhone(e.target.value)} />
-                <input className="form-input" placeholder="Ø¨Ø±ÙŠØ¯ Ø§Ù„Ù…Ø³ØªØ£Ø¬Ø±" value={tenantEmail} onChange={e=>setTenantEmail(e.target.value)} />
+                <input className="form-input" placeholder="ÇÓã ÇáãÓÊÃÌÑ" value={tenantName} onChange={e=>setTenantName(e.target.value)} />
+                <input className="form-input" placeholder="åÇÊİ ÇáãÓÊÃÌÑ" value={tenantPhone} onChange={e=>setTenantPhone(e.target.value)} />
+                <input className="form-input" placeholder="ÈÑíÏ ÇáãÓÊÃÌÑ" value={tenantEmail} onChange={e=>setTenantEmail(e.target.value)} />
               </div>
 
               <div className="grid sm:grid-cols-3 gap-2">
-                <input className="form-input" type="date" placeholder="Ø¨Ø¯Ø§ÙŠØ© Ø§Ù„Ø¹Ù‚Ø¯" value={startDate} onChange={e=>setStartDate(e.target.value)} />
-                <input className="form-input" type="number" placeholder="Ø§Ù„Ù…Ø¯Ø© Ø¨Ø§Ù„Ø£Ø´Ù‡Ø±" value={duration} onChange={e=>setDuration(e.target.value?Number(e.target.value):"")} />
-                <input className="form-input" type="number" placeholder="Ø§Ù„Ù‚ÙŠÙ…Ø© Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠØ©" value={amount} onChange={e=>setAmount(e.target.value?Number(e.target.value):"")} />
+                <input className="form-input" type="date" placeholder="ÈÏÇíÉ ÇáÚŞÏ" value={startDate} onChange={e=>setStartDate(e.target.value)} />
+                <input className="form-input" type="number" placeholder="ÇáãÏÉ ÈÇáÃÔåÑ" value={duration} onChange={e=>setDuration(e.target.value?Number(e.target.value):"")} />
+                <input className="form-input" type="number" placeholder="ÇáŞíãÉ ÇáÅÌãÇáíÉ" value={amount} onChange={e=>setAmount(e.target.value?Number(e.target.value):"")} />
               </div>
 
               {selectedTemplate && (
                 <div className="space-y-2">
-                  <div className="font-semibold">Ø­Ù‚ÙˆÙ„ Ø§Ù„Ù‚Ø§Ù„Ø¨</div>
+                  <div className="font-semibold">ÍŞæá ÇáŞÇáÈ</div>
                   <div className="grid sm:grid-cols-2 gap-2">
                     {selectedTemplate.fields.map(f=>(
                       <input key={f.key} className="form-input" required={!!f.required}
@@ -116,17 +116,17 @@ export default function AdminNewContractPage(){
                 </div>
               )}
 
-              <button className="btn btn-primary" onClick={submit}>Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø¹Ù‚Ø¯</button>
+              <button className="btn btn-primary" onClick={submit}>ÅäÔÇÁ ÇáÚŞÏ</button>
             </section>
 
             <section className="border rounded-2xl p-3 space-y-2">
-              <div className="font-semibold">Ù…Ø¹Ø§ÙŠÙ†Ø© Ø³Ø±ÙŠØ¹Ø©</div>
+              <div className="font-semibold">ãÚÇíäÉ ÓÑíÚÉ</div>
               {selectedTemplate ? (
                 <>
                   <Preview lang="ar" body={selectedTemplate.bodyAr} fields={fields} />
                   <Preview lang="en" body={selectedTemplate.bodyEn} fields={fields} />
                 </>
-              ) : <div className="text-sm text-gray-600">Ø§Ø®ØªØ± Ù‚Ø§Ù„Ø¨Ù‹Ø§ Ù„Ø¹Ø±Ø¶ Ø§Ù„Ù…Ø¹Ø§ÙŠÙ†Ø©.</div>}
+              ) : <div className="text-sm text-gray-600">ÇÎÊÑ ŞÇáÈğÇ áÚÑÖ ÇáãÚÇíäÉ.</div>}
             </section>
           </div>
         )}
@@ -147,7 +147,7 @@ function Preview({lang, body, fields}:{lang:"ar"|"en"; body:string; fields:Recor
   },[body,fields]);
   return (
     <div className="border rounded-lg p-2 bg-gray-50">
-      <div className="text-xs text-gray-500">{lang==="ar"?"Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©":"English"}</div>
+      <div className="text-xs text-gray-500">{lang==="ar"?"ÇáÚÑÈíÉ":"English"}</div>
       <div className="text-sm whitespace-pre-wrap">{html}</div>
     </div>
   );

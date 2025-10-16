@@ -1,4 +1,4 @@
-๏ปฟimport React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -21,7 +21,7 @@ import {
   FaBox, FaFire, FaCopy
 } from 'react-icons/fa';
 
-// ุงููุงุฌูุงุช
+// วแๆวฬๅวส
 interface PropertyFormData {
   // Basic Information
   titleAr: string;
@@ -108,123 +108,123 @@ interface UnitData {
   deposit: string;
 }
 
-// ุงูุซูุงุจุช
+// วแหๆวศส
 const PROPERTY_TYPES = [
-  { value: 'apartment', label: 'ุดูุฉ' },
-  { value: 'villa', label: 'ูููุง' },
-  { value: 'house', label: 'ู…ูุฒู' },
-  { value: 'office', label: 'ู…ูุชุจ' },
-  { value: 'shop', label: 'ู…ุญู' },
-  { value: 'warehouse', label: 'ู…ุณุชูุฏุน' },
-  { value: 'land', label: 'ุฃุฑุถ' },
-  { value: 'building', label: 'ู…ุจูู' }
+  { value: 'apartment', label: 'ิÞษ' },
+  { value: 'villa', label: 'Ýํแว' },
+  { value: 'house', label: 'ใไาแ' },
+  { value: 'office', label: 'ใ฿สศ' },
+  { value: 'shop', label: 'ใอแ' },
+  { value: 'warehouse', label: 'ใำสๆฯฺ' },
+  { value: 'land', label: 'รัึ' },
+  { value: 'building', label: 'ใศไ์' }
 ];
 
 const USAGE_TYPES = [
-  { value: 'residential', label: 'ุณููู' },
-  { value: 'commercial', label: 'ุชุฌุงุฑู' },
-  { value: 'mixed', label: 'ู…ุฎุชูุท' },
-  { value: 'industrial', label: 'ุตูุงุนู' },
-  { value: 'tourism', label: 'ุณูุงุญู' },
-  { value: 'agricultural', label: 'ุฒุฑุงุนู' }
+  { value: 'residential', label: 'ำ฿ไํ' },
+  { value: 'commercial', label: 'สฬวัํ' },
+  { value: 'mixed', label: 'ใฮสแุ' },
+  { value: 'industrial', label: 'ีไวฺํ' },
+  { value: 'tourism', label: 'ำํวอํ' },
+  { value: 'agricultural', label: 'าัวฺํ' }
 ];
 
 const PURPOSES = [
-  { value: 'sale', label: 'ููุจูุน' },
-  { value: 'rent', label: 'ููุฅูุฌุงุฑ' },
-  { value: 'investment', label: 'ููุงุณุชุซู…ุงุฑ' }
+  { value: 'sale', label: 'แแศํฺ' },
+  { value: 'rent', label: 'แแลํฬวั' },
+  { value: 'investment', label: 'แแวำสหใวั' }
 ];
 
 const BUILDING_AGES = [
-  { value: 'under-construction', label: 'ููุฏ ุงูุฅูุดุงุก' },
-  { value: 'new', label: 'ุฌุฏูุฏ (0-2 ุณูุฉ)' },
-  { value: 'modern', label: 'ุญุฏูุซ (3-10 ุณููุงุช)' },
-  { value: 'old', label: 'ูุฏูู… (10+ ุณููุงุช)' }
+  { value: 'under-construction', label: 'Þํฯ วแลไิวม' },
+  { value: 'new', label: 'ฬฯํฯ (0-2 ำไษ)' },
+  { value: 'modern', label: 'อฯํห (3-10 ำไๆวส)' },
+  { value: 'old', label: 'Þฯํใ (10+ ำไๆวส)' }
 ];
 
 const PAYMENT_METHODS = [
-  { value: 'cash', label: 'ููุฏุงู' },
-  { value: 'checks', label: 'ุดููุงุช' },
-  { value: 'bank-transfer', label: 'ุชุญููู ุจููู' },
-  { value: 'electronic', label: 'ุฏูุน ุฅููุชุฑููู' }
+  { value: 'cash', label: 'ไÞฯว๐' },
+  { value: 'checks', label: 'ิํ฿วส' },
+  { value: 'bank-transfer', label: 'สอๆํแ ศไ฿ํ' },
+  { value: 'electronic', label: 'ฯÝฺ ลแ฿สัๆไํ' }
 ];
 
-const PROVINCES = ['ู…ุณูุท', 'ุธูุงุฑ', 'ุงูุจุงุทูุฉ', 'ุงูุธุงูุฑุฉ', 'ุงูุฏุงุฎููุฉ', 'ุงูุดุฑููุฉ', 'ุงููุณุทู'];
+const PROVINCES = ['ใำÞุ', 'ูÝวั', 'วแศวุไษ', 'วแูวๅัษ', 'วแฯวฮแํษ', 'วแิัÞํษ', 'วแๆำุ์'];
 
 const PROVINCE_STATES: { [key: string]: string[] } = {
-  'ู…ุณูุท': ['ู…ุณูุท', 'ู…ุทุฑุญ', 'ุงูุณูุจ', 'ูุฑูุงุช', 'ุงูุนุงู…ุฑุงุช'],
-  'ุธูุงุฑ': ['ุตูุงูุฉ', 'ุทุงูุฉ', 'ู…ุฑุจุงุท', 'ุถูููุช', 'ู…ูุดู'],
-  'ุงูุจุงุทูุฉ': ['ุตุญุงุฑ', 'ุงูุฑุณุชุงู', 'ุดูุงุต', 'ููู', 'ุงูุณููู'],
-  'ุงูุธุงูุฑุฉ': ['ุนุจุฑู', 'ูููู', 'ุถูู', 'ุงูุจุฑูู…ู'],
-  'ุงูุฏุงุฎููุฉ': ['ูุฒูู', 'ุจููุงุก', 'ู…ูุญ', 'ุงูุญู…ุฑุงุก', 'ุฃุฏู…'],
-  'ุงูุดุฑููุฉ': ['ุตูุฑ', 'ุฅุจุฑุงุก', 'ุงูู…ุถูุจู', 'ุจุฏูุฉ', 'ูุงุฏู ุจูู ุฎุงูุฏ'],
-  'ุงููุณุทู': ['ููู…ุง', 'ู…ุญูุช', 'ุงูุฏูู…', 'ุงูุฌุงุฒุฑ']
+  'ใำÞุ': ['ใำÞุ', 'ใุัอ', 'วแำํศ', 'Þัํวส', 'วแฺวใัวส'],
+  'ูÝวั': ['ีแวแษ', 'ุวÞษ', 'ใัศวุ', 'ึแ฿ๆส', 'ใÞิไ'],
+  'วแศวุไษ': ['ีอวั', 'วแัำสวÞ', 'ิไวี', 'แๆ์', 'วแำๆํÞ'],
+  'วแูวๅัษ': ['ฺศัํ', 'ํไÞแ', 'ึไ฿', 'วแศัํใํ'],
+  'วแฯวฮแํษ': ['ไาๆ์', 'ศๅแวม', 'ใไอ', 'วแอใัวม', 'รฯใ'],
+  'วแิัÞํษ': ['ีๆั', 'ลศัวม', 'วแใึํศํ', 'ศฯํษ', 'ๆวฯํ ศไํ ฮวแฯ'],
+  'วแๆำุ์': ['ๅํใว', 'ใอๆส', 'วแฯÞใ', 'วแฬวาั']
 };
 
 const STATE_CITIES: { [key: string]: string[] } = {
-  'ู…ุณูุท': ['ุงูุฎููุฑ', 'ุงูุบุจุฑุฉ', 'ุงููุทูุฉ', 'ุงูุฑูุถุฉ', 'ุงูุบุจุฑุฉ ุงูุฌููุจูุฉ'],
-  'ู…ุทุฑุญ': ['ู…ุทุฑุญ', 'ุงููุทูุฉ', 'ุงูุบุจุฑุฉ', 'ุงูุฎููุฑ'],
-  'ุตูุงูุฉ': ['ุงูุญุงูุฉ', 'ุงูููุถุฉ', 'ุงูุณูุงู…ุฉ', 'ุงูุบุจุฑุฉ'],
-  'ุตุญุงุฑ': ['ุงูุฎุงุจูุฑุฉ', 'ุงูุฑุณุชุงู', 'ุดูุงุต', 'ููู']
+  'ใำÞุ': ['วแฮๆํั', 'วแÛศัษ', 'วแๆุํษ', 'วแัๆึษ', 'วแÛศัษ วแฬไๆศํษ'],
+  'ใุัอ': ['ใุัอ', 'วแๆุํษ', 'วแÛศัษ', 'วแฮๆํั'],
+  'ีแวแษ': ['วแอวÝษ', 'วแไๅึษ', 'วแำแวใษ', 'วแÛศัษ'],
+  'ีอวั': ['วแฮวศๆัษ', 'วแัำสวÞ', 'ิไวี', 'แๆ์']
 };
 
 const AMENITIES = [
-  // ุงูู…ูุงุตูุงุช
-  { id: 'parking', label: 'ู…ููู ุณูุงุฑุงุช', icon: FaCar, category: 'transport' },
-  { id: 'elevator', label: 'ู…ุตุนุฏ', icon: FaBuilding, category: 'transport' },
-  { id: 'metro', label: 'ู…ุชุฑู', icon: FaSubway, category: 'transport' },
-  { id: 'bus', label: 'ุญุงููุงุช', icon: FaBus, category: 'transport' },
-  { id: 'taxi', label: 'ุชุงูุณู', icon: FaTaxi, category: 'transport' },
-  { id: 'airport', label: 'ู…ุทุงุฑ', icon: FaPlane, category: 'transport' },
+  // วแใๆวีแวส
+  { id: 'parking', label: 'ใๆÞÝ ำํวัวส', icon: FaCar, category: 'transport' },
+  { id: 'elevator', label: 'ใีฺฯ', icon: FaBuilding, category: 'transport' },
+  { id: 'metro', label: 'ใสัๆ', icon: FaSubway, category: 'transport' },
+  { id: 'bus', label: 'อวÝแวส', icon: FaBus, category: 'transport' },
+  { id: 'taxi', label: 'สว฿ำํ', icon: FaTaxi, category: 'transport' },
+  { id: 'airport', label: 'ใุวั', icon: FaPlane, category: 'transport' },
   
-  // ุงูู…ุฑุงูู ุงูุชุฑููููุฉ
-  { id: 'pool', label: 'ู…ุณุจุญ', icon: FaSwimmingPool, category: 'recreation' },
-  { id: 'gym', label: 'ุตุงูุฉ ุฑูุงุถูุฉ', icon: FaRunning, category: 'recreation' },
-  { id: 'tennis', label: 'ู…ูุนุจ ุชูุณ', icon: FaGamepad, category: 'recreation' },
-  { id: 'basketball', label: 'ู…ูุนุจ ูุฑุฉ ุณูุฉ', icon: FaGamepad, category: 'recreation' },
-  { id: 'football', label: 'ู…ูุนุจ ูุฑุฉ ูุฏู…', icon: FaGamepad, category: 'recreation' },
-  { id: 'garden', label: 'ุญุฏููุฉ', icon: FaTree, category: 'recreation' },
-  { id: 'balcony', label: 'ุดุฑูุฉ', icon: FaWindowMaximize, category: 'recreation' },
+  // วแใัวÝÞ วแสัÝํๅํษ
+  { id: 'pool', label: 'ใำศอ', icon: FaSwimmingPool, category: 'recreation' },
+  { id: 'gym', label: 'ีวแษ ัํวึํษ', icon: FaRunning, category: 'recreation' },
+  { id: 'tennis', label: 'ใแฺศ สไำ', icon: FaGamepad, category: 'recreation' },
+  { id: 'basketball', label: 'ใแฺศ ฿ัษ ำแษ', icon: FaGamepad, category: 'recreation' },
+  { id: 'football', label: 'ใแฺศ ฿ัษ Þฯใ', icon: FaGamepad, category: 'recreation' },
+  { id: 'garden', label: 'อฯํÞษ', icon: FaTree, category: 'recreation' },
+  { id: 'balcony', label: 'ิัÝษ', icon: FaWindowMaximize, category: 'recreation' },
   
-  // ุงูุชูููููุฌูุง
-  { id: 'wifi', label: 'ูุงู ูุงู', icon: FaWifi, category: 'technology' },
-  { id: 'tv', label: 'ุชููุฒููู', icon: FaTv, category: 'technology' },
-  { id: 'cctv', label: 'ูุงู…ูุฑุงุช ู…ุฑุงูุจุฉ', icon: FaVideo, category: 'technology' },
-  { id: 'smart-home', label: 'ู…ูุฒู ุฐูู', icon: FaCog, category: 'technology' },
+  // วแส฿ไๆแๆฬํว
+  { id: 'wifi', label: 'ๆวํ Ýวํ', icon: FaWifi, category: 'technology' },
+  { id: 'tv', label: 'สแÝาํๆไ', icon: FaTv, category: 'technology' },
+  { id: 'cctv', label: '฿วใํัวส ใัวÞศษ', icon: FaVideo, category: 'technology' },
+  { id: 'smart-home', label: 'ใไาแ ะ฿ํ', icon: FaCog, category: 'technology' },
   
-  // ุงูุฃู…ุงู
-  { id: 'security', label: 'ุฃู…ู', icon: FaShieldAlt, category: 'security' },
-  { id: 'fire-safety', label: 'ุฃู…ุงู ู…ู ุงูุญุฑุงุฆู', icon: FaFireExtinguisher, category: 'security' },
-  { id: 'lock', label: 'ุฃููุงู ุฃู…ููุฉ', icon: FaLock, category: 'security' },
-  { id: 'key-card', label: 'ุจุทุงูุฉ ู…ูุชุงุญ', icon: FaKey, category: 'security' },
+  // วแรใวไ
+  { id: 'security', label: 'รใไ', icon: FaShieldAlt, category: 'security' },
+  { id: 'fire-safety', label: 'รใวไ ใไ วแอัวฦÞ', icon: FaFireExtinguisher, category: 'security' },
+  { id: 'lock', label: 'รÞÝวแ รใไํษ', icon: FaLock, category: 'security' },
+  { id: 'key-card', label: 'ศุวÞษ ใÝสวอ', icon: FaKey, category: 'security' },
   
-  // ุงูุฎุฏู…ุงุช
-  { id: 'kitchen', label: 'ู…ุทุจุฎ', icon: FaUtensils, category: 'services' },
-  { id: 'shopping', label: 'ู…ุฑุงูุฒ ุชุณูู', icon: FaShoppingCart, category: 'services' },
-  { id: 'hospital', label: 'ู…ุณุชุดูู', icon: FaHospital, category: 'services' },
-  { id: 'school', label: 'ู…ุฏุฑุณุฉ', icon: FaGraduationCap, category: 'services' },
-  { id: 'pharmacy', label: 'ุตูุฏููุฉ', icon: FaHospital, category: 'services' },
+  // วแฮฯใวส
+  { id: 'kitchen', label: 'ใุศฮ', icon: FaUtensils, category: 'services' },
+  { id: 'shopping', label: 'ใัว฿า สำๆÞ', icon: FaShoppingCart, category: 'services' },
+  { id: 'hospital', label: 'ใำสิÝ์', icon: FaHospital, category: 'services' },
+  { id: 'school', label: 'ใฯัำษ', icon: FaGraduationCap, category: 'services' },
+  { id: 'pharmacy', label: 'ีํฯแํษ', icon: FaHospital, category: 'services' },
   
-  // ุงูุฑุงุญุฉ
-  { id: 'ac', label: 'ุชูููู', icon: FaSnowflake, category: 'comfort' },
-  { id: 'heating', label: 'ุชุฏูุฆุฉ', icon: FaSun, category: 'comfort' },
-  { id: 'furnished', label: 'ู…ูุฑูุด', icon: FaCouch, category: 'comfort' },
-  { id: 'balcony', label: 'ุดุฑูุฉ', icon: FaWindowMaximize, category: 'comfort' },
+  // วแัวอษ
+  { id: 'ac', label: 'ส฿ํํÝ', icon: FaSnowflake, category: 'comfort' },
+  { id: 'heating', label: 'สฯÝฦษ', icon: FaSun, category: 'comfort' },
+  { id: 'furnished', label: 'ใÝัๆิ', icon: FaCouch, category: 'comfort' },
+  { id: 'balcony', label: 'ิัÝษ', icon: FaWindowMaximize, category: 'comfort' },
   
-  // ุงูุญููุงูุงุช ุงูุฃูููุฉ
-  { id: 'pet-friendly', label: 'ู…ุณู…ูุญ ุงูุญููุงูุงุช ุงูุฃูููุฉ', icon: FaDog, category: 'pets' },
-  { id: 'no-pets', label: 'ุบูุฑ ู…ุณู…ูุญ ุงูุญููุงูุงุช ุงูุฃูููุฉ', icon: FaCat, category: 'pets' },
+  // วแอํๆวไวส วแรแํÝษ
+  { id: 'pet-friendly', label: 'ใำใๆอ วแอํๆวไวส วแรแํÝษ', icon: FaDog, category: 'pets' },
+  { id: 'no-pets', label: 'Ûํั ใำใๆอ วแอํๆวไวส วแรแํÝษ', icon: FaCat, category: 'pets' },
   
-  // ุฅู…ูุงููุฉ ุงููุตูู
-  { id: 'wheelchair', label: 'ู…ุชุงุญ ูููุฑุงุณู ุงูู…ุชุญุฑูุฉ', icon: FaWheelchair, category: 'accessibility' },
-  { id: 'child-friendly', label: 'ู…ูุงุณุจ ููุฃุทูุงู', icon: FaChild, category: 'accessibility' },
+  // ลใ฿วไํษ วแๆีๆแ
+  { id: 'wheelchair', label: 'ใสวอ แแ฿ัวำํ วแใสอั฿ษ', icon: FaWheelchair, category: 'accessibility' },
+  { id: 'child-friendly', label: 'ใไวำศ แแรุÝวแ', icon: FaChild, category: 'accessibility' },
   
-  // ุงูู…ุฑุงูู ุงูุฅุถุงููุฉ
-  { id: 'laundry', label: 'ุบุณูู', icon: FaWater, category: 'utilities' },
-  { id: 'storage', label: 'ู…ุฎุฒู', icon: FaBox, category: 'utilities' },
-  { id: 'water', label: 'ู…ูุงู', icon: FaWater, category: 'utilities' },
-  { id: 'electricity', label: 'ููุฑุจุงุก', icon: FaBolt, category: 'utilities' },
-  { id: 'gas', label: 'ุบุงุฒ', icon: FaFire, category: 'utilities' }
+  // วแใัวÝÞ วแลึวÝํษ
+  { id: 'laundry', label: 'Ûำํแ', icon: FaWater, category: 'utilities' },
+  { id: 'storage', label: 'ใฮาไ', icon: FaBox, category: 'utilities' },
+  { id: 'water', label: 'ใํวๅ', icon: FaWater, category: 'utilities' },
+  { id: 'electricity', label: '฿ๅัศวม', icon: FaBolt, category: 'utilities' },
+  { id: 'gas', label: 'Ûวา', icon: FaFire, category: 'utilities' }
 ];
 
 export default function AddNewProperty() {
@@ -299,23 +299,23 @@ export default function AddNewProperty() {
     if (!text.trim()) return '';
     
     const translations: { [key: string]: { ar: string; en: string } } = {
-      'ูููุง': { ar: 'ูููุง', en: 'Villa' },
-      'ุดูุฉ': { ar: 'ุดูุฉ', en: 'Apartment' },
-      'ู…ูุฒู': { ar: 'ู…ูุฒู', en: 'House' },
-      'ู…ูุชุจ': { ar: 'ู…ูุชุจ', en: 'Office' },
-      'ู…ุญู': { ar: 'ู…ุญู', en: 'Shop' },
-      'ู…ุณุชูุฏุน': { ar: 'ู…ุณุชูุฏุน', en: 'Warehouse' },
-      'ุฃุฑุถ': { ar: 'ุฃุฑุถ', en: 'Land' },
-      'ู…ุจูู': { ar: 'ู…ุจูู', en: 'Building' },
-      'ููุจูุน': { ar: 'ููุจูุน', en: 'For Sale' },
-      'ููุฅูุฌุงุฑ': { ar: 'ููุฅูุฌุงุฑ', en: 'For Rent' },
-      'ููุงุณุชุซู…ุงุฑ': { ar: 'ููุงุณุชุซู…ุงุฑ', en: 'For Investment' },
-      'ุณููู': { ar: 'ุณููู', en: 'Residential' },
-      'ุชุฌุงุฑู': { ar: 'ุชุฌุงุฑู', en: 'Commercial' },
-      'ู…ุฎุชูุท': { ar: 'ู…ุฎุชูุท', en: 'Mixed' },
-      'ุตูุงุนู': { ar: 'ุตูุงุนู', en: 'Industrial' },
-      'ุณูุงุญู': { ar: 'ุณูุงุญู', en: 'Tourism' },
-      'ุฒุฑุงุนู': { ar: 'ุฒุฑุงุนู', en: 'Agricultural' }
+      'Ýํแว': { ar: 'Ýํแว', en: 'Villa' },
+      'ิÞษ': { ar: 'ิÞษ', en: 'Apartment' },
+      'ใไาแ': { ar: 'ใไาแ', en: 'House' },
+      'ใ฿สศ': { ar: 'ใ฿สศ', en: 'Office' },
+      'ใอแ': { ar: 'ใอแ', en: 'Shop' },
+      'ใำสๆฯฺ': { ar: 'ใำสๆฯฺ', en: 'Warehouse' },
+      'รัึ': { ar: 'รัึ', en: 'Land' },
+      'ใศไ์': { ar: 'ใศไ์', en: 'Building' },
+      'แแศํฺ': { ar: 'แแศํฺ', en: 'For Sale' },
+      'แแลํฬวั': { ar: 'แแลํฬวั', en: 'For Rent' },
+      'แแวำสหใวั': { ar: 'แแวำสหใวั', en: 'For Investment' },
+      'ำ฿ไํ': { ar: 'ำ฿ไํ', en: 'Residential' },
+      'สฬวัํ': { ar: 'สฬวัํ', en: 'Commercial' },
+      'ใฮสแุ': { ar: 'ใฮสแุ', en: 'Mixed' },
+      'ีไวฺํ': { ar: 'ีไวฺํ', en: 'Industrial' },
+      'ำํวอํ': { ar: 'ำํวอํ', en: 'Tourism' },
+      'าัวฺํ': { ar: 'าัวฺํ', en: 'Agricultural' }
     };
 
     // Try exact match first
@@ -337,45 +337,45 @@ export default function AddNewProperty() {
   // AI Description Generation
   const generateDescription = (lang: 'ar' | 'en'): string => {
     const typeLabels = {
-      'apartment': { ar: 'ุดูุฉ', en: 'Apartment' },
-      'villa': { ar: 'ูููุง', en: 'Villa' },
-      'house': { ar: 'ู…ูุฒู', en: 'House' },
-      'office': { ar: 'ู…ูุชุจ', en: 'Office' },
-      'shop': { ar: 'ู…ุญู', en: 'Shop' },
-      'warehouse': { ar: 'ู…ุณุชูุฏุน', en: 'Warehouse' },
-      'land': { ar: 'ุฃุฑุถ', en: 'Land' },
-      'building': { ar: 'ู…ุจูู', en: 'Building' }
+      'apartment': { ar: 'ิÞษ', en: 'Apartment' },
+      'villa': { ar: 'Ýํแว', en: 'Villa' },
+      'house': { ar: 'ใไาแ', en: 'House' },
+      'office': { ar: 'ใ฿สศ', en: 'Office' },
+      'shop': { ar: 'ใอแ', en: 'Shop' },
+      'warehouse': { ar: 'ใำสๆฯฺ', en: 'Warehouse' },
+      'land': { ar: 'รัึ', en: 'Land' },
+      'building': { ar: 'ใศไ์', en: 'Building' }
     };
 
     const purposeLabels = {
-      'sale': { ar: 'ููุจูุน', en: 'For Sale' },
-      'rent': { ar: 'ููุฅูุฌุงุฑ', en: 'For Rent' },
-      'investment': { ar: 'ููุงุณุชุซู…ุงุฑ', en: 'For Investment' }
+      'sale': { ar: 'แแศํฺ', en: 'For Sale' },
+      'rent': { ar: 'แแลํฬวั', en: 'For Rent' },
+      'investment': { ar: 'แแวำสหใวั', en: 'For Investment' }
     };
 
     const usageLabels = {
-      'residential': { ar: 'ุณููู', en: 'Residential' },
-      'commercial': { ar: 'ุชุฌุงุฑู', en: 'Commercial' },
-      'mixed': { ar: 'ู…ุฎุชูุท', en: 'Mixed' },
-      'industrial': { ar: 'ุตูุงุนู', en: 'Industrial' },
-      'tourism': { ar: 'ุณูุงุญู', en: 'Tourism' },
-      'agricultural': { ar: 'ุฒุฑุงุนู', en: 'Agricultural' }
+      'residential': { ar: 'ำ฿ไํ', en: 'Residential' },
+      'commercial': { ar: 'สฬวัํ', en: 'Commercial' },
+      'mixed': { ar: 'ใฮสแุ', en: 'Mixed' },
+      'industrial': { ar: 'ีไวฺํ', en: 'Industrial' },
+      'tourism': { ar: 'ำํวอํ', en: 'Tourism' },
+      'agricultural': { ar: 'าัวฺํ', en: 'Agricultural' }
     };
 
     const ageLabels = {
-      'under-construction': { ar: 'ููุฏ ุงูุฅูุดุงุก', en: 'Under Construction' },
-      'new': { ar: 'ุฌุฏูุฏ (0-2 ุณูุฉ)', en: 'New (0-2 years)' },
-      'modern': { ar: 'ุญุฏูุซ (3-10 ุณููุงุช)', en: 'Modern (3-10 years)' },
-      'old': { ar: 'ูุฏูู… (10+ ุณููุงุช)', en: 'Old (10+ years)' }
+      'under-construction': { ar: 'Þํฯ วแลไิวม', en: 'Under Construction' },
+      'new': { ar: 'ฬฯํฯ (0-2 ำไษ)', en: 'New (0-2 years)' },
+      'modern': { ar: 'อฯํห (3-10 ำไๆวส)', en: 'Modern (3-10 years)' },
+      'old': { ar: 'Þฯํใ (10+ ำไๆวส)', en: 'Old (10+ years)' }
     };
 
     const type = typeLabels[formData.type as keyof typeof typeLabels]?.[lang] || formData.type;
     const purpose = purposeLabels[formData.purpose as keyof typeof purposeLabels]?.[lang] || formData.purpose;
     const usage = usageLabels[formData.usageType as keyof typeof usageLabels]?.[lang] || formData.usageType;
     const location = formData.province && formData.state ? `${formData.state}, ${formData.province}` : '';
-    const area = formData.area ? `${formData.area} ู…ยฒ` : '';
-    const beds = formData.beds ? `${formData.beds} ุบุฑู` : '';
-    const baths = formData.baths ? `${formData.baths} ุญู…ุงู…ุงุช` : '';
+    const area = formData.area ? `${formData.area} ใฒ` : '';
+    const beds = formData.beds ? `${formData.beds} ÛัÝ` : '';
+    const baths = formData.baths ? `${formData.baths} อใวใวส` : '';
     const buildingAge = ageLabels[formData.buildingAge as keyof typeof ageLabels]?.[lang] || formData.buildingAge;
     
     // Get selected amenities
@@ -385,25 +385,25 @@ export default function AddNewProperty() {
     }).filter(Boolean);
 
     if (lang === 'ar') {
-      let description = `${type} ${usage} ${purpose} ูู ${location}.`;
+      let description = `${type} ${usage} ${purpose} Ýํ ${location}.`;
       
-      if (area) description += ` ุงูู…ุณุงุญุฉ: ${area}`;
-      if (beds) description += `ุ ${beds}`;
-      if (baths) description += `ุ ${baths}`;
-      if (buildingAge) description += `. ุนู…ุฑ ุงูู…ุจูู: ${buildingAge}`;
+      if (area) description += ` วแใำวอษ: ${area}`;
+      if (beds) description += `ก ${beds}`;
+      if (baths) description += `ก ${baths}`;
+      if (buildingAge) description += `. ฺใั วแใศไ์: ${buildingAge}`;
       
       if (selectedAmenities.length > 0) {
-        description += `. ูุญุชูู ุนูู: ${selectedAmenities.slice(0, 5).join('ุ ')}`;
+        description += `. ํอสๆํ ฺแ์: ${selectedAmenities.slice(0, 5).join('ก ')}`;
         if (selectedAmenities.length > 5) {
-          description += ` ู${selectedAmenities.length - 5} ู…ุฒุงูุง ุฃุฎุฑู`;
+          description += ` ๆ${selectedAmenities.length - 5} ใาวํว รฮั์`;
         }
       }
       
       if (formData.buildingType === 'multi' && formData.totalUnits) {
-        description += `. ู…ุจูู ู…ุชุนุฏุฏ ุงููุญุฏุงุช ูุญุชูู ุนูู ${formData.totalUnits} ูุญุฏุฉ`;
+        description += `. ใศไ์ ใสฺฯฯ วแๆอฯวส ํอสๆํ ฺแ์ ${formData.totalUnits} ๆอฯษ`;
       }
       
-      description += '. ู…ููุน ู…ู…ูุฒ ูู…ูุงุณุจ ูุฌู…ูุน ุงูุงุญุชูุงุฌุงุช.';
+      description += '. ใๆÞฺ ใใํา ๆใไวำศ แฬใํฺ วแวอสํวฬวส.';
       
       return description;
     } else {
@@ -445,10 +445,10 @@ export default function AddNewProperty() {
       });
       
       if (response.ok) {
-        console.log('Auto-saved successfully');
+
       }
     } catch (error) {
-      console.error('Auto-save failed:', error);
+
     }
   };
 
@@ -488,7 +488,7 @@ export default function AddNewProperty() {
         <html dir="rtl" lang="ar">
         <head>
           <meta charset="UTF-8">
-          <title>ุชูุฑูุฑ ุงูุนูุงุฑ - ${formData.titleAr}</title>
+          <title>สÞัํั วแฺÞวั - ${formData.titleAr}</title>
           <style>
             @page { 
               size: A4; 
@@ -614,44 +614,44 @@ export default function AddNewProperty() {
         </head>
         <body>
           <div class="header">
-            <h1>${formData.titleAr || 'ุชูุฑูุฑ ุงูุนูุงุฑ'}</h1>
+            <h1>${formData.titleAr || 'สÞัํั วแฺÞวั'}</h1>
             <h2 style="color: #4b5563; font-size: 18px; margin: 10px 0;">${formData.titleEn || ''}</h2>
-            <p>ุฑูู… ุงูู…ุฑุฌุน: ${formData.referenceNo}</p>
-            <p>ุชุงุฑูุฎ ุงูุฅูุดุงุก: ${new Date().toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}</p>
-            ${formData.surveyNumber ? `<p>ุฑูู… ุงูุฑุณู… ุงูู…ุณุงุญู: ${formData.surveyNumber}</p>` : ''}
-            ${formData.landNumber ? `<p>ุฑูู… ุงูุฃุฑุถ: ${formData.landNumber}</p>` : ''}
+            <p>ัÞใ วแใัฬฺ: ${formData.referenceNo}</p>
+            <p>สวัํฮ วแลไิวม: ${new Date().toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}</p>
+            ${formData.surveyNumber ? `<p>ัÞใ วแัำใ วแใำวอํ: ${formData.surveyNumber}</p>` : ''}
+            ${formData.landNumber ? `<p>ัÞใ วแรัึ: ${formData.landNumber}</p>` : ''}
           </div>
 
           <div class="section">
-            <h2>ู…ุนููู…ุงุช ุงูุนูุงุฑ ุงูุฃุณุงุณูุฉ</h2>
+            <h2>ใฺแๆใวส วแฺÞวั วแรำวำํษ</h2>
             <div class="info-grid">
               <div class="info-item">
-                <span class="info-label">ููุน ุงูุนูุงุฑ:</span>
+                <span class="info-label">ไๆฺ วแฺÞวั:</span>
                 <span class="info-value">${formData.type}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ููุน ุงูุงุณุชุฎุฏุงู…:</span>
+                <span class="info-label">ไๆฺ วแวำสฮฯวใ:</span>
                 <span class="info-value">${formData.usageType}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ุงูุบุฑุถ:</span>
+                <span class="info-label">วแÛัึ:</span>
                 <span class="info-value">${formData.purpose}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ููุน ุงูู…ุจูู:</span>
-                <span class="info-value">${formData.buildingType === 'single' ? 'ุนูุงุฑ ูุญูุฏ' : 'ู…ุจูู ู…ุชุนุฏุฏ ุงููุญุฏุงุช'}</span>
+                <span class="info-label">ไๆฺ วแใศไ์:</span>
+                <span class="info-value">${formData.buildingType === 'single' ? 'ฺÞวั ๆอํฯ' : 'ใศไ์ ใสฺฯฯ วแๆอฯวส'}</span>
               </div>
               ${formData.buildingType === 'multi' ? `
               <div class="info-item">
-                <span class="info-label">ุฅุฌู…ุงูู ุงููุญุฏุงุช:</span>
+                <span class="info-label">ลฬใวแํ วแๆอฯวส:</span>
                 <span class="info-value">${formData.totalUnits}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ุฅุฌู…ุงูู ุงูู…ุณุงุญุฉ:</span>
-                <span class="info-value">${formData.totalArea} ู…ยฒ</span>
+                <span class="info-label">ลฬใวแํ วแใำวอษ:</span>
+                <span class="info-value">${formData.totalArea} ใฒ</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ุนุฏุฏ ุงูุทูุงุจู:</span>
+                <span class="info-label">ฺฯฯ วแุๆวศÞ:</span>
                 <span class="info-value">${formData.floors}</span>
               </div>
               ` : ''}
@@ -659,68 +659,68 @@ export default function AddNewProperty() {
           </div>
 
           <div class="section">
-            <h2>ุงูู…ููุน ูุงูุชูุงุตูู</h2>
+            <h2>วแใๆÞฺ ๆวแสÝวีํแ</h2>
             <div class="info-grid">
               <div class="info-item">
-                <span class="info-label">ุงูู…ุญุงูุธุฉ:</span>
+                <span class="info-label">วแใอวÝูษ:</span>
                 <span class="info-value">${formData.province}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ุงูููุงูุฉ:</span>
+                <span class="info-label">วแๆแวํษ:</span>
                 <span class="info-value">${formData.state}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ุงูู…ุฏููุฉ:</span>
+                <span class="info-label">วแใฯํไษ:</span>
                 <span class="info-value">${formData.city}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ุงููุฑูุฉ/ุงูุญู:</span>
+                <span class="info-label">วแÞัํษ/วแอํ:</span>
                 <span class="info-value">${formData.village}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ุงูู…ุณุงุญุฉ:</span>
-                <span class="info-value">${formData.area} ู…ยฒ</span>
+                <span class="info-label">วแใำวอษ:</span>
+                <span class="info-value">${formData.area} ใฒ</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ุนู…ุฑ ุงูู…ุจูู:</span>
+                <span class="info-label">ฺใั วแใศไ์:</span>
                 <span class="info-value">${formData.buildingAge}</span>
               </div>
               ${formData.buildingType === 'single' ? `
               <div class="info-item">
-                <span class="info-label">ุนุฏุฏ ุงูุบุฑู:</span>
+                <span class="info-label">ฺฯฯ วแÛัÝ:</span>
                 <span class="info-value">${formData.beds}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ุนุฏุฏ ุงูุญู…ุงู…ุงุช:</span>
+                <span class="info-label">ฺฯฯ วแอใวใวส:</span>
                 <span class="info-value">${formData.baths}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ุนุฏุฏ ุงููุงุนุงุช:</span>
+                <span class="info-label">ฺฯฯ วแÞวฺวส:</span>
                 <span class="info-value">${formData.halls}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ุนุฏุฏ ุงูู…ุฌุงูุณ:</span>
+                <span class="info-label">ฺฯฯ วแใฬวแำ:</span>
                 <span class="info-value">${formData.majlis}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ุนุฏุฏ ุงูู…ุทุงุจุฎ:</span>
+                <span class="info-label">ฺฯฯ วแใุวศฮ:</span>
                 <span class="info-value">${formData.kitchens}</span>
               </div>
               ` : ''}
             </div>
             <div class="info-item">
-              <span class="info-label">ุงูุนููุงู ุงูุชูุตููู:</span>
+              <span class="info-label">วแฺไๆวไ วแสÝีํแํ:</span>
               <span class="info-value">${formData.address}</span>
             </div>
             ${formData.latitude && formData.longitude ? `
             <div class="info-item">
-              <span class="info-label">ุงูุฅุญุฏุงุซูุงุช:</span>
+              <span class="info-label">วแลอฯวหํวส:</span>
               <span class="info-value">${formData.latitude}, ${formData.longitude}</span>
             </div>
             ` : ''}
             ${formData.mapAddress ? `
             <div class="info-item">
-              <span class="info-label">ุนููุงู ุงูุฎุฑูุทุฉ:</span>
+              <span class="info-label">ฺไๆวไ วแฮัํุษ:</span>
               <span class="info-value">${formData.mapAddress}</span>
             </div>
             ` : ''}
@@ -728,16 +728,16 @@ export default function AddNewProperty() {
 
           ${formData.descriptionAr || formData.descriptionEn ? `
           <div class="section">
-            <h2>ูุตู ุงูุนูุงุฑ</h2>
+            <h2>ๆีÝ วแฺÞวั</h2>
             ${formData.descriptionAr ? `
             <div style="margin-bottom: 15px;">
-              <h3 style="color: #374151; font-size: 14px; margin-bottom: 8px;">ุงููุตู ุจุงูุนุฑุจูุฉ:</h3>
+              <h3 style="color: #374151; font-size: 14px; margin-bottom: 8px;">วแๆีÝ ศวแฺัศํษ:</h3>
               <p style="line-height: 1.8; color: #4b5563; text-align: justify;">${formData.descriptionAr}</p>
             </div>
             ` : ''}
             ${formData.descriptionEn ? `
             <div>
-              <h3 style="color: #374151; font-size: 14px; margin-bottom: 8px;">ุงููุตู ุจุงูุฅูุฌููุฒูุฉ:</h3>
+              <h3 style="color: #374151; font-size: 14px; margin-bottom: 8px;">วแๆีÝ ศวแลไฬแําํษ:</h3>
               <p style="line-height: 1.8; color: #4b5563; text-align: justify;">${formData.descriptionEn}</p>
             </div>
             ` : ''}
@@ -746,12 +746,12 @@ export default function AddNewProperty() {
 
           ${formData.images.length > 0 ? `
           <div class="section">
-            <h2>ุตูุฑ ุงูุนูุงุฑ</h2>
+            <h2>ีๆั วแฺÞวั</h2>
             <div class="images-grid">
               ${imageBase64s.map((imageBase64, index) => `
                 <div class="image-item">
-                  <InstantImage src="${imageBase64}" alt="ุตูุฑุฉ ุงูุนูุงุฑ ${index + 1}"  loading="lazy" width={400} height={300}/>
-                  ${index === formData.coverIndex ? '<div class="cover-badge">ุตูุฑุฉ ุงูุบูุงู</div>' : ''}
+                  <InstantImage src="${imageBase64}" alt="ีๆัษ วแฺÞวั ${index + 1}"  loading="lazy" width={400} height={300}/>
+                  ${index === formData.coverIndex ? '<div class="cover-badge">ีๆัษ วแÛแวÝ</div>' : ''}
                 </div>
               `).join('')}
             </div>
@@ -759,7 +759,7 @@ export default function AddNewProperty() {
           ` : ''}
 
           <div class="section">
-            <h2>ุงูู…ุฒุงูุง ูุงูุฎุฏู…ุงุช</h2>
+            <h2>วแใาวํว ๆวแฮฯใวส</h2>
             <div class="amenities-grid">
               ${formData.amenities.map(amenityId => {
                 const amenity = AMENITIES.find(a => a.id === amenityId);
@@ -772,62 +772,62 @@ export default function AddNewProperty() {
           </div>
 
           <div class="section">
-            <h2>ุงูุชุณุนูุฑ</h2>
+            <h2>วแสำฺํั</h2>
             <div class="info-grid">
               <div class="info-item">
-                <span class="info-label">ุงูุณุนุฑ:</span>
-                <span class="info-value">${formData.priceOMR ? formData.priceOMR + ' ุฑูุงู ุนู…ุงูู' : 'ุบูุฑ ู…ุญุฏุฏ'}</span>
+                <span class="info-label">วแำฺั:</span>
+                <span class="info-value">${formData.priceOMR ? formData.priceOMR + ' ัํวแ ฺใวไํ' : 'Ûํั ใอฯฯ'}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ุงูุฅูุฌุงุฑ ุงูุดูุฑู:</span>
-                <span class="info-value">${formData.rentalPrice ? formData.rentalPrice + ' ุฑูุงู ุนู…ุงูู' : 'ุบูุฑ ู…ุญุฏุฏ'}</span>
+                <span class="info-label">วแลํฬวั วแิๅัํ:</span>
+                <span class="info-value">${formData.rentalPrice ? formData.rentalPrice + ' ัํวแ ฺใวไํ' : 'Ûํั ใอฯฯ'}</span>
               </div>
             </div>
           </div>
 
           ${formData.buildingType === 'multi' && formData.units.length > 0 ? `
           <div class="section units-section">
-            <h2>ุชูุงุตูู ุงููุญุฏุงุช</h2>
+            <h2>สÝวีํแ วแๆอฯวส</h2>
             ${formData.units.map((unit, unitIndex) => `
               <div class="unit-item">
-                <div class="unit-header">ุงููุญุฏุฉ ${unit.unitNo}</div>
+                <div class="unit-header">วแๆอฯษ ${unit.unitNo}</div>
                 <div class="info-grid">
                   <div class="info-item">
-                    <span class="info-label">ููุน ุงููุญุฏุฉ:</span>
+                    <span class="info-label">ไๆฺ วแๆอฯษ:</span>
                     <span class="info-value">${unit.type}</span>
                   </div>
                   <div class="info-item">
-                    <span class="info-label">ุงูู…ุณุงุญุฉ:</span>
-                    <span class="info-value">${unit.area} ู…ยฒ</span>
+                    <span class="info-label">วแใำวอษ:</span>
+                    <span class="info-value">${unit.area} ใฒ</span>
                   </div>
                   <div class="info-item">
-                    <span class="info-label">ุนุฏุฏ ุงูุบุฑู:</span>
+                    <span class="info-label">ฺฯฯ วแÛัÝ:</span>
                     <span class="info-value">${unit.beds}</span>
                   </div>
                   <div class="info-item">
-                    <span class="info-label">ุนุฏุฏ ุงูุญู…ุงู…ุงุช:</span>
+                    <span class="info-label">ฺฯฯ วแอใวใวส:</span>
                     <span class="info-value">${unit.baths}</span>
                   </div>
                   <div class="info-item">
-                    <span class="info-label">ุนุฏุฏ ุงููุงุนุงุช:</span>
+                    <span class="info-label">ฺฯฯ วแÞวฺวส:</span>
                     <span class="info-value">${unit.halls}</span>
                   </div>
                   <div class="info-item">
-                    <span class="info-label">ุนุฏุฏ ุงูู…ุฌุงูุณ:</span>
+                    <span class="info-label">ฺฯฯ วแใฬวแำ:</span>
                     <span class="info-value">${unit.majlis}</span>
                   </div>
                   <div class="info-item">
-                    <span class="info-label">ุงูุฅูุฌุงุฑ ุงูุดูุฑู:</span>
-                    <span class="info-value">${unit.rentalPrice} ุฑูุงู ุนู…ุงูู</span>
+                    <span class="info-label">วแลํฬวั วแิๅัํ:</span>
+                    <span class="info-value">${unit.rentalPrice} ัํวแ ฺใวไํ</span>
                   </div>
                   <div class="info-item">
-                    <span class="info-label">ุงูุถู…ุงู:</span>
-                    <span class="info-value">${unit.deposit} ุฑูุงู ุนู…ุงูู</span>
+                    <span class="info-label">วแึใวไ:</span>
+                    <span class="info-value">${unit.deposit} ัํวแ ฺใวไํ</span>
                   </div>
                 </div>
                 ${unit.amenities && unit.amenities.length > 0 ? `
                 <div style="margin-top: 10px;">
-                  <h4 style="color: #374151; font-size: 12px; margin-bottom: 5px;">ู…ุฒุงูุง ุงููุญุฏุฉ:</h4>
+                  <h4 style="color: #374151; font-size: 12px; margin-bottom: 5px;">ใาวํว วแๆอฯษ:</h4>
                   <div style="display: flex; flex-wrap: wrap; gap: 5px;">
                     ${unit.amenities.map(amenity => `
                       <span style="background: #e5e7eb; padding: 2px 6px; border-radius: 3px; font-size: 10px;">${amenity}</span>
@@ -837,11 +837,11 @@ export default function AddNewProperty() {
                 ` : ''}
                 ${unitImageBase64s[unitIndex] && unitImageBase64s[unitIndex].length > 0 ? `
                 <div style="margin-top: 10px;">
-                  <h4 style="color: #374151; font-size: 12px; margin-bottom: 5px;">ุตูุฑ ุงููุญุฏุฉ:</h4>
+                  <h4 style="color: #374151; font-size: 12px; margin-bottom: 5px;">ีๆั วแๆอฯษ:</h4>
                   <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;">
                     ${unitImageBase64s[unitIndex].map((imageBase64, imgIndex) => `
                       <div style="text-align: center; border: 1px solid #e5e7eb; border-radius: 3px; padding: 3px;">
-                        <InstantImage src="${imageBase64}" alt="ุตูุฑุฉ ุงููุญุฏุฉ ${imgIndex + 1}" style="width: 100%; height: 50px; object-fit: cover; border-radius: 2px;"  loading="lazy" width={400} height={300}/>
+                        <InstantImage src="${imageBase64}" alt="ีๆัษ วแๆอฯษ ${imgIndex + 1}" style="width: 100%; height: 50px; object-fit: cover; border-radius: 2px;"  loading="lazy" width={400} height={300}/>
                       </div>
                     `).join('')}
                   </div>
@@ -849,7 +849,7 @@ export default function AddNewProperty() {
                 ` : ''}
                 ${unit.videoUrl ? `
                 <div style="margin-top: 10px;">
-                  <h4 style="color: #374151; font-size: 12px; margin-bottom: 5px;">ููุฏูู ุงููุญุฏุฉ:</h4>
+                  <h4 style="color: #374151; font-size: 12px; margin-bottom: 5px;">Ýํฯํๆ วแๆอฯษ:</h4>
                   <p style="font-size: 10px; color: #6b7280;">${unit.videoUrl}</p>
                 </div>
                 ` : ''}
@@ -859,32 +859,32 @@ export default function AddNewProperty() {
           ` : ''}
 
           <div class="section">
-            <h2>ู…ุนููู…ุงุช ุงูุงุชุตุงู</h2>
+            <h2>ใฺแๆใวส วแวสีวแ</h2>
             <div class="info-grid">
               <div class="info-item">
-                <span class="info-label">ุงุณู… ุงูู…ุงูู:</span>
+                <span class="info-label">วำใ วแใวแ฿:</span>
                 <span class="info-value">${formData.ownerName}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ุฑูู… ุงููุงุชู:</span>
+                <span class="info-label">ัÞใ วแๅวสÝ:</span>
                 <span class="info-value">${formData.ownerPhone}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">ุงูุจุฑูุฏ ุงูุฅููุชุฑููู:</span>
+                <span class="info-label">วแศัํฯ วแลแ฿สัๆไํ:</span>
                 <span class="info-value">${formData.ownerEmail}</span>
               </div>
             </div>
             ${formData.notes ? `
             <div style="margin-top: 15px;">
-              <h3 style="color: #374151; font-size: 14px; margin-bottom: 8px;">ู…ูุงุญุธุงุช ุฅุถุงููุฉ:</h3>
+              <h3 style="color: #374151; font-size: 14px; margin-bottom: 8px;">ใแวอูวส ลึวÝํษ:</h3>
               <p style="line-height: 1.8; color: #4b5563; text-align: justify;">${formData.notes}</p>
             </div>
             ` : ''}
           </div>
 
           <div class="footer">
-            <p>ุชู… ุฅูุดุงุก ูุฐุง ุงูุชูุฑูุฑ ุชููุงุฆูุงู ู…ู ูุธุงู… ุฅุฏุงุฑุฉ ุงูุนูุงุฑุงุช</p>
-            <p>ยฉ ${new Date().getFullYear()} ุฌู…ูุน ุงูุญููู ู…ุญููุธุฉ</p>
+            <p>สใ ลไิวม ๅะว วแสÞัํั สแÞวฦํว๐ ใไ ไูวใ ลฯวัษ วแฺÞวัวส</p>
+            <p>ฉ ${new Date().getFullYear()} ฬใํฺ วแอÞๆÞ ใอÝๆูษ</p>
           </div>
         </body>
         </html>
@@ -917,7 +917,7 @@ export default function AddNewProperty() {
     if (formData.state) parts.push(formData.state);
     if (formData.province) parts.push(formData.province);
     
-    const generatedAddress = parts.join('ุ ');
+    const generatedAddress = parts.join('ก ');
     if (generatedAddress && generatedAddress !== formData.address) {
       setFormData(prev => ({ ...prev, address: generatedAddress }));
     }
@@ -964,7 +964,7 @@ export default function AddNewProperty() {
     if (currentStep < 5 && validateStep(currentStep)) {
       setCurrentStep(prev => prev + 1);
     } else if (!validateStep(currentStep)) {
-      alert('ูุฑุฌู ุฅูู…ุงู ุฌู…ูุน ุงูุญููู ุงูุฅุฌุจุงุฑูุฉ ูุจู ุงูุงูุชูุงู ููุฎุทูุฉ ุงูุชุงููุฉ');
+      alert('ํัฬ์ ล฿ใวแ ฬใํฺ วแอÞๆแ วแลฬศวัํษ Þศแ วแวไสÞวแ แแฮุๆษ วแสวแํษ');
     }
   };
 
@@ -987,7 +987,7 @@ export default function AddNewProperty() {
     if (canNavigate) {
       setCurrentStep(step);
     } else {
-      alert('ูุฑุฌู ุฅูู…ุงู ุฌู…ูุน ุงูุฎุทูุงุช ุงูุณุงุจูุฉ ูุจู ุงูุงูุชูุงู ููุฐู ุงูุฎุทูุฉ');
+      alert('ํัฬ์ ล฿ใวแ ฬใํฺ วแฮุๆวส วแำวศÞษ Þศแ วแวไสÞวแ แๅะๅ วแฮุๆษ');
     }
   };
 
@@ -1013,18 +1013,18 @@ export default function AddNewProperty() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // โ… ู…ูุน ุงูุฅุฑุณุงู ุงูู…ุฒุฏูุฌ
+    // ? ใไฺ วแลัำวแ วแใาฯๆฬ
     if (loading) {
-      console.log('โ ๏ธ Form submission already in progress, ignoring duplicate');
+
       return;
     }
     
     setLoading(true);
     
     try {
-      console.log('๐“ค Submitting property data...');
+
       
-      // ุชุญููู ุงูุตูุฑ ุฅูู base64
+      // สอๆํแ วแีๆั ลแ์ base64
       const convertImagesToBase64 = async (images: File[]) => {
         return Promise.all(images.map(image => {
           return new Promise<string>((resolve) => {
@@ -1036,7 +1036,7 @@ export default function AddNewProperty() {
         }));
       };
 
-      // ุชุญููู ุตูุฑ ุงููุญุฏุงุช
+      // สอๆํแ ีๆั วแๆอฯวส
       const convertUnitImages = async (units: any[]) => {
         return Promise.all(units.map(async (unit) => {
           if (unit.images && unit.images.length > 0 && unit.images[0] instanceof File) {
@@ -1053,7 +1053,7 @@ export default function AddNewProperty() {
 
       const processedUnits = await convertUnitImages(formData.units);
       
-      // ุฅุฑุณุงู ุงูุจูุงูุงุช ุฅูู API
+      // ลัำวแ วแศํวไวส ลแ์ API
       const response = await fetch('/api/properties', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1069,34 +1069,34 @@ export default function AddNewProperty() {
       
       if (response.ok) {
         const result = await response.json();
-        console.log('โ… Property saved successfully:', result);
-        console.log('๐“ธ Images count:', mainImages.length);
-        console.log('๐ข Units count:', processedUnits.length);
-        alert('ุชู… ุญูุธ ุงูุนูุงุฑ ุจูุฌุงุญ!');
+
+
+
+        alert('สใ อÝู วแฺÞวั ศไฬวอ!');
         
-        // โ… ุงูุงูุชูุงู ุจุนุฏ ุชุฃุฎูุฑ ุจุณูุท ูุถู…ุงู ุงูุญูุธ
+        // ? วแวไสÞวแ ศฺฯ สรฮํั ศำํุ แึใวไ วแอÝู
         setTimeout(() => {
           router.push('/properties/unified-management');
         }, 300);
       } else {
         const error = await response.json();
-        console.error('โ Error saving property:', error);
-        alert('ุญุฏุซ ุฎุทุฃ ุฃุซูุงุก ุญูุธ ุงูุนูุงุฑ: ' + (error.error || 'ุฎุทุฃ ุบูุฑ ู…ุนุฑูู'));
-        setLoading(false); // โ… ุฅุนุงุฏุฉ ุชูุนูู ุงูุฒุฑ ุนูุฏ ุงูุฎุทุฃ
+
+        alert('อฯห ฮุร รหไวม อÝู วแฺÞวั: ' + (error.error || 'ฮุร Ûํั ใฺัๆÝ'));
+        setLoading(false); // ? ลฺวฯษ สÝฺํแ วแาั ฺไฯ วแฮุร
       }
     } catch (error) {
-      console.error('โ Error submitting form:', error);
-      alert('ุญุฏุซ ุฎุทุฃ ุฃุซูุงุก ุญูุธ ุงูุนูุงุฑ');
-      setLoading(false); // โ… ุฅุนุงุฏุฉ ุชูุนูู ุงูุฒุฑ ุนูุฏ ุงูุฎุทุฃ
+
+      alert('อฯห ฮุร รหไวม อÝู วแฺÞวั');
+      setLoading(false); // ? ลฺวฯษ สÝฺํแ วแาั ฺไฯ วแฮุร
     }
-    // ู…ูุงุญุธุฉ: ูุง ูุนูุฏ setLoading(false) ุนูุฏ ุงููุฌุงุญ ูู…ูุน ุงูุถุบุท ู…ุฑุฉ ุฃุฎุฑู
+    // ใแวอูษ: แว ไฺํฯ setLoading(false) ฺไฯ วแไฬวอ แใไฺ วแึÛุ ใัษ รฮั์
   };
 
   return (
     <>
       <Head>
-        <title>ุฅุถุงูุฉ ุนูุงุฑ ุฌุฏูุฏ - ูุธุงู… ุฅุฏุงุฑุฉ ุงูุนูุงุฑุงุช</title>
-        <meta name="description" content="ุฅุถุงูุฉ ุนูุงุฑ ุฌุฏูุฏ ุฅูู ุงููุธุงู…" />
+        <title>ลึวÝษ ฺÞวั ฬฯํฯ - ไูวใ ลฯวัษ วแฺÞวัวส</title>
+        <meta name="description" content="ลึวÝษ ฺÞวั ฬฯํฯ ลแ์ วแไูวใ" />
       </Head>
 
       <div className="min-h-screen bg-gray-50">
@@ -1110,10 +1110,10 @@ export default function AddNewProperty() {
                   className="flex items-center text-gray-600 hover:text-gray-900"
                 >
                   <FaArrowLeft className="ml-2" />
-                  ุงูุนูุฏุฉ ููุฅุฏุงุฑุฉ
+                  วแฺๆฯษ แแลฯวัษ
                 </button>
           </div>
-              <h1 className="text-2xl font-bold text-gray-900">ุฅุถุงูุฉ ุนูุงุฑ ุฌุฏูุฏ</h1>
+              <h1 className="text-2xl font-bold text-gray-900">ลึวÝษ ฺÞวั ฬฯํฯ</h1>
         </div>
           </div>
         </div>
@@ -1167,11 +1167,11 @@ export default function AddNewProperty() {
               <div className="flex justify-center mt-4">
                 <div className="flex space-x-20">
                   {[
-                    { step: 1, label: 'ุงูู…ุนููู…ุงุช ุงูุฃุณุงุณูุฉ', color: 'text-blue-600' },
-                    { step: 2, label: 'ููุน ุงูู…ุจูู', color: 'text-green-600' },
-                    { step: 3, label: 'ุงูู…ููุน ูุงูุชูุงุตูู', color: 'text-purple-600' },
-                    { step: 4, label: 'ุงูู…ุฒุงูุง ูุงูุฎุฏู…ุงุช', color: 'text-orange-600' },
-                    { step: 5, label: 'ุงููุณุงุฆุท ูุงูุงุชุตุงู', color: 'text-red-600' }
+                    { step: 1, label: 'วแใฺแๆใวส วแรำวำํษ', color: 'text-blue-600' },
+                    { step: 2, label: 'ไๆฺ วแใศไ์', color: 'text-green-600' },
+                    { step: 3, label: 'วแใๆÞฺ ๆวแสÝวีํแ', color: 'text-purple-600' },
+                    { step: 4, label: 'วแใาวํว ๆวแฮฯใวส', color: 'text-orange-600' },
+                    { step: 5, label: 'วแๆำวฦุ ๆวแวสีวแ', color: 'text-red-600' }
                   ].map(({ step, label, color }) => (
                     <div key={step} className={`text-xs font-medium ${currentStep >= step ? color : 'text-gray-400'}`}>
                       {label}
@@ -1184,12 +1184,12 @@ export default function AddNewProperty() {
             {/* Step Content */}
             {currentStep === 1 && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">ู…ุนููู…ุงุช ุงูุนูุงุฑ ุงูุฃุณุงุณูุฉ</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">ใฺแๆใวส วแฺÞวั วแรำวำํษ</h2>
                 
             <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FaHome className="inline ml-2" />
-                    ุนููุงู ุงูุนูุงุฑ (ุนุฑุจู) *
+                    ฺไๆวไ วแฺÞวั (ฺัศํ) *
                   </label>
                   <div className="flex gap-2">
                     <input
@@ -1197,7 +1197,7 @@ export default function AddNewProperty() {
                       value={formData.titleAr}
                       onChange={(e) => handleInputChange('titleAr', e.target.value)}
                       className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="ุฃุฏุฎู ุนููุงู ุงูุนูุงุฑ ุจุงููุบุฉ ุงูุนุฑุจูุฉ"
+                      placeholder="รฯฮแ ฺไๆวไ วแฺÞวั ศวแแÛษ วแฺัศํษ"
                       required
                     />
                     <button
@@ -1207,7 +1207,7 @@ export default function AddNewProperty() {
                         handleInputChange('titleEn', translated);
                       }}
                       className="px-3 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                      title="ุชุฑุฌู…ุฉ ุฐููุฉ"
+                      title="สัฬใษ ะ฿ํษ"
                     >
                       <FaRobot />
                     </button>
@@ -1217,7 +1217,7 @@ export default function AddNewProperty() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FaHome className="inline ml-2" />
-                    ุนููุงู ุงูุนูุงุฑ (ุฅูุฌููุฒู)
+                    ฺไๆวไ วแฺÞวั (ลไฬแําํ)
                   </label>
               <div className="flex gap-2">
                     <input
@@ -1234,7 +1234,7 @@ export default function AddNewProperty() {
                         handleInputChange('titleAr', translated);
                       }}
                       className="px-3 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                      title="ุชุฑุฌู…ุฉ ุฐููุฉ"
+                      title="สัฬใษ ะ฿ํษ"
                     >
                       <FaRobot />
                 </button>
@@ -1244,7 +1244,7 @@ export default function AddNewProperty() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FaTag className="inline ml-2" />
-                    ููุน ุงูุนูุงุฑ *
+                    ไๆฺ วแฺÞวั *
                     </label>
                   <select
                     value={formData.type}
@@ -1252,7 +1252,7 @@ export default function AddNewProperty() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   >
-                    <option value="">ุงุฎุชุฑ ููุน ุงูุนูุงุฑ</option>
+                    <option value="">วฮสั ไๆฺ วแฺÞวั</option>
                     {PROPERTY_TYPES.map(type => (
                       <option key={type.value} value={type.value}>
                         {type.label}
@@ -1264,7 +1264,7 @@ export default function AddNewProperty() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FaTag className="inline ml-2" />
-                    ููุน ุงูุงุณุชุฎุฏุงู… *
+                    ไๆฺ วแวำสฮฯวใ *
                   </label>
                   <select
                     value={formData.usageType}
@@ -1272,7 +1272,7 @@ export default function AddNewProperty() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   >
-                    <option value="">ุงุฎุชุฑ ููุน ุงูุงุณุชุฎุฏุงู…</option>
+                    <option value="">วฮสั ไๆฺ วแวำสฮฯวใ</option>
                     {USAGE_TYPES.map(usage => (
                       <option key={usage.value} value={usage.value}>
                         {usage.label}
@@ -1284,7 +1284,7 @@ export default function AddNewProperty() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FaTag className="inline ml-2" />
-                    ุงูุบุฑุถ *
+                    วแÛัึ *
                   </label>
                   <select
                     value={formData.purpose}
@@ -1292,7 +1292,7 @@ export default function AddNewProperty() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   >
-                    <option value="">ุงุฎุชุฑ ุงูุบุฑุถ</option>
+                    <option value="">วฮสั วแÛัึ</option>
                     {PURPOSES.map(purpose => (
                       <option key={purpose.value} value={purpose.value}>
                         {purpose.label}
@@ -1305,7 +1305,7 @@ export default function AddNewProperty() {
 
             {currentStep === 2 && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">ููุน ุงูู…ุจูู</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">ไๆฺ วแใศไ์</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div
@@ -1318,8 +1318,8 @@ export default function AddNewProperty() {
                   >
                     <div className="text-center">
                       <FaHome className="text-4xl mx-auto mb-4 text-blue-600" />
-                      <h3 className="text-lg font-semibold mb-2">ุนูุงุฑ ูุญูุฏ</h3>
-                      <p className="text-gray-600">ูููุงุ ู…ูุฒูุ ุดูุฉ ูุงุญุฏุฉ</p>
+                      <h3 className="text-lg font-semibold mb-2">ฺÞวั ๆอํฯ</h3>
+                      <p className="text-gray-600">Ýํแวก ใไาแก ิÞษ ๆวอฯษ</p>
                   </div>
                 </div>
 
@@ -1333,8 +1333,8 @@ export default function AddNewProperty() {
                   >
                     <div className="text-center">
                       <FaBuilding className="text-4xl mx-auto mb-4 text-blue-600" />
-                      <h3 className="text-lg font-semibold mb-2">ู…ุจูู ู…ุชุนุฏุฏ ุงููุญุฏุงุช</h3>
-                      <p className="text-gray-600">ุนู…ุงุฑุฉุ ู…ุฌู…ุน ุณูููุ ุจุฑุฌ</p>
+                      <h3 className="text-lg font-semibold mb-2">ใศไ์ ใสฺฯฯ วแๆอฯวส</h3>
+                      <p className="text-gray-600">ฺใวัษก ใฬใฺ ำ฿ไํก ศัฬ</p>
                     </div>
                   </div>
                 </div>
@@ -1342,14 +1342,14 @@ export default function AddNewProperty() {
                 {formData.buildingType === 'multi' && (
                   <div className="mt-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ุนุฏุฏ ุงููุญุฏุงุช
+                      ฺฯฯ วแๆอฯวส
                     </label>
                   <input 
                       type="number"
                       value={formData.totalUnits}
                       onChange={(e) => handleInputChange('totalUnits', e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="ุฃุฏุฎู ุนุฏุฏ ุงููุญุฏุงุช"
+                      placeholder="รฯฮแ ฺฯฯ วแๆอฯวส"
                       min="1"
                     />
                 </div>
@@ -1359,13 +1359,13 @@ export default function AddNewProperty() {
 
             {currentStep === 3 && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">ุงูู…ููุน ูุงูุชูุงุตูู</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">วแใๆÞฺ ๆวแสÝวีํแ</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <FaMapMarkerAlt className="inline ml-2" />
-                      ุงูู…ุญุงูุธุฉ *
+                      วแใอวÝูษ *
                     </label>
                     <select
                       value={formData.province}
@@ -1373,7 +1373,7 @@ export default function AddNewProperty() {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       required
                     >
-                      <option value="">ุงุฎุชุฑ ุงูู…ุญุงูุธุฉ</option>
+                      <option value="">วฮสั วแใอวÝูษ</option>
                       {PROVINCES.map(province => (
                         <option key={province} value={province}>
                           {province}
@@ -1385,7 +1385,7 @@ export default function AddNewProperty() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <FaMapMarkerAlt className="inline ml-2" />
-                      ุงูููุงูุฉ *
+                      วแๆแวํษ *
                     </label>
                     <select
                       value={formData.state}
@@ -1394,7 +1394,7 @@ export default function AddNewProperty() {
                       required
                       disabled={!formData.province}
                     >
-                      <option value="">ุงุฎุชุฑ ุงูููุงูุฉ</option>
+                      <option value="">วฮสั วแๆแวํษ</option>
                       {filteredStates.map(state => (
                         <option key={state} value={state}>
                           {state}
@@ -1406,7 +1406,7 @@ export default function AddNewProperty() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <FaMapMarkerAlt className="inline ml-2" />
-                      ุงูู…ุฏููุฉ
+                      วแใฯํไษ
                     </label>
                     <select
                       value={formData.city}
@@ -1414,7 +1414,7 @@ export default function AddNewProperty() {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       disabled={!formData.state}
                     >
-                      <option value="">ุงุฎุชุฑ ุงูู…ุฏููุฉ</option>
+                      <option value="">วฮสั วแใฯํไษ</option>
                       {filteredCities.map(city => (
                         <option key={city} value={city}>
                           {city}
@@ -1426,7 +1426,7 @@ export default function AddNewProperty() {
                       value={formData.city}
                       onChange={(e) => handleInputChange('city', e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
-                      placeholder="ุฃู ุฃุฏุฎู ุงูู…ุฏููุฉ ูุฏููุงู"
+                      placeholder="รๆ รฯฮแ วแใฯํไษ ํฯๆํว๐"
                     />
             </div>
                 </div>
@@ -1434,21 +1434,21 @@ export default function AddNewProperty() {
               <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FaMapMarkerAlt className="inline ml-2" />
-                    ุงููุฑูุฉ ุฃู ุงูุญู
+                    วแÞัํษ รๆ วแอํ
                   </label>
                   <input
                     type="text"
                     value={formData.village}
                     onChange={(e) => handleInputChange('village', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="ุฃุฏุฎู ุงููุฑูุฉ ุฃู ุงูุญู"
+                    placeholder="รฯฮแ วแÞัํษ รๆ วแอํ"
                   />
             </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FaMapMarkerAlt className="inline ml-2" />
-                    ุงูุนููุงู ุงูุชูุตููู *
+                    วแฺไๆวไ วแสÝีํแํ *
                   </label>
                   <div className="flex gap-2">
                     <textarea
@@ -1456,14 +1456,14 @@ export default function AddNewProperty() {
                       onChange={(e) => handleInputChange('address', e.target.value)}
                       rows={3}
                       className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="ุฃุฏุฎู ุงูุนููุงู ุงูุชูุตููู"
+                      placeholder="รฯฮแ วแฺไๆวไ วแสÝีํแํ"
                       required
                     />
                     <button
                       type="button"
                       onClick={generateDetailedAddress}
                       className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                      title="ุชูููุฏ ุงูุนููุงู ุชููุงุฆูุงู"
+                      title="สๆแํฯ วแฺไๆวไ สแÞวฦํว๐"
                     >
                       <FaRobot />
                     </button>
@@ -1474,28 +1474,28 @@ export default function AddNewProperty() {
               <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <FaRuler className="inline ml-2" />
-                      ุงูู…ุณุงุญุฉ (ู…ยฒ) *
+                      วแใำวอษ (ใฒ) *
                 </label>
                     <input
                       type="number"
                       value={formData.area}
                       onChange={(e) => handleInputChange('area', e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="ุงูู…ุณุงุญุฉ"
+                      placeholder="วแใำวอษ"
                       required
                     />
                 </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ุนู…ุฑ ุงูู…ุจูู
+                      ฺใั วแใศไ์
                   </label>
                     <select
                       value={formData.buildingAge}
                       onChange={(e) => handleInputChange('buildingAge', e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="">ุงุฎุชุฑ ุนู…ุฑ ุงูู…ุจูู</option>
+                      <option value="">วฮสั ฺใั วแใศไ์</option>
                       {BUILDING_AGES.map(age => (
                         <option key={age.value} value={age.value}>
                           {age.label}
@@ -1510,42 +1510,42 @@ export default function AddNewProperty() {
               <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         <FaBed className="inline ml-2" />
-                        ุนุฏุฏ ุงูุบุฑู
+                        ฺฯฯ วแÛัÝ
                       </label>
                       <input
                         type="number"
                         value={formData.beds}
                         onChange={(e) => handleInputChange('beds', e.target.value)}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="ุนุฏุฏ ุงูุบุฑู"
+                        placeholder="ฺฯฯ วแÛัÝ"
                       />
               </div>
 
               <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         <FaBath className="inline ml-2" />
-                        ุนุฏุฏ ุงูุญู…ุงู…ุงุช
+                        ฺฯฯ วแอใวใวส
                       </label>
                       <input
                         type="number"
                         value={formData.baths}
                         onChange={(e) => handleInputChange('baths', e.target.value)}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="ุนุฏุฏ ุงูุญู…ุงู…ุงุช"
+                        placeholder="ฺฯฯ วแอใวใวส"
                 />
               </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         <FaBuilding className="inline ml-2" />
-                        ุนุฏุฏ ุงูุทูุงุจู
+                        ฺฯฯ วแุๆวศÞ
                       </label>
                       <input
                         type="number"
                         value={formData.floors}
                         onChange={(e) => handleInputChange('floors', e.target.value)}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="ุนุฏุฏ ุงูุทูุงุจู"
+                        placeholder="ฺฯฯ วแุๆวศÞ"
                       />
             </div>
                 </div>
@@ -1555,25 +1555,25 @@ export default function AddNewProperty() {
 
             {currentStep === 4 && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">ุงูู…ุฒุงูุง ูุงูุฎุฏู…ุงุช</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">วแใาวํว ๆวแฮฯใวส</h2>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-4">
-                    ุงูู…ุฒุงูุง ุงูู…ุชุงุญุฉ
+                    วแใาวํว วแใสวอษ
                   </label>
                   
                   {['transport', 'recreation', 'technology', 'security', 'services', 'comfort', 'pets', 'accessibility', 'utilities'].map(category => {
                     const categoryAmenities = AMENITIES.filter(a => a.category === category);
                     const categoryLabels = {
-                      'transport': 'ุงูู…ูุงุตูุงุช',
-                      'recreation': 'ุงูุชุฑููู',
-                      'technology': 'ุงูุชูููููุฌูุง',
-                      'security': 'ุงูุฃู…ุงู',
-                      'services': 'ุงูุฎุฏู…ุงุช',
-                      'comfort': 'ุงูุฑุงุญุฉ',
-                      'pets': 'ุงูุญููุงูุงุช ุงูุฃูููุฉ',
-                      'accessibility': 'ุฅู…ูุงููุฉ ุงููุตูู',
-                      'utilities': 'ุงูู…ุฑุงูู'
+                      'transport': 'วแใๆวีแวส',
+                      'recreation': 'วแสัÝํๅ',
+                      'technology': 'วแส฿ไๆแๆฬํว',
+                      'security': 'วแรใวไ',
+                      'services': 'วแฮฯใวส',
+                      'comfort': 'วแัวอษ',
+                      'pets': 'วแอํๆวไวส วแรแํÝษ',
+                      'accessibility': 'ลใ฿วไํษ วแๆีๆแ',
+                      'utilities': 'วแใัวÝÞ'
                     };
                     
                     return (
@@ -1609,7 +1609,7 @@ export default function AddNewProperty() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ุฅุถุงูุฉ ู…ุฒุงูุง ู…ุฎุตุตุฉ
+                    ลึวÝษ ใาวํว ใฮีีษ
                   </label>
                   <div className="flex gap-2">
                     <input
@@ -1617,7 +1617,7 @@ export default function AddNewProperty() {
                       value={customAmenity}
                       onChange={(e) => setCustomAmenity(e.target.value)}
                       className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="ุฃุฏุฎู ู…ูุฒุฉ ุฌุฏูุฏุฉ"
+                      placeholder="รฯฮแ ใําษ ฬฯํฯษ"
                       onKeyPress={(e) => e.key === 'Enter' && addCustomAmenity()}
                     />
                     <button
@@ -1657,28 +1657,28 @@ export default function AddNewProperty() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         <FaTag className="inline ml-2" />
-                        ุงูุณุนุฑ (ุฑูุงู ุนู…ุงูู)
+                        วแำฺั (ัํวแ ฺใวไํ)
                       </label>
                       <input
                         type="number"
                         value={formData.priceOMR}
                         onChange={(e) => handleInputChange('priceOMR', e.target.value)}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="ุงูุณุนุฑ"
+                        placeholder="วแำฺั"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         <FaTag className="inline ml-2" />
-                        ุงูุฅูุฌุงุฑ ุงูุดูุฑู (ุฑูุงู ุนู…ุงูู)
+                        วแลํฬวั วแิๅัํ (ัํวแ ฺใวไํ)
                       </label>
                       <input
                         type="number"
                         value={formData.rentalPrice}
                         onChange={(e) => handleInputChange('rentalPrice', e.target.value)}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="ุงูุฅูุฌุงุฑ ุงูุดูุฑู"
+                        placeholder="วแลํฬวั วแิๅัํ"
                       />
                     </div>
                   </div>
@@ -1686,7 +1686,7 @@ export default function AddNewProperty() {
 
                 {formData.buildingType === 'multi' && formData.totalUnits && (
                   <div className="border-t pt-6">
-                    <h3 className="text-lg font-semibold mb-4">ุชูุงุตูู ุงููุญุฏุงุช</h3>
+                    <h3 className="text-lg font-semibold mb-4">สÝวีํแ วแๆอฯวส</h3>
                     <div className="space-y-6">
                       {Array.from({ length: parseInt(formData.totalUnits) }, (_, index) => {
                         const unitId = `unit-${index + 1}`;
@@ -1725,7 +1725,7 @@ export default function AddNewProperty() {
                         return (
                           <div key={unitId} className="border border-gray-200 rounded-lg p-4">
                             <div className="flex justify-between items-center mb-4">
-                              <h4 className="text-md font-semibold text-gray-800">ุงููุญุฏุฉ {index + 1}</h4>
+                              <h4 className="text-md font-semibold text-gray-800">วแๆอฯษ {index + 1}</h4>
                               {index > 0 && (
                                 <button
                                   type="button"
@@ -1743,14 +1743,14 @@ export default function AddNewProperty() {
                                   className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
                                 >
                                   <FaCopy className="inline ml-1" />
-                                  ูุณุฎ ู…ู ุงููุญุฏุฉ ุงูุณุงุจูุฉ
+                                  ไำฮ ใไ วแๆอฯษ วแำวศÞษ
                                 </button>
                               )}
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">ุฑูู… ุงููุญุฏุฉ</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">ัÞใ วแๆอฯษ</label>
                                 <input
                                   type="text"
                                   value={unit.unitNo}
@@ -1767,7 +1767,7 @@ export default function AddNewProperty() {
                               </div>
 
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">ููุน ุงููุญุฏุฉ</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">ไๆฺ วแๆอฯษ</label>
                                 <select
                                   value={unit.type}
                                   onChange={(e) => {
@@ -1780,18 +1780,18 @@ export default function AddNewProperty() {
                                   }}
                                   className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                                 >
-                                  <option value="">ุงุฎุชุฑ ุงูููุน</option>
-                                  <option value="studio">ุงุณุชูุฏูู</option>
-                                  <option value="1-bedroom">ุบุฑูุฉ ูุงุญุฏุฉ</option>
-                                  <option value="2-bedroom">ุบุฑูุชุงู</option>
-                                  <option value="3-bedroom">ุซูุงุซ ุบุฑู</option>
-                                  <option value="4-bedroom">ุฃุฑุจุน ุบุฑู</option>
-                                  <option value="penthouse">ุจูุชูุงูุณ</option>
+                                  <option value="">วฮสั วแไๆฺ</option>
+                                  <option value="studio">วำสๆฯํๆ</option>
+                                  <option value="1-bedroom">ÛัÝษ ๆวอฯษ</option>
+                                  <option value="2-bedroom">ÛัÝสวไ</option>
+                                  <option value="3-bedroom">หแวห ÛัÝ</option>
+                                  <option value="4-bedroom">รัศฺ ÛัÝ</option>
+                                  <option value="penthouse">ศไสๅวๆำ</option>
                                 </select>
                               </div>
 
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">ุงูู…ุณุงุญุฉ (ู…ยฒ)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">วแใำวอษ (ใฒ)</label>
                                 <input
                                   type="number"
                                   value={unit.area}
@@ -1808,7 +1808,7 @@ export default function AddNewProperty() {
                               </div>
 
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">ุนุฏุฏ ุงูุบุฑู</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">ฺฯฯ วแÛัÝ</label>
                                 <input
                                   type="number"
                                   value={unit.beds}
@@ -1825,7 +1825,7 @@ export default function AddNewProperty() {
                               </div>
 
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">ุนุฏุฏ ุงูุญู…ุงู…ุงุช</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">ฺฯฯ วแอใวใวส</label>
                                 <input
                                   type="number"
                                   value={unit.baths}
@@ -1842,7 +1842,7 @@ export default function AddNewProperty() {
                               </div>
 
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">ุงูุฅูุฌุงุฑ ุงูุดูุฑู (ุฑูุงู)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">วแลํฬวั วแิๅัํ (ัํวแ)</label>
                                 <input
                                   type="number"
                                   value={unit.rentalPrice}
@@ -1861,17 +1861,17 @@ export default function AddNewProperty() {
 
                             {/* Unit Images and Video */}
                             <div className="mt-4 border-t pt-4">
-                              <h5 className="text-sm font-semibold text-gray-700 mb-3">ุตูุฑ ูููุฏูู ุงููุญุฏุฉ</h5>
+                              <h5 className="text-sm font-semibold text-gray-700 mb-3">ีๆั ๆÝํฯํๆ วแๆอฯษ</h5>
                               
                               {/* Unit Images */}
                               <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                   <FaImages className="inline ml-2" />
-                                  ุตูุฑ ุงููุญุฏุฉ
+                                  ีๆั วแๆอฯษ
                                 </label>
                                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                                   <FaUpload className="text-2xl text-gray-400 mx-auto mb-2" />
-                                  <p className="text-gray-600 text-sm mb-2">ุงุณุญุจ ุงูุตูุฑ ููุง ุฃู ุงููุฑ ููุงุฎุชูุงุฑ</p>
+                                  <p className="text-gray-600 text-sm mb-2">วำอศ วแีๆั ๅไว รๆ วไÞั แแวฮสํวั</p>
                                   <input
                                     type="file"
                                     multiple
@@ -1892,7 +1892,7 @@ export default function AddNewProperty() {
                                     htmlFor={`unit-image-upload-${unitId}`}
                                     className="inline-block px-3 py-1 bg-blue-600 text-white rounded text-sm cursor-pointer hover:bg-blue-700 transition-colors"
                                   >
-                                    ุงุฎุชูุงุฑ ุงูุตูุฑ
+                                    วฮสํวั วแีๆั
                                   </label>
                                 </div>
                                 
@@ -1902,7 +1902,7 @@ export default function AddNewProperty() {
                                       {unit.images.map((image, imgIndex) => (
                                         <div key={imgIndex} className="relative">
                                           <InstantImage src={URL.createObjectURL(image)}
-                                            alt={`ุตูุฑุฉ ุงููุญุฏุฉ ${imgIndex + 1}`}
+                                            alt={`ีๆัษ วแๆอฯษ ${imgIndex + 1}`}
                                             className="w-full h-20 object-cover rounded"
                                            loading="lazy" width={400} height={300}/>
                                           <button
@@ -1933,7 +1933,7 @@ export default function AddNewProperty() {
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                   <FaVideo className="inline ml-2" />
-                                  ููุฏูู ุงููุญุฏุฉ (ุงุฎุชูุงุฑู)
+                                  Ýํฯํๆ วแๆอฯษ (วฮสํวัํ)
                                 </label>
                                 <div className="space-y-2">
                                   <input
@@ -1948,7 +1948,7 @@ export default function AddNewProperty() {
                                       }));
                                     }}
                                     className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                                    placeholder="ุฑุงุจุท ุงูููุฏูู (YouTube, Vimeo, etc.)"
+                                    placeholder="ัวศุ วแÝํฯํๆ (YouTube, Vimeo, etc.)"
                                   />
                                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center">
                                     <input
@@ -1972,7 +1972,7 @@ export default function AddNewProperty() {
                                       htmlFor={`unit-video-upload-${unitId}`}
                                       className="inline-block px-3 py-1 bg-green-600 text-white rounded text-sm cursor-pointer hover:bg-green-700 transition-colors"
                                     >
-                                      ุฃู ุฑูุน ู…ูู ููุฏูู
+                                      รๆ ัÝฺ ใแÝ Ýํฯํๆ
                                     </label>
                                   </div>
                                 </div>
@@ -1989,16 +1989,16 @@ export default function AddNewProperty() {
 
             {currentStep === 5 && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">ุงููุณุงุฆุท ูุงูุงุชุตุงู</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">วแๆำวฦุ ๆวแวสีวแ</h2>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FaImages className="inline ml-2" />
-                    ุตูุฑ ุงูุนูุงุฑ (4 ุตูุฑ ุนูู ุงูุฃูู)
+                    ีๆั วแฺÞวั (4 ีๆั ฺแ์ วแรÞแ)
                   </label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                     <FaUpload className="text-4xl text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 mb-4">ุงุณุญุจ ุงูุตูุฑ ููุง ุฃู ุงููุฑ ููุงุฎุชูุงุฑ</p>
+                    <p className="text-gray-600 mb-4">วำอศ วแีๆั ๅไว รๆ วไÞั แแวฮสํวั</p>
                     <input
                       type="file"
                       multiple
@@ -2014,7 +2014,7 @@ export default function AddNewProperty() {
                       htmlFor="image-upload"
                       className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 transition-colors"
                     >
-                      ุงุฎุชูุงุฑ ุงูุตูุฑ
+                      วฮสํวั วแีๆั
                     </label>
         </div>
 
@@ -2024,12 +2024,12 @@ export default function AddNewProperty() {
                         {formData.images.map((image, index) => (
                           <div key={index} className="relative">
                             <InstantImage src={URL.createObjectURL(image)}
-                              alt={`ุตูุฑุฉ ${index + 1}`}
+                              alt={`ีๆัษ ${index + 1}`}
                               className="w-full h-24 object-cover rounded-lg"
                              loading="lazy" width={400} height={300}/>
                             {index === formData.coverIndex && (
                               <div className="absolute top-1 left-1 bg-green-500 text-white text-xs px-2 py-1 rounded">
-                                ุบูุงู
+                                ÛแวÝ
                               </div>
                             )}
                             <button
@@ -2046,7 +2046,7 @@ export default function AddNewProperty() {
                                   : 'bg-gray-600 text-white hover:bg-gray-700'
                               }`}
                             >
-                              {index === formData.coverIndex ? 'ุบูุงู' : 'ุงุฎุชูุงุฑ ุบูุงู'}
+                              {index === formData.coverIndex ? 'ÛแวÝ' : 'วฮสํวั ÛแวÝ'}
                             </button>
                             <button
                               type="button"
@@ -2071,7 +2071,7 @@ export default function AddNewProperty() {
                   <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FaVideo className="inline ml-2" />
-                    ุงูููุฏูู (ุงุฎุชูุงุฑู)
+                    วแÝํฯํๆ (วฮสํวัํ)
                   </label>
                   <div className="space-y-3">
                     <input
@@ -2079,11 +2079,11 @@ export default function AddNewProperty() {
                       value={formData.videoUrl}
                       onChange={(e) => handleInputChange('videoUrl', e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="ุฑุงุจุท ุงูููุฏูู (YouTube, Vimeo, etc.)"
+                      placeholder="ัวศุ วแÝํฯํๆ (YouTube, Vimeo, etc.)"
                     />
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                       <FaUpload className="text-2xl text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-600 text-sm mb-2">ุฃู ุฑูุน ู…ูู ููุฏูู</p>
+                      <p className="text-gray-600 text-sm mb-2">รๆ ัÝฺ ใแÝ Ýํฯํๆ</p>
                       <input
                         type="file"
                         accept="video/*"
@@ -2091,7 +2091,7 @@ export default function AddNewProperty() {
                           const file = e.target.files?.[0];
                           if (file) {
                             // Handle video file upload
-                            console.log('Video file selected:', file.name);
+
                           }
                         }}
                         className="hidden"
@@ -2101,14 +2101,14 @@ export default function AddNewProperty() {
                         htmlFor="video-upload"
                         className="inline-block px-4 py-2 bg-green-600 text-white rounded-lg cursor-pointer hover:bg-green-700 transition-colors"
                       >
-                        ุงุฎุชูุงุฑ ู…ูู ููุฏูู
+                        วฮสํวั ใแÝ Ýํฯํๆ
                       </label>
                     </div>
                   </div>
                 </div>
 
                 <div className="border-t pt-6">
-                  <h3 className="text-lg font-semibold mb-4">ู…ุนููู…ุงุช ุงูุงุชุตุงู</h3>
+                  <h3 className="text-lg font-semibold mb-4">ใฺแๆใวส วแวสีวแ</h3>
                   
                   <div className="flex items-center mb-4">
                     <input
@@ -2119,7 +2119,7 @@ export default function AddNewProperty() {
                       className="ml-2"
                     />
                     <label htmlFor="useUserContact" className="text-sm font-medium text-gray-700">
-                      ุงุณุชุฎุฏุงู… ุจูุงูุงุชู ุงูุดุฎุตูุฉ
+                      วำสฮฯวใ ศํวไวสํ วแิฮีํษ
                     </label>
                 </div>
 
@@ -2128,42 +2128,42 @@ export default function AddNewProperty() {
                   <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           <FaUser className="inline ml-2" />
-                          ุงุณู… ุงูู…ุงูู
+                          วำใ วแใวแ฿
                         </label>
                         <input
                           type="text"
                           value={formData.ownerName}
                           onChange={(e) => handleInputChange('ownerName', e.target.value)}
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="ุงุณู… ุงูู…ุงูู"
+                          placeholder="วำใ วแใวแ฿"
                         />
                     </div>
 
                   <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           <FaPhone className="inline ml-2" />
-                          ุฑูู… ุงููุงุชู
+                          ัÞใ วแๅวสÝ
                         </label>
                         <input
                           type="tel"
                           value={formData.ownerPhone}
                           onChange={(e) => handleInputChange('ownerPhone', e.target.value)}
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="ุฑูู… ุงููุงุชู"
+                          placeholder="ัÞใ วแๅวสÝ"
                         />
                 </div>
 
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           <FaEnvelope className="inline ml-2" />
-                          ุงูุจุฑูุฏ ุงูุฅููุชุฑููู
+                          วแศัํฯ วแลแ฿สัๆไํ
                         </label>
                         <input
                           type="email"
                           value={formData.ownerEmail}
                           onChange={(e) => handleInputChange('ownerEmail', e.target.value)}
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="ุงูุจุฑูุฏ ุงูุฅููุชุฑููู"
+                          placeholder="วแศัํฯ วแลแ฿สัๆไํ"
                         />
                   </div>
                   </div>
@@ -2173,7 +2173,7 @@ export default function AddNewProperty() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FaInfoCircle className="inline ml-2" />
-                    ุงููุตู (ุนุฑุจู)
+                    วแๆีÝ (ฺัศํ)
                   </label>
                   <div className="flex gap-2 mb-2">
                     <textarea
@@ -2181,7 +2181,7 @@ export default function AddNewProperty() {
                       onChange={(e) => handleInputChange('descriptionAr', e.target.value)}
                       rows={4}
                       className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="ูุตู ุงูุนูุงุฑ ุจุงููุบุฉ ุงูุนุฑุจูุฉ..."
+                      placeholder="ๆีÝ วแฺÞวั ศวแแÛษ วแฺัศํษ..."
                     />
                     <button
                       type="button"
@@ -2190,7 +2190,7 @@ export default function AddNewProperty() {
                         handleInputChange('descriptionAr', generated);
                       }}
                       className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                      title="ุชูููุฏ ูุตู ุฐูู"
+                      title="สๆแํฯ ๆีÝ ะ฿ํ"
                     >
                       <FaRobot />
                     </button>
@@ -2200,7 +2200,7 @@ export default function AddNewProperty() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FaInfoCircle className="inline ml-2" />
-                    ุงููุตู (ุฅูุฌููุฒู)
+                    วแๆีÝ (ลไฬแําํ)
                   </label>
                   <div className="flex gap-2 mb-2">
                     <textarea
@@ -2228,28 +2228,28 @@ export default function AddNewProperty() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <FaInfoCircle className="inline ml-2" />
-                      ุฑูู… ุงูุฑุณู… ุงูู…ุณุงุญู
+                      ัÞใ วแัำใ วแใำวอํ
                     </label>
                     <input
                       type="text"
                       value={formData.surveyNumber}
                       onChange={(e) => handleInputChange('surveyNumber', e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="ุฑูู… ุงูุฑุณู… ุงูู…ุณุงุญู"
+                      placeholder="ัÞใ วแัำใ วแใำวอํ"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <FaInfoCircle className="inline ml-2" />
-                      ุฑูู… ุงูุฃุฑุถ
+                      ัÞใ วแรัึ
                     </label>
                     <input
                       type="text"
                       value={formData.landNumber}
                       onChange={(e) => handleInputChange('landNumber', e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="ุฑูู… ุงูุฃุฑุถ"
+                      placeholder="ัÞใ วแรัึ"
                     />
                   </div>
                 </div>
@@ -2257,30 +2257,30 @@ export default function AddNewProperty() {
     <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FaInfoCircle className="inline ml-2" />
-                    ู…ูุงุญุธุงุช ุฅุถุงููุฉ
+                    ใแวอูวส ลึวÝํษ
                   </label>
       <textarea 
                     value={formData.notes}
                     onChange={(e) => handleInputChange('notes', e.target.value)}
                     rows={4}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="ุฃู ู…ูุงุญุธุงุช ุฅุถุงููุฉ..."
+                    placeholder="รํ ใแวอูวส ลึวÝํษ..."
       />
     </div>
 
                 <div className="border-t pt-6">
-                  <h3 className="text-lg font-semibold mb-4">ู…ููุน ุงูุนูุงุฑ ุนูู ุงูุฎุฑูุทุฉ</h3>
+                  <h3 className="text-lg font-semibold mb-4">ใๆÞฺ วแฺÞวั ฺแ์ วแฮัํุษ</h3>
                   
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ุนููุงู ุงูุฎุฑูุทุฉ
+                      ฺไๆวไ วแฮัํุษ
                     </label>
                     <input
                       type="text"
                       value={formData.mapAddress}
                       onChange={(e) => handleInputChange('mapAddress', e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="ุฃุฏุฎู ุนููุงู ุงูุนูุงุฑ ููุจุญุซ ูู ุงูุฎุฑูุทุฉ"
+                      placeholder="รฯฮแ ฺไๆวไ วแฺÞวั แแศอห Ýํ วแฮัํุษ"
                     />
                     <button
                       type="button"
@@ -2293,7 +2293,7 @@ export default function AddNewProperty() {
                       className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                     >
                       <FaMap className="inline ml-2" />
-                      ุงูุจุญุซ ูู ุฎุฑุงุฆุท ุฌูุฌู
+                      วแศอห Ýํ ฮัวฦุ ฬๆฬแ
                     </button>
                   </div>
 
@@ -2301,7 +2301,7 @@ export default function AddNewProperty() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         <FaMap className="inline ml-2" />
-                        ุฎุท ุงูุนุฑุถ
+                        ฮุ วแฺัึ
                       </label>
                       <input
                         type="text"
@@ -2315,7 +2315,7 @@ export default function AddNewProperty() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         <FaMap className="inline ml-2" />
-                        ุฎุท ุงูุทูู
+                        ฮุ วแุๆแ
                       </label>
                       <input
                         type="text"
@@ -2338,24 +2338,24 @@ export default function AddNewProperty() {
                               handleInputChange('longitude', position.coords.longitude.toString());
                             },
                             (error) => {
-                              alert('ุชุนุฐุฑ ุงูุญุตูู ุนูู ุงูู…ููุน ุงูุญุงูู');
+                              alert('สฺะั วแอีๆแ ฺแ์ วแใๆÞฺ วแอวแํ');
                             }
                           );
                         } else {
-                          alert('ุงูู…ุชุตูุญ ูุง ูุฏุนู… ุชุญุฏูุฏ ุงูู…ููุน');
+                          alert('วแใสีÝอ แว ํฯฺใ สอฯํฯ วแใๆÞฺ');
                         }
                       }}
                       className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                     >
                       <FaMap className="inline ml-2" />
-                      ุงูุญุตูู ุนูู ุงูู…ููุน ุงูุญุงูู
+                      วแอีๆแ ฺแ์ วแใๆÞฺ วแอวแํ
                     </button>
                   </div>
 
                   {formData.latitude && formData.longitude && (
                     <div className="mb-4">
                       <div className="bg-gray-100 rounded-lg p-4">
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">ู…ุนุงููุฉ ุงูุฎุฑูุทุฉ</h4>
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">ใฺวํไษ วแฮัํุษ</h4>
                         <iframe
                           src={`https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dOWWgUjqU8X0Y&center=${formData.latitude},${formData.longitude}&zoom=15`}
                           width="100%"
@@ -2374,7 +2374,7 @@ export default function AddNewProperty() {
                           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                         >
                           <FaMap className="ml-2" />
-                          ูุชุญ ูู ุฎุฑุงุฆุท ุฌูุฌู
+                          Ýสอ Ýํ ฮัวฦุ ฬๆฬแ
                         </a>
                         <button
                           type="button"
@@ -2385,7 +2385,7 @@ export default function AddNewProperty() {
                           className="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                         >
                           <FaMap className="ml-2" />
-                          ุงูุญุตูู ุนูู ุงูุงุชุฌุงูุงุช
+                          วแอีๆแ ฺแ์ วแวสฬวๅวส
                         </button>
                       </div>
                     </div>
@@ -2406,7 +2406,7 @@ export default function AddNewProperty() {
                     : 'bg-gray-600 text-white hover:bg-gray-700'
                 }`}
               >
-                ุงูุณุงุจู
+                วแำวศÞ
               </button>
 
               {currentStep < 5 ? (
@@ -2420,7 +2420,7 @@ export default function AddNewProperty() {
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
                 >
-                  ุงูุชุงูู
+                  วแสวแํ
                 </button>
               ) : (
                 <div className="flex gap-3 flex-wrap">
@@ -2430,7 +2430,7 @@ export default function AddNewProperty() {
                     className="px-4 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
                   >
                     <FaPrint className="inline ml-2" />
-                    ุทุจุงุนุฉ
+                    ุศวฺษ
                   </button>
                   <button
                     type="button"
@@ -2441,14 +2441,14 @@ export default function AddNewProperty() {
                     className="px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
                   >
                     <FaEye className="inline ml-2" />
-                    ู…ุนุงููุฉ
+                    ใฺวํไษ
                   </button>
                   <button
                     type="button"
                     onClick={async () => {
-                      // โ… ู…ูุน ุงูุฅุฑุณุงู ุงูู…ุฒุฏูุฌ
+                      // ? ใไฺ วแลัำวแ วแใาฯๆฬ
                       if (loading) {
-                        console.log('โ ๏ธ Draft save already in progress, ignoring duplicate');
+
                         return;
                       }
                       
@@ -2456,9 +2456,9 @@ export default function AddNewProperty() {
                       setLoading(true);
                       
                       try {
-                        console.log('๐“ค Saving as draft...');
+
                         
-                        // ุชุญููู ุงูุตูุฑ ุฅูู base64
+                        // สอๆํแ วแีๆั ลแ์ base64
                         const convertImagesToBase64 = async (images: File[]) => {
                           return Promise.all(images.map(image => {
                             return new Promise<string>((resolve) => {
@@ -2488,22 +2488,22 @@ export default function AddNewProperty() {
                         
                         if (response.ok) {
                           const result = await response.json();
-                          console.log('โ… Property saved as draft:', result);
-                          alert('ุชู… ุญูุธ ุงูุนูุงุฑ ูู…ุณูุฏุฉ!');
+
+                          alert('สใ อÝู วแฺÞวั ฿ใำๆฯษ!');
                           
-                          // โ… ุงูุงูุชูุงู ุจุนุฏ ุชุฃุฎูุฑ ุจุณูุท
+                          // ? วแวไสÞวแ ศฺฯ สรฮํั ศำํุ
                           setTimeout(() => {
                             router.push('/properties/unified-management');
                           }, 300);
                         } else {
                           const error = await response.json();
-                          console.error('โ Error saving draft:', error);
-                          alert('ุญุฏุซ ุฎุทุฃ ุฃุซูุงุก ุญูุธ ุงูู…ุณูุฏุฉ: ' + (error.error || 'ุฎุทุฃ ุบูุฑ ู…ุนุฑูู'));
+
+                          alert('อฯห ฮุร รหไวม อÝู วแใำๆฯษ: ' + (error.error || 'ฮุร Ûํั ใฺัๆÝ'));
                           setLoading(false);
                         }
                       } catch (error) {
-                        console.error('โ Error saving draft:', error);
-                        alert('ุญุฏุซ ุฎุทุฃ ุฃุซูุงุก ุญูุธ ุงูู…ุณูุฏุฉ');
+
+                        alert('อฯห ฮุร รหไวม อÝู วแใำๆฯษ');
                         setLoading(false);
                       }
                     }}
@@ -2511,7 +2511,7 @@ export default function AddNewProperty() {
                     className="px-4 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <FaSave className="inline ml-2" />
-                    ุญูุธ ูู…ุณูุฏุฉ
+                    อÝู ฿ใำๆฯษ
                   </button>
                   <button
                     type="submit"
@@ -2521,12 +2521,12 @@ export default function AddNewProperty() {
                     {loading ? (
                       <>
                         <FaSpinner className="inline ml-2 animate-spin" />
-                        ุฌุงุฑู ุงูุญูุธ...
+                        ฬวัํ วแอÝู...
                       </>
                     ) : (
                       <>
                         <FaSave className="inline ml-2" />
-                        ูุดุฑ ุงูุนูุงุฑ
+                        ไิั วแฺÞวั
                       </>
                     )}
                   </button>

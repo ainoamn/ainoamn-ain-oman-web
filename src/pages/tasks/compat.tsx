@@ -45,7 +45,7 @@ export default function TasksCompat() {
   }, [router.isReady, router.query.propertyId]);
 
   async function load(pid: string) {
-    console.log("Loading tasks for propertyId:", pid);
+
     setLoading(true);
     const ac = new AbortController();
     const t = setTimeout(() => ac.abort("timeout"), 6000); // حد زمني 6 ثوانٍ
@@ -62,14 +62,14 @@ export default function TasksCompat() {
       if (response.ok) {
         const data = await response.json();
         const tasks = Array.isArray(data.tasks) ? data.tasks : [];
-        console.log("Loaded tasks:", tasks.length, "for propertyId:", pid);
+
         setItems(tasks);
       } else {
-        console.error("Failed to fetch tasks:", response.status);
+
         setItems([]);
       }
     } catch (error) {
-      console.error("Error loading tasks:", error);
+
       setItems([]);
     } finally {
       clearTimeout(t);
@@ -88,7 +88,7 @@ export default function TasksCompat() {
       });
       
       if (r.ok) {
-        console.log("Task status updated successfully");
+
         // إرسال إشعار لتحديث الصفحات الأخرى
         try {
           const bc = new BroadcastChannel("ao_tasks");
@@ -104,11 +104,11 @@ export default function TasksCompat() {
         // إعادة تحميل البيانات
         load(propertyId);
       } else {
-        console.error("Failed to update task status:", r.status);
+
         throw new Error();
       }
     } catch (error) {
-      console.error("Error updating task status:", error);
+
       // تحديث محلي في حالة فشل API
       setItems((list) => list.map((t) => (t.id === id ? { ...t, status } : t)));
     }
@@ -138,7 +138,7 @@ export default function TasksCompat() {
       });
       
       if (r.ok) {
-        console.log("New task created successfully");
+
         // إرسال إشعار لتحديث الصفحات الأخرى
         try {
           const bc = new BroadcastChannel("ao_tasks");
@@ -154,11 +154,11 @@ export default function TasksCompat() {
         // إعادة تحميل البيانات
         load(propertyId);
       } else {
-        console.error("Failed to create task:", r.status);
+
         alert("فشل في إضافة المهمة");
       }
     } catch (error) {
-      console.error("Error creating task:", error);
+
       alert("خطأ في إضافة المهمة");
     }
   }
@@ -173,10 +173,10 @@ export default function TasksCompat() {
       bc = new BroadcastChannel("ao_tasks");
       bc.onmessage = (ev) => {
         if (ev?.data?.type === "updated") {
-          console.log("Received task update broadcast:", ev.data);
+
           // إعادة تحميل البيانات عند أي تحديث مع تأخير صغير لضمان تحديث البيانات
           setTimeout(() => {
-            console.log("Reloading tasks after broadcast");
+
             load(propertyId);
           }, 100);
         }

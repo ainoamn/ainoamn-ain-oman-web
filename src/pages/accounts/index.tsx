@@ -1,13 +1,13 @@
-๏ปฟimport Head from "next/head";
+import Head from "next/head";
     // Header is now handled by MainLayout in _app.tsx
     
     import { useI18n } from "@/lib/i18n";
     import React from "react";
     type Entry = { id:string; type:"in"|"out"; label:string; amount:number; date:string };
 const ENTRIES: Entry[] = [
-  {"id":"ACC-1","type":"in","label":"ุงุดุชุฑุงูุงุช ู…ู…ูุฒุฉ","amount":320.000,"date":"2025-08-01"},
-  {"id":"ACC-2","type":"out","label":"ุชูุงููู ุงุณุชุถุงูุฉ","amount":90.500,"date":"2025-08-02"},
-  {"id":"ACC-3","type":"in","label":"ุนู…ููุฉ ู…ุจูุนุงุช","amount":740.250,"date":"2025-08-05"},
+  {"id":"ACC-1","type":"in","label":"วิสัว฿วส ใใําษ","amount":320.000,"date":"2025-08-01"},
+  {"id":"ACC-2","type":"out","label":"ส฿วแํÝ วำสึวÝษ","amount":90.500,"date":"2025-08-02"},
+  {"id":"ACC-3","type":"in","label":"ฺใๆแษ ใศํฺวส","amount":740.250,"date":"2025-08-05"},
 ];
 export function Content(){
   const totalIn = ENTRIES.filter(e=>e.type==="in").reduce((s,e)=>s+e.amount,0);
@@ -16,27 +16,27 @@ export function Content(){
   return (
     <section className="py-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-bold text-slate-900 mb-6">ุงูุญุณุงุจุงุช</h1>
+        <h1 className="text-2xl font-bold text-slate-900 mb-6">วแอำวศวส</h1>
         <div className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border bg-white p-4"><div className="text-xs text-slate-500">ุฅุฌู…ุงูู ุงูุฅูุฑุงุฏุงุช</div><div className="text-xl font-bold">{totalIn.toFixed(3)} ุฑ.ุน</div></div>
-          <div className="rounded-2xl border bg-white p-4"><div className="text-xs text-slate-500">ุฅุฌู…ุงูู ุงูู…ุตุฑููุงุช</div><div className="text-xl font-bold">{totalOut.toFixed(3)} ุฑ.ุน</div></div>
-          <div className="rounded-2xl border bg-white p-4"><div className="text-xs text-slate-500">ุตุงูู ุงูุฑุจุญ</div><div className="text-xl font-bold">{net.toFixed(3)} ุฑ.ุน</div></div>
+          <div className="rounded-2xl border bg-white p-4"><div className="text-xs text-slate-500">ลฬใวแํ วแลํัวฯวส</div><div className="text-xl font-bold">{totalIn.toFixed(3)} ั.ฺ</div></div>
+          <div className="rounded-2xl border bg-white p-4"><div className="text-xs text-slate-500">ลฬใวแํ วแใีัๆÝวส</div><div className="text-xl font-bold">{totalOut.toFixed(3)} ั.ฺ</div></div>
+          <div className="rounded-2xl border bg-white p-4"><div className="text-xs text-slate-500">ีวÝํ วแัศอ</div><div className="text-xl font-bold">{net.toFixed(3)} ั.ฺ</div></div>
         </div>
         <div className="mt-6 overflow-x-auto">
           <table className="min-w-full rounded-2xl overflow-hidden border bg-white">
             <thead className="bg-slate-100"><tr>
-              <th className="px-3 py-2 text-start text-sm">ุงูุชุงุฑูุฎ</th>
-              <th className="px-3 py-2 text-start text-sm">ุงูุจูุงู</th>
-              <th className="px-3 py-2 text-start text-sm">ุงูููุน</th>
-              <th className="px-3 py-2 text-start text-sm">ุงูู…ุจูุบ</th>
+              <th className="px-3 py-2 text-start text-sm">วแสวัํฮ</th>
+              <th className="px-3 py-2 text-start text-sm">วแศํวไ</th>
+              <th className="px-3 py-2 text-start text-sm">วแไๆฺ</th>
+              <th className="px-3 py-2 text-start text-sm">วแใศแÛ</th>
             </tr></thead>
             <tbody>
               {ENTRIES.map(e => (
                 <tr key={e.id} className="border-t">
                   <td className="px-3 py-2 text-sm">{e.date}</td>
                   <td className="px-3 py-2 text-sm">{e.label}</td>
-                  <td className="px-3 py-2 text-sm">{e.type=="in"?"ุฏุงุฎู":"ุฎุงุฑุฌ"}</td>
-                  <td className="px-3 py-2 text-sm">{e.amount.toFixed(3)} ุฑ.ุน</td>
+                  <td className="px-3 py-2 text-sm">{e.type=="in"?"ฯวฮแ":"ฮวัฬ"}</td>
+                  <td className="px-3 py-2 text-sm">{e.amount.toFixed(3)} ั.ฺ</td>
                 </tr>
               ))}
             </tbody>
@@ -51,7 +51,7 @@ export function Content(){
       const { dir } = useI18n();
       return (
         <main dir={dir} className="min-h-screen bg-slate-50 flex flex-col">
-          <Head><title>ุงูุญุณุงุจุงุช | Ain Oman</title></Head>
+          <Head><title>วแอำวศวส | Ain Oman</title></Head>
           
           <div className="flex-1">
             <Content />

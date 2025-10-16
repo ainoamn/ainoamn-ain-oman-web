@@ -38,7 +38,7 @@ export default function OAuthSuccessPage() {
         }, 2000);
         
       } catch (error) {
-        console.error("Error processing OAuth data:", error);
+
         router.replace("/login?error=invalid_data");
       }
     } else if (!user) {

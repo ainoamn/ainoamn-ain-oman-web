@@ -60,7 +60,7 @@ export default function ProfilePage() {
     try {
       channel = new BroadcastChannel('permissions_channel');
       channel.onmessage = (event) => {
-        console.log('📡 Profile: Broadcast received');
+
         if (event.data.type === 'PERMISSIONS_UPDATED' || event.data.type === 'PERMISSIONS_INITIALIZED') {
           setTimeout(() => {
             setLoading(true);
@@ -105,13 +105,13 @@ export default function ProfilePage() {
           const userRole = data.roles.find((r: any) => r.id === userData.role);
           if (userRole) {
             permissions = userRole.permissions;
-            console.log('✅ Profile: Loaded from API:', permissions.length, 'permissions');
+
             // حفظ في localStorage أيضاً
             localStorage.setItem('roles_permissions_config', JSON.stringify(data.roles));
           }
         }
       } catch (apiError) {
-        console.log('⚠️ Profile: API failed, trying localStorage...');
+
         
         // fallback إلى localStorage
         const rolesConfig = localStorage.getItem('roles_permissions_config');
@@ -120,7 +120,7 @@ export default function ProfilePage() {
           const userRole = roles.find((r: any) => r.id === userData.role);
           if (userRole) {
             permissions = userRole.permissions;
-            console.log('✅ Profile: Loaded from localStorage:', permissions.length, 'permissions');
+
           }
         }
       }
@@ -144,10 +144,10 @@ export default function ProfilePage() {
       if (response.ok) {
         const data = await response.json();
         setRealStats(data);
-        console.log('✅ Profile: Real stats loaded:', data);
+
       }
     } catch (error) {
-      console.error('Error loading real stats:', error);
+
     }
   };
 
@@ -157,12 +157,12 @@ export default function ProfilePage() {
       if (response.ok) {
         const data = await response.json();
         setAiInsights(data.insights || getDefaultInsights());
-        console.log('✅ Profile: AI Insights loaded:', data.insights?.length);
+
       } else {
         setAiInsights(getDefaultInsights());
       }
     } catch (error) {
-      console.error('Error loading AI insights:', error);
+
       setAiInsights(getDefaultInsights());
     }
   };

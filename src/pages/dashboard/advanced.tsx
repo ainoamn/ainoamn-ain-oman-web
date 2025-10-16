@@ -33,7 +33,7 @@ export default function AdvancedDashboard() {
       );
       setAiInsights(insights);
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+
     } finally {
       setLoading(false);
     }

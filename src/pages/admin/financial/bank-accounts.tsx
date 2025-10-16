@@ -24,7 +24,7 @@ export default function BankAccountsPage() {
           setAccounts(data.accounts || []);
         }
       } catch (error) {
-        console.error('Error fetching bank accounts:', error);
+
       } finally {
         setLoading(false);
       }

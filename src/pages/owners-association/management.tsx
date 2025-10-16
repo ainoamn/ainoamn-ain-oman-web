@@ -51,25 +51,25 @@ export default function HoaManagementPage() {
 
   const handleSave = async (section: string) => {
     // حفظ الإعدادات
-    console.log(`Saving ${section} settings`);
+
     
     // في التطبيق الحقيقي، سيتم إرسال البيانات إلى API
     try {
       // await saveSettings(section, data);
-      console.log(`${section} settings saved successfully`);
+
     } catch (error) {
-      console.error(`Failed to save ${section} settings:`, error);
+
     }
   };
 
   const exportData = (type: string) => {
     // تصدير البيانات
-    console.log(`Exporting ${type} data`);
+
   };
 
   const importData = (type: string, file: File) => {
     // استيراد البيانات
-    console.log(`Importing ${type} data from`, file.name);
+
   };
 
   if (loading) {

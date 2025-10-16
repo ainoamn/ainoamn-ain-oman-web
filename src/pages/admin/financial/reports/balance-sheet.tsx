@@ -52,7 +52,7 @@ export default function BalanceSheetPage() {
         setBalanceSheet(emptyBalanceSheet);
       }
     } catch (error) {
-      console.error('Error fetching balance sheet:', error);
+
       // في حالة الخطأ، عرض بيانات فارغة
       const emptyBalanceSheet: any = {
         asOfDate: asOfDate,
