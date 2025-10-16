@@ -100,7 +100,7 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
   // Trending properties (مباشر من البيانات)
   const trendingProperties = useMemo(() => {
     return allProperties
-      .filter((p: Property) => p.promoted || (p.rating && p.rating >= 4))
+      .filter((p: Property) => p && (p.promoted || (p.rating && p.rating >= 4)))
       .slice(0, 3);
   }, [allProperties]);
 
