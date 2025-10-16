@@ -151,26 +151,63 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
           }
           
-          // معالجة الملفات
+          // معالجة الملفات المرفوعة
+          const uploadedImages: string[] = [];
           if (files.images) {
             const images = Array.isArray(files.images) ? files.images : [files.images];
-            body.images = images.map((file: any) => {
-              // حفظ الملف في مجلد العقار
-              const fs = require('fs');
-              const path = require('path');
-              const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'properties', id);
-              
-              if (!fs.existsSync(uploadDir)) {
-                fs.mkdirSync(uploadDir, { recursive: true });
-              }
-              
-              const fileName = `${Date.now()}-${file.originalFilename || 'image.jpg'}`;
+            
+            const fs = require('fs');
+            const path = require('path');
+            const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'properties', id);
+            
+            if (!fs.existsSync(uploadDir)) {
+              fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            
+            for (const file of images) {
+              const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}-${file.originalFilename || 'image.jpg'}`;
               const filePath = path.join(uploadDir, fileName);
               
               fs.copyFileSync(file.filepath, filePath);
-              
-              return `/uploads/properties/${id}/${fileName}`;
-            });
+              uploadedImages.push(`/uploads/properties/${id}/${fileName}`);
+            }
+          }
+          
+          // معالجة الصور Base64 من الحقول
+          if (body.images) {
+            const existingImages = Array.isArray(body.images) ? body.images : [body.images];
+            const fs = require('fs');
+            const path = require('path');
+            const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'properties', id);
+            
+            if (!fs.existsSync(uploadDir)) {
+              fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            
+            for (const img of existingImages) {
+              if (typeof img === 'string' && img.startsWith('data:image/')) {
+                // حفظ Base64 كملف
+                const matches = img.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
+                if (matches) {
+                  const ext = matches[1] === 'jpeg' ? 'jpg' : matches[1];
+                  const base64Data = matches[2];
+                  const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+                  const filePath = path.join(uploadDir, fileName);
+                  
+                  const buffer = Buffer.from(base64Data, 'base64');
+                  fs.writeFileSync(filePath, buffer);
+                  uploadedImages.push(`/uploads/properties/${id}/${fileName}`);
+                }
+              } else if (typeof img === 'string' && (img.startsWith('/uploads/') || img.startsWith('http'))) {
+                // الاحتفاظ بالصور الموجودة
+                uploadedImages.push(img);
+              }
+            }
+          }
+          
+          // تحديث مصفوفة الصور
+          if (uploadedImages.length > 0) {
+            body.images = uploadedImages;
           }
           
           // معالجة الحقول الخاصة
@@ -216,6 +253,67 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           if (typeof body === 'string') {
             body = JSON.parse(body);
           }
+          
+          // معالجة الصور Base64 في JSON
+          if (body.images && Array.isArray(body.images)) {
+            const fs = require('fs');
+            const path = require('path');
+            const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'properties', id);
+            
+            if (!fs.existsSync(uploadDir)) {
+              fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            
+            const processedImages: string[] = [];
+            
+            for (const img of body.images) {
+              if (typeof img === 'string' && img.startsWith('data:image/')) {
+                // حفظ Base64 كملف
+                const matches = img.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
+                if (matches) {
+                  const ext = matches[1] === 'jpeg' ? 'jpg' : matches[1];
+                  const base64Data = matches[2];
+                  const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+                  const filePath = path.join(uploadDir, fileName);
+                  
+                  const buffer = Buffer.from(base64Data, 'base64');
+                  fs.writeFileSync(filePath, buffer);
+                  processedImages.push(`/uploads/properties/${id}/${fileName}`);
+                }
+              } else if (typeof img === 'string' && (img.startsWith('/uploads/') || img.startsWith('http'))) {
+                // الاحتفاظ بالصور الموجودة
+                processedImages.push(img);
+              }
+            }
+            
+            if (processedImages.length > 0) {
+              body.images = processedImages;
+            }
+          }
+          
+          // معالجة صورة الغلاف Base64
+          if (body.coverImage && typeof body.coverImage === 'string' && body.coverImage.startsWith('data:image/')) {
+            const fs = require('fs');
+            const path = require('path');
+            const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'properties', id);
+            
+            if (!fs.existsSync(uploadDir)) {
+              fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            
+            const matches = body.coverImage.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
+            if (matches) {
+              const ext = matches[1] === 'jpeg' ? 'jpg' : matches[1];
+              const base64Data = matches[2];
+              const fileName = `cover-${Date.now()}.${ext}`;
+              const filePath = path.join(uploadDir, fileName);
+              
+              const buffer = Buffer.from(base64Data, 'base64');
+              fs.writeFileSync(filePath, buffer);
+              body.coverImage = `/uploads/properties/${id}/${fileName}`;
+            }
+          }
+          
         } catch (jsonError) {
           console.error('JSON parsing error:', jsonError);
           res.status(400).json({ ok: false, error: "json_parse_error", message: "خطأ في تحليل البيانات المرسلة" });

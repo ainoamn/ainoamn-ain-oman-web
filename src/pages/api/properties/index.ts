@@ -217,6 +217,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const now = new Date().toISOString();
       const id = body.id?.toString() || "P-" + now.replace(/[-:.TZ]/g, "").slice(0, 14);
 
+      // معالجة coverImage إذا كانت Base64
+      let coverImage = body.coverImage;
+      if (coverImage && typeof coverImage === 'string' && isDataUrl(coverImage)) {
+        const upRoot = path.resolve(process.cwd(), "public", "uploads", "properties");
+        ensureDir(upRoot);
+        const uploadDir = path.join(upRoot, folder);
+        ensureDir(uploadDir);
+        coverImage = saveDataUrl(coverImage, uploadDir, 999);
+      }
+
       const item: Property = {
         id,
         referenceNo: body.referenceNo || "",
@@ -232,6 +242,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         updatedAt: now,
         ...body,
         images: Array.isArray(images) && images.length ? images : (Array.isArray(body.images) ? body.images : []),
+        coverImage: coverImage || (images.length > 0 ? images[0] : undefined),
       };
 
       upsert(item);
