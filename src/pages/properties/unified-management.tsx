@@ -1043,7 +1043,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                     <div className="bg-yellow-500/30 p-1 rounded-lg ml-2">
                       <FaLightbulb className="text-sm" />
                     </div>
-                    �������� ������
+                    اقتراحات ذكية
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {aiInsights.recommendations.map((rec: any, index: number) => (
@@ -1081,40 +1081,40 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                   <div className="bg-green-500/30 p-1 rounded-lg ml-2">
                     <FaMagic className="text-sm" />
                   </div>
-                  ������� �����
+                  إجراءات سريعة
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   <InstantLink 
                     href="/properties/new"
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
-                    title="����� ���� ����"
+                    title="إضافة عقار جديد"
                   >
                     <FaPlus className="text-sm" />
-                    <span className="text-xs font-medium">���� ����</span>
+                    <span className="text-xs font-medium">عقار جديد</span>
                   </InstantLink>
                   <button 
                     onClick={publishAllDrafts}
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
-                    title="��� ���� ��������"
+                    title="نشر كافة المسودات"
                   >
                     <FaGlobe className="text-sm" />
-                    <span className="text-xs font-medium">��� ��������</span>
+                    <span className="text-xs font-medium">نشر المسودات</span>
                   </button>
                   <button 
                     onClick={exportReport}
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
-                    title="����� ����� ����"
+                    title="تصدير ملف Excel"
                   >
                     <FaDownload className="text-sm" />
-                    <span className="text-xs font-medium">����� �����</span>
+                    <span className="text-xs font-medium">تصدير Excel</span>
                   </button>
                   <button 
                     onClick={printPropertiesList}
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
-                    title="����� ����� ��������"
+                    title="طباعة ملف التقارير"
                   >
                     <FaPrint className="text-sm" />
-                    <span className="text-xs font-medium">�����</span>
+                    <span className="text-xs font-medium">طباعة</span>
                   </button>
                 </div>
               </div>
@@ -1127,7 +1127,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                   <FaFilter className="ml-2 text-blue-600" />
-                  ����� ����� ��������
+                  فلاتر وخيارات العقارات
                 </h3>
                 <div className="flex space-x-2">
                   <button
@@ -1135,7 +1135,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                     className="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors flex items-center"
                   >
                     {viewMode === 'grid' ? <FaExpand className="ml-1" /> : <FaSort className="ml-1" />}
-                    {viewMode === 'grid' ? '��� ����' : '��� �����'}
+                    {viewMode === 'grid' ? 'عرض قائمة' : 'عرض شبكة'}
                   </button>
                 </div>
               </div>
@@ -1144,13 +1144,13 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <FaSearch className="ml-1" />
-                    �����
+                    البحث
                   </label>
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="���� �� ��������..."
+                    placeholder="ابحث عن العقارات..."
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   />
                 </div>
@@ -1158,29 +1158,29 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <FaTag className="ml-1" />
-                    ������
+                    الحالة
                   </label>
                   <select
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   >
-                    <option value="">���� �������</option>
+                    <option value="">الكل (الحالة)</option>
                     {activeTab === 'properties' && (
                       <>
-                        <option value="vacant">����</option>
-                        <option value="reserved">�����</option>
-                        <option value="leased">����</option>
-                        <option value="hidden">����</option>
-                        <option value="draft">�����</option>
+                        <option value="vacant">شاغر</option>
+                        <option value="reserved">محجوز</option>
+                        <option value="leased">مؤجر</option>
+                        <option value="hidden">مخفي</option>
+                        <option value="draft">مسودة</option>
                       </>
                     )}
                     {activeTab === 'units' && (
                       <>
-                        <option value="available">����</option>
-                        <option value="rented">����</option>
-                        <option value="maintenance">�����</option>
-                        <option value="reserved">�����</option>
+                        <option value="available">متاح</option>
+                        <option value="rented">مؤجر</option>
+                        <option value="maintenance">صيانة</option>
+                        <option value="reserved">محجوز</option>
                       </>
                     )}
                   </select>
@@ -1189,36 +1189,36 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <FaBuilding className="ml-1" />
-                    �����
+                    النوع
                   </label>
                   <select
                     value={selectedType}
                     onChange={(e) => setSelectedType(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   >
-                    <option value="">���� �������</option>
+                    <option value="">الكل (النوع)</option>
                     {activeTab === 'properties' && (
                       <>
-                        <option value="apartment">���</option>
-                        <option value="villa">����</option>
-                        <option value="office">����</option>
-                        <option value="shop">���</option>
-                        <option value="land">���</option>
+                        <option value="apartment">شقة</option>
+                        <option value="villa">فيلا</option>
+                        <option value="office">مكتب</option>
+                        <option value="shop">متجر</option>
+                        <option value="land">أرض</option>
                       </>
                     )}
                     {activeTab === 'units' && (
                       <>
-                        <option value="apartment">���</option>
-                        <option value="villa">����</option>
-                        <option value="office">����</option>
-                        <option value="shop">���</option>
-                        <option value="warehouse">������</option>
+                        <option value="apartment">شقة</option>
+                        <option value="villa">فيلا</option>
+                        <option value="office">مكتب</option>
+                        <option value="shop">متجر</option>
+                        <option value="warehouse">مستودع</option>
                       </>
                     )}
                     {activeTab === 'customers' && (
                       <>
-                        <option value="individual">���</option>
-                        <option value="company">����</option>
+                        <option value="individual">فرد</option>
+                        <option value="company">شركة</option>
                       </>
                     )}
                   </select>
@@ -1227,7 +1227,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <FaSort className="ml-1" />
-                    ����� ���
+                    الترتيب حسب
                   </label>
                   <select
                     value={`${sortBy}-${sortOrder}`}
@@ -1238,10 +1238,10 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                     }}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   >
-                    <option value="createdAt-desc">������ �����</option>
-                    <option value="createdAt-asc">������ �����</option>
-                    <option value="updatedAt-desc">��� �����</option>
-                    <option value="title-asc">����� (�-�)</option>
+                    <option value="createdAt-desc">التاريخ الأحدث</option>
+                    <option value="createdAt-asc">التاريخ الأقدم</option>
+                    <option value="updatedAt-desc">آخر تحديث</option>
+                    <option value="title-asc">الاسم (أ-ي)</option>
                     <option value="title-desc">����� (�-�)</option>
                     {activeTab !== 'customers' && (
                       <>
