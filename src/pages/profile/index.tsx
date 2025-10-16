@@ -233,25 +233,25 @@ export default function ProfilePage() {
     stats = [
       { 
         label: 'عقاراتي', 
-        value: realStats?.properties.total || 0, 
+        value: realStats?.stats?.properties?.total || 0, 
         icon: FiHome, 
         color: 'blue' 
       },
       { 
         label: 'المهام المعلقة', 
-        value: realStats?.tasks.pending || 0, 
+        value: realStats?.stats?.tasks?.pending || 0, 
         icon: FiClock, 
         color: 'yellow' 
       },
       { 
         label: 'الإشعارات الجديدة', 
-        value: realStats?.notifications.unread || 0, 
+        value: realStats?.stats?.notifications?.unread || 0, 
         icon: FiBell, 
         color: 'red' 
       },
       { 
         label: 'الحجوزات', 
-        value: realStats?.bookings.total || 0, 
+        value: realStats?.stats?.bookings?.total || 0, 
         icon: FiCalendar, 
         color: 'green' 
       },
