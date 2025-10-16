@@ -609,7 +609,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
       });
       
       if (response.ok) {
-        // ����� instant ���� mutate ⚡
+        // تحديث instant باستخدام mutate ⚡
         const updatedItems = properties.map(p => 
           p.id === propertyId ? { ...p, published: !published } : p
         );
@@ -705,17 +705,17 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
       });
     }
 
-    // ����� ��� ������
+    // تصفية حسب الحالة
     if (selectedStatus) {
       data = data.filter(item => item.status === selectedStatus);
     }
 
-    // ����� ��� �����
+    // تصفية حسب النوع
     if (selectedType) {
       data = data.filter(item => item.type === selectedType);
     }
 
-    // ����� ��� ��� ������
+    // تصفية حسب نص البحث
     if (selectedBuildingType) {
       data = data.filter(item => item.buildingType === selectedBuildingType);
     }
@@ -777,7 +777,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
   };
 
   const getTitleFromProperty = (property: Property) => {
-    // ������ �� titleAr/titleEn
+    // الدمج من titleAr/titleEn
     if (property.titleAr) return property.titleAr;
     if (property.titleEn) return property.titleEn;
     // �� title object
@@ -975,64 +975,64 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                   <button
                     onClick={generateAIInsights}
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center border border-white/20 hover:border-white/40 text-sm"
-                    title="����� ���� ���������� ����������"
+                    title="تحديث تحليل الإحصائيات والتوجيهات"
                   >
                     <FaMagic className="ml-1 text-sm" />
-                    �����
+                    تحديث
                   </button>
                   <button
                     onClick={() => setShowFilters(!showFilters)}
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center border border-white/20 hover:border-white/40 text-sm"
-                    title="���/����� ������� ��������"
+                    title="إظهار/إخفاء اقتراحات التحسين"
                   >
                     <FaFilter className="ml-1 text-sm" />
-                    {showFilters ? '�����' : '�����'}
+                    {showFilters ? 'إخفاء' : 'إظهار'}
                   </button>
                 </div>
               </div>
               
               <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-3">
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="������ ��� �������� �� ������">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="العقارات غير المنشورة أو المسودات">
                   <div className="bg-blue-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
                     <FaBuilding className="text-sm" />
                   </div>
                   <div className="text-lg font-bold mb-0.5">{aiInsights.totalProperties}</div>
-                  <div className="text-xs text-blue-100">������</div>
+                  <div className="text-xs text-blue-100">الكل</div>
                 </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="�������� �������� �������� �������">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="العقارات المتاحة والجاهزة للحجز">
                   <div className="bg-green-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
                     <FaGlobe className="text-sm" />
                   </div>
                   <div className="text-lg font-bold mb-0.5">{aiInsights.publishedProperties}</div>
-                  <div className="text-xs text-blue-100">�����</div>
+                  <div className="text-xs text-blue-100">منشور</div>
                 </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="�������� �������� �������">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="العقارات المستأجرة حالياً">
                   <div className="bg-yellow-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
                     <FaEyeSlash className="text-sm" />
                   </div>
                   <div className="text-lg font-bold mb-0.5">{aiInsights.draftProperties}</div>
-                  <div className="text-xs text-blue-100">�����</div>
+                  <div className="text-xs text-blue-100">مسودة</div>
                 </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="������� ���� ����� ��� ����� ������">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="المباني التي تحتوي على وحدات متعددة">
                   <div className="bg-purple-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
                     <FaHome className="text-sm" />
                   </div>
                   <div className="text-lg font-bold mb-0.5">{aiInsights.multiUnitBuildings}</div>
-                  <div className="text-xs text-blue-100">�����</div>
+                  <div className="text-xs text-blue-100">متعدد</div>
                 </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="�������� ������� ������� �� �����">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="العقارات الفردية والمستقلة عن الوحدات">
                   <div className="bg-orange-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
                     <FaTag className="text-sm" />
                   </div>
                   <div className="text-lg font-bold mb-0.5">{aiInsights.vacantProperties}</div>
-                  <div className="text-xs text-blue-100">����</div>
+                  <div className="text-xs text-blue-100">شاغر</div>
                 </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="�������� ������� ������">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="العقارات البديعة والفاخرة">
                   <div className="bg-indigo-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
                     <FaCheck className="text-sm" />
                   </div>
                   <div className="text-lg font-bold mb-0.5">{aiInsights.leasedProperties}</div>
-                  <div className="text-xs text-blue-100">����</div>
+                  <div className="text-xs text-blue-100">مؤجر</div>
                 </div>
               </div>
 
