@@ -653,23 +653,23 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
     }
   };
 
-  // ����� ������ ��������
+  // تصفية وترتيب البيانات
   const getFilteredData = () => {
     let data: any[] = [];
     
     switch (activeTab) {
       case 'properties':
-        data = properties;
+        data = properties.filter(p => p && typeof p === 'object'); // ✅ null safety
         break;
       case 'units':
-        data = units;
+        data = units.filter(u => u && typeof u === 'object'); // ✅ null safety
         break;
       case 'customers':
-        data = customers;
+        data = customers.filter(c => c && typeof c === 'object'); // ✅ null safety
         break;
     }
 
-    // ����� ��� �����
+    // البحث عن الكلمة
     if (searchTerm) {
       data = data.filter(item => {
         if (activeTab === 'properties') {
@@ -707,14 +707,17 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
       data = data.filter(item => item.buildingType === selectedBuildingType);
     }
 
-    // ����� ��������
+    // ترتيب البيانات
     data.sort((a, b) => {
+      // ✅ null safety
+      if (!a || !b) return 0;
+      
       let aValue = a[sortBy];
       let bValue = b[sortBy];
 
       if (sortBy === 'createdAt' || sortBy === 'updatedAt') {
-        aValue = new Date(aValue).getTime();
-        bValue = new Date(bValue).getTime();
+        aValue = aValue ? new Date(aValue).getTime() : 0;
+        bValue = bValue ? new Date(bValue).getTime() : 0;
       }
 
       if (sortOrder === 'asc') {
