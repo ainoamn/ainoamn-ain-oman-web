@@ -41,17 +41,12 @@ const OwnerDashboard: NextPage = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("properties");
   
-  // ? ������� Context ��������
+  // استخدام Context للحجوزات
   const { bookings: allBookings, loading: bookingsLoading } = useBookings();
   
-
-
-  
-  // ����� ������ ������ ���
+  // تصفية الحجوزات الخاصة بي
   const ownerBookings = useMemo(() => {
     const userId = session?.user?.id;
-
-
     
     if (!userId) return [];
     
@@ -59,11 +54,8 @@ const OwnerDashboard: NextPage = () => {
       properties.some(p => p.id === b.propertyId && p.ownerId === userId)
     );
     
-
-    
-    // ? ������: ��� �� ��� �� �����ʡ ���� ���� ��������
+    // للتجربة: إذا لم يكن هناك حجوزات، نعرض جميع الحجوزات
     if (filtered.length === 0) {
-
       return allBookings;
     }
     
