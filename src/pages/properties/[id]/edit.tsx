@@ -226,6 +226,37 @@ const AMENITIES = [
   { id: 'gas', label: 'غاز', icon: FaFire, category: 'utilities' }
 ];
 
+// Component لعرض الصور باستخدام FileReader
+function ImagePreview({ file, index }: { file: File; index: number }) {
+  const [src, setSrc] = React.useState<string>('');
+  
+  React.useEffect(() => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        setSrc(e.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  }, [file]);
+  
+  if (!src) {
+    return (
+      <div className="w-full h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+        <span className="text-gray-500 text-xs">جاري التحميل...</span>
+      </div>
+    );
+  }
+  
+  return (
+    <img
+      src={src}
+      alt={`صورة ${index + 1}`}
+      className="w-full h-24 object-cover rounded-lg"
+    />
+  );
+}
+
 export default function EditProperty({ property }: { property: any }) {
   const router = useRouter();
   const { id } = router.query;
@@ -2414,13 +2445,33 @@ export default function EditProperty({ property }: { property: any }) {
                   {formData.images.length > 0 && (
                     <div className="mt-4">
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {formData.images.map((image, index) => (
+                        {formData.images.map((image, index) => {
+                          // إنشاء preview URL للصورة
+                          let imageUrl = '';
+                          try {
+                            imageUrl = URL.createObjectURL(image);
+                          } catch (e) {
+                            // إذا فشل، استخدم FileReader
+                            imageUrl = '';
+                          }
+                          
+                          return (
                           <div key={index} className="relative">
-                            <img
-                              src={URL.createObjectURL(image)}
-                              alt={`صورة ${index + 1}`}
-                              className="w-full h-24 object-cover rounded-lg"
-                            />
+                            {imageUrl ? (
+                              <img
+                                src={imageUrl}
+                                alt={`صورة ${index + 1}`}
+                                className="w-full h-24 object-cover rounded-lg"
+                                onLoad={() => {
+                                  // تنظيف URL بعد التحميل
+                                  if (imageUrl.startsWith('blob:')) {
+                                    setTimeout(() => URL.revokeObjectURL(imageUrl), 100);
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <ImagePreview file={image} index={index} />
+                            )}
                             {index === formData.coverIndex && (
                               <div className="absolute top-1 left-1 bg-green-500 text-white text-xs px-2 py-1 rounded">
                                 غلاف
@@ -2456,7 +2507,8 @@ export default function EditProperty({ property }: { property: any }) {
                               <FaTrash />
                             </button>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   )}
