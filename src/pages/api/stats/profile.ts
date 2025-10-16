@@ -1,4 +1,4 @@
-// src/pages/api/stats/profile.ts - إحصائيات البروفايل
+// src/pages/api/stats/profile.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
@@ -9,171 +9,152 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // قراءة البيانات من الملفات
-    const propertiesPath = path.join(process.cwd(), '.data', 'properties.json');
-    const bookingsPath = path.join(process.cwd(), '.data', 'bookings.json');
-    const notificationsPath = path.join(process.cwd(), '.data', 'notifications.json');
-    const tasksPath = path.join(process.cwd(), '.data', 'tasks.json');
+    const dataDir = path.join(process.cwd(), '.data');
 
-    let properties = [];
-    let bookings = [];
-    let notifications = [];
-    let tasks = [];
+    // قراءة الملفات
+    const propertiesFile = path.join(dataDir, 'properties.json');
+    const bookingsFile = path.join(dataDir, 'bookings.json');
+    const tasksFile = path.join(dataDir, 'tasks.json');
+    const notificationsFile = path.join(dataDir, 'notifications.json');
+    const invoicesFile = path.join(dataDir, 'invoices.json');
+    const paymentsFile = path.join(dataDir, 'payments.json');
 
-    // قراءة العقارات
-    if (fs.existsSync(propertiesPath)) {
-      const data = JSON.parse(fs.readFileSync(propertiesPath, 'utf-8'));
-      properties = data.properties || [];
-    }
+    // تحميل البيانات
+    const properties = fs.existsSync(propertiesFile) 
+      ? JSON.parse(fs.readFileSync(propertiesFile, 'utf-8')) 
+      : { properties: [] };
+    
+    const bookings = fs.existsSync(bookingsFile)
+      ? JSON.parse(fs.readFileSync(bookingsFile, 'utf-8'))
+      : { bookings: [] };
+    
+    const tasks = fs.existsSync(tasksFile)
+      ? JSON.parse(fs.readFileSync(tasksFile, 'utf-8'))
+      : { tasks: [] };
+    
+    const notifications = fs.existsSync(notificationsFile)
+      ? JSON.parse(fs.readFileSync(notificationsFile, 'utf-8'))
+      : { notifications: [] };
 
-    // قراءة الحجوزات
-    if (fs.existsSync(bookingsPath)) {
-      const data = JSON.parse(fs.readFileSync(bookingsPath, 'utf-8'));
-      bookings = data.items || [];
-    }
+    const invoices = fs.existsSync(invoicesFile)
+      ? JSON.parse(fs.readFileSync(invoicesFile, 'utf-8'))
+      : { invoices: [] };
 
-    // قراءة الإشعارات
-    if (fs.existsSync(notificationsPath)) {
-      const data = JSON.parse(fs.readFileSync(notificationsPath, 'utf-8'));
-      notifications = data.notifications || [];
-    }
-
-    // قراءة المهام
-    if (fs.existsSync(tasksPath)) {
-      const data = JSON.parse(fs.readFileSync(tasksPath, 'utf-8'));
-      tasks = data.tasks || [];
-    }
+    const payments = fs.existsSync(paymentsFile)
+      ? JSON.parse(fs.readFileSync(paymentsFile, 'utf-8'))
+      : { payments: [] };
 
     // حساب الإحصائيات
     const stats = {
       properties: {
-        total: properties.length,
-        active: properties.filter((p: any) => p.status === 'active').length,
-        rented: properties.filter((p: any) => p.status === 'rented').length,
-        draft: properties.filter((p: any) => p.status === 'draft').length,
+        total: properties.properties?.length || 0,
+        active: properties.properties?.filter((p: any) => p.status === 'active').length || 0,
+        rented: properties.properties?.filter((p: any) => p.status === 'rented').length || 0,
       },
       bookings: {
-        total: bookings.length,
-        pending: bookings.filter((b: any) => b.status === 'pending').length,
-        confirmed: bookings.filter((b: any) => b.status === 'confirmed').length,
-        completed: bookings.filter((b: any) => b.status === 'completed').length,
-      },
-      notifications: {
-        total: notifications.length,
-        unread: notifications.filter((n: any) => !n.read).length,
+        total: bookings.bookings?.length || 0,
+        pending: bookings.bookings?.filter((b: any) => b.status === 'pending').length || 0,
+        confirmed: bookings.bookings?.filter((b: any) => b.status === 'confirmed').length || 0,
       },
       tasks: {
-        total: tasks.length,
-        pending: tasks.filter((t: any) => t.status === 'pending').length,
-        in_progress: tasks.filter((t: any) => t.status === 'in_progress').length,
-        completed: tasks.filter((t: any) => t.status === 'completed').length,
+        total: tasks.tasks?.length || 0,
+        pending: tasks.tasks?.filter((t: any) => t.status === 'pending').length || 0,
+        completed: tasks.tasks?.filter((t: any) => t.status === 'completed').length || 0,
       },
-      revenue: {
-        total: calculateTotalRevenue(properties, bookings),
-        thisMonth: calculateMonthlyRevenue(properties, bookings),
-        growth: calculateGrowth(properties, bookings),
+      notifications: {
+        total: notifications.notifications?.length || 0,
+        unread: notifications.notifications?.filter((n: any) => !n.read).length || 0,
       },
-      chartData: {
-        performance: generatePerformanceData(properties, bookings),
-        revenue: generateRevenueData(properties, bookings),
-      }
     };
 
-    res.status(200).json(stats);
+    // بيانات الرسوم البيانية (آخر 6 أشهر)
+    const chartData = {
+      performance: generatePerformanceData(bookings.bookings || []),
+      revenue: generateRevenueData(invoices.invoices || [], payments.payments || []),
+    };
+
+    return res.status(200).json({
+      stats,
+      chartData,
+    });
+
   } catch (error) {
-    console.error('Error loading stats:', error);
-    res.status(500).json({ error: 'Failed to load stats' });
+    console.error('Error loading profile stats:', error);
+    return res.status(500).json({ 
+      error: 'Failed to load stats',
+      stats: {
+        properties: { total: 0, active: 0, rented: 0 },
+        bookings: { total: 0, pending: 0, confirmed: 0 },
+        tasks: { total: 0, pending: 0, completed: 0 },
+        notifications: { total: 0, unread: 0 },
+      },
+      chartData: {
+        performance: [],
+        revenue: [],
+      }
+    });
   }
 }
 
-function calculateTotalRevenue(properties: any[], bookings: any[]): number {
-  // حساب إجمالي الإيرادات من الحجوزات والعقارات
-  const bookingRevenue = bookings
-    .filter((b: any) => b.status === 'completed')
-    .reduce((sum: number, b: any) => sum + (b.totalAmount || 0), 0);
-  
-  const propertyRevenue = properties
-    .filter((p: any) => p.status === 'rented')
-    .reduce((sum: number, p: any) => sum + (p.price || 0), 0);
-
-  return bookingRevenue + propertyRevenue;
-}
-
-function calculateMonthlyRevenue(properties: any[], bookings: any[]): number {
+// دالة لتوليد بيانات الأداء
+function generatePerformanceData(bookings: any[]) {
+  const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'];
   const now = new Date();
-  const thisMonth = now.getMonth();
-  const thisYear = now.getFullYear();
+  const data = [];
 
-  const monthlyBookings = bookings.filter((b: any) => {
-    const bookingDate = new Date(b.createdAt || b.checkIn);
-    return bookingDate.getMonth() === thisMonth && 
-           bookingDate.getFullYear() === thisYear &&
-           b.status === 'completed';
-  });
-
-  return monthlyBookings.reduce((sum: number, b: any) => sum + (b.totalAmount || 0), 0);
-}
-
-function calculateGrowth(properties: any[], bookings: any[]): number {
-  // حساب معدل النمو مقارنة بالشهر الماضي
-  const now = new Date();
-  const thisMonth = calculateMonthlyRevenue(properties, bookings);
-  
-  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const lastMonthRevenue = bookings
-    .filter((b: any) => {
+  for (let i = 5; i >= 0; i--) {
+    const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthName = months[monthDate.getMonth()];
+    
+    // حساب عدد الحجوزات في هذا الشهر
+    const monthBookings = bookings.filter((b: any) => {
       const bookingDate = new Date(b.createdAt || b.checkIn);
-      return bookingDate.getMonth() === lastMonth.getMonth() && 
-             bookingDate.getFullYear() === lastMonth.getFullYear() &&
-             b.status === 'completed';
-    })
-    .reduce((sum: number, b: any) => sum + (b.totalAmount || 0), 0);
-
-  if (lastMonthRevenue === 0) return 0;
-  return ((thisMonth - lastMonthRevenue) / lastMonthRevenue) * 100;
-}
-
-function generatePerformanceData(properties: any[], bookings: any[]) {
-  const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'];
-  const now = new Date();
-  
-  return months.map((month, index) => {
-    const monthDate = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1);
-    const monthBookings = bookings.filter((b: any) => {
-      const date = new Date(b.createdAt || b.checkIn);
-      return date.getMonth() === monthDate.getMonth() && 
-             date.getFullYear() === monthDate.getFullYear();
+      return bookingDate.getMonth() === monthDate.getMonth() && 
+             bookingDate.getFullYear() === monthDate.getFullYear();
     });
 
-    return {
-      month,
-      views: Math.floor(Math.random() * 300) + 100, // يمكن استبداله بقراءة حقيقية من Analytics
+    data.push({
+      month: monthName,
+      views: Math.floor(monthBookings.length * 8.5), // تقدير المشاهدات
       bookings: monthBookings.length,
-    };
-  });
+    });
+  }
+
+  return data;
 }
 
-function generateRevenueData(properties: any[], bookings: any[]) {
+// دالة لتوليد بيانات الإيرادات
+function generateRevenueData(invoices: any[], payments: any[]) {
   const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'];
   const now = new Date();
-  
-  return months.map((month, index) => {
-    const monthDate = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1);
-    const monthBookings = bookings.filter((b: any) => {
-      const date = new Date(b.createdAt || b.checkIn);
-      return date.getMonth() === monthDate.getMonth() && 
-             date.getFullYear() === monthDate.getFullYear() &&
-             b.status === 'completed';
+  const data = [];
+
+  for (let i = 5; i >= 0; i--) {
+    const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthName = months[monthDate.getMonth()];
+    
+    // حساب الإيرادات في هذا الشهر
+    const monthInvoices = invoices.filter((inv: any) => {
+      const invDate = new Date(inv.date || inv.createdAt);
+      return invDate.getMonth() === monthDate.getMonth() && 
+             invDate.getFullYear() === monthDate.getFullYear();
     });
 
-    const revenue = monthBookings.reduce((sum: number, b: any) => sum + (b.totalAmount || 0), 0);
-    const expenses = revenue * 0.6; // افتراض أن المصروفات 60% من الإيرادات
+    const monthPayments = payments.filter((pay: any) => {
+      const payDate = new Date(pay.date || pay.createdAt);
+      return payDate.getMonth() === monthDate.getMonth() && 
+             payDate.getFullYear() === monthDate.getFullYear();
+    });
 
-    return {
-      month,
-      revenue,
-      expenses,
-    };
-  });
+    const revenue = monthInvoices.reduce((sum: number, inv: any) => sum + (inv.totalAmount || 0), 0);
+    const expenses = monthPayments.reduce((sum: number, pay: any) => sum + (pay.amount || 0), 0);
+
+    data.push({
+      month: monthName,
+      revenue: Math.round(revenue),
+      expenses: Math.round(expenses),
+    });
+  }
+
+  return data;
 }
-
