@@ -275,7 +275,7 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
                     onClick={() => setViewMode('grid')}
                     className={`px-4 py-2 rounded-md transition ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}
                   >
-                    ����
+                    شبكة
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
@@ -397,7 +397,7 @@ function PropertyCard({ property, featured = false, viewMode = 'grid' }: {
     if (p.titleAr) return p.titleAr;
     if (typeof p.title === 'string') return p.title;
     if (typeof p.title === 'object') return p.title.ar || p.title.en || '';
-    return '����';
+    return 'عقار';
   };
 
   const getCoverImage = (p: Property): string => {
@@ -425,7 +425,7 @@ function PropertyCard({ property, featured = false, viewMode = 'grid' }: {
             />
             {featured && (
               <div className="absolute top-2 right-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
-                <FaFire /> ����
+                <FaFire /> مميز
               </div>
             )}
           </div>
@@ -452,14 +452,14 @@ function PropertyCard({ property, featured = false, viewMode = 'grid' }: {
               )}
               {property.area && (
                 <div className="flex items-center gap-1 text-gray-600">
-                  <FaRulerCombined /> {property.area} �
+                  <FaRulerCombined /> {property.area} م²
                 </div>
               )}
             </div>
 
             <div className="flex items-center justify-between">
               <p className="text-3xl font-bold text-blue-600">
-                {price.toLocaleString()} �.�
+                {price.toLocaleString()} ر.ع
               </p>
               {property.rating && (
                 <div className="flex items-center gap-1">
@@ -488,7 +488,7 @@ function PropertyCard({ property, featured = false, viewMode = 'grid' }: {
           
           {featured && (
             <div className="absolute top-3 right-3 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg">
-              <FaFire /> ����
+              <FaFire /> مميز
             </div>
           )}
 
@@ -504,10 +504,10 @@ function PropertyCard({ property, featured = false, viewMode = 'grid' }: {
 
           {property.type && (
             <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur text-white px-3 py-1 rounded-lg text-sm font-medium">
-              {property.type === 'apartment' ? '?? ���' : 
-               property.type === 'villa' ? '?? ����' :
-               property.type === 'land' ? '?? ���' :
-               property.type === 'office' ? '??? ����' : '?? ���'}
+              {property.type === 'apartment' ? '🏢 شقة' : 
+               property.type === 'villa' ? '🏠 فيلا' :
+               property.type === 'land' ? '🌾 أرض' :
+               property.type === 'office' ? '🏢 مكتب' : '🏠 عقار'}
             </div>
                     )}
                   </div>
@@ -535,14 +535,14 @@ function PropertyCard({ property, featured = false, viewMode = 'grid' }: {
             )}
             {property.area && (
               <div className="flex items-center gap-1">
-                <FaRulerCombined /> {property.area} �
+                <FaRulerCombined /> {property.area} م²
                       </div>
             )}
                     </div>
 
           <div className="flex items-center justify-between pt-4 border-t border-gray-200">
             <p className="text-2xl font-bold text-blue-600">
-              {price.toLocaleString()} �.�
+              {price.toLocaleString()} ر.ع
             </p>
             {property.rating && (
               <div className="flex items-center gap-1">
