@@ -107,10 +107,12 @@ export const getStaticProps: GetStaticProps = async () => {
     // جلب البيانات في Build Time
     const { getAll } = await import("@/server/properties/store");
     const allProperties = getAll() || [];
+    // تنظيف البيانات - حذف null/undefined
+    const cleanProperties = allProperties.filter((p: any) => p && typeof p === 'object');
     
     return {
       props: {
-        initialProperties: allProperties,
+        initialProperties: cleanProperties,
         initialUnits: [], // يمكن إضافة الوحدات لاحقاً
         initialCustomers: [],
         generatedAt: new Date().toISOString(),
@@ -118,6 +120,7 @@ export const getStaticProps: GetStaticProps = async () => {
       revalidate: 30, // تحديث كل 30 ثانية (صفحة إدارة نشطة) ⚡
     };
   } catch (error) {
+    console.error('Error in getStaticProps:', error);
     return {
       props: {
         initialProperties: [],

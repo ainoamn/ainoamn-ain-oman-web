@@ -42,7 +42,9 @@ export const getStaticProps: GetStaticProps = async () => {
     // جلب البيانات في Build Time
     const { getAll } = await import("@/server/properties/store");
     const allProperties = getAll() || [];
-    const publishedProperties = allProperties.filter((p: any) => p.published !== false);
+    // تنظيف البيانات - حذف null/undefined
+    const cleanProperties = allProperties.filter((p: any) => p && typeof p === 'object');
+    const publishedProperties = cleanProperties.filter((p: any) => p.published !== false);
     
     return {
       props: {
@@ -52,6 +54,7 @@ export const getStaticProps: GetStaticProps = async () => {
       revalidate: 60, // تحديث كل دقيقة تلقائياً ⚡
     };
   } catch (error) {
+    console.error('Error in getStaticProps:', error);
     return {
       props: {
         initialProperties: [],
@@ -75,8 +78,8 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
     }
   );
   
-  const allProperties = propertiesData?.items || propertiesData?.properties || initialProperties;
-  const properties = allProperties.filter((p: Property) => p.published !== false);
+  const allProperties = propertiesData?.items || propertiesData?.properties || initialProperties || [];
+  const properties = allProperties.filter((p: Property) => p && p.published !== false);
   const loading = isLoading && !initialProperties.length;
   
   // Filters

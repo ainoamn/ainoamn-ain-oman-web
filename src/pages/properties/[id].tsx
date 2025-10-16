@@ -281,15 +281,18 @@ interface User {
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
     const { getAll } = await import("@/server/properties/store");
-    const properties = getAll() || [];
+    const allProperties = getAll() || [];
+    // تنظيف البيانات - حذف null/undefined
+    const validProperties = allProperties.filter((p: any) => p && p.id);
     
     return {
-      paths: properties.map((p: any) => ({
+      paths: validProperties.map((p: any) => ({
         params: { id: String(p.id) }
       })),
       fallback: 'blocking', // العقارات الجديدة: تُولَّد عند الطلب ثم تُخزّن ⚡
     };
   } catch (error) {
+    console.error('Error in getStaticPaths:', error);
     return {
       paths: [],
       fallback: 'blocking',
@@ -303,7 +306,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     const { getById } = await import("@/server/properties/store");
     const property = getById(id);
     
-    if (!property) {
+    if (!property || typeof property !== 'object') {
       return { notFound: true };
     }
     
@@ -315,6 +318,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       revalidate: 300, // تحديث كل 5 دقائق ⚡
     };
   } catch (error) {
+    console.error('Error in getStaticProps for property:', params?.id, error);
     return { notFound: true };
   }
 };
