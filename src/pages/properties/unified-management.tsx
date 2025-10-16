@@ -1,9 +1,10 @@
-// ���� ����� ������ �������� �������� - ����� ������� �� ������ ���������
+// نظام الإدارة الموحدة للعقارات - بنظام ISR الفائق ⚡⚡⚡
 import React, { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import Head from 'next/head';
 import InstantLink from '@/components/InstantLink';
 import { useInstantData } from '@/hooks/useInstantData';
+import { GetStaticProps } from 'next';
 
 import {
   FaBuilding, FaHome, FaEye, FaEdit, FaTrash, FaPlus, FaSearch,
@@ -100,29 +101,67 @@ interface Customer {
   type: 'individual' | 'company';
 }
 
-export default function UnifiedPropertyManagement() {
+// ⚡⚡⚡ ISR Configuration - الصفحة تُولَّد مسبقاً!
+export const getStaticProps: GetStaticProps = async () => {
+  try {
+    // جلب البيانات في Build Time
+    const { getAll } = await import("@/server/properties/store");
+    const allProperties = getAll() || [];
+    
+    return {
+      props: {
+        initialProperties: allProperties,
+        initialUnits: [], // يمكن إضافة الوحدات لاحقاً
+        initialCustomers: [],
+        generatedAt: new Date().toISOString(),
+      },
+      revalidate: 30, // تحديث كل 30 ثانية (صفحة إدارة نشطة) ⚡
+    };
+  } catch (error) {
+    return {
+      props: {
+        initialProperties: [],
+        initialUnits: [],
+        initialCustomers: [],
+        generatedAt: new Date().toISOString(),
+      },
+      revalidate: 30,
+    };
+  }
+};
+
+export default function UnifiedPropertyManagement({ initialProperties, initialUnits, initialCustomers }: any) {
   const [activeTab, setActiveTab] = useState<'properties' | 'units' | 'customers'>('properties');
   
-  // ������ useInstantData ������ ����� ������� ⚡
+  // ⚡ استخدام useInstantData مع fallback من ISR
   const { data: propertiesData, isLoading: propertiesLoading, mutate: mutateProperties } = useInstantData(
     '/api/properties',
-    (url) => fetch(url).then(r => r.json())
+    (url) => fetch(url).then(r => r.json()),
+    {
+      fallbackData: { items: initialProperties }, // ⚡ فوري!
+    }
   );
   
   const { data: unitsData, isLoading: unitsLoading, mutate: mutateUnits } = useInstantData(
     '/api/admin/units',
-    (url) => fetch(url).then(r => r.json())
+    (url) => fetch(url).then(r => r.json()),
+    {
+      fallbackData: { units: initialUnits },
+    }
   );
   
   const { data: customersData, isLoading: customersLoading, mutate: mutateCustomers } = useInstantData(
     '/api/customers',
-    (url) => fetch(url).then(r => r.json())
+    (url) => fetch(url).then(r => r.json()),
+    {
+      fallbackData: { customers: initialCustomers },
+    }
   );
   
-  const properties = propertiesData?.items || [];
-  const units = unitsData?.units || [];
-  const customers = customersData?.customers || [];
-  const loading = propertiesLoading || unitsLoading || customersLoading;
+  const properties = propertiesData?.items || initialProperties;
+  const units = unitsData?.units || initialUnits;
+  const customers = customersData?.customers || initialCustomers;
+  const loading = (propertiesLoading || unitsLoading || customersLoading) && !initialProperties.length;
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedType, setSelectedType] = useState('');
