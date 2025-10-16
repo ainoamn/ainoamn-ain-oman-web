@@ -248,7 +248,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
     setSelectedProperties(newSelected);
   };
 
-  // ���� ��� ������ ��������� ��� ����� ��������
+  // تحديث تحليل الإحصائيات عند تغيير البيانات
   useEffect(() => {
     if (properties.length > 0) {
       generateAIInsights();
@@ -413,7 +413,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
     }
   };
 
-  // ����� ����� �������
+  // تصدير ملف التقارير
   const exportReport = () => {
     const reportData = {
       generatedAt: new Date().toLocaleString('ar', { calendar: 'gregory', numberingSystem: 'latn' }),
@@ -458,7 +458,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
       <html dir="rtl" lang="ar">
       <head>
         <meta charset="UTF-8">
-        <title>����� �������� - ��� �����</title>
+        <title>تقرير العقارات - عين عُمان</title>
         <style>
           body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; }
           .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3B82F6; padding-bottom: 20px; }
@@ -483,9 +483,9 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
       </head>
       <body>
         <div class="header">
-          <h1>����� �������� - ��� �����</h1>
-          <p>����� ���� ����� ��������</p>
-          <p>����� �������: ${new Date().toLocaleString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}</p>
+          <h1>تقرير العقارات - عين عُمان</h1>
+          <p>تقرير شامل لجميع العقارات</p>
+          <p>تاريخ التقرير: ${new Date().toLocaleString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}</p>
         </div>
         
         <div class="summary">
@@ -521,12 +521,12 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
         <table>
           <thead>
             <tr>
-              <th>������</th>
-              <th>�����</th>
-              <th>������</th>
-              <th>�����</th>
-              <th>������</th>
-              <th>�����</th>
+              <th>العنوان</th>
+              <th>النوع</th>
+              <th>الموقع</th>
+              <th>السعر</th>
+              <th>الحالة</th>
+              <th>النشر</th>
             </tr>
           </thead>
           <tbody>
@@ -537,14 +537,14 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                 <td>${property.province && property.state ? `${property.province} - ${property.state}` : '-'}</td>
                 <td>${property.priceOMR ? formatPrice(property.priceOMR) : '-'}</td>
                 <td><span class="status ${property.status || 'vacant'}">${getStatusLabel(property.status || '')}</span></td>
-                <td><span class="status ${property.published ? 'published' : 'draft'}">${property.published ? '�����' : '�����'}</span></td>
+                <td><span class="status ${property.published ? 'published' : 'draft'}">${property.published ? 'منشور' : 'مسودة'}</span></td>
               </tr>
             `).join('')}
           </tbody>
         </table>
         
         <div class="footer">
-          <p>�� ����� ��� ������� ������ ���� ����� �������� - ��� �����</p>
+          <p>تم إنشاء هذا التقرير بواسطة نظام الإدارة الموحدة - عين عُمان</p>
         </div>
       </body>
       </html>
