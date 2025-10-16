@@ -110,11 +110,11 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
   }, []);
 
   const loadAIRecommendations = async () => {
-    // ������ AI recommendations
+    // تحميل AI recommendations
     setAiRecommendations([
-      { icon: '??', title: '������ �����', desc: '��� �� �������', color: 'red' },
-      { icon: '??', title: '��� �����', desc: '��� ��� 50,000', color: 'green' },
-      { icon: '?', title: '����� ����', desc: '������ 5 ����', color: 'yellow' }
+      { icon: '🔥', title: 'عروض ساخنة', desc: 'خصم حتى 20%', color: 'red' },
+      { icon: '💰', title: 'سعر مناسب', desc: 'أقل من 50,000', color: 'green' },
+      { icon: '⭐', title: 'تقييم عالي', desc: 'أكثر من 4.5 نجوم', color: 'yellow' }
     ]);
   };
 
@@ -122,7 +122,7 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
     if (property.titleAr) return property.titleAr;
     if (typeof property.title === 'string') return property.title;
     if (typeof property.title === 'object') return property.title.ar || property.title.en || '';
-    return '����';
+    return 'عقار';
   };
 
   const getCoverImage = (property: Property): string => {
@@ -194,13 +194,13 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
   return (
     <>
       <Head>
-        <title>�������� | Ain Oman</title>
+        <title>العقارات | Ain Oman</title>
       </Head>
 
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           
-          {/* Hero Header �� AI */}
+          {/* Hero Header مع AI */}
           <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl shadow-2xl p-8 mb-8 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full -ml-48 -mb-48"></div>
@@ -209,8 +209,8 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
               <div className="flex items-center gap-3 mb-4">
                 <FaRobot className="text-5xl" />
                 <div>
-                  <h1 className="text-4xl font-bold">?? ������ ��������</h1>
-                  <p className="text-blue-100 text-lg">����� ������� ��������� � {properties.length} ���� ����</p>
+                  <h1 className="text-4xl font-bold">اكتشف العقار المثالي</h1>
+                  <p className="text-blue-100 text-lg">بتقنية الذكاء الاصطناعي - {properties.length} عقار متاح</p>
         </div>
             </div>
 
@@ -228,7 +228,7 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
                       </div>
                     </div>
                   ))}
-                </div>
+              </div>
               )}
 
               {/* Search Bar */}
@@ -239,7 +239,7 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="���� �� ���� �� ����..."
+                    placeholder="ابحث عن عقار أو موقع..."
                     className="w-full pr-12 pl-6 py-4 rounded-2xl text-gray-900 text-lg focus:outline-none focus:ring-4 focus:ring-white/50 shadow-xl"
                   />
                 </div>
@@ -256,7 +256,7 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium"
                 >
                   <FaFilter />
-                  {showFilters ? '����� �������' : '����� ������'}
+                  {showFilters ? 'إخفاء الفلاتر' : 'إظهار الفلاتر'}
                 </button>
                 
                 <select
@@ -264,10 +264,10 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                 >
-                  <option value="newest">������</option>
-                  <option value="price-low">�����: �� �����</option>
-                  <option value="price-high">�����: �� ������</option>
-                  <option value="rating">������ �������</option>
+                  <option value="newest">الأحدث</option>
+                  <option value="price-low">السعر: من الأقل</option>
+                  <option value="price-high">السعر: من الأعلى</option>
+                  <option value="rating">الأعلى تقييماً</option>
                   </select>
 
                 <div className="flex gap-2 border-2 border-gray-200 rounded-lg p-1">
@@ -281,13 +281,13 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
                     onClick={() => setViewMode('list')}
                     className={`px-4 py-2 rounded-md transition ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}
                   >
-                    �����
+                    قائمة
                   </button>
                 </div>
               </div>
 
               <p className="text-gray-600 font-medium">
-                {filteredProperties.length} ����
+                {filteredProperties.length} عقار
               </p>
             </div>
 
@@ -299,12 +299,12 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
                   onChange={(e) => setSelectedType(e.target.value)}
                   className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500"
                 >
-                  <option value="all">�� �������</option>
-                  <option value="apartment">���</option>
-                  <option value="villa">����</option>
-                  <option value="land">���</option>
-                  <option value="office">����</option>
-                  <option value="shop">���</option>
+                  <option value="all">كل الأنواع</option>
+                  <option value="apartment">شقة</option>
+                  <option value="villa">فيلا</option>
+                  <option value="land">أرض</option>
+                  <option value="office">مكتب</option>
+                  <option value="shop">محل</option>
                 </select>
 
                 <select
@@ -312,10 +312,10 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
                   onChange={(e) => setSelectedPurpose(e.target.value)}
                   className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500"
                 >
-                  <option value="all">�� �������</option>
-                  <option value="sale">�����</option>
-                  <option value="rent">�������</option>
-                  <option value="investment">���������</option>
+                  <option value="all">كل الأغراض</option>
+                  <option value="sale">للبيع</option>
+                  <option value="rent">للإيجار</option>
+                  <option value="investment">للاستثمار</option>
                 </select>
 
                 <select
@@ -323,17 +323,17 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
                   onChange={(e) => setSelectedProvince(e.target.value)}
                   className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500"
                 >
-                  <option value="all">�� ���������</option>
-                  <option value="muscat">����</option>
-                  <option value="dhofar">����</option>
-                  <option value="dakhliyah">��������</option>
+                  <option value="all">كل المحافظات</option>
+                  <option value="muscat">مسقط</option>
+                  <option value="dhofar">ظفار</option>
+                  <option value="dakhliyah">الداخلية</option>
                 </select>
 
                   <input
                     type="number"
                     value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
-                  placeholder="����� ��"
+                  placeholder="الحد الأدنى"
                   className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500"
                   />
 
@@ -341,7 +341,7 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
                     type="number"
                     value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
-                  placeholder="����� ���"
+                  placeholder="الحد الأدنى"
                   className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500"
                   />
                 </div>
@@ -353,7 +353,7 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
             <div className="mb-8">
               <div className="flex items-center gap-2 mb-4">
                 <FaFire className="text-orange-500 text-2xl" />
-                <h2 className="text-2xl font-bold text-gray-900">�������� ������ �����</h2>
+                <h2 className="text-2xl font-bold text-gray-900">العقارات الأكثر طلباً</h2>
                 </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {trendingProperties.map((property) => (
@@ -367,8 +367,8 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
           {filteredProperties.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
               <FaHome className="text-6xl text-gray-300 mx-auto mb-4" />
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">�� ���� ������</h3>
-              <p className="text-gray-600">���� ����� ������� �� ����� ����� ����</p>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">لا توجد عقارات</h3>
+              <p className="text-gray-600">جرب تعديل الفلاتر أو البحث بكلمة مختلفة</p>
             </div>
           ) : (
             <div className={viewMode === 'grid' 
