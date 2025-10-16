@@ -255,19 +255,24 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
     }
   }, [properties.length, units.length, customers.length]);
 
-  // ����� ��� ������ ���������
+  // تحليل ذكي للإحصائيات
   const generateAIInsights = () => {
+    // ✅ تنظيف البيانات أولاً
+    const validProperties = properties.filter(p => p && typeof p === 'object');
+    const validUnits = units.filter(u => u && typeof u === 'object');
+    const validCustomers = customers.filter(c => c && typeof c === 'object');
+    
     const insights = {
-      totalProperties: properties.length,
-      totalUnits: units.length,
-      totalCustomers: customers.length,
-      publishedProperties: properties.filter(p => p.published).length,
-      draftProperties: properties.filter(p => !p.published).length,
-      vacantProperties: properties.filter(p => p.status === 'vacant').length,
-      leasedProperties: properties.filter(p => p.status === 'leased').length,
-      multiUnitBuildings: properties.filter(p => p.buildingType === 'multi').length,
-      singleUnitProperties: properties.filter(p => p.buildingType === 'single').length,
-      averagePrice: properties.reduce((sum, p) => sum + (p.priceOMR || 0), 0) / properties.length || 0,
+      totalProperties: validProperties.length,
+      totalUnits: validUnits.length,
+      totalCustomers: validCustomers.length,
+      publishedProperties: validProperties.filter(p => p.published).length,
+      draftProperties: validProperties.filter(p => !p.published).length,
+      vacantProperties: validProperties.filter(p => p.status === 'vacant').length,
+      leasedProperties: validProperties.filter(p => p.status === 'leased').length,
+      multiUnitBuildings: validProperties.filter(p => p.buildingType === 'multi').length,
+      singleUnitProperties: validProperties.filter(p => p.buildingType === 'single').length,
+      averagePrice: validProperties.reduce((sum, p) => sum + (p.priceOMR || 0), 0) / validProperties.length || 0,
       topLocation: getTopLocation(),
       recommendations: generateRecommendations()
     };
@@ -275,39 +280,45 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
   };
 
   const getTopLocation = () => {
-    const locations = properties.reduce((acc, p) => {
+    // ✅ تنظيف البيانات
+    const validProperties = properties.filter(p => p && p.province && p.state);
+    
+    const locations = validProperties.reduce((acc, p) => {
       const location = `${p.province} - ${p.state}`;
       acc[location] = (acc[location] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
     
-    return Object.entries(locations).sort(([,a], [,b]) => b - a)[0]?.[0] || '��� ����';
+    return Object.entries(locations).sort(([,a], [,b]) => b - a)[0]?.[0] || 'غير محدد';
   };
 
   const generateRecommendations = () => {
     const recommendations = [];
     
-    if (properties.filter(p => !p.published).length > 0) {
+    // ✅ تنظيف البيانات
+    const validProperties = properties.filter(p => p && typeof p === 'object');
+    
+    if (validProperties.filter(p => !p.published).length > 0) {
       recommendations.push({
         type: 'warning',
-        message: `���� ${properties.filter(p => !p.published).length} ���� ��� �����. ����� ������ ������ ������.`,
-        action: '��� ��������'
+        message: `لديك ${validProperties.filter(p => !p.published).length} عقار غير منشور. يُنصح بنشرها لزيادة الظهور.`,
+        action: 'نشر العقارات'
       });
     }
     
-    if (properties.filter(p => p.status === 'vacant').length > 5) {
+    if (validProperties.filter(p => p.status === 'vacant').length > 5) {
       recommendations.push({
         type: 'info',
-        message: `���� ${properties.filter(p => p.status === 'vacant').length} ���� ����. ����� ������ ������� �� ����� �������.`,
-        action: '����� �������'
+        message: `لديك ${validProperties.filter(p => p.status === 'vacant').length} عقار شاغر. يُنصح بتحسين التسويق أو خفض الأسعار.`,
+        action: 'تحسين التسويق'
       });
     }
     
-    if (units.length === 0 && properties.filter(p => p.buildingType === 'multi').length > 0) {
+    if (units.length === 0 && validProperties.filter(p => p.buildingType === 'multi').length > 0) {
       recommendations.push({
         type: 'error',
-        message: '���� ����� ������ ������� ���� ����� �����. ����� ������ ������ �������.',
-        action: '����� �������'
+        message: 'لديك مباني متعددة الوحدات لكن لا توجد وحدات. يُنصح بإضافة بيانات الوحدات.',
+        action: 'إضافة الوحدات'
       });
     }
     
