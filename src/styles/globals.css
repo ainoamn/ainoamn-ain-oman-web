@@ -37,6 +37,61 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* ⚡⚡⚡ View Transitions - انتقالات سلسة بين الصفحات */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes slide-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* عند بدء الانتقال */
+html.page-transitioning main {
+  animation: fade-out 0.15s ease-out forwards;
+}
+
+/* بعد اكتمال الانتقال */
+html:not(.page-transitioning) main {
+  animation: fade-in 0.25s ease-out;
+}
+
+/* تحسين الانتقالات للروابط */
+html.page-transitioning a,
+html.page-transitioning button {
+  pointer-events: none;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
 /* الوضع الداكن */
 .dark {
   --brand-600: #0d9488;

@@ -100,6 +100,27 @@
 - Performance first (تحسين الأداء أولاً)
 - No console.log في Production
 
+**⚡ مواصفات الأداء الخارق (إلزامية لجميع الصفحات):**
+- استخدم ISR (Incremental Static Regeneration) لجميع صفحات العقارات
+- استخدم useInstantData بدلاً من fetch العادي
+- استخدم InstantLink و InstantImage في جميع الصفحات
+- طبّق Prefetch Everything (الصفحة + البيانات + الصور)
+- استخدم Optimistic UI للتحديثات الفورية
+- طبّق View Transitions API للانتقالات السلسة
+- Service Worker للتخزين المحلي والعمل دون اتصال
+- الهدف: فتح الصفحات في 0ms (قبل رفّ العين!)
+- راجع: INSTANT_PERFORMANCE_README.md و ULTIMATE_PERFORMANCE_SYSTEM.md
+
+**معايير الأداء المطلوبة:**
+- TTFB (Time to First Byte): < 100ms
+- FCP (First Contentful Paint): < 500ms
+- LCP (Largest Contentful Paint): < 1s
+- FID (First Input Delay): < 50ms
+- CLS (Cumulative Layout Shift): < 0.05
+- التنقل بين الصفحات: < 50ms (فوري!)
+- التحديثات: < 20ms (فوري!)
+- Lighthouse Score: > 90
+
 **قبل البدء بأي عمل:**
 - راجع الكود المشابه الموجود أولاً
 - التزم بنفس النمط والأسلوب
@@ -111,3 +132,13 @@
 - لا تترك أي خطوة غير مكتملة
 - عند إنشاء/تعديل ملفات، تجنب التكرار والتضارب
 - اختبر كل تغيير قبل الانتقال للتالي
+
+**عند تصميم أو مراجعة أي صفحة (إلزامي):**
+1. ✅ تحقق: هل تستخدم ISR/SSG/SSR؟ (إذا لا، حوّلها)
+2. ✅ تحقق: هل تستخدم useInstantData؟ (لا fetch عادي!)
+3. ✅ تحقق: هل تستخدم InstantLink و InstantImage؟
+4. ✅ تحقق: هل Prefetching مفعّل؟
+5. ✅ تحقق: لا console.log في الكود
+6. ✅ تحقق: لا إعادة رسم غير ضرورية
+7. ✅ قِس الأداء: التحميل < 1s، التنقل < 50ms
+8. ✅ الهدف دائماً: سرعة البرق ⚡ (0ms عند الإمكان!)

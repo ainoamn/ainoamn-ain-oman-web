@@ -1,10 +1,11 @@
-// src/pages/properties/index.tsx - ���� �������� �������� �� AI
+// src/pages/properties/index.tsx - صفحة العقارات بنظام ISR ⚡⚡⚡
 import Head from "next/head";
 import InstantImage from '@/components/InstantImage';
 import InstantLink from '@/components/InstantLink';
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/router";
 import { useInstantData } from '@/hooks/useInstantData';
+import { GetStaticProps } from 'next';
 import { 
   FaSearch, FaFilter, FaBolt, FaBed, FaBath, FaRulerCombined, 
   FaStar, FaHeart, FaMapMarkerAlt, FaBuilding, FaHome, FaStore,
@@ -35,19 +36,48 @@ interface Property {
   amenities?: string[];
 }
 
-export default function PropertiesPage() {
+// ⚡⚡⚡ ISR Configuration - الصفحة تُولَّد مسبقاً!
+export const getStaticProps: GetStaticProps = async () => {
+  try {
+    // جلب البيانات في Build Time
+    const { getAll } = await import("@/server/properties/store");
+    const allProperties = getAll() || [];
+    const publishedProperties = allProperties.filter((p: any) => p.published !== false);
+    
+    return {
+      props: {
+        initialProperties: publishedProperties,
+        generatedAt: new Date().toISOString(),
+      },
+      revalidate: 60, // تحديث كل دقيقة تلقائياً ⚡
+    };
+  } catch (error) {
+    return {
+      props: {
+        initialProperties: [],
+        generatedAt: new Date().toISOString(),
+      },
+      revalidate: 60,
+    };
+  }
+};
+
+export default function PropertiesPage({ initialProperties, generatedAt }: any) {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   
-  // ⚡ استخدام useInstantData للتحميل الفوري
+  // ⚡ استخدام useInstantData مع fallback من ISR
   const { data: propertiesData, isLoading } = useInstantData(
     '/api/properties',
-    (url) => fetch(url).then(r => r.json())
+    (url) => fetch(url).then(r => r.json()),
+    {
+      fallbackData: { items: initialProperties }, // ⚡ البيانات جاهزة فوراً!
+    }
   );
   
-  const allProperties = propertiesData?.items || propertiesData?.properties || [];
+  const allProperties = propertiesData?.items || propertiesData?.properties || initialProperties;
   const properties = allProperties.filter((p: Property) => p.published !== false);
-  const loading = isLoading;
+  const loading = isLoading && !initialProperties.length;
   
   // Filters
   const [searchTerm, setSearchTerm] = useState('');

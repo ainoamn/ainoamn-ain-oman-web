@@ -81,9 +81,54 @@ function LangSync() {
 }
 
 export default function App({ Component, pageProps }: AppProps) {
+  const router = useRouter();
+  
   useEffect(() => {
     initializeData();
-  }, []);
+    
+    // ⚡⚡⚡ تسجيل Service Worker للأداء الخارق
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then((registration) => {
+        console.log('✅ Service Worker registered successfully!');
+        
+        // تحديث تلقائي
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+                console.log('🔄 Service Worker updated! Reloading...');
+                window.location.reload();
+              }
+            });
+          }
+        });
+      }).catch((error) => {
+        console.warn('⚠️ Service Worker registration failed:', error);
+      });
+    }
+    
+    // ⚡⚡⚡ View Transitions API للانتقالات السلسة
+    if (typeof window !== 'undefined' && 'startViewTransition' in document) {
+      const handleRouteChangeStart = (url: string) => {
+        document.documentElement.classList.add('page-transitioning');
+      };
+      
+      const handleRouteChangeComplete = () => {
+        document.documentElement.classList.remove('page-transitioning');
+      };
+      
+      router.events.on('routeChangeStart', handleRouteChangeStart);
+      router.events.on('routeChangeComplete', handleRouteChangeComplete);
+      router.events.on('routeChangeError', handleRouteChangeComplete);
+      
+      return () => {
+        router.events.off('routeChangeStart', handleRouteChangeStart);
+        router.events.off('routeChangeComplete', handleRouteChangeComplete);
+        router.events.off('routeChangeError', handleRouteChangeComplete);
+      };
+    }
+  }, [router]);
 
   // @ts-expect-error optional getLayout / noChrome
   const getLayout = (Component as any).getLayout as undefined | ((page: JSX.Element) => JSX.Element);

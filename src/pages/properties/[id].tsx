@@ -4,6 +4,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import InstantLink, { InstantButton } from '@/components/InstantLink';
 import { useInstantData } from '@/hooks/useInstantData';
+import { GetStaticPaths, GetStaticProps } from 'next';
 import { 
   FaBuilding, 
   FaHome, 
@@ -276,18 +277,63 @@ interface User {
   permissions: string[];
 }
 
-function PropertyDetailsPage() {
+// ⚡⚡⚡ ISR Configuration - صفحات العقارات تُولَّد مسبقاً!
+export const getStaticPaths: GetStaticPaths = async () => {
+  try {
+    const { getAll } = await import("@/server/properties/store");
+    const properties = getAll() || [];
+    
+    return {
+      paths: properties.map((p: any) => ({
+        params: { id: String(p.id) }
+      })),
+      fallback: 'blocking', // العقارات الجديدة: تُولَّد عند الطلب ثم تُخزّن ⚡
+    };
+  } catch (error) {
+    return {
+      paths: [],
+      fallback: 'blocking',
+    };
+  }
+};
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  try {
+    const id = params?.id as string;
+    const { getById } = await import("@/server/properties/store");
+    const property = getById(id);
+    
+    if (!property) {
+      return { notFound: true };
+    }
+    
+    return {
+      props: {
+        initialProperty: property,
+        generatedAt: new Date().toISOString(),
+      },
+      revalidate: 300, // تحديث كل 5 دقائق ⚡
+    };
+  } catch (error) {
+    return { notFound: true };
+  }
+};
+
+function PropertyDetailsPage({ initialProperty, generatedAt }: any) {
   const router = useRouter();
   const { id } = router.query;
   
-  // ������ useInstantData ������ ����� ������� ⚡
+  // ⚡ استخدام useInstantData مع fallback من ISR
   const { data: propertyResponse, isLoading: propertyLoading, error: propertyError } = useInstantData(
     id ? `/api/properties/${id}` : null,
-    (url) => fetch(url).then(r => r.json())
+    (url) => fetch(url).then(r => r.json()),
+    {
+      fallbackData: initialProperty ? { item: initialProperty } : undefined, // ⚡ فوري!
+    }
   );
   
-  const property = propertyResponse?.item || null;
-  const loading = propertyLoading;
+  const property = propertyResponse?.item || initialProperty || null;
+  const loading = propertyLoading && !initialProperty;
   const error = propertyError ? propertyError.message : null;
   
   // Image Gallery State

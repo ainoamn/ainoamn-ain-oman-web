@@ -1,267 +1,328 @@
-// public/sw.js
-// Service Worker للتخزين المؤقت والأداء الفائق ⚡
+// Service Worker - نظام التخزين المتقدم ⚡⚡⚡
+// يوفر: سرعة فائقة + عمل بدون إنترنت + PWA كامل
 
-const CACHE_NAME = 'ain-oman-v1';
-const STATIC_CACHE = 'ain-oman-static-v1';
-const DYNAMIC_CACHE = 'ain-oman-dynamic-v1';
-const IMAGE_CACHE = 'ain-oman-images-v1';
+const CACHE_VERSION = 'ain-oman-v1.0.0';
+const STATIC_CACHE = `${CACHE_VERSION}-static`;
+const DYNAMIC_CACHE = `${CACHE_VERSION}-dynamic`;
+const IMAGE_CACHE = `${CACHE_VERSION}-images`;
+const API_CACHE = `${CACHE_VERSION}-api`;
 
-// الملفات الثابتة للتخزين المؤقت
+// الملفات الثابتة المهمة (يتم تخزينها عند التثبيت)
 const STATIC_ASSETS = [
   '/',
+  '/properties',
   '/offline.html',
   '/manifest.json',
 ];
 
-// أنماط التخزين المؤقت
-const CACHE_STRATEGIES = {
-  // تخزين مؤقت أولاً، ثم الشبكة
-  CACHE_FIRST: 'cache-first',
-  // الشبكة أولاً، ثم التخزين المؤقت
-  NETWORK_FIRST: 'network-first',
-  // الشبكة فقط
-  NETWORK_ONLY: 'network-only',
-  // التخزين المؤقت فقط
-  CACHE_ONLY: 'cache-only',
-  // تحديث في الخلفية
-  STALE_WHILE_REVALIDATE: 'stale-while-revalidate',
-};
-
-// تحديد استراتيجية التخزين المؤقت حسب نوع الطلب
-function getCacheStrategy(url) {
-  // صور - تخزين مؤقت أولاً
-  if (url.match(/\.(jpg|jpeg|png|gif|webp|avif|svg|ico)$/i)) {
-    return CACHE_STRATEGIES.CACHE_FIRST;
-  }
-
-  // CSS & JS - stale while revalidate
-  if (url.match(/\.(css|js)$/i)) {
-    return CACHE_STRATEGIES.STALE_WHILE_REVALIDATE;
-  }
-
-  // API - الشبكة أولاً
-  if (url.includes('/api/')) {
-    return CACHE_STRATEGIES.NETWORK_FIRST;
-  }
-
-  // صفحات HTML - الشبكة أولاً مع fallback
-  return CACHE_STRATEGIES.NETWORK_FIRST;
-}
-
 // تثبيت Service Worker
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing Service Worker...');
+  console.log('⚡ Service Worker: Installing...');
   
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => {
-      console.log('[SW] Caching static assets');
+      console.log('⚡ Service Worker: Caching static assets');
       return cache.addAll(STATIC_ASSETS);
+    }).then(() => {
+      console.log('✅ Service Worker: Installed successfully!');
+      return self.skipWaiting(); // تفعيل فوري
     })
   );
-
-  self.skipWaiting();
 });
 
 // تفعيل Service Worker
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating Service Worker...');
-
+  console.log('⚡ Service Worker: Activating...');
+  
   event.waitUntil(
-    caches.keys().then((keys) => {
+    // حذف الـ caches القديمة
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keys
-          .filter((key) => {
-            return (
-              key !== CACHE_NAME &&
-              key !== STATIC_CACHE &&
-              key !== DYNAMIC_CACHE &&
-              key !== IMAGE_CACHE
-            );
-          })
-          .map((key) => {
-            console.log('[SW] Removing old cache:', key);
-            return caches.delete(key);
+        cacheNames
+          .filter((name) => name.startsWith('ain-oman-') && name !== STATIC_CACHE && name !== DYNAMIC_CACHE && name !== IMAGE_CACHE && name !== API_CACHE)
+          .map((name) => {
+            console.log('🗑️ Service Worker: Deleting old cache:', name);
+            return caches.delete(name);
           })
       );
+    }).then(() => {
+      console.log('✅ Service Worker: Activated!');
+      return self.clients.claim(); // التحكم في جميع الصفحات فوراً
     })
   );
-
-  self.clients.claim();
 });
 
-// استراتيجية التخزين المؤقت أولاً
-async function cacheFirst(request, cacheName) {
-  const cache = await caches.open(cacheName);
-  const cached = await cache.match(request);
-
-  if (cached) {
-    return cached;
-  }
-
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch (error) {
-    console.error('[SW] Fetch failed:', error);
-    throw error;
-  }
-}
-
-// استراتيجية الشبكة أولاً
-async function networkFirst(request, cacheName, timeout = 3000) {
-  const cache = await caches.open(cacheName);
-
-  try {
-    const networkPromise = fetch(request);
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Network timeout')), timeout)
-    );
-
-    const response = await Promise.race([networkPromise, timeoutPromise]);
-
-    if (response.ok) {
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch (error) {
-    console.log('[SW] Network failed, trying cache:', error);
-    const cached = await cache.match(request);
-    
-    if (cached) {
-      return cached;
-    }
-
-    // إذا كان طلب HTML وفشل، أرجع صفحة offline
-    if (request.destination === 'document') {
-      return cache.match('/offline.html');
-    }
-
-    throw error;
-  }
-}
-
-// استراتيجية stale-while-revalidate
-async function staleWhileRevalidate(request, cacheName) {
-  const cache = await caches.open(cacheName);
-  const cached = await cache.match(request);
-
-  // أحضر النسخة الجديدة في الخلفية
-  const fetchPromise = fetch(request).then((response) => {
-    if (response.ok) {
-      cache.put(request, response.clone());
-    }
-    return response;
-  });
-
-  // أرجع النسخة المخزنة فورًا إن وجدت
-  return cached || fetchPromise;
-}
-
-// معالجة الطلبات
+// استراتيجية Fetch
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
-
-  // تجاهل الطلبات غير HTTP/HTTPS
-  if (!url.protocol.startsWith('http')) {
+  
+  // تجاهل طلبات Chrome Extension
+  if (url.protocol === 'chrome-extension:') {
+    return;
+  }
+  
+  // تجاهل طلبات WebSocket
+  if (request.headers.get('upgrade') === 'websocket') {
     return;
   }
 
-  // تجاهل chrome-extension وغيرها
-  if (url.origin !== self.location.origin) {
+  // 1. API Requests: Network-First مع Fallback
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(handleAPIRequest(request));
     return;
   }
 
-  const strategy = getCacheStrategy(url.pathname);
-
-  let responsePromise;
-
-  switch (strategy) {
-    case CACHE_STRATEGIES.CACHE_FIRST:
-      responsePromise = cacheFirst(
-        request,
-        url.pathname.match(/\.(jpg|jpeg|png|gif|webp|avif|svg|ico)$/i)
-          ? IMAGE_CACHE
-          : DYNAMIC_CACHE
-      );
-      break;
-
-    case CACHE_STRATEGIES.NETWORK_FIRST:
-      responsePromise = networkFirst(request, DYNAMIC_CACHE);
-      break;
-
-    case CACHE_STRATEGIES.STALE_WHILE_REVALIDATE:
-      responsePromise = staleWhileRevalidate(request, DYNAMIC_CACHE);
-      break;
-
-    case CACHE_STRATEGIES.NETWORK_ONLY:
-      responsePromise = fetch(request);
-      break;
-
-    case CACHE_STRATEGIES.CACHE_ONLY:
-      responsePromise = caches.match(request);
-      break;
-
-    default:
-      responsePromise = networkFirst(request, DYNAMIC_CACHE);
+  // 2. Images: Cache-First (أسرع استراتيجية للصور)
+  if (request.destination === 'image' || url.pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|avif)$/i)) {
+    event.respondWith(handleImageRequest(request));
+    return;
   }
 
-  event.respondWith(responsePromise);
+  // 3. Static Assets: Cache-First مع تحديث في الخلفية
+  if (url.pathname.startsWith('/_next/static/')) {
+    event.respondWith(handleStaticAsset(request));
+    return;
+  }
+
+  // 4. HTML Pages: Network-First مع Fallback
+  if (request.mode === 'navigate') {
+    event.respondWith(handlePageRequest(request));
+    return;
+  }
+
+  // 5. الافتراضي: Network-First
+  event.respondWith(
+    fetch(request).catch(() => {
+      return caches.match(request);
+    })
+  );
 });
 
-// معالجة الرسائل من الصفحة
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-
-  if (event.data && event.data.type === 'CLEAR_CACHE') {
-    event.waitUntil(
-      caches.keys().then((keys) => {
-        return Promise.all(keys.map((key) => caches.delete(key)));
-      })
+// معالج طلبات API: Network-First مع Cache Fallback
+async function handleAPIRequest(request) {
+  try {
+    // محاولة الشبكة أولاً
+    const networkResponse = await fetch(request);
+    
+    // إذا نجحت، احفظ في الـ cache
+    if (networkResponse.ok) {
+      const cache = await caches.open(API_CACHE);
+      cache.put(request, networkResponse.clone());
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    // إذا فشلت الشبكة، استخدم الـ cache
+    const cachedResponse = await caches.match(request);
+    
+    if (cachedResponse) {
+      console.log('📦 Service Worker: Serving API from cache:', request.url);
+      return cachedResponse;
+    }
+    
+    // لا شبكة ولا cache - أرجع خطأ
+    return new Response(
+      JSON.stringify({ 
+        error: 'offline',
+        message: 'لا يوجد اتصال بالإنترنت والبيانات غير متوفرة محلياً'
+      }),
+      {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' }
+      }
     );
   }
-});
+}
 
-// Background Sync للعمل دون اتصال
+// معالج الصور: Cache-First (أسرع!)
+async function handleImageRequest(request) {
+  // تحقق من الـ cache أولاً
+  const cachedResponse = await caches.match(request);
+  
+  if (cachedResponse) {
+    console.log('⚡ Service Worker: Image from cache (instant!):', request.url);
+    return cachedResponse;
+  }
+  
+  try {
+    // إذا لم توجد، اجلبها من الشبكة
+    const networkResponse = await fetch(request);
+    
+    if (networkResponse.ok) {
+      // احفظها في الـ cache للمستقبل
+      const cache = await caches.open(IMAGE_CACHE);
+      cache.put(request, networkResponse.clone());
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    // صورة placeholder عند الفشل
+    return new Response(
+      `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="#e5e7eb"/>
+        <text x="50%" y="50%" text-anchor="middle" fill="#9ca3af" font-size="16">لا يوجد اتصال</text>
+      </svg>`,
+      {
+        headers: { 'Content-Type': 'image/svg+xml' }
+      }
+    );
+  }
+}
+
+// معالج الملفات الثابتة: Cache-First مع Stale-While-Revalidate
+async function handleStaticAsset(request) {
+  const cachedResponse = await caches.match(request);
+  
+  if (cachedResponse) {
+    // أرجع من الـ cache فوراً
+    console.log('⚡ Service Worker: Static asset from cache:', request.url);
+    
+    // تحديث في الخلفية (Stale-While-Revalidate)
+    fetch(request).then((networkResponse) => {
+      if (networkResponse.ok) {
+        caches.open(STATIC_CACHE).then((cache) => {
+          cache.put(request, networkResponse);
+        });
+      }
+    }).catch(() => {});
+    
+    return cachedResponse;
+  }
+  
+  // إذا لم توجد، اجلبها واحفظها
+  try {
+    const networkResponse = await fetch(request);
+    
+    if (networkResponse.ok) {
+      const cache = await caches.open(STATIC_CACHE);
+      cache.put(request, networkResponse.clone());
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    return new Response('Offline', { status: 503 });
+  }
+}
+
+// معالج الصفحات: Network-First مع Offline Fallback
+async function handlePageRequest(request) {
+  try {
+    // محاولة الشبكة أولاً
+    const networkResponse = await fetch(request);
+    
+    if (networkResponse.ok) {
+      // احفظ في الـ cache
+      const cache = await caches.open(DYNAMIC_CACHE);
+      cache.put(request, networkResponse.clone());
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    // إذا فشلت، جرّب الـ cache
+    const cachedResponse = await caches.match(request);
+    
+    if (cachedResponse) {
+      console.log('📦 Service Worker: Page from cache:', request.url);
+      return cachedResponse;
+    }
+    
+    // لا شبكة ولا cache - أرجع صفحة offline
+    const offlinePage = await caches.match('/offline.html');
+    if (offlinePage) {
+      return offlinePage;
+    }
+    
+    // إذا حتى صفحة offline غير موجودة
+    return new Response(
+      `<!DOCTYPE html>
+      <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>لا يوجد اتصال - عين عُمان</title>
+          <style>
+            body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              min-height: 100vh;
+              margin: 0;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              color: white;
+              text-align: center;
+            }
+            .container {
+              max-width: 500px;
+              padding: 40px;
+            }
+            h1 { font-size: 48px; margin: 0 0 20px; }
+            p { font-size: 18px; margin: 10px 0; }
+            button {
+              background: white;
+              color: #667eea;
+              border: none;
+              padding: 15px 30px;
+              font-size: 16px;
+              border-radius: 8px;
+              cursor: pointer;
+              margin-top: 20px;
+              font-weight: bold;
+            }
+            button:hover { transform: scale(1.05); }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>⚠️</h1>
+            <h2>لا يوجد اتصال بالإنترنت</h2>
+            <p>تحقق من اتصالك بالإنترنت وحاول مرة أخرى</p>
+            <button onclick="window.location.reload()">إعادة المحاولة</button>
+          </div>
+        </body>
+      </html>`,
+      {
+        status: 503,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      }
+    );
+  }
+}
+
+// Background Sync للطلبات الفاشلة
 self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-data') {
-    event.waitUntil(syncData());
+  if (event.tag === 'sync-properties') {
+    event.waitUntil(syncProperties());
   }
 });
 
-async function syncData() {
-  // مزامنة البيانات المعلقة
-  console.log('[SW] Syncing data...');
+async function syncProperties() {
+  console.log('🔄 Service Worker: Syncing properties...');
+  // يمكن إضافة منطق المزامنة هنا
 }
 
-// Push Notifications
+// Push Notifications (جاهز للمستقبل)
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
   const title = data.title || 'عين عُمان';
   const options = {
     body: data.body || 'لديك إشعار جديد',
-    icon: '/icon-192.png',
-    badge: '/badge-72.png',
-    data: data.url,
+    icon: '/icon-192x192.png',
+    badge: '/icon-192x192.png',
+    data: data.url || '/',
   };
-
-  event.waitUntil(self.registration.showNotification(title, options));
+  
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
 });
 
-// معالجة نقر الإشعار
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-
-  if (event.notification.data) {
-    event.waitUntil(clients.openWindow(event.notification.data));
-  }
+  event.waitUntil(
+    clients.openWindow(event.notification.data || '/')
+  );
 });
 
-console.log('[SW] Service Worker loaded successfully! ⚡');
-
-
+console.log('✅ Service Worker: Loaded and ready!');

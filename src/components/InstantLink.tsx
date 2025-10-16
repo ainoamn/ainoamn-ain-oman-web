@@ -86,22 +86,49 @@ export default function InstantLink({
     };
   }, [href, prefetch, isPrefetched, router]);
 
-  // Prefetch فوري عند المرور بالماوس
+  // ⚡⚡⚡ Prefetch Everything عند المرور بالماوس
   const handleMouseEnter = () => {
     if (prefetch && !isPrefetched) {
+      // 1. Prefetch الصفحة
       router.prefetch(href).then(() => {
         setIsPrefetched(true);
       });
+      
+      // 2. Prefetch البيانات (إذا كانت صفحة عقار)
+      if (href.startsWith('/properties/') && !href.includes('/edit') && !href.includes('/new')) {
+        const propertyId = href.split('/')[2];
+        if (propertyId && propertyId !== 'unified-management') {
+          // Prefetch بيانات العقار
+          fetch(`/api/properties/${propertyId}`).catch(() => {});
+        }
+      }
+      
+      // 3. Prefetch قائمة العقارات
+      if (href === '/properties' || href === '/properties/unified-management') {
+        fetch('/api/properties').catch(() => {});
+      }
     }
     onMouseEnter?.();
   };
 
-  // Prefetch عند التركيز (للوحة المفاتيح)
+  // ⚡⚡⚡ Prefetch Everything عند التركيز (للوحة المفاتيح)
   const handleFocus = () => {
     if (prefetch && !isPrefetched) {
       router.prefetch(href).then(() => {
         setIsPrefetched(true);
       });
+      
+      // Prefetch البيانات أيضاً
+      if (href.startsWith('/properties/') && !href.includes('/edit') && !href.includes('/new')) {
+        const propertyId = href.split('/')[2];
+        if (propertyId && propertyId !== 'unified-management') {
+          fetch(`/api/properties/${propertyId}`).catch(() => {});
+        }
+      }
+      
+      if (href === '/properties' || href === '/properties/unified-management') {
+        fetch('/api/properties').catch(() => {});
+      }
     }
   };
 
