@@ -126,11 +126,27 @@ export default function PropertiesPage({ initialProperties, generatedAt }: any) 
   };
 
   const getCoverImage = (property: Property): string => {
-    if (property.coverImage) return property.coverImage;
-    if (property.images && property.images.length > 0) {
-      const idx = property.coverIndex || 0;
-      return property.images[idx] || property.images[0];
+    // تحقق من coverImage
+    if (property.coverImage && typeof property.coverImage === 'string' && property.coverImage.length > 3) {
+      return property.coverImage;
     }
+    
+    // تحقق من images array
+    if (property.images && Array.isArray(property.images) && property.images.length > 0) {
+      const idx = property.coverIndex || 0;
+      const image = property.images[idx] || property.images[0];
+      
+      // تحقق من صحة المسار
+      if (image && typeof image === 'string' && (
+        image.startsWith('/') || 
+        image.startsWith('http') || 
+        image.startsWith('data:')
+      )) {
+        return image;
+      }
+    }
+    
+    // صورة افتراضية
     return 'https://via.placeholder.com/400x300?text=No+Image';
   };
 
@@ -401,11 +417,27 @@ function PropertyCard({ property, featured = false, viewMode = 'grid' }: {
   };
 
   const getCoverImage = (p: Property): string => {
-    if (p.coverImage) return p.coverImage;
-    if (p.images && p.images.length > 0) {
-      const idx = p.coverIndex || 0;
-      return p.images[idx] || p.images[0];
+    // تحقق من coverImage
+    if (p.coverImage && typeof p.coverImage === 'string' && p.coverImage.length > 3) {
+      return p.coverImage;
     }
+    
+    // تحقق من images array
+    if (p.images && Array.isArray(p.images) && p.images.length > 0) {
+      const idx = p.coverIndex || 0;
+      const image = p.images[idx] || p.images[0];
+      
+      // تحقق من صحة المسار
+      if (image && typeof image === 'string' && (
+        image.startsWith('/') || 
+        image.startsWith('http') || 
+        image.startsWith('data:')
+      )) {
+        return image;
+      }
+    }
+    
+    // صورة افتراضية
     return 'https://via.placeholder.com/400x300?text=No+Image';
   };
 
