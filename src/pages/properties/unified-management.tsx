@@ -1242,11 +1242,11 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                     <option value="createdAt-asc">التاريخ الأقدم</option>
                     <option value="updatedAt-desc">آخر تحديث</option>
                     <option value="title-asc">الاسم (أ-ي)</option>
-                    <option value="title-desc">����� (�-�)</option>
+                    <option value="title-desc">الاسم (ي-أ)</option>
                     {activeTab !== 'customers' && (
                       <>
-                        <option value="priceOMR-desc">����� (������)</option>
-                        <option value="priceOMR-asc">����� (�����)</option>
+                        <option value="priceOMR-desc">السعر (الأعلى)</option>
+                        <option value="priceOMR-asc">السعر (الأقل)</option>
                       </>
                     )}
                   </select>
