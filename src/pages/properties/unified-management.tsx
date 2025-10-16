@@ -450,7 +450,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
     URL.revokeObjectURL(url);
   };
 
-  // ����� ����� ����� ��������
+  // طباعة ملف التقارير
   const printPropertiesList = () => {
     const printWindow = window.open('', '_blank');
     const printContent = `
@@ -489,31 +489,31 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
         </div>
         
         <div class="summary">
-          <h2>���� ����������</h2>
+          <h2>ملخص الإحصائيات</h2>
           <div class="summary-grid">
             <div class="summary-item">
               <div class="number">${properties.length}</div>
-              <div class="label">������ ��������</div>
+              <div class="label">إجمالي العقارات</div>
             </div>
             <div class="summary-item">
               <div class="number">${properties.filter(p => p.published).length}</div>
-              <div class="label">�����</div>
+              <div class="label">منشور</div>
             </div>
             <div class="summary-item">
               <div class="number">${properties.filter(p => !p.published).length}</div>
-              <div class="label">�����</div>
+              <div class="label">مسودة</div>
             </div>
             <div class="summary-item">
               <div class="number">${properties.filter(p => p.status === 'vacant').length}</div>
-              <div class="label">����</div>
+              <div class="label">شاغر</div>
             </div>
             <div class="summary-item">
               <div class="number">${properties.filter(p => p.status === 'leased').length}</div>
-              <div class="label">����</div>
+              <div class="label">مؤجر</div>
             </div>
             <div class="summary-item">
               <div class="number">${properties.filter(p => p.buildingType === 'multi').length}</div>
-              <div class="label">����� ������</div>
+              <div class="label">متعدد الوحدات</div>
             </div>
           </div>
         </div>
@@ -555,7 +555,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
     printWindow.print();
   };
 
-  // ����� ������� �� ��������
+  // تبديل التوسيع أو الانكماش
   const togglePropertyExpansion = (propertyId: string) => {
     const newExpanded = new Set(expandedProperties);
     if (newExpanded.has(propertyId)) {
@@ -566,7 +566,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
     setExpandedProperties(newExpanded);
   };
 
-  // ����� ����� �����
+  // تنسيق السعر
   const formatPrice = (price: number | string) => {
     if (!price) return '-';
     const numPrice = typeof price === 'string' ? parseFloat(price) : price;
@@ -622,7 +622,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
   };
 
   const archiveProperty = async (propertyId: string) => {
-    if (confirm('�� ��� ����� �� ����� ��� �����ѿ')) {
+    if (confirm('هل أنت متأكد من أرشفة هذا العقار؟')) {
       try {
         const response = await fetch(`/api/properties/${propertyId}`, {
           method: 'PUT',
@@ -645,7 +645,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
   };
 
   const deleteProperty = async (propertyId: string) => {
-    if (confirm('?? �� ��� ����� �� ��� ��� ������ �������\n��� ������� �� ���� ������� ���!')) {
+    if (confirm('⚠️ هل أنت متأكد من حذف هذا العقار نهائياً؟\nلا يمكن التراجع عن هذه العملية أبداً!')) {
       try {
         const response = await fetch(`/api/properties/${propertyId}`, {
           method: 'DELETE'
@@ -787,7 +787,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
         return property.title.ar || property.title.en || '';
       }
     }
-    return `������ ${property.id}`;
+    return `عقار ${property.id}`;
   };
 
   const getPropertyUnits = (propertyId: string) => {
@@ -814,17 +814,17 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
   const getUnitStatusLabel = (status: string) => {
     switch (status) {
       case 'available':
-        return '����';
+        return 'متاح';
       case 'vacant':
-        return '����';
+        return 'شاغر';
       case 'reserved':
-        return '�����';
+        return 'محجوز';
       case 'rented':
-        return '����';
+        return 'مؤجر';
       case 'leased':
-        return '����';
+        return 'مؤجر';
       case 'maintenance':
-        return '�����';
+        return 'صيانة';
       default:
         return status;
     }
