@@ -22,6 +22,31 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   const safeTitle = toSafeText(property.title || '', 'ar');
   const safeLocation = toSafeText(property.location || property.province || '', 'ar');
   
+  // ⚡ تحقق من صحة مسار الصورة
+  const getValidImage = (): string => {
+    // تحقق من coverImage
+    if (property.coverImage && typeof property.coverImage === 'string' && property.coverImage.length > 3) {
+      return property.coverImage;
+    }
+    
+    // تحقق من images array
+    if (property.images && Array.isArray(property.images) && property.images.length > 0) {
+      const image = property.images[0];
+      
+      // تحقق من صحة المسار
+      if (image && typeof image === 'string' && (
+        image.startsWith('/') || 
+        image.startsWith('http') || 
+        image.startsWith('data:')
+      )) {
+        return image;
+      }
+    }
+    
+    // صورة افتراضية
+    return '/default-property.jpg';
+  };
+  
   return (
     <InstantLink 
       href={`/property/${property.id}`} 
@@ -29,8 +54,8 @@ export default function PropertyCard({ property }: PropertyCardProps) {
     >
       <div className="relative overflow-hidden">
         <InstantImage 
-          src={property.images?.[0] || "/default-property.jpg"} 
-          alt={property.title} 
+          src={getValidImage()} 
+          alt={safeTitle} 
           width={400}
           height={300}
           className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
