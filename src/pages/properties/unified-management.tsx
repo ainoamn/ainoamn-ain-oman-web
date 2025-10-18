@@ -578,14 +578,14 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
     }).format(numPrice);
   };
 
-  // ����� ������ ��� ����� ������
+  // تسميات الحالة بدل الأيقونات
   const getStatusLabel = (status: string) => {
     const statusLabels: { [key: string]: string } = {
-      'vacant': '����',
-      'leased': '����',
-      'reserved': '�����',
-      'sold': '����',
-      'maintenance': '�����'
+      'vacant': 'شاغر',
+      'leased': 'مؤجر',
+      'reserved': 'محجوز',
+      'sold': 'مباع',
+      'maintenance': 'صيانة'
     };
     return statusLabels[status] || status;
   };
@@ -631,7 +631,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
         });
         
         if (response.ok) {
-          // ����� instant ���� mutate ⚡
+          // تحديث instant عبر mutate ⚡
           const updatedItems = properties.map(p => 
             p.id === propertyId ? { ...p, status: 'hidden' } : p
           );
@@ -652,16 +652,15 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
         });
         
         if (response.ok) {
-          // ����� instant ���� mutate ⚡
+          // تحديث instant عبر mutate ⚡
           const updatedItems = properties.filter(p => p.id !== propertyId);
           await mutateProperties({ items: updatedItems }, true);
-          alert('? �� ��� ������ �����');
+          alert('✅ تم حذف العقار بنجاح');
         } else {
-          alert('? ��� ��� ����� ��� ������');
+          alert('❌ حدث خطأ أثناء حذف العقار');
         }
       } catch (error) {
-
-        alert('? ��� ��� ����� ��� ������');
+        alert('❌ حدث خطأ أثناء حذف العقار');
       }
     }
   };
@@ -1555,7 +1554,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                           <div className="absolute top-3 left-3">
                             <span className="bg-blue-600 text-white px-2 py-1 text-xs font-semibold rounded-full flex items-center">
                               <FaBuilding className="ml-1" />
-                              ����� �������
+                              متعدد الوحدات
                             </span>
                           </div>
                         )}
@@ -1565,12 +1564,12 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                           {property.published ? (
                             <span className="bg-green-600 text-white px-2 py-1 text-xs font-semibold rounded-full flex items-center">
                               <FaGlobe className="ml-1" />
-                              �����
+                              منشور
                             </span>
                           ) : (
                             <span className="bg-gray-600 text-white px-2 py-1 text-xs font-semibold rounded-full flex items-center">
                               <FaEyeSlash className="ml-1" />
-                              �����
+                              مسودة
                             </span>
                           )}
                         </div>
@@ -1584,7 +1583,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                               <InstantLink 
                                 href={`/properties/${property.id}`}
                                 className="hover:text-blue-600 transition-colors"
-                                title="��� ������ ������"
+                                title="عرض تفاصيل العقار"
                               >
                                 {getTitleFromProperty(property)}
                               </InstantLink>
@@ -1610,19 +1609,19 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                           {property.area && (
                             <div className="flex items-center text-sm text-gray-600">
                               <FaRuler className="ml-1" />
-                              {property.area} �
+                              {property.area} م²
                             </div>
                           )}
                           {property.beds && (
                             <div className="flex items-center text-sm text-gray-600">
                               <FaBed className="ml-1" />
-                              {property.beds} ���
+                              {property.beds} غرف
                             </div>
                           )}
                           {property.baths && (
                             <div className="flex items-center text-sm text-gray-600">
                               <FaBath className="ml-1" />
-                              {property.baths} ������
+                              {property.baths} حمامات
                             </div>
                           )}
                         </div>
@@ -1640,10 +1639,10 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                             <button
                               onClick={() => togglePropertyExpansion(property.id)}
                               className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
-                              title="���/����� ����� ������"
+                              title="عرض/إخفاء تفاصيل العقار"
                             >
                               <span className="ml-2">
-                                {expandedProperties.has(property.id) ? '����� �������' : '��� �������'}
+                                {expandedProperties.has(property.id) ? 'إخفاء التفاصيل' : 'عرض التفاصيل'}
                               </span>
                               {expandedProperties.has(property.id) ? <FaChevronUp /> : <FaChevronDown />}
                             </button>
@@ -1655,26 +1654,26 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                           <InstantLink 
                             href={`/properties/${property.id}`}
                             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
-                            title="��� ������ ������"
+                            title="عرض تفاصيل العقار"
                           >
                             <FaEye className="ml-1" />
-                            ���
+                            عرض
                           </InstantLink>
                           <InstantLink 
                             href={`/properties/${property.id}/edit`}
                             className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
-                            title="����� ������"
+                            title="تعديل العقار"
                           >
                             <FaEdit className="ml-1" />
-                            �����
+                            تعديل
                           </InstantLink>
                           <button
                             onClick={() => deleteProperty(property.id)}
                             className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
-                            title="��� ������"
+                            title="حذف العقار"
                           >
                             <FaTrash className="ml-1" />
-                            ���
+                            حذف
                           </button>
                         </div>
                       </div>
@@ -1708,13 +1707,13 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                             ))}
                             {(property.units || []).length === 0 && getPropertyUnits(property.id).length === 0 && (
                               <div className="text-center text-gray-500 text-sm py-4">
-                                �� ���� ����� ����� ���� ������
+                                لا توجد وحدات مضافة لهذا العقار
                                 <br />
                                 <InstantLink 
                                   href={`/properties/${property.id}/edit`}
                                   className="text-blue-600 hover:text-blue-700 text-xs underline mt-2 inline-block"
                                 >
-                                  ����� ����� ?
+                                  إضافة وحدات →
                                 </InstantLink>
                               </div>
                             )}
