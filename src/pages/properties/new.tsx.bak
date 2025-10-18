@@ -21,7 +21,7 @@ import {
   FaBox, FaFire, FaCopy
 } from 'react-icons/fa';
 
-// واجهة البيانات
+// ��������
 interface PropertyFormData {
   // Basic Information
   titleAr: string;
@@ -2539,6 +2539,5 @@ export default function AddNewProperty() {
     </>
   );
 }
-
 
 
