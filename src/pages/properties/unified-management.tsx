@@ -1682,7 +1682,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                       {/* Units List (if expanded) */}
                       {property.buildingType === 'multi' && expandedProperties.has(property.id) && (
                         <div className="border-t border-gray-200 p-4 bg-gray-50">
-                          <h4 className="text-sm font-semibold text-gray-700 mb-3">����� ������ ({(property.units || []).length})</h4>
+                          <h4 className="text-sm font-semibold text-gray-700 mb-3">وحدات العقار ({(property.units || []).length})</h4>
                           <div className="space-y-2">
                             {((property.units || []).length > 0 ? property.units : getPropertyUnits(property.id)).map((unit: any) => (
                               <div key={unit.id} className="bg-white rounded-lg p-3 border border-gray-200">
@@ -1690,7 +1690,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                                   <div>
                                     <div className="font-medium text-sm">{unit.unitNo || unit.unitNumber}</div>
                                     <div className="text-xs text-gray-500">
-                                      {unit.area} � � {unit.beds} ��� � {unit.baths} ������
+                                      {unit.area} م² • {unit.beds} غرف • {unit.baths} حمامات
                                     </div>
                                   </div>
                                   <div className="flex items-center space-x-2">
