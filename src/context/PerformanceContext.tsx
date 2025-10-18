@@ -33,17 +33,20 @@ export function PerformanceProvider({ children }: { children: React.ReactNode })
   const [cacheSize, setCacheSize] = useState(0);
   const [performanceMetrics, setPerformanceMetrics] = useState<PerformanceContextType['performanceMetrics']>({});
 
-  // تسجيل Service Worker
+  // إلغاء تسجيل Service Worker القديم (معطل مؤقتاً)
   useEffect(() => {
-    registerServiceWorker();
-
-    // تحقق من جاهزية Service Worker
+    // إلغاء تسجيل أي Service Worker قديم
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.ready.then(() => {
-        setIsServiceWorkerReady(true);
-        console.log('[Performance] Service Worker is ready! ⚡');
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          registration.unregister();
+          console.log('[Performance] Old Service Worker unregistered');
+        });
       });
     }
+    
+    // Service Worker معطل - النظام في حالة مستقرة
+    console.log('[Performance] Running without Service Worker');
   }, []);
 
   // مراقبة حالة الاتصال

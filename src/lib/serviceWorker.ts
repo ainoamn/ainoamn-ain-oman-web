@@ -3,52 +3,12 @@
 
 /**
  * تسجيل Service Worker
+ * ⚠️ DISABLED - Service Worker معطل مؤقتاً
  */
 export function registerServiceWorker() {
-  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
-    console.log('[SW] Service Worker not supported');
-    return;
-  }
-
-  window.addEventListener('load', async () => {
-    try {
-      const registration = await navigator.serviceWorker.register('/sw.js', {
-        scope: '/',
-      });
-
-      console.log('[SW] Service Worker registered successfully:', registration);
-
-      // تحديث Service Worker
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing;
-        if (!newWorker) return;
-
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // يوجد service worker جديد جاهز
-            console.log('[SW] New Service Worker available!');
-            
-            // يمكن عرض إشعار للمستخدم هنا
-            if (confirm('يوجد تحديث جديد متاح. هل تريد التحديث؟')) {
-              newWorker.postMessage({ type: 'SKIP_WAITING' });
-              window.location.reload();
-            }
-          }
-        });
-      });
-
-      // معالجة تحديث Service Worker
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (refreshing) return;
-        refreshing = true;
-        window.location.reload();
-      });
-
-    } catch (error) {
-      console.error('[SW] Service Worker registration failed:', error);
-    }
-  });
+  // Service Worker معطل - تم إرجاع النظام إلى حالة مستقرة
+  console.log('[SW] Service Worker is disabled');
+  return;
 }
 
 /**
