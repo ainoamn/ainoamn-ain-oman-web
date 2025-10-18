@@ -169,10 +169,10 @@ const STATE_CITIES: { [key: string]: string[] } = {
 };
 
 const AMENITIES = [
-  // ���������
-  { id: 'parking', label: '���� ������', icon: FaCar, category: 'transport' },
-  { id: 'elevator', label: '����', icon: FaBuilding, category: 'transport' },
-  { id: 'metro', label: '����', icon: FaSubway, category: 'transport' },
+  // المواصلات
+  { id: 'parking', label: 'موقف سيارات', icon: FaCar, category: 'transport' },
+  { id: 'elevator', label: 'مصعد', icon: FaBuilding, category: 'transport' },
+  { id: 'metro', label: 'مترو', icon: FaSubway, category: 'transport' },
   { id: 'bus', label: '������', icon: FaBus, category: 'transport' },
   { id: 'taxi', label: '�����', icon: FaTaxi, category: 'transport' },
   { id: 'airport', label: '����', icon: FaPlane, category: 'transport' },
@@ -186,10 +186,10 @@ const AMENITIES = [
   { id: 'garden', label: '�����', icon: FaTree, category: 'recreation' },
   { id: 'balcony', label: '����', icon: FaWindowMaximize, category: 'recreation' },
   
-  // �����������
-  { id: 'wifi', label: '��� ���', icon: FaWifi, category: 'technology' },
-  { id: 'tv', label: '�������', icon: FaTv, category: 'technology' },
-  { id: 'cctv', label: '������� ������', icon: FaVideo, category: 'technology' },
+  // التكنولوجيا
+  { id: 'wifi', label: 'واي فاي', icon: FaWifi, category: 'technology' },
+  { id: 'tv', label: 'تلفزيون', icon: FaTv, category: 'technology' },
+  { id: 'cctv', label: 'كاميرات مراقبة', icon: FaVideo, category: 'technology' },
   { id: 'smart-home', label: '���� ���', icon: FaCog, category: 'technology' },
   
   // ������
@@ -211,9 +211,9 @@ const AMENITIES = [
   { id: 'furnished', label: '�����', icon: FaCouch, category: 'comfort' },
   { id: 'balcony', label: '����', icon: FaWindowMaximize, category: 'comfort' },
   
-  // ��������� �������
-  { id: 'pet-friendly', label: '����� ��������� �������', icon: FaDog, category: 'pets' },
-  { id: 'no-pets', label: '��� ����� ��������� �������', icon: FaCat, category: 'pets' },
+  // الحيوانات الأليفة
+  { id: 'pet-friendly', label: 'يسمح بالحيوانات الأليفة', icon: FaDog, category: 'pets' },
+  { id: 'no-pets', label: 'لا يسمح بالحيوانات الأليفة', icon: FaCat, category: 'pets' },
   
   // ������� ������
   { id: 'wheelchair', label: '���� ������� ��������', icon: FaWheelchair, category: 'accessibility' },
