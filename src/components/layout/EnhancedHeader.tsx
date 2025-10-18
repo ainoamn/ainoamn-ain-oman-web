@@ -100,14 +100,14 @@ export default function EnhancedHeader({ force = false }: Props) {
 
             <nav className="hidden lg:flex items-center gap-1">
               {(header?.menuItems || []).map((item) => (
-                <InstantLink 
-                  key={item.href}
-                  href={item.href}
-                  className="px-3 py-2 rounded-xl font-medium transition-all hover:shadow hover:ring-2 hover:ring-white/30"
-                  style={{ opacity: 0.9 }}
-                >
-                  {item.label}
-                </InstantLink>
+                <div key={item.href} style={{ opacity: 0.9 }}>
+                  <InstantLink 
+                    href={item.href}
+                    className="px-3 py-2 rounded-xl font-medium transition-all hover:shadow hover:ring-2 hover:ring-white/30"
+                  >
+                    {item.label}
+                  </InstantLink>
+                </div>
               ))}
 
               {header?.showSearch && (

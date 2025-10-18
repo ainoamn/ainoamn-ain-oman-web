@@ -28,10 +28,9 @@ export default function ModuleCard(props: Props) {
   );
 
   return (
-    <InstantLink 
+    <InstantLink
       href={href}
       className="block rounded-2xl border border-slate-200 bg-white p-4 hover:border-slate-300 hover:shadow-sm"
-      dir={props.dir}
     >
       <div className="text-base font-semibold text-slate-900">{title}</div>
       {m.description ? (

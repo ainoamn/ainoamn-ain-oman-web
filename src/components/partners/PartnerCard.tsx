@@ -1,7 +1,8 @@
 ﻿// src/components/partners/PartnerCard.tsx
-import RatingStars from "../ratings/RatingStars";
+import InstantImage from '@/components/InstantImage';
+import RatingStars from '@/components/ratings/RatingStars';
 
-export default function PartnerCard({ partner }: { partner:any }) {
+export default function PartnerCard({ partner }: { partner?: any }) {
   return (
     <div className="rounded-2xl border p-4 shadow-sm">
       <div className="flex items-center gap-3">
@@ -11,7 +12,7 @@ export default function PartnerCard({ partner }: { partner:any }) {
           <RatingStars value={partner?.rating ?? 0} />
         </div>
       </div>
+      {partner?.description && <p className="text-sm text-gray-600 mt-3">{partner.description}</p>}
     </div>
   );
 }
-

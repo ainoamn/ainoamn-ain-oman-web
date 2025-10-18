@@ -15,7 +15,7 @@ interface PropertyCardProps {
  * تستخدم InstantLink للتنقل الفوري و InstantImage للصور المحسنة
  * تحل مشكلة Objects في React باستخدام toSafeText
  */
-export default function PropertyCard({ property }: PropertyCardProps) {
+export default function PropertyCard({ property }: PropertyCardProps | { property: any }) {
   const { format } = useCurrency();
   
   // تحويل title و description إلى نص آمن

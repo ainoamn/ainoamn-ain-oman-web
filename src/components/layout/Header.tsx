@@ -494,7 +494,7 @@ export default function Header() {
           <div className="relative">
             <InstantImage 
               src={user?.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&background=6B7280&color=fff&size=200'}
-              alt={user?.name}
+              alt={user?.name || 'User Avatar'}
               width={48}
               height={48}
               className="w-12 h-12 rounded-full object-cover"
