@@ -1258,7 +1258,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                 <div className="mt-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <FaHome className="ml-1" />
-                    ��� ������
+                    نوع المبنى
                   </label>
                   <div className="flex space-x-4">
                     <label className="flex items-center">
@@ -1270,7 +1270,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                         onChange={(e) => setSelectedBuildingType(e.target.value)}
                         className="ml-2"
                       />
-                      ���� �������
+                      جميع الأنواع
                     </label>
                     <label className="flex items-center">
                       <input
@@ -1281,7 +1281,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                         onChange={(e) => setSelectedBuildingType(e.target.value)}
                         className="ml-2"
                       />
-                      ���� ������
+                      وحدة واحدة
                     </label>
                     <label className="flex items-center">
                       <input
@@ -1292,7 +1292,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                         onChange={(e) => setSelectedBuildingType(e.target.value)}
                         className="ml-2"
                       />
-                      ����� �������
+                      متعدد الوحدات
                     </label>
                   </div>
                 </div>
@@ -1306,7 +1306,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
               {loading ? (
                 <div className="p-8 text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                  <p className="text-gray-600">���� �������...</p>
+                  <p className="text-gray-600">جاري التحميل...</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
@@ -1315,19 +1315,19 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                         <FaBuilding className="ml-2 text-blue-600" />
-                        ����� ��������
+                        جميع العقارات
                       </h3>
                       <div className="flex items-center space-x-3">
                         <span className="text-sm text-gray-600">
-                          {getFilteredData().length} �� {properties.length} ����
+                          {getFilteredData().length} من {properties.length} عقار
                         </span>
                         <button
                           onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
                           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors flex items-center text-sm"
-                          title={viewMode === 'grid' ? '������� ��� ����� ������' : '������� ��� ��� �������'}
+                          title={viewMode === 'grid' ? 'التبديل إلى وضع القائمة' : 'التبديل إلى نمط الشبكة'}
                         >
                           {viewMode === 'grid' ? <FaExpand className="ml-1" /> : <FaSort className="ml-1" />}
-                          {viewMode === 'grid' ? '��� ����' : '��� �����'}
+                          {viewMode === 'grid' ? 'عرض قائمة' : 'عرض شبكة'}
                         </button>
                       </div>
                     </div>
@@ -1339,25 +1339,25 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                       <thead className="bg-gray-50">
                         <tr>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            ������
+                            العنوان
                           </th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            �����
+                            النوع
                           </th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            ������
+                            الموقع
                           </th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            �����
+                            السعر
                           </th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            ������
+                            الحالة
                           </th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            �����
+                            النشر
                           </th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            ���������
+                            الإجراءات
                           </th>
                         </tr>
                       </thead>
@@ -1383,7 +1383,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                                     <InstantLink 
                                       href={`/properties/${property.id}`}
                                       className="hover:text-blue-600 transition-colors"
-                                      title="��� ������ ������"
+                                      title="عرض تفاصيل العقار"
                                     >
                                       {getTitleFromProperty(property)}
                                     </InstantLink>
@@ -1394,7 +1394,7 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                                   {property.buildingType === 'multi' && (
                                     <div className="flex items-center text-xs text-blue-600 mt-1">
                                       <FaBuilding className="ml-1" />
-                                      ����� �������
+                                      متعدد الوحدات
                                     </div>
                                   )}
                                 </div>
@@ -1421,11 +1421,11 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                                   {formatPrice(property.priceOMR)}
                                 </div>
                               ) : (
-                                <div className="text-sm text-gray-400">��� ����</div>
+                                <div className="text-sm text-gray-400">غير محدد</div>
                               )}
                               {property.rentalPrice && (
                                 <div className="text-xs text-gray-500">
-                                  �����: {formatPrice(property.rentalPrice)}
+                                  إيجار: {formatPrice(property.rentalPrice)}
                                 </div>
                               )}
                             </td>
@@ -1438,12 +1438,12 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                               {property.published ? (
                                 <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                                   <FaGlobe className="ml-1" />
-                                  �����
+                                  منشور
                                 </span>
                               ) : (
                                 <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
                                   <FaEyeSlash className="ml-1" />
-                                  �����
+                                  مسودة
                                 </span>
                               )}
                             </td>
@@ -1452,21 +1452,21 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                                 <InstantLink 
                                   href={`/properties/${property.id}`}
                                   className="text-blue-600 hover:text-blue-900 p-1 rounded transition-colors"
-                                  title="��� ������ ������"
+                                  title="عرض تفاصيل العقار"
                                 >
                                   <FaEye />
                                 </InstantLink>
                                 <InstantLink 
                                   href={`/properties/${property.id}/edit`}
                                   className="text-green-600 hover:text-green-900 p-1 rounded transition-colors"
-                                  title="����� ������"
+                                  title="تعديل العقار"
                                 >
                                   <FaEdit />
                                 </InstantLink>
                                 <InstantLink 
                                   href={`/property/${property.id}/admin`}
                                   className="text-purple-600 hover:text-purple-900 p-1 rounded transition-colors"
-                                  title="����� ������"
+                                  title="إدارة العقار"
                                 >
                                   <FaCog />
                                 </InstantLink>
@@ -1477,21 +1477,21 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                                       ? 'text-orange-600 hover:text-orange-900' 
                                       : 'text-green-600 hover:text-green-900'
                                   }`}
-                                  title={property.published ? '����� ��� ������' : '��� ������'}
+                                  title={property.published ? 'إخفاء من الموقع' : 'نشر الع قار'}
                                 >
                                   {property.published ? <FaEyeSlash /> : <FaGlobe />}
                                 </button>
                                 <button
                                   onClick={() => archiveProperty(property.id)}
                                   className="text-gray-600 hover:text-gray-900 p-1 rounded transition-colors"
-                                  title="����� ������"
+                                  title="أرشفة العقار"
                                 >
                                   <FaArchive />
                                 </button>
                                 <button
                                   onClick={() => deleteProperty(property.id)}
                                   className="text-red-600 hover:text-red-900 p-1 rounded transition-colors"
-                                  title="��� ������ �������"
+                                  title="حذف العقار نهائياً"
                                 >
                                   <FaTrash />
                                 </button>
@@ -1506,15 +1506,15 @@ export default function UnifiedPropertyManagement({ initialProperties, initialUn
                   {getFilteredData().length === 0 && (
                     <div className="text-center py-12">
                       <FaBuilding className="text-6xl text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">�� ���� ������</h3>
-                      <p className="text-gray-500 mb-6">���� ������ ���� ����</p>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد عقارات</h3>
+                      <p className="text-gray-500 mb-6">ابدأ بإضافة عقار جديد</p>
                       <InstantLink 
                         href="/properties/new"
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center"
-                        title="����� ���� ����"
+                        title="إضافة عقار جديد"
                       >
                         <FaPlus className="ml-2" />
-                        ����� ���� ����
+                        إضافة عقار جديد
                       </InstantLink>
                     </div>
                   )}
