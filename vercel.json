@@ -5,9 +5,9 @@
   "framework": "nextjs",
   "regions": ["sin1"],
   "env": {
-    "NEXT_PUBLIC_API_URL": "@api-url",
-    "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY": "@google-maps-key",
-    "NEXT_PUBLIC_WHATSAPP_BUSINESS_PHONE": "@whatsapp-phone"
+    "NEXT_PUBLIC_API_URL": "https://byfpro.com/api",
+    "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY": "",
+    "NEXT_PUBLIC_WHATSAPP_BUSINESS_PHONE": ""
   },
   "build": {
     "env": {
