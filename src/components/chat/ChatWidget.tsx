@@ -1,7 +1,7 @@
 // src/components/chat/ChatWidget.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useChat, ChatTarget } from "../../context/ChatContext";
-import { FaTimes, FaPaperPlane, FaUserShield, FaUserTie } from "react-icons/fa";
+import { FaTimes, FaPaperPlane, FaUserShield, FaUserTie } from 'react-icons/fa';
 
 type Message = { id: string; from: "user"|"owner"|"system"|"admin"; text: string; at: string };
 type Thread = { id: string; subject?: string; pageUrl?: string; propertyId?: number; target: ChatTarget; createdAt: string; messages: Message[] };

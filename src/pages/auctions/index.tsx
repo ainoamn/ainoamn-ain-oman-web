@@ -1,4 +1,4 @@
-﻿import Head from "next/head";
+import Head from "next/head";
 import InstantImage from '@/components/InstantImage';
 import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState, useCallback } from "react";

@@ -1,4 +1,5 @@
-﻿// src/components/partners/PartnerCard.tsx
+// src/components/partners/PartnerCard.tsx
+import InstantImage from '@/components/InstantImage';
 import RatingStars from "../ratings/RatingStars";
 
 export default function PartnerCard({ partner }: { partner:any }) {

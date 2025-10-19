@@ -1,7 +1,7 @@
 import Head from "next/head";
 import InstantLink from "@/components/InstantLink";
     import { useI18n } from "@/lib/i18n";
-import { FaFileContract, FaCheckCircle, FaExclamationTriangle, FaHome } from "react-icons/fa";
+import { FaFileContract, FaCheckCircle, FaExclamationTriangle, FaHome } from 'react-icons/fa';
 
 export default function TermsPage() {
   const { dir } = useI18n();

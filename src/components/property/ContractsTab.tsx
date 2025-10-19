@@ -1,10 +1,5 @@
-﻿import React, { useState, useEffect } from 'react';
-import {
-  FaFileContract, FaPlus, FaSearch, FaFilter, FaCalendar,
-  FaUser, FaDollarSign, FaCheckCircle, FaExclamationTriangle,
-  FaClock, FaEdit, FaEye, FaTrash, FaDownload, FaPrint,
-  FaArrowUp, FaArrowDown, FaSort, FaRefresh, FaHandshake
-} from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaFileContract, FaPlus, FaSearch, FaFilter, FaCalendar, FaUser, FaDollarSign, FaCheckCircle, FaExclamationTriangle, FaClock, FaEdit, FaEye, FaTrash, FaDownload, FaPrint, FaArrowUp, FaArrowDown, FaSort, FaSync, FaHandshake } from 'react-icons/fa';
 
 interface Contract {
   id: string;

@@ -1,4 +1,4 @@
-﻿// src/pages/favorites.tsx - المفضلة
+// src/pages/favorites.tsx - المفضلة
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import InstantLink from '@/components/InstantLink';

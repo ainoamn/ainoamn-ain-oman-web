@@ -3,7 +3,7 @@ import InstantLink from "@/components/InstantLink";
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useRouter } from "next/router";
-import { FaEnvelope, FaLock, FaCheckCircle, FaArrowLeft } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaCheckCircle, FaArrowLeft } from 'react-icons/fa';
 
 function ForgotPasswordPage() {
   const { dir } = useI18n();

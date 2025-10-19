@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import InstantImage from '@/components/InstantImage';
 import InstantLink from '@/components/InstantLink';
 import NotificationsDropdown from '@/components/NotificationsDropdown';
@@ -494,7 +494,7 @@ export default function Header() {
           <div className="relative">
             <InstantImage 
               src={user?.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&background=6B7280&color=fff&size=200'}
-              alt={user?.name}
+              alt={user?.name || 'User'}
               width={48}
               height={48}
               className="w-12 h-12 rounded-full object-cover"

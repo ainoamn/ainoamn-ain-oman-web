@@ -1,19 +1,10 @@
-﻿// صفحة موحدة لإدارة العقارات والوحدات - تصميم احترافي مع الذكاء الاصطناعي
+// صفحة موحدة لإدارة العقارات والوحدات - تصميم احترافي مع الذكاء الاصطناعي
 import React, { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import Head from 'next/head';
 import InstantLink from '@/components/InstantLink';
 
-import {
-  FaBuilding, FaHome, FaEye, FaEdit, FaTrash, FaPlus, FaSearch,
-  FaFilter, FaSort, FaChevronDown, FaChevronUp, FaExpand,
-  FaArchive, FaGlobe, FaEyeSlash, FaChartLine, FaRobot,
-  FaMapMarkerAlt, FaBed, FaBath, FaRuler, FaTag, FaCalendar,
-  FaUser, FaPhone, FaEnvelope, FaCog, FaDownload, FaPrint,
-  FaShare, FaHeart, FaStar, FaCheck, FaTimes, FaExclamationTriangle,
-  FaInfoCircle, FaQuestionCircle, FaLightbulb, FaMagic,
-  FaArrowUp, FaArrowDown, FaEquals, FaClock, FaHistory
-} from 'react-icons/fa';
+import { FaBuilding, FaHome, FaEye, FaEdit, FaTrash, FaPlus, FaSearch, FaFilter, FaSort, FaChevronDown, FaChevronUp, FaExpand, FaArchive, FaGlobe, FaEyeSlash, FaChartLine, FaRobot, FaMapMarkerAlt, FaBed, FaBath, FaRuler, FaTag, FaCalendar, FaUser, FaPhone, FaEnvelope, FaCog, FaDownload, FaPrint, FaShare, FaHeart, FaStar, FaCheck, FaTimes, FaExclamationTriangle, FaInfoCircle, FaQuestionCircle, FaLightbulb, FaArrowUp, FaArrowDown, FaEquals, FaClock, FaHistory } from 'react-icons/fa';
 
 interface Property {
   id: string;
@@ -927,7 +918,7 @@ export default function UnifiedPropertyManagement() {
                     className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center border border-white/20 hover:border-white/40 text-sm"
                     title="تحديث جميع الإحصائيات والتحليلات"
                   >
-                    <FaMagic className="ml-1 text-sm" />
+                    <FaStar className="ml-1 text-sm" />
                     تحديث
                   </button>
                   <button
@@ -1029,7 +1020,7 @@ export default function UnifiedPropertyManagement() {
               <div className="mt-3">
                 <h3 className="text-sm font-semibold mb-2 flex items-center">
                   <div className="bg-green-500/30 p-1 rounded-lg ml-2">
-                    <FaMagic className="text-sm" />
+                    <FaStar className="text-sm" />
                   </div>
                   إجراءات سريعة
                 </h3>
@@ -1692,7 +1683,7 @@ export default function UnifiedPropertyManagement() {
                 className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg transition-colors flex items-center text-xs"
                 title="تحديث الاقتراحات الذكية"
               >
-                <FaMagic className="ml-1 text-xs" />
+                <FaStar className="ml-1 text-xs" />
                 تحديث
               </button>
             </div>

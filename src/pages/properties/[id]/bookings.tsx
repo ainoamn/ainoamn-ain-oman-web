@@ -2,7 +2,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { FaClock } from "react-icons/fa";
+import { FaClock } from 'react-icons/fa';
 
 /** نوع مرن ليستوعب اختلافات الحقول بين APIs موجودة لديك */
 type Booking = {

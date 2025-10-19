@@ -1,4 +1,4 @@
-﻿// src/components/layout/EnhancedFooter.tsx
+// src/components/layout/EnhancedFooter.tsx
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";

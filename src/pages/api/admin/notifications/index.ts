@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Admin UI: Notifications Center
  * Path: /admin/notifications
  * Location: src/pages/admin/notifications/index.tsx

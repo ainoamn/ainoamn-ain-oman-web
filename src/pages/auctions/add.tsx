@@ -1,4 +1,4 @@
-﻿// src/pages/auctions/add.tsx
+// src/pages/auctions/add.tsx
 import Head from "next/head";
 import InstantImage from '@/components/InstantImage';
 import { useRouter } from "next/router";

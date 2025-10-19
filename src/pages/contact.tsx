@@ -2,11 +2,7 @@ import Head from "next/head";
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import InstantLink from "@/components/InstantLink";
-import { 
-  FaEnvelope, FaPhone, FaMapMarkerAlt, FaClock, FaFacebook, 
-  FaTwitter, FaInstagram, FaLinkedin, FaWhatsapp,
-  FaPaperPlane, FaCheckCircle, FaExclamationCircle, FaHome
-} from "react-icons/fa";
+import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaClock, FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaWhatsapp, FaPaperPlane, FaCheckCircle, FaExclamationCircle, FaHome } from 'react-icons/fa';
 
 type Form = { name: string; email: string; phone: string; subject: string; message: string };
 

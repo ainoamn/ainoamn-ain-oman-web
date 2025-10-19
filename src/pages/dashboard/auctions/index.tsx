@@ -1,4 +1,4 @@
-﻿// src/pages/dashboard/auctions/index.tsx
+// src/pages/dashboard/auctions/index.tsx
 import { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import { useRouter } from 'next/router';

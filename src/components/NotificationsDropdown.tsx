@@ -2,19 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNotifications } from '@/context/NotificationsContext';
 import InstantLink from './InstantLink';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  FaBell,
-  FaCalendarCheck,
-  FaDollarSign,
-  FaTools,
-  FaFileContract,
-  FaUserPlus,
-  FaChartLine,
-  FaTimes,
-  FaCheck,
-  FaClock,
-  FaExclamationTriangle
-} from 'react-icons/fa';
+import { FaBell, FaCalendarCheck, FaDollarSign, FaTools, FaFileContract, FaUserPlus, FaChartLine, FaTimes, FaCheck, FaClock, FaExclamationTriangle } from 'react-icons/fa';
 
 const iconMap: Record<string, any> = {
   FaCalendarCheck,

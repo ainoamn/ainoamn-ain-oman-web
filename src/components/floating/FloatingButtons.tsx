@@ -1,6 +1,6 @@
 // src/components/floating/FloatingButtons.tsx
 import { useEffect, useState } from "react";
-import { FaComments, FaWhatsapp } from "react-icons/fa";
+import { FaComments, FaWhatsapp } from 'react-icons/fa';
 import { useChat } from "../../context/ChatContext";
 
 export default function FloatingButtons() {

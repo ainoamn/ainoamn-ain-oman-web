@@ -6,31 +6,7 @@ import Layout from '@/components/layout/Layout';
 import SimpleTasksTab from '@/components/property/SimpleTasksTab';
 import SimpleFinancialTab from '@/components/property/SimpleFinancialTab';
 import SimpleAIInsightsTab from '@/components/property/SimpleAIInsightsTab';
-import {
-  FaBuilding, FaHome, FaEye, FaEdit, FaTrash, FaPlus, FaSearch,
-  FaFilter, FaSort, FaChevronDown, FaChevronUp, FaExpand,
-  FaArchive, FaGlobe, FaEyeSlash, FaChartLine, FaRobot,
-  FaMapMarkerAlt, FaBed, FaBath, FaRuler, FaTag, FaCalendar,
-  FaUser, FaPhone, FaEnvelope, FaCog, FaDownload, FaPrint,
-  FaShare, FaHeart, FaStar, FaCheck, FaTimes, FaExclamationTriangle,
-  FaInfoCircle, FaQuestionCircle, FaLightbulb, FaMagic,
-  FaArrowUp, FaArrowDown, FaEquals, FaClock, FaHistory,
-  FaFileInvoice, FaTasks, FaGavel, FaFileContract, FaReceipt,
-  FaBell, FaCalendarAlt, FaUsers, FaChartBar,
-  FaShieldAlt, FaCogs, FaDatabase, FaCloudUpload, FaQrcode,
-  FaMapPin, FaMoneyBillWave, FaClipboardList, FaHandshake,
-  FaExclamationCircle, FaCheckCircle, FaClock as FaClockIcon,
-  FaDollarSign, FaPercent, FaCalculator, FaFileAlt, FaImage,
-  FaVideo, FaMicrophone, FaComments, FaThumbsUp, FaThumbsDown,
-  FaBookmark, FaFlag, FaLock, FaUnlock, FaEye as FaEyeIcon,
-  FaEyeSlash as FaEyeSlashIcon, FaEdit as FaEditIcon,
-  FaTrash as FaTrashIcon, FaCopy, FaExternalLinkAlt,
-  FaArrowLeft, FaArrowRight, FaSync, FaRefresh, FaSave,
-  FaUpload, FaDownload as FaDownloadIcon, FaPrint as FaPrintIcon,
-  FaShare as FaShareIcon, FaHeart as FaHeartIcon,
-  FaStar as FaStarIcon, FaBookmark as FaBookmarkIcon,
-  FaFlag as FaFlagIcon, FaLock as FaLockIcon, FaUnlock as FaUnlockIcon
-} from 'react-icons/fa';
+import { FaBuilding, FaHome, FaEye, FaEdit, FaTrash, FaPlus, FaSearch, FaFilter, FaSort, FaChevronDown, FaChevronUp, FaExpand, FaArchive, FaGlobe, FaEyeSlash, FaChartLine, FaRobot, FaMapMarkerAlt, FaBed, FaBath, FaRuler, FaTag, FaCalendar, FaUser, FaPhone, FaEnvelope, FaCog, FaDownload, FaPrint, FaShare, FaHeart, FaStar, FaCheck, FaTimes, FaExclamationTriangle, FaInfoCircle, FaQuestionCircle, FaLightbulb, FaArrowUp, FaArrowDown, FaEquals, FaClock, FaHistory, FaFileInvoice, FaTasks, FaGavel, FaFileContract, FaReceipt, FaBell, FaCalendarAlt, FaUsers, FaChartBar, FaShieldAlt, FaCogs, FaDatabase, FaCloudUploadAltAlt, FaQrcode, FaMapPin, FaMoneyBillWave, FaClipboardList, FaHandshake, FaExclamationCircle, FaCheckCircle, FaClock as FaClockIcon, FaDollarSign, FaPercent, FaCalculator, FaFileAlt, FaImage, FaVideo, FaMicrophone, FaComments, FaThumbsUp, FaThumbsDown, FaBookmark, FaFlag, FaLock, FaUnlock, FaEye as FaEyeIcon, FaEyeSlash as FaEyeSlashIcon, FaEdit as FaEditIcon, FaTrash as FaTrashIcon, FaCopy, FaExternalLinkAlt, FaArrowLeft, FaArrowRight, FaSync, FaSave, FaUpload, FaDownload as FaDownloadIcon, FaPrint as FaPrintIcon, FaShare as FaShareIcon, FaHeart as FaHeartIcon, FaStar as FaStarIcon, FaBookmark as FaBookmarkIcon, FaFlag as FaFlagIcon, FaLock as FaLockIcon, FaUnlock as FaUnlockIcon } from 'react-icons/fa';
 
 // Alias for trending icon
 const FaTrendingUp = FaArrowUp;

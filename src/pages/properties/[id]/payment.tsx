@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import Link from "next/link";
-import { FaLock, FaCreditCard, FaCalendarAlt, FaUser } from "react-icons/fa";
+import { FaLock, FaCreditCard, FaCalendarAlt, FaUser } from 'react-icons/fa';
 
 type PropertyInfo = {
   id: string;

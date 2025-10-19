@@ -1,12 +1,5 @@
-﻿import React, { useState, useEffect } from 'react';
-import {
-  FaFileAlt, FaPlus, FaSearch, FaFilter, FaCalendar,
-  FaUser, FaDownload, FaEye, FaEdit, FaTrash, FaPrint,
-  FaArrowUp, FaArrowDown, FaSort, FaRefresh, FaUpload,
-  FaFilePdf, FaFileWord, FaFileImage, FaFileExcel,
-  FaFilePowerpoint, FaFileArchive, FaFile, FaFolder,
-  FaCloudUpload, FaShare, FaCopy, FaLock, FaUnlock
-} from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaFileAlt, FaPlus, FaSearch, FaFilter, FaCalendar, FaUser, FaDownload, FaEye, FaEdit, FaTrash, FaPrint, FaArrowUp, FaArrowDown, FaSort, FaSync, FaUpload, FaFilePdf, FaFileWord, FaFileImage, FaFileExcel, FaFilePowerpoint, FaFileArchive, FaFile, FaFolder, FaCloudUploadAlt, FaShare, FaCopy, FaLock, FaUnlock } from 'react-icons/fa';
 
 interface Document {
   id: string;
@@ -246,7 +239,7 @@ export default function DocumentsTab({ propertyId }: DocumentsTabProps) {
               <p className="text-2xl font-bold text-blue-600">{documentStats.recentUploads}</p>
               <p className="text-sm text-gray-500">آخر 7 أيام</p>
             </div>
-            <FaCloudUpload className="h-8 w-8 text-blue-600" />
+            <FaCloudUploadAlt className="h-8 w-8 text-blue-600" />
           </div>
         </div>
         

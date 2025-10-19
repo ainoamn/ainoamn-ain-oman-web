@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import InstantImage from '@/components/InstantImage';
 import type { Property, Unit } from "@/types/property";
 import { resolveSrc } from "@/utils/files";

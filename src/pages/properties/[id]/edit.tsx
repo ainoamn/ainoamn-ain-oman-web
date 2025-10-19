@@ -1,24 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import {
-  FaHome, FaBuilding, FaMapMarkerAlt, FaImages, FaSave, FaArrowLeft,
-  FaPlus, FaTrash, FaUpload, FaInfoCircle, FaCog, FaUser, FaPhone,
-  FaEnvelope, FaTag, FaRuler, FaBed, FaBath, FaCar, FaSwimmingPool,
-  FaWifi, FaRobot, FaShieldAlt, FaTree, FaUtensils, FaShoppingCart,
-  FaHospital, FaGraduationCap, FaPlane, FaSubway, FaBus, FaTaxi,
-  FaFireExtinguisher, FaVideo, FaSpinner, FaMap, FaPrint, FaEye,
-  FaParking, FaGamepad, FaTv, FaSnowflake,
-  FaSun, FaWind, FaWater, FaBolt, FaLock, FaKey,
-  FaDog, FaCat, FaChild, FaWheelchair, FaDoorOpen,
-  FaWindowMaximize, FaCouch, FaChair, FaTable, FaBed as FaBedIcon,
-  FaBath as FaBathIcon, FaSwimmer,
-  FaRunning, FaBicycle, FaMotorcycle, FaTruck, FaShip, FaAnchor,
-  FaMountain, FaUmbrellaBeach, FaCampground, FaHiking, FaCamera,
-  FaMusic, FaBook, FaLaptop, FaDesktop, FaMobile, FaTablet,
-  FaHeadphones, FaMicrophone, FaVolumeUp, FaVolumeDown, FaVolumeMute,
-  FaBox, FaFire, FaCopy
-} from 'react-icons/fa';
+import { FaHome, FaBuilding, FaMapMarkerAlt, FaImages, FaSave, FaArrowLeft, FaPlus, FaTrash, FaUpload, FaInfoCircle, FaCog, FaUser, FaPhone, FaEnvelope, FaTag, FaRuler, FaBed, FaBath, FaCar, FaSwimmingPool, FaWifi, FaRobot, FaShieldAlt, FaTree, FaUtensils, FaShoppingCart, FaHospital, FaGraduationCap, FaPlane, FaSubway, FaBus, FaTaxi, FaFireExtinguisher, FaVideo, FaSpinner, FaMap, FaPrint, FaEye, FaParking, FaGamepad, FaTv, FaSnowflake, FaSun, FaWind, FaWater, FaBolt, FaLock, FaKey, FaDog, FaCat, FaChild, FaWheelchair, FaDoorOpen, FaWindowMaximize, FaCouch, FaChair, FaTable, FaBed as FaBedIcon, FaBath as FaBathIcon, FaSwimmer, FaRunning, FaBicycle, FaMotorcycle, FaTruck, FaShip, FaAnchor, FaMountain, FaUmbrellaBeach, FaCampground, FaHiking, FaCamera, FaMusic, FaBook, FaLaptop, FaDesktop, FaMobile, FaTablet, FaHeadphones, FaMicrophone, FaVolumeUp, FaVolumeDown, FaVolumeMute, FaBox, FaFire, FaCopy } from 'react-icons/fa';
 
 // الواجهات
 interface PropertyFormData {

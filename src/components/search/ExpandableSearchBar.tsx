@@ -1,7 +1,7 @@
 // src/components/search/ExpandableSearchBar.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import locationData from "../../lib/locationData";
-import { FaSearch, FaChevronDown } from "react-icons/fa";
+import { FaSearch, FaChevronDown } from 'react-icons/fa';
 
 export type ExpandableSearchPayload = {
   // أساسي

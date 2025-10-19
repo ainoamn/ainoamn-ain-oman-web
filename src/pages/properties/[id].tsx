@@ -3,67 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import InstantLink, { InstantButton } from '@/components/InstantLink';
-import { 
-  FaBuilding, 
-  FaHome, 
-  FaSpinner, 
-  FaMapMarkerAlt, 
-  FaBed, 
-  FaBath, 
-  FaRulerCombined, 
-  FaCar, 
-  FaSwimmingPool, 
-  FaWifi, 
-  FaParking, 
-  FaShieldAlt, 
-  FaStar, 
-  FaHeart, 
-  FaShare, 
-  FaPhone, 
-  FaEnvelope, 
-  FaWhatsapp, 
-  FaEye, 
-  FaCalendarAlt, 
-  FaEdit, 
-  FaTrash, 
-  FaChevronLeft, 
-  FaChevronRight, 
-  FaPlay, 
-  FaPause, 
-  FaVolumeUp, 
-  FaVolumeMute,
-  FaChartLine,
-  FaBrain,
-  FaComments,
-  FaThumbsUp,
-  FaThumbsDown,
-  FaFlag,
-  FaBookmark,
-  FaPrint,
-  FaDownload,
-  FaQrcode,
-  FaCalendarCheck,
-  FaCreditCard,
-  FaCommentDots,
-  FaFacebook,
-  FaTwitter,
-  FaLinkedin,
-  FaTelegram,
-  FaCopy,
-  FaMedal,
-  FaTrophy,
-  FaAward,
-  FaCertificate,
-  FaUserCheck,
-  FaHandshake,
-  FaClipboardCheck,
-  FaClock,
-  FaMapPin,
-  FaUsers,
-  FaUser,
-  FaStarHalfAlt,
-  FaRegStar
-} from 'react-icons/fa';
+import { FaBuilding, FaHome, FaSpinner, FaMapMarkerAlt, FaBed, FaBath, FaRulerCombined, FaCar, FaSwimmingPool, FaWifi, FaParking, FaShieldAlt, FaStar, FaHeart, FaShare, FaPhone, FaEnvelope, FaWhatsapp, FaEye, FaCalendarAlt, FaEdit, FaTrash, FaChevronLeft, FaChevronRight, FaPlay, FaPause, FaVolumeUp, FaVolumeMute, FaChartLine, FaRobot, FaComments, FaThumbsUp, FaThumbsDown, FaFlag, FaBookmark, FaPrint, FaDownload, FaQrcode, FaCalendarCheck, FaCreditCard, FaCommentDots, FaFacebook, FaTwitter, FaLinkedin, FaTelegram, FaCopy, FaMedal, FaTrophy, FaAward, FaCertificate, FaUserCheck, FaHandshake, FaClipboardCheck, FaClock, FaMapPin, FaUsers, FaUser, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import QRCode from 'qrcode';
 import dynamic from 'next/dynamic';
 
@@ -987,7 +927,7 @@ function PropertyDetailsPage() {
                       { id: 'additional-info', label: 'معلومات إضافية', icon: FaClipboardCheck },
                       ...(isMultiUnitBuilding ? [{ id: 'building-units', label: 'وحدات المبنى', icon: FaBuilding }] : []),
                       { id: 'map', label: 'الموقع على الخارطة', icon: FaMapMarkerAlt },
-                      { id: 'ai-insights', label: 'الذكاء الاصطناعي', icon: FaBrain }
+                      { id: 'ai-insights', label: 'الذكاء الاصطناعي', icon: FaRobot }
                     ].map((tab) => {
                       const Icon = tab.icon;
                       return (
@@ -2211,7 +2151,7 @@ function PropertyDetailsPage() {
                   {activeTab === 'ai-insights' && (
                     <div className="space-y-6">
                       <div className="flex items-center gap-3">
-                        <FaBrain className="text-2xl text-blue-600" />
+                        <FaRobot className="text-2xl text-blue-600" />
                         <h3 className="text-xl font-bold text-gray-900">تحليل الذكاء الاصطناعي</h3>
                       </div>
 
@@ -2339,7 +2279,7 @@ function PropertyDetailsPage() {
                         </div>
                       ) : (
                         <div className="text-center py-8">
-                          <FaBrain className="text-4xl text-gray-400 mx-auto mb-2" />
+                          <FaRobot className="text-4xl text-gray-400 mx-auto mb-2" />
                           <p className="text-gray-600">لا توجد رؤى متاحة حالياً</p>
                         </div>
                       )}

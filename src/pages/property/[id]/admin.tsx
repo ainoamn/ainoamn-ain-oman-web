@@ -5,41 +5,7 @@ import { useRouter } from 'next/router';
 import Layout from '@/components/layout/Layout';
 import { useFeatureAccessMultiple } from '@/hooks/useFeatureAccess';
 import FeatureGuard from '@/components/FeatureGuard';
-import {
-  FaChartLine,
-  FaTasks,
-  FaFileInvoiceDollar,
-  FaTools,
-  FaBalanceScale,
-  FaHandHoldingUsd,
-  FaMoneyCheckAlt,
-  FaBell,
-  FaComments,
-  FaBrain,
-  FaChevronRight,
-  FaCalendarAlt,
-  FaHome,
-  FaCog,
-  FaUserShield,
-  FaFileAlt,
-  FaQrcode,
-  FaBuilding,
-  FaMapMarkerAlt,
-  FaIdCard,
-  FaClipboardList,
-  FaUserCheck,
-  FaExclamationTriangle,
-  FaCheckCircle,
-  FaClock,
-  FaDollarSign,
-  FaFileContract,
-  FaEnvelope,
-  FaPhone,
-  FaWhatsapp,
-  FaShareAlt,
-  FaPrint,
-  FaDownload,
-} from 'react-icons/fa';
+import { FaChartLine, FaTasks, FaFileInvoiceDollar, FaTools, FaBalanceScale, FaHandHoldingUsd, FaMoneyCheckAlt, FaBell, FaComments, FaRobot, FaChevronRight, FaCalendarAlt, FaHome, FaCog, FaUserShield, FaFileAlt, FaQrcode, FaBuilding, FaMapMarkerAlt, FaIdCard, FaClipboardList, FaUserCheck, FaExclamationTriangle, FaCheckCircle, FaClock, FaDollarSign, FaFileContract, FaEnvelope, FaPhone, FaWhatsapp, FaShareAlt, FaPrint, FaDownload,  } from 'react-icons/fa';
 
 type ListResponse<T> = { items: T[] };
 
@@ -290,7 +256,7 @@ export default function PropertyAdminPage() {
     { id: 'calendar', label: 'التقويم', icon: FaCalendarAlt, featureId: 'CALENDAR_VIEW' },
     { id: 'alerts', label: 'التنبيهات', icon: FaBell, featureId: 'ALERTS_VIEW' },
     { id: 'reviews', label: 'التقييمات', icon: FaComments, featureId: 'REVIEWS_VIEW' },
-    { id: 'ai', label: 'التنبؤات والذكاء', icon: FaBrain, featureId: 'AI_ANALYTICS' },
+    { id: 'ai', label: 'التنبؤات والذكاء', icon: FaRobot, featureId: 'AI_ANALYTICS' },
   ];
 
   // التحقق من الصلاحيات
@@ -590,7 +556,7 @@ export default function PropertyAdminPage() {
                               </p>
                               {case_.aiInsights && (
                                 <div className="mt-2 flex items-center gap-2 text-xs text-blue-600">
-                                  <FaBrain />
+                                  <FaRobot />
                                   <span>تحليل ذكي متاح</span>
                                 </div>
                               )}
@@ -644,7 +610,7 @@ export default function PropertyAdminPage() {
 
                 {/* AI + Shortcuts */}
                 <div className="space-y-6">
-                  <SectionCard title="تقييم السوق بالذكاء الاصطناعي" icon={<FaBrain />}>
+                  <SectionCard title="تقييم السوق بالذكاء الاصطناعي" icon={<FaRobot />}>
                     {valuation && (valuation.value || valuation.pricePerSqm) ? (
                       <div className="space-y-2">
                         <div className="flex justify-between"><span className="text-gray-600">القيمة التقديرية:</span><span className="font-bold text-blue-700">{numberFmt(valuation.value)} ريال</span></div>
@@ -879,7 +845,7 @@ export default function PropertyAdminPage() {
                               )}
                               {case_.aiInsights && (
                                 <div className="flex items-center gap-2 text-sm text-blue-600 mb-2">
-                                  <FaBrain />
+                                  <FaRobot />
                                   <span>تحليل ذكي متاح - احتمالية النجاح: {case_.aiInsights.successProbability}%</span>
                                 </div>
                               )}
@@ -1054,7 +1020,7 @@ export default function PropertyAdminPage() {
             )}
 
             {activeTab === 'ai' && (
-              <SectionCard title="التنبؤات والذكاء الاصطناعي" icon={<FaBrain />}>
+              <SectionCard title="التنبؤات والذكاء الاصطناعي" icon={<FaRobot />}>
                 {valuation ? (
                   <div className="space-y-2">
                     <div>القيمة المتوقعة: <span className="font-bold text-blue-700">{numberFmt(valuation.value)} ريال</span></div>

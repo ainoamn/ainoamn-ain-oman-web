@@ -1,20 +1,7 @@
 import React from 'react';
 import FeatureGuard from '@/components/FeatureGuard';
 import { useFeatureAccessMultiple } from '@/hooks/useFeatureAccess';
-import {
-  FaChartLine,
-  FaTasks,
-  FaFileInvoiceDollar,
-  FaTools,
-  FaBalanceScale,
-  FaHandHoldingUsd,
-  FaBell,
-  FaComments,
-  FaBrain,
-  FaCalendarAlt,
-  FaFileContract,
-  FaClipboardList,
-} from 'react-icons/fa';
+import { FaChartLine, FaTasks, FaFileInvoiceDollar, FaTools, FaBalanceScale, FaHandHoldingUsd, FaBell, FaComments, FaRobot, FaCalendarAlt, FaFileContract, FaClipboardList,  } from 'react-icons/fa';
 import { FiLock } from 'react-icons/fi';
 
 export interface TabDefinition {
@@ -95,7 +82,7 @@ export const PROPERTY_ADMIN_TABS: TabDefinition[] = [
   { 
     id: 'ai', 
     label: 'التنبؤات والذكاء', 
-    icon: FaBrain,
+    icon: FaRobot,
     featureId: 'AI_ANALYTICS'
   },
 ];

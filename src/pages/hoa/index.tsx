@@ -1,4 +1,4 @@
-﻿import Head from "next/head";
+import Head from "next/head";
     // Header is now handled by MainLayout in _app.tsx
     
     import { useI18n } from "@/lib/i18n";

@@ -3,7 +3,7 @@ import { Property } from "@/types/property";
 import InstantLink from "@/components/InstantLink";
 import InstantImage from "@/components/InstantImage";
 import { toSafeText } from "@/components/SafeText";
-import { FaBed, FaBath, FaRulerCombined, FaStar, FaBolt } from "react-icons/fa";
+import { FaBed, FaBath, FaRulerCombined, FaStar, FaBolt } from 'react-icons/fa';
 
 interface PropertyCardProps {
   property: Property;

@@ -1,13 +1,10 @@
-﻿import Head from "next/head";
+import Head from "next/head";
 import InstantImage from '@/components/InstantImage';
 import InstantLink from "@/components/InstantLink";
 import { useState, useEffect } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useRouter } from "next/router";
-import { 
-  FaEnvelope, FaPhone, FaCheckCircle, FaIdCard, FaCamera,
-  FaShieldAlt, FaClock, FaExclamationTriangle
-} from "react-icons/fa";
+import { FaEnvelope, FaPhone, FaCheckCircle, FaIdCard, FaCamera, FaShieldAlt, FaClock, FaExclamationTriangle } from 'react-icons/fa';
 
 type VerificationMethod = "email" | "phone" | "document";
 

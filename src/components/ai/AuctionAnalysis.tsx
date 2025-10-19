@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { AIAnalysis } from '@/types/auction';
 import { useI18n } from '@/lib/i18n';
 

@@ -1,14 +1,10 @@
-﻿// src/pages/properties/index.tsx - صفحة العقارات المحسّنة مع AI
+// src/pages/properties/index.tsx - صفحة العقارات المحسّنة مع AI
 import Head from "next/head";
 import InstantImage from '@/components/InstantImage';
 import InstantLink from '@/components/InstantLink';
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/router";
-import { 
-  FaSearch, FaFilter, FaBolt, FaBed, FaBath, FaRulerCombined, 
-  FaStar, FaHeart, FaMapMarkerAlt, FaBuilding, FaHome, FaStore,
-  FaRobot, FaChartLine, FaFire, FaRegHeart, FaTimes, FaChevronDown
-} from "react-icons/fa";
+import { FaSearch, FaFilter, FaBolt, FaBed, FaBath, FaRulerCombined, FaStar, FaHeart, FaMapMarkerAlt, FaBuilding, FaHome, FaStore, FaRobot, FaChartLine, FaFire, FaRegHeart, FaTimes, FaChevronDown } from 'react-icons/fa';
 
 interface Property {
   id: string;

@@ -1,4 +1,4 @@
-﻿// src/pages/booking/new.tsx
+// src/pages/booking/new.tsx
 // صفحة حجز العقار - محسنة للأداء الفائق ⚡
 
 import { useState, useEffect } from 'react';
@@ -8,10 +8,7 @@ import Head from 'next/head';
 import InstantLink from '@/components/InstantLink';
 import { toSafeText } from '@/components/SafeText';
 import { useBookings } from '@/context/BookingsContext';
-import { 
-  FaCalendarAlt, FaUser, FaPhone, FaEnvelope, FaCreditCard,
-  FaCheckCircle, FaInfoCircle, FaArrowRight, FaArrowLeft
-} from 'react-icons/fa';
+import { FaCalendarAlt, FaUser, FaPhone, FaEnvelope, FaCreditCard, FaCheckCircle, FaInfoCircle, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 
 interface Property {
   id: string;

@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import InstantImage from '@/components/InstantImage';
 export default function PrintExport({ caseId }: { caseId: string }) {
   const hdrs = { "x-tenant-id":"TENANT-1","x-user-id":"U1","x-roles":"LAWYER" };

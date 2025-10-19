@@ -1,4 +1,4 @@
-﻿// src/lib/i18n-helpers.ts
+// src/lib/i18n-helpers.ts
 // دوال مساعدة للترجمة - حل مشكلة Objects في React
 
 import { useI18n } from './i18n';

@@ -1,4 +1,4 @@
-﻿// src/components/booking/SmartSyncIndicator.tsx - مؤشر المزامنة الذكي
+// src/components/booking/SmartSyncIndicator.tsx - مؤشر المزامنة الذكي
 import React, { useState, useEffect } from 'react';
 import { 
   Wifi, 

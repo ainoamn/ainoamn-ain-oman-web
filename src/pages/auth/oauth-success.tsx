@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import { FaCheckCircle, FaSpinner } from "react-icons/fa";
+import { FaCheckCircle, FaSpinner } from 'react-icons/fa';
 
 export default function OAuthSuccessPage() {
   const router = useRouter();

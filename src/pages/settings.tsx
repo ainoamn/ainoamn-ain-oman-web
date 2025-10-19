@@ -1,16 +1,10 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import InstantLink from '@/components/InstantLink';
 import { useI18n } from '@/lib/i18n';
-import { 
-  FaUser, FaBell, FaLock, FaPalette, FaGlobe, FaCog,
-  FaEnvelope, FaPhone, FaMapMarkerAlt, FaCamera, FaSave,
-  FaKey, FaShieldAlt, FaEye, FaEyeOff, FaMoon, FaSun,
-  FaDesktop, FaCheckCircle, FaExclamationTriangle, FaTrash,
-  FaSignOutAlt, FaEdit, FaUpload, FaClock, FaLanguage
-} from 'react-icons/fa';
+import { FaUser, FaBell, FaLock, FaPalette, FaGlobe, FaCog, FaEnvelope, FaPhone, FaMapMarkerAlt, FaCamera, FaSave, FaKey, FaShieldAlt, FaEye, FaEyeOff, FaMoon, FaSun, FaDesktop, FaCheckCircle, FaExclamationTriangle, FaTrash, FaSignOutAlt, FaEdit, FaUpload, FaClock, FaLanguage } from 'react-icons/fa';
 
 interface UserSettings {
   id: string;

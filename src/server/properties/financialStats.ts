@@ -1,4 +1,4 @@
-﻿import { getAllInvoices } from '@/server/properties/stats';
+import { getAllInvoices } from '@/server/properties/stats';
 
 export interface FinancialStats {
   totalRevenue: number;

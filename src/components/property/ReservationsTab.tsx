@@ -1,11 +1,5 @@
-﻿import React, { useState, useEffect } from 'react';
-import {
-  FaCalendarAlt, FaPlus, FaSearch, FaFilter, FaCalendar,
-  FaUser, FaDollarSign, FaCheckCircle, FaExclamationTriangle,
-  FaClock, FaEdit, FaEye, FaTrash, FaDownload, FaPrint,
-  FaArrowUp, FaArrowDown, FaSort, FaRefresh, FaHandshake,
-  FaMapMarkerAlt, FaPhone, FaEnvelope, FaBed, FaBath
-} from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaCalendarAlt, FaPlus, FaSearch, FaFilter, FaCalendar, FaUser, FaDollarSign, FaCheckCircle, FaExclamationTriangle, FaClock, FaEdit, FaEye, FaTrash, FaDownload, FaPrint, FaArrowUp, FaArrowDown, FaSort, FaSync, FaHandshake, FaMapMarkerAlt, FaPhone, FaEnvelope, FaBed, FaBath } from 'react-icons/fa';
 
 interface Reservation {
   id: string;

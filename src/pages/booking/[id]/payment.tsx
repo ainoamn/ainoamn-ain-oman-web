@@ -7,10 +7,7 @@ import Head from 'next/head';
 import InstantLink from '@/components/InstantLink';
 import { toSafeText } from '@/components/SafeText';
 import { useI18n } from '@/lib/i18n';
-import {
-  FaCreditCard, FaUniversity, FaMoneyBillWave, FaCheckCircle,
-  FaArrowRight, FaInfoCircle, FaLock, FaFileInvoice
-} from 'react-icons/fa';
+import { FaCreditCard, FaUniversity, FaMoneyBillWave, FaCheckCircle, FaArrowRight, FaInfoCircle, FaLock, FaFileInvoice } from 'react-icons/fa';
 
 interface Booking {
   id: string;

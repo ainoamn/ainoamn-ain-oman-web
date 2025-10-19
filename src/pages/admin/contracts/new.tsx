@@ -1,4 +1,4 @@
-﻿// src/pages/admin/contracts/new.tsx
+// src/pages/admin/contracts/new.tsx
 import Head from "next/head";
 import InstantLink from '@/components/InstantLink';
 import { useEffect, useMemo, useState } from "react";

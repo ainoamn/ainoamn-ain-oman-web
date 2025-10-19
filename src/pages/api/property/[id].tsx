@@ -9,12 +9,7 @@ import Layout from "../../components/layout/Layout";
 import PropertyMap from "../../components/maps/PropertyMap";
 import { useCurrency } from "../../context/CurrencyContext";
 import { PROPERTIES, LANDLORDS, type Prop, type Landlord } from "../../lib/demoData";
-import {
-  FaBed, FaBath, FaRulerCombined, FaStar, FaBolt, FaMapMarkerAlt, FaHashtag,
-  FaRegHeart, FaHeart, FaCheck, FaTimes, FaCalendarCheck, FaMoneyBillWave,
-  FaWhatsapp, FaFacebook, FaTwitter, FaTelegramPlane, FaLinkedin, FaEnvelope, FaLink,
-  FaParking, FaWifi, FaCouch, FaSnowflake, FaSwimmer, FaTree, FaShieldAlt, FaVideo, FaUtensils
-} from "react-icons/fa";
+import { FaBed, FaBath, FaRulerCombined, FaStar, FaBolt, FaMapMarkerAlt, FaHashtag, FaRegHeart, FaHeart, FaCheck, FaTimes, FaCalendarCheck, FaMoneyBillWave, FaWhatsapp, FaFacebook, FaTwitter, FaTelegramPlane, FaLinkedin, FaEnvelope, FaLink, FaParking, FaWifi, FaCouch, FaSnowflake, FaSwimmer, FaTree, FaShieldAlt, FaVideo, FaUtensils } from 'react-icons/fa';
 import { useChat } from "../../context/ChatContext";
 import { FaArrowUp, FaWater, FaSchool, FaHospital, FaPlaneDeparture, FaStore } from "react-icons/fa";
 

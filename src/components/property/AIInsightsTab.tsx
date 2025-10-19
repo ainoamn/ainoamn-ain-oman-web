@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  FaRobot, FaLightbulb, FaExclamationTriangle, FaChartLine,
-  FaArrowUp, FaArrowDown, FaClock, FaCheckCircle,
-  FaArrowRight, FaRefresh, FaFilter, FaSearch, FaStar,
-  FaThumbsUp, FaThumbsDown, FaShare, FaBookmark, FaEye,
-  FaMagic, FaBrain, FaCogs, FaRocket, FaTarget, FaAward
-} from 'react-icons/fa';
+import { FaRobot, FaLightbulb, FaExclamationTriangle, FaChartLine, FaArrowUp, FaArrowDown, FaClock, FaCheckCircle, FaArrowRight, FaSync, FaFilter, FaSearch, FaStar, FaThumbsUp, FaThumbsDown, FaShare, FaBookmark, FaEye, FaCogs, FaRocket, FaBullseye, FaAward } from 'react-icons/fa';
 
 // Aliases for trending icons
 const FaTrendingUp = FaArrowUp;
@@ -185,7 +179,7 @@ export default function AIInsightsTab({ insights }: AIInsightsTabProps) {
           </div>
         </div>
         <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-          <FaRefresh className="h-4 w-4 ml-2" />
+          <FaSync className="h-4 w-4 ml-2" />
           تحديث النصائح
         </button>
       </div>
@@ -194,7 +188,7 @@ export default function AIInsightsTab({ insights }: AIInsightsTabProps) {
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200 p-6">
         <div className="flex items-start space-x-4 rtl:space-x-reverse">
           <div className="p-3 bg-blue-100 rounded-lg">
-            <FaBrain className="h-6 w-6 text-blue-600" />
+            <FaRobot className="h-6 w-6 text-blue-600" />
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">ملخص التحليل الذكي</h3>
@@ -335,7 +329,7 @@ export default function AIInsightsTab({ insights }: AIInsightsTabProps) {
                     
                     <div className="flex items-center space-x-6 rtl:space-x-reverse text-sm text-gray-500 mb-3">
                       <div className="flex items-center">
-                        <FaTarget className="h-4 w-4 ml-1" />
+                        <FaBullseye className="h-4 w-4 ml-1" />
                         <span>التأثير المتوقع: {insight.estimatedImpact}</span>
                       </div>
                       <div className="flex items-center">

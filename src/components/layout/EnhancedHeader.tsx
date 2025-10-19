@@ -1,4 +1,4 @@
-﻿// src/components/layout/EnhancedHeader.tsx
+// src/components/layout/EnhancedHeader.tsx
 "use client";
 
 import InstantLink from '@/components/InstantLink';
@@ -103,8 +103,7 @@ export default function EnhancedHeader({ force = false }: Props) {
                 <InstantLink 
                   key={item.href}
                   href={item.href}
-                  className="px-3 py-2 rounded-xl font-medium transition-all hover:shadow hover:ring-2 hover:ring-white/30"
-                  style={{ opacity: 0.9 }}
+                  className="px-3 py-2 rounded-xl font-medium transition-all hover:shadow hover:ring-2 hover:ring-white/30 opacity-90"
                 >
                   {item.label}
                 </InstantLink>

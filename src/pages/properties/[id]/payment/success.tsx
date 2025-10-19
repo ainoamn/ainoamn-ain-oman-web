@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import Link from "next/link";
-import { FaCheckCircle, FaPrint, FaDownload, FaCalendarAlt, FaUser, FaHome } from "react-icons/fa";
+import { FaCheckCircle, FaPrint, FaDownload, FaCalendarAlt, FaUser, FaHome } from 'react-icons/fa';
 
 type BookingInfo = {
   id: string;

@@ -7,10 +7,7 @@ import Head from 'next/head';
 import InstantLink from '@/components/InstantLink';
 import { useInstantData } from '@/hooks/useInstantData';
 import { toSafeText } from '@/components/SafeText';
-import { 
-  FaPaperPlane, FaUser, FaArrowRight, FaPaperclip, FaImage,
-  FaCheckDouble, FaCheck, FaClock
-} from 'react-icons/fa';
+import { FaPaperPlane, FaUser, FaArrowRight, FaPaperclip, FaImage, FaCheckDouble, FaCheck, FaClock } from 'react-icons/fa';
 
 interface Message {
   id: string;

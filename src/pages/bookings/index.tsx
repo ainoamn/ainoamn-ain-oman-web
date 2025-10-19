@@ -1,4 +1,4 @@
-﻿// src/pages/bookings/index.tsx
+// src/pages/bookings/index.tsx
 // صفحة الحجوزات - تصميم حديث وجميل ⚡
 
 import { useState, useMemo } from 'react';
@@ -8,11 +8,7 @@ import { useSession } from 'next-auth/react';
 import InstantLink from '@/components/InstantLink';
 import { useBookings } from '@/context/BookingsContext';
 import { toSafeText } from '@/components/SafeText';
-import {
-  FaCalendar, FaHome, FaMoneyBillWave, FaCheckCircle, FaClock,
-  FaTimes, FaSearch, FaFilter, FaSortAmountDown, FaEye,
-  FaChevronRight, FaInfoCircle, FaUser, FaPhone
-} from 'react-icons/fa';
+import { FaCalendar, FaHome, FaMoneyBillWave, FaCheckCircle, FaClock, FaTimes, FaSearch, FaFilter, FaSortAmountDown, FaEye, FaChevronRight, FaInfoCircle, FaUser, FaPhone } from 'react-icons/fa';
 
 interface FilterOptions {
   search: string;

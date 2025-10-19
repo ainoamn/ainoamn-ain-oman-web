@@ -1,7 +1,7 @@
 // src/components/search/SmartSearch.tsx
 import { useMemo, useRef, useState } from "react";
 import locationData from "../../lib/locationData";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch } from 'react-icons/fa';
 
 export type SmartSearchPayload = {
   propertyType?: "apartment" | "villa" | "land" | "office" | "shop" | "";

@@ -1,10 +1,5 @@
-﻿import React, { useState, useEffect } from 'react';
-import {
-  FaTasks, FaPlus, FaFilter, FaSearch, FaCalendar, FaUser,
-  FaClock, FaCheckCircle, FaExclamationTriangle, FaEdit,
-  FaTrash, FaEye, FaFlag, FaComments, FaPaperclip,
-  FaArrowUp, FaArrowDown, FaSort, FaRefresh
-} from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaTasks, FaPlus, FaFilter, FaSearch, FaCalendar, FaUser, FaClock, FaCheckCircle, FaExclamationTriangle, FaEdit, FaTrash, FaEye, FaFlag, FaComments, FaPaperclip, FaArrowUp, FaArrowDown, FaSort, FaSync } from 'react-icons/fa';
 
 interface Task {
   id: string;

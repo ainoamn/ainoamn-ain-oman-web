@@ -1,4 +1,4 @@
-﻿// src/lib/print.ts - نظام الطباعة والتحميل الذكي
+// src/lib/print.ts - نظام الطباعة والتحميل الذكي
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 

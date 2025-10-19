@@ -1,4 +1,4 @@
-﻿// src/pages/admin/properties/index.tsx
+// src/pages/admin/properties/index.tsx
 import Head from "next/head";
 import InstantImage from '@/components/InstantImage';
 // Header is now handled by MainLayout in _app.tsx

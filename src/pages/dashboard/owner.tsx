@@ -1,11 +1,11 @@
-﻿// root: src/pages/dashboard/owner.tsx
+// root: src/pages/dashboard/owner.tsx
 import { useState, useEffect, useMemo } from "react";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import InstantLink from "@/components/InstantLink";
-import { FaPlus, FaCog } from "react-icons/fa";
+import { FaPlus, FaCog } from 'react-icons/fa';
 import PropertyCard from "@/components/properties/PropertyCard";
 import RentalStatusChart from "@/components/dashboard/RentalStatusChart";
 import StatsOverview from "@/components/dashboard/StatsOverview";

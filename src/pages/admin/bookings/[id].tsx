@@ -8,14 +8,7 @@ import InstantLink from '@/components/InstantLink';
 import InstantImage from '@/components/InstantImage';
 import { useBooking } from '@/context/BookingsContext';
 import { toSafeText } from '@/components/SafeText';
-import {
-  FaArrowRight, FaHome, FaUser, FaPhone, FaEnvelope, FaIdCard,
-  FaCalendar, FaClock, FaMoneyBillWave, FaFileContract, FaMapMarkerAlt,
-  FaBuilding, FaRuler, FaBed, FaBath, FaCheck, FaTimes, FaPrint,
-  FaEdit, FaTrash, FaCheckCircle, FaTimesCircle, FaExclamationTriangle,
-  FaInfoCircle, FaFileAlt, FaDollarSign, FaCreditCard, FaReceipt,
-  FaChartLine, FaHistory, FaImage, FaDownload
-} from 'react-icons/fa';
+import { FaArrowRight, FaHome, FaUser, FaPhone, FaEnvelope, FaIdCard, FaCalendar, FaClock, FaMoneyBillWave, FaFileContract, FaMapMarkerAlt, FaBuilding, FaRuler, FaBed, FaBath, FaCheck, FaTimes, FaPrint, FaEdit, FaTrash, FaCheckCircle, FaTimesCircle, FaExclamationTriangle, FaInfoCircle, FaFileAlt, FaDollarSign, FaCreditCard, FaReceipt, FaChartLine, FaHistory, FaImage, FaDownload } from 'react-icons/fa';
 
 interface Booking {
   id: string;

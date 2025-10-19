@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  FaChartLine, FaChartBar, FaChartPie, FaArrowUp, FaArrowDown,
-  FaCalendar, FaFilter, FaDownload, FaPrint,
-  FaEye, FaEyeSlash, FaEquals,
-  FaDollarSign, FaUsers, FaBuilding, FaClock, FaCheckCircle,
-  FaExclamationTriangle, FaInfoCircle, FaQuestionCircle
-} from 'react-icons/fa';
+import { FaChartLine, FaChartBar, FaChartPie, FaArrowUp, FaArrowDown, FaCalendar, FaFilter, FaDownload, FaPrint, FaEye, FaEyeSlash, FaEquals, FaDollarSign, FaUsers, FaBuilding, FaClock, FaCheckCircle, FaExclamationTriangle, FaInfoCircle, FaQuestionCircle } from 'react-icons/fa';
 
 // Aliases for trending icons
 const FaTrendingUp = FaArrowUp;
