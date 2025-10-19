@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaMoneyBillWave, FaDollarSign, FaChartLine, FaExclamationTriangle } from 'react-icons/fa';
+import { FaMoneyBillWave, FaDollarSign, FaChartLine, FaExclamationTriangle, FaClock } from 'react-icons/fa';
 
 interface SimpleFinancialTabProps {
   propertyId: string;

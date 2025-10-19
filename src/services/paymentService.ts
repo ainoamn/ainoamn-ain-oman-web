@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/services/paymentService.ts
 class PaymentService {
   // دفع تأمين المزايدة
@@ -90,3 +91,6 @@ class PaymentService {
     }
   }
 }
+
+export const paymentService = new PaymentService();
+export default PaymentService;

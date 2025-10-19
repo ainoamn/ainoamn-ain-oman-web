@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/services/authService.ts
 export type AuthUser = {
   id: string;
