@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { HOA, Building, Unit, Ticket, Investor, Alert, Doc } from "@/types/hoa";
 

@@ -19,6 +19,7 @@ interface InstantLinkProps {
   shallow?: boolean;
   scroll?: boolean;
   replace?: boolean;
+  dir?: "rtl" | "ltr";
 }
 
 /**
@@ -44,6 +45,7 @@ export default function InstantLink({
   shallow = false,
   scroll = true,
   replace = false,
+  dir,
 }: InstantLinkProps) {
   const router = useRouter();
   const linkRef = useRef<HTMLAnchorElement>(null);
@@ -140,6 +142,7 @@ export default function InstantLink({
       title={title}
       target={target}
       rel={rel}
+      dir={dir}
       prefetch={false} // نحن نتحكم في الـ prefetch يدويًا
     >
       {children}
