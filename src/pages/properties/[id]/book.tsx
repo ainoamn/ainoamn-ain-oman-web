@@ -57,8 +57,23 @@ if (!p) return <main className="p-6">جار التحميل…</main>;
 
 
 return (
-<main className="min-h-screen bg-slate-50">
-<div className="mx-auto max-w-xl p-6 space-y-4">
-<h1 className="text-2xl font-bold">حجز العقار</h1>
-<div className="text-sm text-slate-500">{p.id}</div>
-}
+	<main className="min-h-screen bg-slate-50">
+		<div className="mx-auto max-w-xl p-6 space-y-4">
+			<h1 className="text-2xl font-bold">حجز العقار</h1>
+			<div className="text-sm text-slate-500">{p.id}</div>
+
+			<div className="bg-white rounded-xl p-4 shadow">
+				<div className="mb-3">
+					<label className="block text-sm text-gray-600 mb-1">المبلغ</label>
+					<input type="number" value={amount} onChange={(e) => setAmount(Number(e.target.value))} className="w-full rounded border px-3 py-2" />
+				</div>
+				<div className="flex gap-2">
+					<button className="btn btn-primary" onClick={pay}>ادفع الآن</button>
+					<button className="btn" onClick={() => router.push(`/properties/${p.id}`)}>إلغاء</button>
+				</div>
+			</div>
+
+		</div>
+	</main>
+);
+	}

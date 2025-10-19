@@ -103,6 +103,7 @@ interface Statistics {
   favorites: number;
   shares: number;
   inquiries: number;
+  bookings?: number;
   avgRating: number;
   totalReviews: number;
 }
@@ -359,7 +360,7 @@ function PropertyDetailsPage() {
   // تحميل الإحصائيات
   const loadStatistics = async () => {
     try {
-      const mockStats: Statistics = { views: 0, favorites: 0, shares: 0, bookings: 0, avgRating: 0 }; // من API
+  const mockStats: Statistics = { views: 0, favorites: 0, shares: 0, bookings: 0, inquiries: 0, avgRating: 0, totalReviews: 0 }; // من API
       
       setStatistics(mockStats);
     } catch (error) {

@@ -1405,8 +1405,8 @@ export default function EditProperty({ property }: { property: any }) {
         };
         
         if (formData.buildingType === 'multi') {
-          dataToSend.totalUnits = formData.totalUnits;
-          dataToSend.totalArea = formData.totalArea;
+          (dataToSend as any).totalUnits = formData.totalUnits;
+          (dataToSend as any).totalArea = formData.totalArea;
         }
 
         // استخدام PUT للتعديل أو POST للإضافة

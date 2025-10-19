@@ -5,7 +5,7 @@ import InstantLink from '@/components/InstantLink';
 import { 
   FiDollarSign, FiTrendingUp, FiTrendingDown, FiCalendar, FiFileText,
   FiCreditCard, FiDownload, FiPrinter, FiShare2, FiEye, FiEdit,
-  FiPieChart, FiBarChart3, FiActivity, FiAlertTriangle, FiCheckCircle
+  FiPieChart, FiBarChart, FiActivity, FiAlertTriangle, FiCheckCircle
 } from 'react-icons/fi';
 
 
