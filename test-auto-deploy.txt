@@ -1,0 +1,4 @@
+# Test Auto-Deployment
+This is a test file to verify that Vercel auto-deploys on push.
+Timestamp: 2025-10-19 15:10:00
+
