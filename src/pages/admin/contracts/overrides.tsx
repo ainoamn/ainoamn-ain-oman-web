@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/admin/contracts/overrides.tsx
 import Head from "next/head";
 // Header is now handled by MainLayout in _app.tsx

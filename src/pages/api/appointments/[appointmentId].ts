@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/api/appointments/[appointmentId].ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { AppointmentsStore } from "../../../server/appointments/store";

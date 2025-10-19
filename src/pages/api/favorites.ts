@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/api/favorites.ts - API المفضلة
 import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';

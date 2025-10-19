@@ -45,10 +45,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Create invoice
     const invoiceId = await nextSerial("INVOICE");
-    const inv: Invoice = {
+    const inv = {
       id: invoiceId,
-      reservationId: item.id,
-      propertyId: item.propertyId,
+      reservationId: String(item.id),
+      propertyId: String(item.propertyId),
       customerName: item.customerName,
       amount: item.amount,
       currency: item.currency,
@@ -58,7 +58,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       paidAt: undefined,
     };
     const invList = readArray<Invoice>(INV_FILE);
-    invList.push(inv);
+    invList.push(inv as Invoice);
     writeArray<Invoice>(INV_FILE, invList);
 
     item.invoiceId = inv.id;

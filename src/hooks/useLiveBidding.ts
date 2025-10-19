@@ -1,4 +1,7 @@
 // src/hooks/useLiveBidding.ts
+import { useEffect, useState } from 'react';
+import type { Bid } from '@/types/auction';
+
 export const useLiveBidding = (auctionId: string) => {
   const [currentBid, setCurrentBid] = useState(0);
   const [bidHistory, setBidHistory] = useState<Bid[]>([]);

@@ -67,3 +67,39 @@ export async function updateRequest(id: string, patch: Partial<RequestItem>) {
   await fsp.writeFile(filePath, JSON.stringify({ items }, null, 2), "utf8");
   return items[idx];
 }
+
+export async function updateViewing(id: string, patch: Partial<RequestItem>) {
+  return updateRequest(id, patch);
+}
+
+export async function createViewing(input: Omit<RequestItem, "id"|"status"|"createdAt"|"updatedAt"|"type"> & { date: string; time: string }) {
+  return createRequest({ ...input, type: 'viewing' });
+}
+
+export async function listViewingsByUser(userId: string) {
+  const all = await listRequests();
+  return all.filter(x => x.userId === userId && x.type === 'viewing');
+}
+
+export async function listViewingsForOwner(ownerId: string) {
+  const all = await listRequests();
+  return all.filter(x => x.ownerId === ownerId && x.type === 'viewing');
+}
+
+// --- booking helpers (lightweight wrappers used by API routes)
+export async function createBooking(input: Omit<RequestItem, "id"|"status"|"createdAt"|"updatedAt"|"type"> & { months: number; start?: string | null; depositMonths?: number; depositOMR?: number }) {
+  const payload: any = { ...input, type: 'booking' };
+  if (typeof (input as any).start !== 'undefined') payload.date = (input as any).start;
+  if (typeof (input as any).depositMonths !== 'undefined') payload.proposedDate = undefined; // placeholder
+  return createRequest(payload);
+}
+
+export async function listBookingsByUser(userId: string) {
+  const all = await listRequests();
+  return all.filter(x => x.userId === userId && x.type === 'booking');
+}
+
+export async function listBookingsForOwner(ownerId: string) {
+  const all = await listRequests();
+  return all.filter(x => x.ownerId === ownerId && x.type === 'booking');
+}

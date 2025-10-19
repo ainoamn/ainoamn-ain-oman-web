@@ -282,7 +282,7 @@ export class ResourceHints {
 export class PerformanceMonitor {
   private observers: PerformanceObserver[] = [];
 
-  observePaint(callback: (entries: PerformanceEntryList) => void) {
+  observePaint(callback: PerformanceObserverCallback) {
     if (typeof PerformanceObserver === 'undefined') return;
 
     const observer = new PerformanceObserver(callback);
@@ -290,7 +290,7 @@ export class PerformanceMonitor {
     this.observers.push(observer);
   }
 
-  observeLCP(callback: (entries: PerformanceEntryList) => void) {
+  observeLCP(callback: PerformanceObserverCallback) {
     if (typeof PerformanceObserver === 'undefined') return;
 
     const observer = new PerformanceObserver(callback);
@@ -298,7 +298,7 @@ export class PerformanceMonitor {
     this.observers.push(observer);
   }
 
-  observeFID(callback: (entries: PerformanceEntryList) => void) {
+  observeFID(callback: PerformanceObserverCallback) {
     if (typeof PerformanceObserver === 'undefined') return;
 
     const observer = new PerformanceObserver(callback);
@@ -306,7 +306,7 @@ export class PerformanceMonitor {
     this.observers.push(observer);
   }
 
-  observeCLS(callback: (entries: PerformanceEntryList) => void) {
+  observeCLS(callback: PerformanceObserverCallback) {
     if (typeof PerformanceObserver === 'undefined') return;
 
     const observer = new PerformanceObserver(callback);

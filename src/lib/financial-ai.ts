@@ -471,23 +471,7 @@ function groupChecksByIssuer(checks: Check[]): Record<string, Check[]> {
   }, {} as Record<string, Check[]>);
 }
 
-// دالة مساعدة مستوردة من تحليل السلوك
-function analyzeCustomerBehavior(customerId: string, invoices: Invoice[], payments: Payment[]) {
-  // نفس المنطق من الأعلى
-  return {
-    customerId,
-    customerName: invoices[0]?.customerName || '',
-    paymentScore: 0,
-    averageDelayDays: 0,
-    totalInvoices: invoices.length,
-    paidOnTime: 0,
-    paidLate: 0,
-    unpaid: 0,
-    riskLevel: 'low' as const,
-    recommendation: '',
-    predictedNextPayment: ''
-  };
-}
+// Note: analyzeCustomerBehavior is exported earlier in this file.
 
 // ========================
 // 5. حساب المبالغ المتوقعة شهرياً

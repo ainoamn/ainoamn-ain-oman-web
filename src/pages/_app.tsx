@@ -87,7 +87,6 @@ export default function App({ Component, pageProps }: AppProps) {
 
   // @ts-expect-error optional getLayout / noChrome
   const getLayout = (Component as any).getLayout as undefined | ((page: JSX.Element) => JSX.Element);
-  // @ts-expect-error optional flag
   const noChrome = (Component as any)?.noChrome === true;
 
   const page = <Component {...pageProps} />;

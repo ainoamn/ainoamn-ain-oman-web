@@ -61,3 +61,14 @@ export async function listThreadsForUser(userId: string) {
   return Array.from(threads.entries()).map(([key, v]) => ({ threadId:key, ...v }))
     .sort((a,b)=> b.lastTs.localeCompare(a.lastTs));
 }
+
+export async function getThread(threadId: string) {
+  await ensure();
+  const [propertyId, withId] = String(threadId).split("::");
+  const raw = await fsp.readFile(filePath, "utf8");
+  const js = JSON.parse(raw || "{}");
+  const items: Message[] = Array.isArray(js.items) ? js.items : [];
+  const msgs = items.filter((m) => String(m.propertyId) === String(propertyId) && (m.fromId === withId || m.toId === withId))
+    .sort((a,b)=>a.ts.localeCompare(b.ts));
+  return { threadId, messages: msgs };
+}

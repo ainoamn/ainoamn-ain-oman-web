@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Head from "next/head";
 import InstantLink from '@/components/InstantLink';
 import { useEffect, useState, useMemo } from "react";

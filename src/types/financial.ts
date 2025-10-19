@@ -47,6 +47,7 @@ export type InvoiceStatus =
   | 'draft'             // مسودة
   | 'sent'              // مرسلة
   | 'viewed'            // تم عرضها
+  | 'unpaid'            // غير مدفوعة
   | 'paid'              // مدفوعة
   | 'partially_paid'    // مدفوعة جزئياً
   | 'overdue'           // متأخرة
@@ -70,6 +71,10 @@ export interface Invoice {
   type: InvoiceType;
   status: InvoiceStatus;
   
+  // optional linkage to reservations/payments
+  reservationId?: string;
+  amount?: number;
+  
   // الأطراف
   issuerId: string;                // من أصدر الفاتورة
   customerId: string;              // العميل
@@ -82,6 +87,8 @@ export interface Invoice {
   issueDate: string;
   dueDate: string;
   paidDate?: string;
+  // legacy alias sometimes used in code
+  paidAt?: string;
   
   // المبالغ
   items: InvoiceItem[];
@@ -135,24 +142,26 @@ export type PaymentStatus =
 
 export interface Payment {
   id: string;
-  paymentNumber: string;           // رقم المدفوع (PAY-2025-0001)
+  paymentNumber?: string;           // رقم المدفوع (PAY-2025-0001)
   invoiceId: string;               // ربط بالفاتورة
   
   // الأطراف
-  payerId: string;                 // الدافع
-  payerName: string;
-  receiverId: string;              // المستقبل
-  receiverName: string;
+  payerId?: string;                 // الدافع
+  payerName?: string;
+  receiverId?: string;              // المستقبل
+  receiverName?: string;
   
   // المبلغ والطريقة
   amount: number;
   currency: 'OMR' | 'USD' | 'EUR' | 'SAR' | 'AED';
   method: PaymentMethod;
-  status: PaymentStatus;
+  status?: PaymentStatus;
   
   // التواريخ
-  paymentDate: string;
+  paymentDate?: string;
   processedDate?: string;
+  // time when payment was recorded/settled
+  paidAt?: string;
   
   // تفاصيل الدفع
   referenceNumber?: string;        // رقم المرجع
@@ -168,10 +177,11 @@ export interface Payment {
   
   // معلومات إضافية
   notes?: string;
+  receiptNote?: string;
   attachments?: string[];
   
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // ========================

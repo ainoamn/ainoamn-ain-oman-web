@@ -5,9 +5,9 @@ import { readJson, writeJson } from "@/server/fsdb";
 type RentalWorkflow = { id: string; events: { at: string; event: string; payload?: any }[] };
 const FILE = "rental_workflow.json";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const id = String(req.query.id || "");
-  const list = readJson<RentalWorkflow[]>(FILE, []);
+  const list = await readJson<RentalWorkflow[]>(FILE, []);
   const i = list.findIndex(x => x.id === id);
 
   if (req.method === "POST") {
@@ -15,7 +15,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     const ev = { at: new Date().toISOString(), event: String(body.event || ""), payload: body || {} };
     if (i >= 0) list[i].events.push(ev);
     else list.push({ id, events: [ev] });
-    writeJson(FILE, list);
+    await writeJson(FILE, list);
     return res.status(200).json({ ok: true });
   }
 

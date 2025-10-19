@@ -8,7 +8,7 @@ interface Report {
   title: string;
   description: string;
   type: 'financial' | 'property' | 'customer' | 'auction' | 'subscription' | 'analytics' | 'custom';
-  category: 'summary' | 'detailed' | 'comparative' | 'trend' | 'forecast';
+  category: 'summary' | 'detailed' | 'comparative' | 'trend' | 'forecast' | 'financial';
   status: 'draft' | 'generating' | 'completed' | 'failed' | 'archived';
   format: 'pdf' | 'excel' | 'csv' | 'json' | 'html';
   data: any;
@@ -416,10 +416,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         // }
 
         const { 
-          type, 
-          category, 
-          status, 
-          format, 
+          type: qType, 
+          category: qCategory, 
+          status: qStatus, 
+          format: qFormat, 
           userId,
           isPublic,
           sortBy = 'generatedAt', 
@@ -431,20 +431,20 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         // تطبيق الفلاتر
         let filteredReports = [...reports];
 
-        if (type && type !== 'all') {
-          filteredReports = filteredReports.filter(r => r.type === type);
+        if (qType && qType !== 'all') {
+          filteredReports = filteredReports.filter(r => r.type === String(qType));
         }
 
-        if (category && category !== 'all') {
-          filteredReports = filteredReports.filter(r => r.category === category);
+        if (qCategory && qCategory !== 'all') {
+          filteredReports = filteredReports.filter(r => r.category === String(qCategory));
         }
 
-        if (status && status !== 'all') {
-          filteredReports = filteredReports.filter(r => r.status === status);
+        if (qStatus && qStatus !== 'all') {
+          filteredReports = filteredReports.filter(r => r.status === String(qStatus));
         }
 
-        if (format && format !== 'all') {
-          filteredReports = filteredReports.filter(r => r.format === format);
+        if (qFormat && qFormat !== 'all') {
+          filteredReports = filteredReports.filter(r => r.format === String(qFormat));
         }
 
         if (userId) {
@@ -504,10 +504,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           limit: limitNum,
           totalPages: Math.ceil(filteredReports.length / limitNum),
           filters: {
-            type,
-            category,
-            status,
-            format,
+            type: qType,
+            category: qCategory,
+            status: qStatus,
+            format: qFormat,
             userId,
             isPublic,
             sortBy,
@@ -522,8 +522,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           title,
           description,
           type: newType,
-          category,
-          format,
+          category: newCategory,
+          format: newFormat,
           data,
           filters,
           parameters,
@@ -536,7 +536,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           updatedBy
         } = req.body;
 
-        if (!title || !newType || !format) {
+        if (!title || !newType || !newFormat) {
           return res.status(400).json({
             error: 'Missing required fields: title, type, format'
           });
@@ -546,8 +546,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           title,
           description,
           type: newType,
-          category,
-          format,
+          category: newCategory,
+          format: newFormat,
           data,
           filters,
           parameters,

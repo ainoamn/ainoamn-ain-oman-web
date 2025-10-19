@@ -15,3 +15,12 @@ export function writeArray<T = any>(fileName: string, arr: T[]) {
   const p = path.join(dataDir, fileName);
   fs.writeFileSync(p, JSON.stringify(arr, null, 2), "utf8");
 }
+
+export function upsert<T extends { id?: string | number } = any>(fileName: string, item: T) {
+  const arr = readArray<T>(fileName);
+  const idx = arr.findIndex(x => x.id === item.id);
+  if (idx >= 0) arr[idx] = { ...arr[idx], ...item } as T;
+  else arr.unshift(item);
+  writeArray(fileName, arr);
+  return item;
+}

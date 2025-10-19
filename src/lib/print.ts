@@ -301,17 +301,19 @@ export class PrintManager {
   }
 
   // إضافة علامة مائية للـ PDF
-  private addWatermarkToPDF(pdf: jsPDF): void {
+  private addWatermarkToPDF(pdf: any): void {
     const pageCount = pdf.getNumberOfPages();
     
     for (let i = 1; i <= pageCount; i++) {
       pdf.setPage(i);
       
       // حفظ الإعدادات الحالية
-      pdf.saveGraphicsState();
+      if (typeof pdf.saveGraphicsState === 'function') pdf.saveGraphicsState();
       
-      // إعداد العلامة المائية
-      pdf.setGState(new pdf.GState({ opacity: 0.1 }));
+      // إعداد العلامة المائية (تحويل نوعي للحماية)
+      if (typeof (pdf as any).GState === 'function') {
+        try { pdf.setGState(new (pdf as any).GState({ opacity: 0.1 })); } catch {}
+      }
       pdf.setFontSize(50);
       pdf.setTextColor(200, 200, 200);
       
@@ -325,12 +327,12 @@ export class PrintManager {
       });
       
       // استعادة الإعدادات
-      pdf.restoreGraphicsState();
+      if (typeof pdf.restoreGraphicsState === 'function') pdf.restoreGraphicsState();
     }
   }
 
   // إضافة هيدر للـ PDF
-  private addHeaderToPDF(pdf: jsPDF, header: string): void {
+  private addHeaderToPDF(pdf: any, header: string): void {
     const pageCount = pdf.getNumberOfPages();
     
     for (let i = 1; i <= pageCount; i++) {
@@ -342,7 +344,7 @@ export class PrintManager {
   }
 
   // إضافة فوتر للـ PDF
-  private addFooterToPDF(pdf: jsPDF, footer: string): void {
+  private addFooterToPDF(pdf: any, footer: string): void {
     const pageCount = pdf.getNumberOfPages();
     
     for (let i = 1; i <= pageCount; i++) {

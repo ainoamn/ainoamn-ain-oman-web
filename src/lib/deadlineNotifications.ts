@@ -1,5 +1,5 @@
 import { prisma } from '../server/db';
-import { notifyUsers } from '../server/notify/store';
+import { notifyLegalStakeholders } from '../server/notify/store';
 
 export class DeadlineNotifier {
   async checkUpcomingDeadlines() {
@@ -28,11 +28,7 @@ export class DeadlineNotifier {
     if (legalCase.clientId) userIds.push(legalCase.clientId);
     if (legalCase.assignedToId) userIds.push(legalCase.assignedToId);
 
-    await notifyUsers(userIds, {
-      type: 'LEGAL_DEADLINE',
-      title: `موعد قريب للقضية ${legalCase.caseNumber}`,
-      message: `الموعد النهائي: ${legalCase.deadline?.toLocaleDateString()}`,
-      link: `/legal/${legalCase.id}`
-    });
+    // use notifyLegalStakeholders helper from server notify/store
+    await notifyLegalStakeholders(legalCase, 'LEGAL_DEADLINE', `الموعد النهائي: ${legalCase.deadline?.toLocaleDateString()}`);
   }
 }

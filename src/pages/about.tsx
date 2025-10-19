@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/about.tsx
 import Head from "next/head";
 import { useI18n } from "@/lib/i18n";

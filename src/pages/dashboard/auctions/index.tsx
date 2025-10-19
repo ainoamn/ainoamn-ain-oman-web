@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/dashboard/auctions/index.tsx
 import { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';

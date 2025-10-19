@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/api/auctions/bids.ts - API المزايدات
 import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';

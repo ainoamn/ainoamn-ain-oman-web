@@ -18,6 +18,12 @@ export type CurrentUser = {
   subscription?: { planId?: string; features?: string[] } | null;
 };
 
+// Backwards-compatible application user shape used in some modules
+export type AppUser = CurrentUser & {
+  // many places in the codebase read a simple `plan` string
+  plan?: "free" | "pro" | "enterprise" | "basic" | "business" | string | null;
+};
+
 export function hasPermission(
   user: CurrentUser | null | undefined,
   need: Permission | Permission[]

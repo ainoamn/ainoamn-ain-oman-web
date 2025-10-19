@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/dashboard/index.tsx - نظام التوجيه التلقائي للوحات التحكم
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';

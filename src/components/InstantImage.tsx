@@ -22,6 +22,7 @@ interface InstantImageProps {
   onLoad?: () => void;
   onError?: () => void;
   loading?: 'lazy' | 'eager';
+  style?: React.CSSProperties;
 }
 
 /**
@@ -52,6 +53,7 @@ export default function InstantImage({
   onLoad,
   onError,
   loading = 'lazy',
+  style,
 }: InstantImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -155,10 +157,7 @@ export default function InstantImage({
           sizes={defaultSizes}
           placeholder={placeholder}
           blurDataURL={placeholder === 'blur' ? defaultBlurDataURL : undefined}
-          style={{
-            objectFit,
-            objectPosition,
-          }}
+          style={{ ...(style || {}), objectFit, objectPosition }}
           {...commonProps}
         />
       ) : (
@@ -169,10 +168,7 @@ export default function InstantImage({
           sizes={defaultSizes}
           placeholder={placeholder}
           blurDataURL={placeholder === 'blur' ? defaultBlurDataURL : undefined}
-          style={{
-            objectFit,
-            objectPosition,
-          }}
+          style={{ ...(style || {}), objectFit, objectPosition }}
           {...commonProps}
         />
       )}

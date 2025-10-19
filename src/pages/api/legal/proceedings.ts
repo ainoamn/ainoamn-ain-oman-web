@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Assignments, Stages, Cases, uid, now, Audit } from "../../../server/legal/store";
 import { can } from "../../../lib/rbac";

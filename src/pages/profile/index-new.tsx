@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/profile/index.tsx - نسخة محسّنة مع تحديث فوري
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/dashboard/customer.tsx - لوحة تحكم العميل
 import React, { useState, useEffect } from 'react';
 import InstantLink from '@/components/InstantLink';

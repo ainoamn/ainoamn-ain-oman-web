@@ -5,6 +5,12 @@ export interface Unit {
   images?: string[];
 }
 
+export interface ExtraRow {
+  id: string;
+  label: string;
+  value: string;
+}
+
 export interface Property {
   id: string;
   title: string;

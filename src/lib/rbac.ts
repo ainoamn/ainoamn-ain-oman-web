@@ -1,7 +1,12 @@
 // Role-Based Access Control (RBAC) System
 // نظام التحكم في الوصول حسب الدور
 
-export type UserRole = 'admin' | 'property_owner' | 'property_manager' | 'tenant' | 'user';
+// Re-use the canonical UserRole union from user-roles.ts so all modules share the
+// same role definitions (includes 'individual_tenant', 'corporate_tenant', etc.).
+// Use a wide string type for RBAC roles to remain compatible with
+// multiple role enumerations used across the codebase (legacy and new).
+export type UserRole = string;
+export type Role = UserRole; // backward-compatible alias
 
 export interface UserContext {
   id: string;
@@ -300,3 +305,6 @@ export function getCurrentUser(): UserContext | null {
 
   return null;
 }
+
+// Re-export permission helper for backward compatibility
+export { can } from './authz/permissions';

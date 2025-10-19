@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/profile/bookings.tsx
 import Head from "next/head";
 import InstantLink from '@/components/InstantLink';

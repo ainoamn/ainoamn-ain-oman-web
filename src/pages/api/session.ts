@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import type { Role } from "@/lib/rbac";
+import type { UserRole as Role } from "@/lib/user-roles";
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 

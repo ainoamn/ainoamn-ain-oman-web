@@ -1,6 +1,6 @@
 // src/pages/api/requests/bookings/[id].ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { updateBooking } from "@/server/requests/store";
+import { updateRequest } from "@/server/requests/store";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { id } = req.query;
@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === "PUT") {
     const patch = req.body || {};
-    const item = await updateBooking(String(bid), patch);
+    const item = await updateRequest(String(bid), patch);
     return res.status(200).json({ item });
   }
 

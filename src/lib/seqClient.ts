@@ -29,3 +29,11 @@ export async function getNextSerialSSR(prefix: string, baseUrl: string): Promise
   const data = (await res.json()) as { serial: string };
   return data.serial;
 }
+
+export type EntityKey = "PROPERTY" | "AUCTION" | "CONTRACT" | "INVOICE" | "PAYMENT" | "TASK" | "TICKET";
+
+export async function issueSerial(entity: EntityKey, opts?: { year?: number; width?: number; prefixOverride?: string; resetPolicy?: 'yearly' | 'never' }) {
+  const ns = opts?.prefixOverride || entity;
+  const serial = await getNextSerial(ns + (opts?.year ? `-${opts.year}` : ""));
+  return { ok: true, serial, year: opts?.year ?? new Date().getFullYear(), counter: 1 };
+}

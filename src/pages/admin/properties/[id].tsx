@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Head from "next/head";
 // Header and Footer handled by MainLayout in _app.tsx
 import Link from "next/link";

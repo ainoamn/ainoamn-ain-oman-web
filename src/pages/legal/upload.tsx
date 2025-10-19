@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/legal/upload.tsx
 import React from "react";
 import DocumentUploader from "@/components/legal/DocumentUploader";

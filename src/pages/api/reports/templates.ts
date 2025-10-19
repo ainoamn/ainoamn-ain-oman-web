@@ -779,12 +779,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         }
 
         const { 
-          type, 
-          category, 
-          format, 
-          isPublic,
-          isDefault,
-          status = 'active',
+          type: qType, 
+          category: qCategory, 
+          format: qFormat, 
+          isPublic: qIsPublic,
+          isDefault: qIsDefault,
+          status: qStatus = 'active',
           sortBy = 'name', 
           sortOrder = 'asc'
         } = req.query;
@@ -792,32 +792,32 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         // تطبيق الفلاتر
         let filteredTemplates = [...templates];
 
-        if (type && type !== 'all') {
-          filteredTemplates = filteredTemplates.filter(t => t.type === type);
+        if (qType && qType !== 'all') {
+          filteredTemplates = filteredTemplates.filter(t => t.type === String(qType));
         }
 
-        if (category && category !== 'all') {
-          filteredTemplates = filteredTemplates.filter(t => t.category === category);
+        if (qCategory && qCategory !== 'all') {
+          filteredTemplates = filteredTemplates.filter(t => t.category === String(qCategory));
         }
 
-        if (format && format !== 'all') {
-          filteredTemplates = filteredTemplates.filter(t => t.format === format);
+        if (qFormat && qFormat !== 'all') {
+          filteredTemplates = filteredTemplates.filter(t => t.format === String(qFormat));
         }
 
-        if (isPublic === 'true') {
+        if (qIsPublic === 'true') {
           filteredTemplates = filteredTemplates.filter(t => t.isPublic);
-        } else if (isPublic === 'false') {
+        } else if (qIsPublic === 'false') {
           filteredTemplates = filteredTemplates.filter(t => !t.isPublic);
         }
 
-        if (isDefault === 'true') {
+        if (qIsDefault === 'true') {
           filteredTemplates = filteredTemplates.filter(t => t.isDefault);
-        } else if (isDefault === 'false') {
+        } else if (qIsDefault === 'false') {
           filteredTemplates = filteredTemplates.filter(t => !t.isDefault);
         }
 
-        if (status && status !== 'all') {
-          filteredTemplates = filteredTemplates.filter(t => t.status === status);
+        if (qStatus && qStatus !== 'all') {
+          filteredTemplates = filteredTemplates.filter(t => t.status === String(qStatus));
         }
 
         // ترتيب النتائج
@@ -857,12 +857,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           templates: filteredTemplates,
           total: filteredTemplates.length,
           filters: {
-            type,
-            category,
-            format,
-            isPublic,
-            isDefault,
-            status,
+            type: qType,
+            category: qCategory,
+            format: qFormat,
+            isPublic: qIsPublic,
+            isDefault: qIsDefault,
+            status: qStatus,
             sortBy,
             sortOrder
           }
@@ -875,15 +875,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           name,
           description,
           type: newType,
-          category,
-          format,
+          category: newCategory,
+          format: newFormat,
           template,
           filters,
           parameters,
           dataSource,
           permissions,
           isPublic: newIsPublic,
-          isDefault,
+          isDefault: newIsDefault,
           tags,
           version,
           status: newStatus,
@@ -891,7 +891,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           updatedBy
         } = req.body;
 
-        if (!name || !newType || !format) {
+        if (!name || !newType || !newFormat) {
           return res.status(400).json({
             error: 'Missing required fields: name, type, format'
           });
@@ -901,15 +901,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           name,
           description,
           type: newType,
-          category,
-          format,
+          category: newCategory,
+          format: newFormat,
           template,
           filters,
           parameters,
           dataSource,
           permissions,
           isPublic: newIsPublic,
-          isDefault,
+          isDefault: newIsDefault,
           tags,
           version,
           status: newStatus,

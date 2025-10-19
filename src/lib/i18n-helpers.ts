@@ -7,7 +7,7 @@ import { useI18n } from './i18n';
  * تحويل أي قيمة إلى نص قابل للعرض في React
  * يحل مشكلة: Objects are not valid as a React child
  */
-export function toText(value: any, lang: 'ar' | 'en' = 'ar'): string {
+export function toText(value: any, lang: string = 'ar'): string {
   if (!value) return '';
   
   // إذا كان string، أرجعه مباشرة
@@ -39,14 +39,14 @@ export function useUnifiedI18n() {
     supported: i18n.supported,
     
     // دالة إضافية لتحويل objects إلى text
-    toText: (value: any) => toText(value, i18n.lang),
+    toText: (value: any) => toText(value, String(i18n.lang)),
   };
 }
 
 /**
  * تحويل عنوان/وصف property إلى نص
  */
-export function getTitleText(title: any, lang: 'ar' | 'en' = 'ar'): string {
+export function getTitleText(title: any, lang: string = 'ar'): string {
   if (!title) return '';
   if (typeof title === 'string') return title;
   if (typeof title === 'object') {
@@ -58,7 +58,7 @@ export function getTitleText(title: any, lang: 'ar' | 'en' = 'ar'): string {
 /**
  * تحويل وصف property إلى نص
  */
-export function getDescriptionText(description: any, lang: 'ar' | 'en' = 'ar'): string {
+export function getDescriptionText(description: any, lang: string = 'ar'): string {
   return getTitleText(description, lang);
 }
 
@@ -84,7 +84,7 @@ export function useSafeI18n() {
  * تنسيق السعر مع العملة
  */
 export function formatPrice(price: number, currency: string = 'OMR'): string {
-  const formatted = price.toLocaleString('ar', { calendar: 'gregory', numberingSystem: 'latn' }, {
+  const formatted = price.toLocaleString('ar', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
@@ -102,7 +102,7 @@ export function formatPrice(price: number, currency: string = 'OMR'): string {
 /**
  * تنسيق التاريخ بالعربية
  */
-export function formatDate(date: string | Date, lang: 'ar' | 'en' = 'ar'): string {
+export function formatDate(date: string | Date, lang: string = 'ar'): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   
   return d.toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US', {
@@ -115,7 +115,7 @@ export function formatDate(date: string | Date, lang: 'ar' | 'en' = 'ar'): strin
 /**
  * تنسيق الوقت
  */
-export function formatTime(date: string | Date, lang: 'ar' | 'en' = 'ar'): string {
+export function formatTime(date: string | Date, lang: string = 'ar'): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   
   return d.toLocaleTimeString(lang === 'ar' ? 'ar-SA' : 'en-US', {
@@ -127,7 +127,7 @@ export function formatTime(date: string | Date, lang: 'ar' | 'en' = 'ar'): strin
 /**
  * تنسيق التاريخ والوقت معاً
  */
-export function formatDateTime(date: string | Date, lang: 'ar' | 'en' = 'ar'): string {
+export function formatDateTime(date: string | Date, lang: string = 'ar'): string {
   return `${formatDate(date, lang)} ${formatTime(date, lang)}`;
 }
 

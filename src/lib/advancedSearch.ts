@@ -71,7 +71,7 @@ export interface SearchResult<T = any> {
   limit: number;
   totalPages: number;
   facets: SearchFacet[];
-  suggestions: string[];
+  suggestions: SearchSuggestion[];
   recommendations: string[];
   query: SearchQuery;
   executionTime: number;

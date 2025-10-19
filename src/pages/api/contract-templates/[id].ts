@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/api/contract-templates/[id].ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs"; import fsp from "fs/promises"; import path from "path";

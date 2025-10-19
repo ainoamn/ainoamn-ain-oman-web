@@ -39,7 +39,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setStatus(s ? "authenticated" : "unauthenticated");
   }, []);
   const value = useMemo(() => ({ session, status, setSession }), [session, status]);
-  return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
+  return React.createElement(AuthCtx.Provider, { value }, children);
 }
 
 export function useSession(): { data: Session; status: Ctx["status"] } {

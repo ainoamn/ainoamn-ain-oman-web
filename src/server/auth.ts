@@ -7,3 +7,10 @@ export function requireAdminApi(_req: NextApiRequest, _res: NextApiResponse): bo
   // طوّر المصادقة لاحقًا. الآن مسموح أثناء التطوير.
   return true;
 }
+
+export function isAdminCookie(req: NextApiRequest) {
+  try {
+    const c = req.cookies?.[adminCookieName] || req.headers?.cookie || "";
+    return Boolean(c);
+  } catch { return false; }
+}

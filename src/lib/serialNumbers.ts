@@ -1,5 +1,5 @@
 // src/lib/serialNumbers.ts
-import { prisma } from "./prisma";
+import prisma from "./prisma";
 
 // أنواع الكيانات المدعومة الآن — يمكنك التوسعة لاحقًا
 export type EntityKey =
@@ -158,7 +158,7 @@ export async function issueNextSerial(
 
 // كتابة سجل تدقيق بسيط
 async function writeAudit(
-  tx: typeof prisma,
+  tx: any,
   params: {
     eventType: string;
     actorId: string | null;

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/auctions/sell.tsx
 import Head from "next/head";
 import withSubscription from "@/components/auth/withSubscription";

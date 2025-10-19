@@ -22,6 +22,7 @@ export type Task = {
   createdAt: string;
   updatedAt: string;
   assignees?: string[];
+  labels?: string[];
   owner?: Person;
   cc?: Person[];
   thread: ThreadItem[];
@@ -79,6 +80,7 @@ function newTask(id: string, patch?: Partial<Task>): Task {
     createdAt: patch?.createdAt || nowISO(),
     updatedAt: nowISO(),
     assignees: Array.isArray(patch?.assignees) ? patch.assignees : [],
+    labels: Array.isArray(patch?.labels) ? patch.labels : [],
     owner: patch?.owner,
     cc: Array.isArray(patch?.cc) ? patch.cc : [],
     thread: [],
@@ -109,6 +111,7 @@ export function patchTask(id: string, patch: Partial<Task>) {
     if (typeof patch.dueDate === "string" || patch.dueDate === undefined) t.dueDate = patch.dueDate;
     if (typeof patch.createdAt === "string") t.createdAt = patch.createdAt;
     if (Array.isArray(patch.assignees)) t.assignees = patch.assignees;
+  if (Array.isArray(patch.labels)) t.labels = patch.labels;
     if (patch.link) t.link = patch.link as LinkedEntity;
     if (patch.owner) t.owner = patch.owner as Person;
     if (Array.isArray(patch.cc)) t.cc = patch.cc as Person[];
@@ -233,3 +236,6 @@ export function listTasks(filter?: { q?: string; status?: Status | "all"; priori
   xs.sort((a,b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
   return xs;
 }
+
+// Export a prisma stub from the shared prisma client so other modules can import { prisma } from '../server/db'
+export { default as prisma } from '../lib/prisma';

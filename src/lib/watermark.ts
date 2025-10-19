@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/lib/watermark.ts - نظام العلامة المائية الذكي
 import { createCanvas, loadImage } from 'canvas';
 

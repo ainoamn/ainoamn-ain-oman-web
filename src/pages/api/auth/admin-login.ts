@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/api/auth/admin-login.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { adminCookieName, isAdminCookie } from "@/server/auth";

@@ -1,7 +1,10 @@
 // src/hooks/useRecommendations.ts
+import { useEffect, useState } from 'react';
+import type { Property } from '@/types/property';
+
 export const useRecommendations = (auctionId: string, userId?: string) => {
   const [recommendations, setRecommendations] = useState<Property[]>([]);
-  
+
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {

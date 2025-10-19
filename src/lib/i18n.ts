@@ -712,9 +712,9 @@ function applyHtml(lang: Lang) {
   document.body.classList.toggle("rtl", RTL_LANGS.includes(lang));
 }
 
-function translate(lang: Lang, key: string, vars?: Record<string, string | number>) {
+function translate(lang: Lang, key: string, fallback?: string, vars?: Record<string, string | number>) {
   const d = DICTS[lang] || DICTS.en || {};
-  let s = d[key] ?? DICTS.en?.[key] ?? DICTS.ar?.[key] ?? key;
+  let s = d[key] ?? DICTS.en?.[key] ?? DICTS.ar?.[key] ?? (fallback ?? key);
   if (vars) {
     for (const [vk, vv] of Object.entries(vars)) s = s.split(`{${vk}}`).join(String(vv));
   }
@@ -730,12 +730,15 @@ export function getT(router?: { locale?: string } | string | null) {
     const fromUrl = getUrlLang();
     lang = fromUrl || (isBrowser() ? normLang(localStorage.getItem("lang")) : "ar") || "ar";
   }
-  return (k: string, vars?: Record<string, string | number>) => translate(lang, k, vars);
+  return (k: string, fallback?: string | Record<string, string | number>, vars?: Record<string, string | number>) => {
+    if (fallback && typeof fallback === 'object') return translate(lang, k, undefined, fallback);
+    return translate(lang, k, typeof fallback === 'string' ? fallback : undefined, vars);
+  };
 }
 
 // ————— Context API —————
 type I18nCtx = {
-  t: (k: string, vars?: Record<string, string | number>) => string;
+  t: (k: string, fallback?: string | Record<string, string | number>, vars?: Record<string, string | number>) => string;
   lang: Lang;
   dir: "rtl" | "ltr";
   setLang: (l: Lang) => void;
@@ -752,11 +755,14 @@ export function I18nProvider({ children, initialLang }: { children: React.ReactN
     if (isBrowser()) try { localStorage.setItem("lang", lang); } catch {}
   }, [lang]);
 
-  const t = useMemo(() => (k: string, vars?: Record<string, string | number>) => translate(lang, k, vars), [lang]);
+  const t = useMemo(() => (k: string, fallback?: string | Record<string, string | number>, vars?: Record<string, string | number>) => {
+    if (fallback && typeof fallback === 'object') return translate(lang, k, undefined, fallback);
+    return translate(lang, k, typeof fallback === 'string' ? fallback : undefined, vars);
+  }, [lang]);
   const setLang = (l: Lang) => setLangState(normLang(l));
   const value: I18nCtx = { t, lang, dir: getDir(lang), setLang, supported: SUPPORTED };
 
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+  return React.createElement(I18nContext.Provider, { value }, children);
 }
 
 export function useI18n() {
