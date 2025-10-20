@@ -3,14 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import type { Contract } from "@/types/domain";
+import type { GetServerSideProps } from "next";
 
-// Disable static generation for this page
-export const dynamic = 'force-dynamic';
-
-// Prevent prerendering
-export async function getServerSideProps() {
+export const getServerSideProps: GetServerSideProps = async () => {
   return { props: {} };
-}
+};
 
 export default function ContractPage() {
   const router = useRouter();
@@ -24,7 +21,7 @@ export default function ContractPage() {
     
     setLoading(true);
     fetch(`/api/contracts/${id}`)
-      .then(r => r.json())
+      .then(r => r.ok ? r.json() : null)
       .then(data => {
         setC(data);
         setLoading(false);
@@ -37,41 +34,53 @@ export default function ContractPage() {
 
   async function tenantAccept() {
     if (!c) return;
-    const r = await fetch(`/api/contracts/${c.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "tenant_accept" }),
-    });
-    if (r.ok) {
-      const data = await r.json();
-      setC(data);
+    try {
+      const r = await fetch(`/api/contracts/${c.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "tenant_accept" }),
+      });
+      if (r.ok) {
+        const data = await r.json();
+        setC(data);
+      }
+    } catch (err) {
+      console.error('Error:', err);
     }
   }
 
   async function landlordApprove() {
     if (!c) return;
-    const r = await fetch(`/api/contracts/${c.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "landlord_approve" }),
-    });
-    if (r.ok) {
-      const data = await r.json();
-      setC(data);
+    try {
+      const r = await fetch(`/api/contracts/${c.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "landlord_approve" }),
+      });
+      if (r.ok) {
+        const data = await r.json();
+        setC(data);
+      }
+    } catch (err) {
+      console.error('Error:', err);
     }
   }
 
   async function landlordReject() {
     if (!c) return;
-    const reason = prompt("سبب الرفض؟") || "";
-    const r = await fetch(`/api/contracts/${c.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "landlord_reject", reason }),
-    });
-    if (r.ok) {
-      const data = await r.json();
-      setC(data);
+    try {
+      const reason = prompt("سبب الرفض؟") || "";
+      const r = await fetch(`/api/contracts/${c.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "landlord_reject", reason }),
+      });
+      if (r.ok) {
+        const data = await r.json();
+        setC(data);
+      }
+    } catch (err) {
+      console.error('Error:', err);
     }
   }
 
