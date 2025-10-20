@@ -5,7 +5,6 @@ import InstantImage from '@/components/InstantImage';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import InstantLink, { InstantButton } from '@/components/InstantLink';
-import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/context/AuthContext';
 import { auctionService } from '@/services/auctionService';
 import { paymentService } from '@/services/paymentService';
