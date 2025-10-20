@@ -5,8 +5,12 @@ import { useRouter } from "next/router";
 import type { Contract } from "@/types/domain";
 
 // Disable static generation for this page
-export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+// Prevent prerendering
+export async function getServerSideProps() {
+  return { props: {} };
+}
 
 export default function ContractPage() {
   const router = useRouter();
