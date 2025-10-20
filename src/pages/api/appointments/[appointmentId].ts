@@ -2,11 +2,11 @@
 // src/pages/api/appointments/[appointmentId].ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { AppointmentsStore } from "../../../server/appointments/store";
-import { getUserFromRequest as realGetSessionUser } from "../../../server/auth/session";
+import { getUserFromRequest } from "../../../server/auth/session";
 
 function getSessionUserSafe(req: NextApiRequest) {
   try {
-    const u = realGetSessionUser(req);
+     const u = getUserFromRequest(req);
     if (u && (u as any).id && (u as any).role) return u;
   } catch {}
   return { id: "demo-user", role: "user" as const };
