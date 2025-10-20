@@ -176,7 +176,7 @@ export async function issueInvoiceForReservation(
     }).catch(() => null);
   }
   if (toPhone) {
-    await sendWhatsapp({
+      await sendWhatsApp({
       to: toPhone,
       body: `تم إصدار فاتورة (${inv.serial}) لحجزك. الإجمالي: ${inv.amount} OMR.\n${invLink}`,
     }).catch(() => null);
