@@ -12,7 +12,7 @@ type Payment = { id: string; bookingId: string; amount: number; method?: string;
 
 const FILE = "payments.json";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
     const items = readJson<Payment[]>(FILE, []);
     return res.status(200).json(items);
