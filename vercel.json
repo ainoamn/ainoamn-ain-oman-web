@@ -3,12 +3,13 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "regions": ["sin1"],
+  "regions": ["pdx1"],
   "env": {
     "NEXT_PUBLIC_API_URL": "https://byfpro.com/api",
     "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY": "",
     "NEXT_PUBLIC_WHATSAPP_BUSINESS_PHONE": ""
   },
+  "ignoreCommand": "echo Using default Vercel ignore; no custom .vercelignore",
   "build": {
     "env": {
       "NEXT_TELEMETRY_DISABLED": "1"

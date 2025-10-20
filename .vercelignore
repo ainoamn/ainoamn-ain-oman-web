@@ -1,0 +1,20 @@
+# Ignore local caches and build artifacts
+.next/cache
+.next/types
+node_modules
+npm-debug.log*
+yarn-error.log*
+
+# Ignore IDE and OS cruft
+.DS_Store
+*.swp
+.vscode/
+
+# Ignore large uploads from local dev
+public/uploads/
+
+# Ignore test outputs and coverage
+coverage/
+
+# Ignore environment files (not uploaded)
+.env*
