@@ -4,26 +4,32 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import type { Contract } from "@/types/domain";
 
+// Disable static generation for this page
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export default function ContractPage() {
   const router = useRouter();
   const { id } = router.query as { id: string };
   const [c, setC] = useState<Contract | null>(null);
   const [agree, setAgree] = useState(false);
-
-  const refresh = React.useCallback(async () => {
-    if (!id) return;
-    try {
-      const r = await fetch(`/api/contracts/${id}`);
-      const data = await r.json();
-      setC(data);
-    } catch (err) {
-      console.error('Error loading contract:', err);
-    }
-  }, [id]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    if (!id) return;
+    
+    setLoading(true);
+    fetch(`/api/contracts/${id}`)
+      .then(r => r.json())
+      .then(data => {
+        setC(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error loading contract:', err);
+        setLoading(false);
+      });
+  }, [id]);
 
   async function tenantAccept() {
     if (!c) return;
@@ -32,7 +38,10 @@ export default function ContractPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "tenant_accept" }),
     });
-    if (r.ok) refresh();
+    if (r.ok) {
+      const data = await r.json();
+      setC(data);
+    }
   }
 
   async function landlordApprove() {
@@ -42,7 +51,10 @@ export default function ContractPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "landlord_approve" }),
     });
-    if (r.ok) refresh();
+    if (r.ok) {
+      const data = await r.json();
+      setC(data);
+    }
   }
 
   async function landlordReject() {
@@ -53,17 +65,21 @@ export default function ContractPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "landlord_reject", reason }),
     });
-    if (r.ok) refresh();
+    if (r.ok) {
+      const data = await r.json();
+      setC(data);
+    }
   }
 
-  if (!c) return <main className="p-6">جار التحميل…</main>;
+  if (loading) return <main className="p-6">جار التحميل…</main>;
+  if (!c) return <main className="p-6">العقد غير موجود</main>;
 
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="mx-auto max-w-3xl p-6 space-y-4">
         <div className="text-sm text-slate-500">{c.id}</div>
         <h1 className="text-2xl font-bold">عقد الإيجار</h1>
-        <div className="bg-white rounded-xl shadow p-4" dangerouslySetInnerHTML={{ __html: c.termsHtml }} />
+        <div className="bg-white rounded-xl shadow p-4" dangerouslySetInnerHTML={{ __html: c.termsHtml || '' }} />
 
         {c.status === "awaiting_tenant_sign" && (
           <div className="bg-white rounded-xl shadow p-4">
