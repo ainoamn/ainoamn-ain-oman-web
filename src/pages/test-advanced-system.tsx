@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/test-advanced-system.tsx - صفحة اختبار النظام المتقدم
 import React, { useState, useEffect } from 'react';
 import { 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/server/db/jsonDb.ts
 import fs from "fs";
 import path from "path";

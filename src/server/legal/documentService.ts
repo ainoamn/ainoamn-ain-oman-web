@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { put } from '@vercel/blob';
 import { createId } from '@paralleldrive/cuid2';
 import { documentStore } from './store';

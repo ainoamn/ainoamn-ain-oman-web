@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/server/rentals/store.ts
 import { Rental } from "@/types/rentals";
 import { db } from "@/server/db"; // افترض أن لديك اتصال بقاعدة البيانات

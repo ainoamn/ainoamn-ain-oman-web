@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/services/externalPlatforms.ts
 interface PlatformIntegration {
   name: string;

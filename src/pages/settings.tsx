@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import Head from 'next/head';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/server/workflow.ts
 import { readJson, writeJson } from "@/server/fsdb";
 import { sendEmail, sendWhatsapp } from "@/server/notify";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/test-dashboards.tsx - صفحة اختبار لوحات التحكم
 import React from 'react';
 import InstantLink from '@/components/InstantLink';

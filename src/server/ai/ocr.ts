@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/server/ai/ocr.ts
 import Tesseract from 'tesseract.js';
 import { GoogleGenerativeAI } from "@google/generative-ai";

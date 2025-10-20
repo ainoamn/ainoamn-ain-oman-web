@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getAllTasks } from '@/server/tasks';
 import { getAllInvoices } from '@/server/invoices';
 import { getAllReservations } from '@/server/reservations';

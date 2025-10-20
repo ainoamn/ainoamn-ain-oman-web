@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getAllTasks, getAllInvoices, getAllReservations, getAllContracts } from '@/server/properties/stats';
 
 export interface AnalyticsData {

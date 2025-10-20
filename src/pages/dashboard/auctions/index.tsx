@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import InstantLink from '@/components/InstantLink';
 import InstantLink, { InstantButton } from '@/components/InstantLink';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/context/AuthContext';

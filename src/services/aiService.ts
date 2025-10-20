@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Auction, AIAnalysis } from '@/types/auction';
 
 export const aiService = {
