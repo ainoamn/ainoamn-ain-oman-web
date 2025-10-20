@@ -6,7 +6,7 @@ import InstantLink from '@/components/InstantLink';
 import InstantImage from '@/components/InstantImage';
 import { 
   FiHeart, FiMapPin, FiDollarSign, FiCalendar, FiEye, FiShare2,
-  FiFilter, FiSearch, FiSortAsc, FiTrash2, FiDownload, FiPrinter,
+  FiFilter, FiSearch, FiArrowUp, FiTrash2, FiDownload, FiPrinter,
   FiHome, FiUsers, FiStar, FiTrendingUp, FiTrendingDown
 } from 'react-icons/fi';
 // Layout handled by _app.tsx
@@ -381,7 +381,7 @@ export default function FavoritesPage() {
                   onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                   className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
                 >
-                  <FiSortAsc className={`w-4 h-4 ${sortOrder === 'desc' ? 'rotate-180' : ''}`} />
+                  <FiArrowUp className={`w-4 h-4 ${sortOrder === 'desc' ? 'rotate-180' : ''}`} />
                 </button>
                 <button
                   onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}

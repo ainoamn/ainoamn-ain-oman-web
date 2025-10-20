@@ -5,7 +5,7 @@ import Head from 'next/head';
 import InstantLink from '@/components/InstantLink';
 import { 
   FiPlus, FiEdit, FiTrash2, FiEye, FiSearch, FiFilter,
-  FiBuilding, FiUser, FiCalendar, FiDollarSign, FiCheck, FiX,
+  FiUser, FiCalendar, FiDollarSign, FiCheck, FiX,
   FiClock, FiAlertTriangle, FiTrendingUp, FiMapPin
 } from 'react-icons/fi';
 // Layout handled by _app.tsx
@@ -413,7 +413,7 @@ export default function PropertyRequestsPage() {
 
               {filteredRequests.length === 0 && (
                 <div className="text-center py-12">
-                  <FiBuilding className="mx-auto h-12 w-12 text-gray-400" />
+                  <FaBuilding className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="mt-2 text-sm font-medium text-gray-900">لا توجد طلبات</h3>
                   <p className="mt-1 text-sm text-gray-500">
                     ابدأ بإنشاء طلب جديد لإدارة العقارات.

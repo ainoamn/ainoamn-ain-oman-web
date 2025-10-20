@@ -5,7 +5,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import InstantLink from '@/components/InstantLink';
 import { useI18n } from '@/lib/i18n';
-import { FaUser, FaBell, FaLock, FaPalette, FaGlobe, FaCog, FaEnvelope, FaPhone, FaMapMarkerAlt, FaCamera, FaSave, FaKey, FaShieldAlt, FaEye, FaEyeOff, FaMoon, FaSun, FaDesktop, FaCheckCircle, FaExclamationTriangle, FaTrash, FaSignOutAlt, FaEdit, FaUpload, FaClock, FaLanguage } from 'react-icons/fa';
+import { FaUser, FaBell, FaLock, FaPalette, FaGlobe, FaCog, FaEnvelope, FaPhone, FaMapMarkerAlt, FaCamera, FaSave, FaKey, FaShieldAlt, FaEye, FaEyeSlash, FaMoon, FaSun, FaDesktop, FaCheckCircle, FaExclamationTriangle, FaTrash, FaSignOutAlt, FaEdit, FaUpload, FaClock, FaLanguage } from 'react-icons/fa';
 
 interface UserSettings {
   id: string;
@@ -866,7 +866,7 @@ export default function SettingsPage() {
                         onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                       >
-                        {showCurrentPassword ? <FaEyeOff /> : <FaEye />}
+                        {showCurrentPassword ? <FaEyeSlash /> : <FaEye />}
                       </button>
                     </div>
                   </div>
@@ -887,7 +887,7 @@ export default function SettingsPage() {
                         onClick={() => setShowNewPassword(!showNewPassword)}
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                       >
-                        {showNewPassword ? <FaEyeOff /> : <FaEye />}
+                        {showNewPassword ? <FaEyeSlash /> : <FaEye />}
                       </button>
                     </div>
                   </div>
