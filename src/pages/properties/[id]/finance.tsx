@@ -7,7 +7,7 @@ import { useI18n } from "@/lib/i18n";
 
 export default function PropertyFinancePage() {
   const { query } = useRouter();
-  const id = (query.id as string) || "";
+  const id = (query.id as string) || "1";
   const { t, dir } = useI18n();
 
   return (
