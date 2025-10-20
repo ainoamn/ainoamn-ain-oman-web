@@ -8,7 +8,8 @@ import {
   FiCheckCircle, FiAlertTriangle, FiInfo, FiPlay, FiCheck, FiX, FiClock, FiTarget, FiStar
 } from 'react-icons/fi';
 import { UserRole, ROLE_PERMISSIONS, getAllRoles } from '@/lib/userRoles';
-import { SubscriptionPlan, SUBSCRIPTION_PLANS, getAllSubscriptionPlans } from '@/lib/subscriptionSystem';
+import { SubscriptionPlan, SUBSCRIPTION_PLANS } from '@/lib/subscriptionSystem';
+const getAllSubscriptionPlans = () => SUBSCRIPTION_PLANS;
 import { aiEngine, AIInsight } from '@/lib/aiSystem';
 import { searchEngine } from '@/lib/advancedSearch';
 import { multilingualSystem, SUPPORTED_LANGUAGES } from '@/lib/multilingual';

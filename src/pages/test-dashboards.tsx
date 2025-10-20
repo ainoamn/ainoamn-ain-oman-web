@@ -8,6 +8,7 @@ import {
   FiSettings, FiTrendingUp, FiPackage, FiDollarSign,
   FiCheckCircle, FiAlertTriangle, FiInfo
 } from 'react-icons/fi';
+import { FaBuilding } from 'react-icons/fa';
 
 export default function TestDashboards() {
   const dashboardTests = [
