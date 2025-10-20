@@ -10,6 +10,7 @@ import {
   FiZap, FiStar, FiLock, FiUnlock,
   FiGrid, FiList, FiEye, FiEyeOff, FiRefreshCw
 } from 'react-icons/fi';
+import { FiTrendingUp } from 'react-icons/fi';
 import { ALL_PERMISSIONS } from '@/lib/permissions';
 
 interface User {

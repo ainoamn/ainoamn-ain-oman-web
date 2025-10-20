@@ -75,13 +75,17 @@ async function tryHandleJson(req: NextApiRequest) {
 
 // ========== قارئ multipart/form-data ==========
 async function tryHandleMultipart(req: NextApiRequest) {
-  // سنستخدم busboy إن توافر. نتجنب إضافة تبعية جديدة.
+  // Use busboy when available. Require dynamically to avoid bundler
+  // static resolution of the dependency during build.
   let Busboy: any;
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     Busboy = require("busboy");
-  } catch {
-    return null; // لا يمكن تحليل multipart دون busboy
+  } catch (err) {
+    // busboy isn't installed in this environment; signal that multipart
+    // handling is unavailable so callers can fallback to JSON-based uploads.
+    console.warn('busboy not installed; skipping multipart handling');
+    return null;
   }
 
   const bb = Busboy({ headers: req.headers });

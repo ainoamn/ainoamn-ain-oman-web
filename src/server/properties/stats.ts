@@ -149,7 +149,7 @@ export async function getPropertyStats(propertyId: string): Promise<PropertyStat
 }
 
 // Helper functions for data fetching
-async function getAllTasks() {
+export async function getAllTasks() {
   try {
     const fs = require('fs');
     const path = require('path');
@@ -162,7 +162,7 @@ async function getAllTasks() {
   }
 }
 
-async function getAllInvoices() {
+export async function getAllInvoices() {
   try {
     const fs = require('fs');
     const path = require('path');
@@ -175,7 +175,7 @@ async function getAllInvoices() {
   }
 }
 
-async function getAllReservations() {
+export async function getAllReservations() {
   try {
     const fs = require('fs');
     const path = require('path');
@@ -188,7 +188,7 @@ async function getAllReservations() {
   }
 }
 
-async function getAllContracts() {
+export async function getAllContracts() {
   try {
     const fs = require('fs');
     const path = require('path');

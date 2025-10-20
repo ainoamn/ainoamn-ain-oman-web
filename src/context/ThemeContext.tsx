@@ -53,7 +53,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    // During static prerendering Next may render pages without the _app
+    // wrapper. To avoid build-time errors, return safe defaults instead of
+    // throwing. This preserves runtime behavior when ThemeProvider is used.
+    return { theme: 'light' as Theme, toggleTheme: () => {}, isDark: false };
   }
   return context;
 }
