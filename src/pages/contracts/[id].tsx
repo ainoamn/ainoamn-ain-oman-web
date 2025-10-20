@@ -22,7 +22,9 @@ setC(data);
 
 
 useEffect(() => {
-if (id) refresh();
+if (id) {
+  refresh().catch(err => console.error('Error loading contract:', err));
+}
 }, [id]);
 
 
@@ -33,7 +35,7 @@ method: "PUT",
 headers: { "Content-Type": "application/json" },
 body: JSON.stringify({ action: "tenant_accept" }),
 });
-if (r.ok) refresh();
+if (r.ok) refresh().catch(console.error);
 }
 
 
@@ -44,7 +46,7 @@ method: "PUT",
 headers: { "Content-Type": "application/json" },
 body: JSON.stringify({ action: "landlord_approve" }),
 });
-if (r.ok) refresh();
+if (r.ok) refresh().catch(console.error);
 }
 
 
@@ -56,7 +58,7 @@ method: "PUT",
 headers: { "Content-Type": "application/json" },
 body: JSON.stringify({ action: "landlord_reject", reason }),
 });
-if (r.ok) refresh();
+if (r.ok) refresh().catch(console.error);
 }
 
 
