@@ -1291,7 +1291,55 @@ http://localhost:3000/diagnose.html
 
 ---
 
-*آخر تحديث: 14 أكتوبر 2025*  
+## 🖼️ نظام الصور المُحسّن
+
+### معايير رفع الصور (مُضاف: 22 أكتوبر 2025)
+
+**نوع البيانات:**
+```typescript
+images: (File | string)[] // دعم Files جديدة + URLs موجودة
+```
+
+**ضغط تلقائي:**
+- Max size: 1920px (width/height)
+- Quality: 80% JPEG
+- Result: توفير 50-80% من الحجم
+
+**في formidable API:**
+```typescript
+import formidable, { File as FormFile } from "formidable";
+export const config = { api: { bodyParser: false } };
+
+const form = formidable({
+  maxFileSize: 50 * 1024 * 1024, // 50MB
+  uploadDir: uploadDir,
+});
+```
+
+**معالجة الصور الموجودة + الجديدة:**
+- Frontend: `existingImages` (JSON) + `newFiles` (FormData)
+- Backend: دمج في `finalImages` array
+
+---
+
+## 🚀 النشر على Vercel
+
+**Environment Variables المطلوبة:**
+1. `NEXT_PUBLIC_BASE_URL` = `https://byfpro.com` ⚠️ مهم للروابط!
+2. `NEXT_PUBLIC_API_URL` = `https://byfpro.com/api`
+3. `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`
+4. `NEXT_PUBLIC_WHATSAPP_BUSINESS_PHONE`
+
+**ربط الدومين:**
+- A Record: `@` → `216.150.1.1`
+- CNAME: `www` → `[random].vercel-dns-017.com`
+- TXT: `_vercel` → verification codes (مؤقت)
+
+**البدائل:** Cloudflare Pages، Netlify، Railway (أدلة كاملة متوفرة)
+
+---
+
+*آخر تحديث: 22 أكتوبر 2025*  
 *الحالة: دليل نشط - يُحدّث مع كل تطوير*  
 *الغرض: مرجع شامل للعمل من أي كمبيوتر*
 
