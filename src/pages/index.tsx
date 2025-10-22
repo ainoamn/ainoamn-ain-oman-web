@@ -85,6 +85,14 @@ type Developer = {
   specialty: string;
 };
 
+// Force dynamic rendering - disable static generation
+export const dynamic = 'force-dynamic';
+
+// Disable static optimization
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default function HomePage() {
   const router = useRouter();
   
