@@ -8,44 +8,40 @@ import { normalizeUsage } from "@/lib/property";
 
 export const config = { api: { bodyParser: false } };
 
+// ✅ نسخة مبسطة وآمنة من sanitizeDeep - بدون recursion عميق
 function sanitizeDeep(value: any, seen = new WeakSet(), depth = 0): any {
-  // ✅ حد أقصى للعمق لمنع stack overflow
-  if (depth > 10) return undefined; // تقليل من 32 إلى 10
+  // حد أقصى صارم للعمق
+  if (depth > 5) return value; // إرجاع القيمة كما هي بدلاً من undefined
   
   if (value === null || value === undefined) return value;
   const t = typeof value;
-  if (t === "string") {
-    if (/^data:image\/(png|jpe?g|webp);base64,/i.test(value)) return undefined;
-    // Avoid extremely long strings
-    if (value.length > 4_000_000) return value.slice(0, 4_000_000);
-    return value;
-  }
-  if (t === "number" || t === "boolean") return value;
+  
+  // Primitives
+  if (t === "string" || t === "number" || t === "boolean") return value;
   if (t === "function") return undefined;
   
-  // ✅ التحقق من circular references
+  // Circular reference check
   if (typeof value === 'object') {
-    if (seen.has(value)) return undefined;
+    if (seen.has(value)) return undefined; // تخطي circular
     seen.add(value);
   }
   
+  // Arrays
   if (Array.isArray(value)) {
-    // ✅ تجنب arrays طويلة جداً
-    if (value.length > 1000) return value.slice(0, 1000);
-    const out: any[] = [];
-    for (const v of value) {
-      const s = sanitizeDeep(v, seen, depth + 1);
-      if (s !== undefined) out.push(s);
-    }
-    return out;
+    if (value.length > 100) return value; // إرجاع arrays كبيرة كما هي
+    return value.map(v => sanitizeDeep(v, seen, depth + 1)).filter(v => v !== undefined);
+  }
+  
+  // Objects - shallow copy فقط
+  if (depth >= 3) {
+    // عمق 3 أو أكثر: نسخ سطحي فقط
+    return { ...value };
   }
   
   const out: Record<string, any> = {};
   for (const [k, v] of Object.entries(value)) {
-    // ✅ تخطي حقول معينة لتجنب recursion
-    if (k === "images" || k === "_original" || k === "__proto__") continue;
-    const s = sanitizeDeep(v, seen, depth + 1);
-    if (s !== undefined) out[k] = s;
+    if (k === "__proto__" || k === "constructor" || k === "prototype") continue;
+    out[k] = sanitizeDeep(v, seen, depth + 1);
   }
   return out;
 }
@@ -132,9 +128,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
 
   if (req.method === "GET") {
-    const items = getAll();
-    // تنظيف البيانات القديمة التي تأتي كـ arrays وإصلاح مسارات الصور
-    const cleanedItems = items.map(item => {
+    try {
+      const items = getAll();
+      // تنظيف البيانات القديمة التي تأتي كـ arrays وإصلاح مسارات الصور
+      const cleanedItems = items.map(item => {
       const cleaned: any = {};
       for (const [key, value] of Object.entries(item)) {
         if (Array.isArray(value) && value.length === 1) {
@@ -168,7 +165,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
       return cleaned;
     });
-    return res.status(200).json({ properties: cleanedItems, items: cleanedItems }); // دعم كلا التنسيقين
+      return res.status(200).json({ properties: cleanedItems, items: cleanedItems }); // دعم كلا التنسيقين
+    } catch (error: any) {
+      console.error('Error in GET /api/properties:', error);
+      return res.status(500).json({ error: 'Internal server error', message: error.message });
+    }
   }
 
   if (req.method === "POST") {
@@ -247,8 +248,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       };
 
       upsert(item);
-      // ✅ إرجاع بسيط بدون sanitize للاستجابة
-      return res.status(201).json({ id: item.id, item: { ...item, images: item.images || [] } });
+      
+      // ✅ إرجاع استجابة آمنة بدون sanitize (يسبب stack overflow)
+      const safeResponse = {
+        id: item.id,
+        referenceNo: item.referenceNo,
+        title: item.title,
+        published: item.published,
+        images: Array.isArray(item.images) ? item.images : []
+      };
+      
+      return res.status(201).json({ id: item.id, item: safeResponse });
     } catch (e: any) {
       return res.status(400).json({ error: e?.message || "Bad Request" });
     }

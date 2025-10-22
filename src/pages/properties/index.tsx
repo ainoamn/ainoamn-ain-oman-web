@@ -65,13 +65,17 @@ export default function PropertiesPage() {
   const loadProperties = async () => {
         try {
           const response = await fetch('/api/properties');
+          console.log('🌐 API response status:', response.status);
           if (response.ok) {
             const data = await response.json();
+            console.log('📊 API Response keys:', Object.keys(data));
             console.log('📊 API Response:', data);
             const props = data.properties || data.items || [];
             console.log('🏘️ Total properties from API:', props.length);
+            console.log('📝 Properties:', props);
             const filtered = props.filter((p: Property) => p.published !== false);
             console.log('✅ Published properties:', filtered.length);
+            console.log('✅ Filtered:', filtered);
             setProperties(filtered);
         
         // Trending properties (محاكاة)
