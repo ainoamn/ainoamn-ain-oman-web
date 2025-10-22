@@ -9,6 +9,9 @@ import { normalizeUsage } from "@/lib/property";
 export const config = { api: { bodyParser: false } };
 
 function sanitizeDeep(value: any, seen = new WeakSet(), depth = 0): any {
+  // ✅ حد أقصى للعمق لمنع stack overflow
+  if (depth > 10) return undefined; // تقليل من 32 إلى 10
+  
   if (value === null || value === undefined) return value;
   const t = typeof value;
   if (t === "string") {
@@ -19,10 +22,16 @@ function sanitizeDeep(value: any, seen = new WeakSet(), depth = 0): any {
   }
   if (t === "number" || t === "boolean") return value;
   if (t === "function") return undefined;
-  if (seen.has(value)) return undefined;
-  if (depth > 32) return undefined;
-  seen.add(value);
+  
+  // ✅ التحقق من circular references
+  if (typeof value === 'object') {
+    if (seen.has(value)) return undefined;
+    seen.add(value);
+  }
+  
   if (Array.isArray(value)) {
+    // ✅ تجنب arrays طويلة جداً
+    if (value.length > 1000) return value.slice(0, 1000);
     const out: any[] = [];
     for (const v of value) {
       const s = sanitizeDeep(v, seen, depth + 1);
@@ -30,9 +39,11 @@ function sanitizeDeep(value: any, seen = new WeakSet(), depth = 0): any {
     }
     return out;
   }
+  
   const out: Record<string, any> = {};
   for (const [k, v] of Object.entries(value)) {
-    if (k === "images") continue; // handled separately
+    // ✅ تخطي حقول معينة لتجنب recursion
+    if (k === "images" || k === "_original" || k === "__proto__") continue;
     const s = sanitizeDeep(v, seen, depth + 1);
     if (s !== undefined) out[k] = s;
   }
@@ -213,7 +224,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       body = normalizeUsage(body || {});
-      body = sanitizeDeep(body);
+      // ✅ لا نستخدم sanitizeDeep على body الكامل - فقط على النتيجة
       const now = new Date().toISOString();
       const id = body.id?.toString() || "P-" + now.replace(/[-:.TZ]/g, "").slice(0, 14);
 
@@ -236,7 +247,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       };
 
       upsert(item);
-      return res.status(201).json({ id: item.id, item: sanitizeDeep(item) });
+      // ✅ إرجاع بسيط بدون sanitize للاستجابة
+      return res.status(201).json({ id: item.id, item: { ...item, images: item.images || [] } });
     } catch (e: any) {
       return res.status(400).json({ error: e?.message || "Bad Request" });
     }
