@@ -48,7 +48,7 @@ interface PropertyFormData {
   customAmenities: string[];
   
   // Media
-  images: File[];
+  images: (File | string)[]; // ✅ دعم كلاً من Files (جديدة) و strings (URLs موجودة)
   videoUrl: string;
   coverIndex: number;
   
@@ -80,7 +80,7 @@ interface UnitData {
   rentalPrice: string;
   status: string;
   features: string[];
-  images: File[];
+  images: (File | string)[]; // ✅ دعم كلاً من Files و URLs
   halls: string;
   majlis: string;
   amenities: string[];
@@ -215,6 +215,7 @@ export default function EditProperty({ property }: { property: any }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadingImages, setLoadingImages] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(''); // ✅ مؤشر التقدم
   
   // تشخيص: طباعة البيانات المستلمة
   console.log('EditProperty component received property:', property);
@@ -431,13 +432,16 @@ export default function EditProperty({ property }: { property: any }) {
         
         // تحميل الصور من الخادم
         setLoadingImages(true);
-        const loadedImages = await loadImagesFromServer(property.images || []);
+        const originalImageUrls = property.images || []; // الاحتفاظ بالـ URLs الأصلية
+        // ✅ لا نحول الصور إلى Files عند التعديل - نبقيها كـ URLs (strings)
+        const loadedImages = originalImageUrls; // استخدام URLs مباشرة بدون تحويل
         
         // تحميل صور الوحدات
         const unitsArray = Array.isArray(property.units) ? property.units : [];
         const loadedUnits = await Promise.all(
           unitsArray.map(async (unit: any, index: number) => {
-            const unitImages = await loadImagesFromServer(unit.images || []);
+            // ✅ نفس الشيء للوحدات - استخدام URLs مباشرة
+            const unitImages = unit.images || [];
             return {
               id: unit.id || `unit-${index}`,
               unitNo: unit.unitNo || `U${index + 1}`,
@@ -1247,6 +1251,56 @@ export default function EditProperty({ property }: { property: any }) {
     }
   };
 
+  // ✅ دالة ضغط الصور قبل الرفع
+  const compressImage = async (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // تصغير الصورة إذا كانت كبيرة جداً
+          const maxSize = 1920; // max width or height
+          if (width > maxSize || height > maxSize) {
+            if (width > height) {
+              height = (height / width) * maxSize;
+              width = maxSize;
+            } else {
+              width = (width / height) * maxSize;
+              height = maxSize;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const compressed = new File([blob], file.name, {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                });
+                resolve(compressed);
+              } else {
+                resolve(file); // fallback to original
+              }
+            },
+            'image/jpeg',
+            0.8 // جودة 80%
+          );
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   // Submit form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1256,11 +1310,14 @@ export default function EditProperty({ property }: { property: any }) {
       // التحقق من وجود صور جديدة (File objects)
       const hasNewImages = formData.images.some(image => image instanceof File);
       
-      // للتبسيط، استخدم JSON دائماً للتعديل
-      // FormData فقط عند إضافة عقار جديد مع صور
-      if (false && hasNewImages) {
+      // ✅ استخدم FormData إذا كانت هناك صور جديدة (Files)
+      if (hasNewImages) {
         // إذا كانت هناك صور جديدة، استخدم FormData
       const formDataToSend = new FormData();
+      
+      // ✅ تحضير قائمة الصور الموجودة (URLs) والجديدة (Files)
+      const existingImages = formData.images.filter(img => typeof img === 'string');
+      const newFiles = formData.images.filter(img => img instanceof File);
       
       // Add all text fields
       formDataToSend.append('titleAr', formData.titleAr);
@@ -1303,12 +1360,24 @@ export default function EditProperty({ property }: { property: any }) {
       formDataToSend.append('amenities', JSON.stringify(formData.amenities));
       formDataToSend.append('customAmenities', JSON.stringify(formData.customAmenities));
       
-        // Add images (only File objects)
-      formData.images.forEach((image, index) => {
-          if (image instanceof File) {
-        formDataToSend.append(`images`, image);
-          }
-      });
+        // ✅ إضافة الصور: Files الجديدة + URLs الموجودة
+        // أولاً: إضافة URLs الموجودة كـ JSON
+        if (existingImages.length > 0) {
+          formDataToSend.append('existingImages', JSON.stringify(existingImages));
+        }
+        
+        // ثانياً: ضغط وإضافة File objects الجديدة
+        console.log('🗜️ Compressing images...');
+        setUploadProgress('جاري ضغط الصور...');
+        for (let i = 0; i < newFiles.length; i++) {
+          const file = newFiles[i];
+          setUploadProgress(`ضغط الصورة ${i + 1} من ${newFiles.length}...`);
+          const compressed = await compressImage(file);
+          console.log(`  ${file.name}: ${(file.size / 1024).toFixed(1)}KB → ${(compressed.size / 1024).toFixed(1)}KB`);
+          formDataToSend.append(`images`, compressed);
+        }
+        console.log('✅ Compression complete!');
+        setUploadProgress('جاري رفع البيانات...');
       
       // Add cover index
       formDataToSend.append('coverIndex', String(formData.coverIndex));
@@ -1336,28 +1405,54 @@ export default function EditProperty({ property }: { property: any }) {
         formDataToSend.append('units', JSON.stringify(formData.units));
       }
 
+      // ✅ تشخيص
+      console.log('📤 Sending FormData with:');
+      console.log('  - Existing images:', existingImages.length);
+      console.log('  - New files:', newFiles.length);
+      
       // استخدام PUT للتعديل أو POST للإضافة
       const url = id ? `/api/properties/${id}` : '/api/properties';
       const method = id ? 'PUT' : 'POST';
 
-      const response = await fetch(url, {
-        method: method,
-        body: formDataToSend
-      });
+      let response;
+      try {
+        response = await fetch(url, {
+          method: method,
+          body: formDataToSend,
+          // ✅ زيادة timeout لـ 5 دقائق للصور الكبيرة
+          signal: AbortSignal.timeout(300000) // 5 minutes
+        });
+      } catch (fetchError: any) {
+        setUploadProgress('');
+        console.error('❌ Network error:', fetchError);
+        if (fetchError.name === 'AbortError') {
+          alert('انتهت مهلة الرفع (Timeout). الصور قد تكون كبيرة جداً. حاول رفع صور أقل أو أصغر.');
+        } else {
+          alert('فشل الاتصال بالخادم. تأكد من اتصال الإنترنت وحاول مرة أخرى.');
+        }
+        setLoading(false);
+        return;
+      }
 
+      setUploadProgress('جاري معالجة الاستجابة...');
+      
       if (response.ok) {
         const data = await response.json();
+        setUploadProgress('');
+        console.log('✅ Server response:', data);
         alert(id ? 'تم تحديث العقار بنجاح!' : 'تم حفظ العقار بنجاح!');
         router.push('/properties/unified-management');
       } else {
-          try {
-        const error = await response.json();
-        alert('حدث خطأ: ' + (error.message || 'فشل في حفظ العقار'));
-          } catch (parseError) {
-            console.error('Error parsing response:', parseError);
-            alert('حدث خطأ في حفظ العقار - استجابة غير صحيحة من الخادم');
-          }
+        setUploadProgress('');
+        try {
+          const error = await response.json();
+          console.error('❌ Server error:', error);
+          alert('حدث خطأ: ' + (error.message || error.error || 'فشل في حفظ العقار'));
+        } catch (parseError) {
+          console.error('Error parsing error response:', parseError);
+          alert(`حدث خطأ في حفظ العقار (HTTP ${response.status})`);
         }
+      }
       } else {
         // إذا لم تكن هناك صور جديدة، استخدم JSON
         const dataToSend = {
@@ -1393,7 +1488,14 @@ export default function EditProperty({ property }: { property: any }) {
           kitchens: formData.kitchens,
           amenities: formData.amenities,
           customAmenities: formData.customAmenities,
-          images: formData.images.filter(img => typeof img === 'string'), // Only existing images (strings)
+          // إرسال الصور: إما URLs أصلية أو File objects جديدة
+          images: formData.images.map(img => {
+            // إذا كانت string (URL)، أرسلها كما هي
+            if (typeof img === 'string') return img;
+            // إذا كانت File object، لا ترسلها في JSON (تحتاج FormData)
+            // لكن للتبسيط، سنحتفظ بها كـ placeholder
+            return img;
+          }).filter(img => typeof img === 'string'), // فقط الـ URLs في JSON
           coverIndex: formData.coverIndex,
           videoUrl: formData.videoUrl,
           useUserContact: formData.useUserContact,
@@ -1412,6 +1514,11 @@ export default function EditProperty({ property }: { property: any }) {
         // استخدام PUT للتعديل أو POST للإضافة
         const url = id ? `/api/properties/${id}` : '/api/properties';
         const method = id ? 'PUT' : 'POST';
+
+        // ✅ تشخيص: طباعة البيانات قبل الإرسال
+        console.log('📤 Sending data to API:');
+        console.log('🖼️ Images count:', dataToSend.images?.length);
+        console.log('🖼️ Images:', dataToSend.images);
 
         const response = await fetch(url, {
           method: method,
@@ -1435,11 +1542,13 @@ export default function EditProperty({ property }: { property: any }) {
           }
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting form:', error);
-      alert('حدث خطأ في حفظ العقار');
+      setUploadProgress('');
+      alert('حدث خطأ في حفظ العقار: ' + (error.message || 'خطأ غير معروف'));
     } finally {
       setLoading(false);
+      setUploadProgress('');
     }
   };
 
@@ -1448,6 +1557,9 @@ export default function EditProperty({ property }: { property: any }) {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          {uploadProgress && (
+            <p className="mt-4 text-lg text-blue-600 font-medium">{uploadProgress}</p>
+          )}
           <p className="mt-4 text-gray-600 text-lg">
             {loadingImages ? 'جاري تحميل الصور...' : 'جاري تحميل بيانات العقار...'}
           </p>
@@ -2269,7 +2381,7 @@ export default function EditProperty({ property }: { property: any }) {
                                       {unit.images.map((image, imgIndex) => (
                                         <div key={imgIndex} className="relative">
                                           <img
-                                            src={URL.createObjectURL(image)}
+                                            src={typeof image === 'string' ? image : URL.createObjectURL(image)}
                                             alt={`صورة الوحدة ${imgIndex + 1}`}
                                             className="w-full h-20 object-cover rounded"
                                           />
@@ -2395,7 +2507,7 @@ export default function EditProperty({ property }: { property: any }) {
                         {formData.images.map((image, index) => (
                           <div key={index} className="relative">
                             <img
-                              src={URL.createObjectURL(image)}
+                              src={typeof image === 'string' ? image : URL.createObjectURL(image)}
                               alt={`صورة ${index + 1}`}
                               className="w-full h-24 object-cover rounded-lg"
                             />
@@ -2834,7 +2946,7 @@ export default function EditProperty({ property }: { property: any }) {
                     {loading ? (
                       <>
                         <FaSpinner className="inline ml-2 animate-spin" />
-                        جاري الحفظ...
+                        {uploadProgress || 'جاري الحفظ...'}
                       </>
                     ) : (
                       <>

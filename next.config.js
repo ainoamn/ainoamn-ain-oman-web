@@ -13,6 +13,11 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   
+  // ✅ زيادة حد حجم الملفات لرفع الصور الكبيرة
+  serverRuntimeConfig: {
+    maxDuration: 300, // 5 minutes
+  },
+  
   // Compression for faster loading
   compress: true,
   

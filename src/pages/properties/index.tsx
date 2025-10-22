@@ -67,8 +67,12 @@ export default function PropertiesPage() {
           const response = await fetch('/api/properties');
           if (response.ok) {
             const data = await response.json();
-        const props = data.properties || [];
-        setProperties(props.filter((p: Property) => p.published !== false));
+            console.log('📊 API Response:', data);
+            const props = data.properties || data.items || [];
+            console.log('🏘️ Total properties from API:', props.length);
+            const filtered = props.filter((p: Property) => p.published !== false);
+            console.log('✅ Published properties:', filtered.length);
+            setProperties(filtered);
         
         // Trending properties (محاكاة)
         const trending = props
@@ -111,6 +115,7 @@ export default function PropertiesPage() {
   // Filtered properties
   const filteredProperties = useMemo(() => {
     let filtered = [...properties];
+    console.log('🔍 Starting with properties:', filtered.length);
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
@@ -154,6 +159,7 @@ export default function PropertiesPage() {
       filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     }
 
+    console.log('✨ Final filtered properties:', filtered.length);
     return filtered;
   }, [properties, searchTerm, selectedType, selectedPurpose, selectedProvince, minPrice, maxPrice, minBeds, sortBy]);
 
@@ -185,7 +191,7 @@ export default function PropertiesPage() {
                 <div>
                   <h1 className="text-4xl font-bold">🏠 استكشف العقارات</h1>
                   <p className="text-blue-100 text-lg">مدعوم بالذكاء الاصطناعي • {properties.length} عقار متاح</p>
-        </div>
+      </div>
             </div>
 
               {/* AI Recommendations */}
@@ -202,7 +208,7 @@ export default function PropertiesPage() {
                       </div>
                     </div>
                   ))}
-                </div>
+              </div>
               )}
 
               {/* Search Bar */}

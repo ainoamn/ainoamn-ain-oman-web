@@ -1,4 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import formidable, { File as FormFile } from "formidable";
+import path from "path";
+import fs from "fs";
+
+// ✅ تعطيل bodyParser لاستخدام formidable
+export const config = {
+  api: {
+    bodyParser: false, // يجب تعطيله لاستخدام formidable
+  },
+};
 
 type AnyRec = Record<string, any>;
 
@@ -125,53 +135,77 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // قراءة البيانات من FormData أو JSON
       let body: any = {};
       
-      if (req.headers['content-type']?.includes('multipart/form-data') || req.headers['content-type']?.includes('application/x-www-form-urlencoded')) {
-        // معالجة FormData
+      if (req.headers['content-type']?.includes('multipart/form-data')) {
+        // معالجة FormData باستخدام formidable
         try {
-          const formidable = require('formidable');
-          const form = formidable({ 
+          const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'properties', String(id));
+          
+          // إنشاء المجلد إذا لم يكن موجوداً
+          if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+          }
+          
+          // ✅ استخدام formidable - نفس طريقة index.ts
+          const form = formidable({
             multiples: true,
-            maxFileSize: 10 * 1024 * 1024, // 10MB
-            keepExtensions: true
+            maxFileSize: 50 * 1024 * 1024, // 50MB
+            keepExtensions: true,
+            uploadDir: uploadDir,
           });
           
-          const [fields, files] = await form.parse(req);
+          const [fields, files] = await new Promise<[any, any]>((resolve, reject) => {
+            form.parse(req, (err, fields, files) => {
+              if (err) reject(err);
+              else resolve([fields, files]);
+            });
+          });
           
-          console.log('FormData fields:', fields);
-          console.log('FormData files:', files);
+          console.log('✅ FormData parsed successfully');
+          console.log('📝 Fields keys:', Object.keys(fields));
+          console.log('📁 Files keys:', Object.keys(files));
           
-          // تحويل الحقول إلى كائن
+          // تحويل الحقول إلى كائن (formidable يعيد arrays دائماً)
           for (const [key, value] of Object.entries(fields)) {
-            if (Array.isArray(value) && value.length === 1) {
-              body[key] = value[0];
-            } else if (Array.isArray(value)) {
-              body[key] = value;
+            if (Array.isArray(value)) {
+              // إذا array بعنصر واحد، استخرجه
+              body[key] = value.length === 1 ? value[0] : value;
             } else {
               body[key] = value;
             }
           }
           
-          // معالجة الملفات
+          // ✅ معالجة الصور: الموجودة + الجديدة
+          const finalImages: string[] = [];
+          
+          // أولاً: إضافة الصور الموجودة (URLs)
+          if (body.existingImages) {
+            try {
+              const existing = typeof body.existingImages === 'string' 
+                ? JSON.parse(body.existingImages) 
+                : body.existingImages;
+              if (Array.isArray(existing)) {
+                finalImages.push(...existing);
+                console.log('📸 Restored existing images:', existing.length);
+              }
+            } catch (e) {
+              console.error('Error parsing existingImages:', e);
+            }
+          }
+          
+          // ثانياً: معالجة الملفات الجديدة (formidable بالفعل حفظها في uploadDir)
           if (files.images) {
             const images = Array.isArray(files.images) ? files.images : [files.images];
-            body.images = images.map((file: any) => {
-              // حفظ الملف في مجلد العقار
-              const fs = require('fs');
-              const path = require('path');
-              const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'properties', id);
-              
-              if (!fs.existsSync(uploadDir)) {
-                fs.mkdirSync(uploadDir, { recursive: true });
-              }
-              
-              const fileName = `${Date.now()}-${file.originalFilename || 'image.jpg'}`;
-              const filePath = path.join(uploadDir, fileName);
-              
-              fs.copyFileSync(file.filepath, filePath);
-              
+            const newImageUrls = images.map((file: any) => {
+              // formidable بالفعل حفظ الملف في uploadDir
+              const fileName = path.basename(file.filepath);
               return `/uploads/properties/${id}/${fileName}`;
             });
+            finalImages.push(...newImageUrls);
+            console.log('🆕 Added new images:', newImageUrls.length);
           }
+          
+          body.images = finalImages;
+          console.log('📊 Total images in body:', body.images.length);
           
           // معالجة الحقول الخاصة
           if (body.amenities && typeof body.amenities === 'string') {
@@ -198,11 +232,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
           }
           
-          // تحويل القيم المنطقية
+          // ✅ تحويل القيم المنطقية والأرقام
           if (body.published === 'true') body.published = true;
           if (body.published === 'false') body.published = false;
           if (body.useUserContact === 'true') body.useUserContact = true;
           if (body.useUserContact === 'false') body.useUserContact = false;
+          
+          // تحويل الأرقام
+          const numericFields = ['priceOMR', 'rentalPrice', 'area', 'beds', 'baths', 'floors', 'coverIndex', 'totalUnits', 'totalArea'];
+          for (const field of numericFields) {
+            if (body[field] !== undefined && body[field] !== '') {
+              const num = Number(body[field]);
+              if (!isNaN(num)) body[field] = num;
+            }
+          }
           
         } catch (formError) {
           console.error('FormData parsing error:', formError);
@@ -210,15 +253,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return;
         }
       } else {
-        // معالجة JSON
+        // معالجة JSON - قراءة body يدوياً لأن bodyParser معطل
         try {
-          body = req.body;
-          if (typeof body === 'string') {
-            body = JSON.parse(body);
+          const chunks: Buffer[] = [];
+          for await (const chunk of req) {
+            chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
           }
-        } catch (jsonError) {
+          const rawBody = Buffer.concat(chunks).toString('utf-8');
+          body = rawBody ? JSON.parse(rawBody) : {};
+          console.log('📝 Parsed JSON body, keys:', Object.keys(body));
+        } catch (jsonError: any) {
           console.error('JSON parsing error:', jsonError);
-          res.status(400).json({ ok: false, error: "json_parse_error", message: "خطأ في تحليل البيانات المرسلة" });
+          res.status(400).json({ ok: false, error: "json_parse_error", message: "خطأ في تحليل البيانات المرسلة: " + jsonError.message });
           return;
         }
       }
@@ -227,9 +273,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       body.id = id;
       body.updatedAt = new Date().toISOString();
       
+      // ✅ تشخيص: طباعة الصور قبل الحفظ
+      console.log('🖼️ Images before upsert:', body.images);
+      console.log('📝 Full body keys:', Object.keys(body));
+      
       // حفظ العقار
       try {
         const updatedProperty = upsert(body);
+        console.log('✅ Property updated, images:', updatedProperty.images);
         res.status(200).json({ ok: true, item: updatedProperty });
       } catch (upsertError) {
         console.error('Upsert error:', upsertError);

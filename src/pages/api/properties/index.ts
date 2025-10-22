@@ -157,7 +157,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
       return cleaned;
     });
-    return res.status(200).json({ items: cleanedItems });
+    return res.status(200).json({ properties: cleanedItems, items: cleanedItems }); // دعم كلا التنسيقين
   }
 
   if (req.method === "POST") {
@@ -228,6 +228,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         purpose: body.purpose || "rent",
         type: body.type || "apartment",
         status: body.status || "vacant",
+        published: body.published !== undefined ? body.published : true, // ✅ منشور افتراضياً
         createdAt: now,
         updatedAt: now,
         ...body,
