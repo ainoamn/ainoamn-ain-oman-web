@@ -16,82 +16,197 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     
     // البحث عن الوحدة في properties (الوحدة كعقار منفصل)
-    const unitIndex = db.properties.findIndex((p: any) => p.id === id && p.isUnit);
+    let unitIndex = db.properties.findIndex((p: any) => p.id === id && p.isUnit);
+    
+    // إذا لم نجدها كعقار منفصل، ابحث في units[] داخل العقارات
+    let parentProperty: any = null;
+    let unitData: any = null;
+    let unitIndexInArray: number = -1;
+    
+    if (unitIndex === -1) {
+      // البحث في units[] داخل كل عقار
+      for (const property of db.properties) {
+        if (property.units && Array.isArray(property.units)) {
+          const foundUnitIndex = property.units.findIndex((u: any) => u.id === id);
+          if (foundUnitIndex !== -1) {
+            parentProperty = property;
+            unitData = property.units[foundUnitIndex];
+            unitIndexInArray = foundUnitIndex;
+            break;
+          }
+        }
+      }
+    }
     
     if (req.method === 'GET') {
-      if (unitIndex === -1) {
-        return res.status(404).json({ error: 'الوحدة غير موجودة' });
+      // إذا وجدناها كعقار منفصل
+      if (unitIndex !== -1) {
+        return res.status(200).json({ 
+          item: db.properties[unitIndex],
+          success: true
+        });
       }
       
-      return res.status(200).json({ 
-        item: db.properties[unitIndex],
-        success: true
-      });
+      // إذا وجدناها في units[]
+      if (unitData && parentProperty) {
+        // تحويلها إلى شكل عقار منفصل للعرض
+        const unitAsProperty = {
+          ...unitData,
+          id: unitData.id,
+          referenceNo: unitData.referenceNo || `UNIT-${parentProperty.referenceNo || parentProperty.id}-${unitData.unitNo}`,
+          isUnit: true,
+          parentPropertyId: parentProperty.id,
+          
+          // نسخ من الأم
+          province: unitData.province || parentProperty.province,
+          state: unitData.state || parentProperty.state,
+          city: unitData.city || parentProperty.city,
+          address: unitData.address || `${parentProperty.address} - وحدة ${unitData.unitNo}`,
+          latitude: unitData.latitude || parentProperty.latitude,
+          longitude: unitData.longitude || parentProperty.longitude,
+          mapAddress: unitData.mapAddress || parentProperty.mapAddress,
+          surveyNumber: unitData.surveyNumber || parentProperty.surveyNumber,
+          landNumber: unitData.landNumber || parentProperty.landNumber,
+          ownerName: unitData.ownerName || parentProperty.ownerName,
+          ownerPhone: unitData.ownerPhone || parentProperty.ownerPhone,
+          ownerEmail: unitData.ownerEmail || parentProperty.ownerEmail,
+          amenities: [...(parentProperty.amenities || []), ...(unitData.amenities || [])],
+          customAmenities: [...(parentProperty.customAmenities || []), ...(unitData.features || [])],
+          
+          titleAr: unitData.titleAr || `وحدة ${unitData.unitNo} - ${parentProperty.titleAr || ''}`,
+          titleEn: unitData.titleEn || `Unit ${unitData.unitNo} - ${parentProperty.titleEn || ''}`,
+          descriptionAr: unitData.descriptionAr || parentProperty.descriptionAr,
+          descriptionEn: unitData.descriptionEn || parentProperty.descriptionEn,
+        };
+        
+        return res.status(200).json({ 
+          item: unitAsProperty,
+          success: true
+        });
+      }
+      
+      return res.status(404).json({ error: 'الوحدة غير موجودة' });
     }
     
     if (req.method === 'PUT') {
-      if (unitIndex === -1) {
-        return res.status(404).json({ error: 'الوحدة غير موجودة' });
+      // تحديث وحدة منفصلة
+      if (unitIndex !== -1) {
+        const updatedUnit = {
+          ...db.properties[unitIndex],
+          ...req.body,
+          id: db.properties[unitIndex].id,
+          isUnit: true,
+          parentPropertyId: db.properties[unitIndex].parentPropertyId,
+          updatedAt: new Date().toISOString()
+        };
+        
+        db.properties[unitIndex] = updatedUnit;
+        fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf8');
+        
+        return res.status(200).json({ 
+          item: updatedUnit,
+          success: true,
+          message: 'تم تحديث الوحدة بنجاح'
+        });
       }
       
-      const updatedUnit = {
-        ...db.properties[unitIndex],
-        ...req.body,
-        id: db.properties[unitIndex].id, // الحفاظ على المعرف
-        isUnit: true, // التأكيد أنها وحدة
-        parentPropertyId: db.properties[unitIndex].parentPropertyId, // الحفاظ على الربط
-        updatedAt: new Date().toISOString()
-      };
+      // تحديث وحدة داخل units[]
+      if (unitData && parentProperty) {
+        const parentIndex = db.properties.findIndex((p: any) => p.id === parentProperty.id);
+        if (parentIndex !== -1) {
+          db.properties[parentIndex].units[unitIndexInArray] = {
+            ...unitData,
+            ...req.body,
+            id: unitData.id,
+            updatedAt: new Date().toISOString()
+          };
+          
+          db.properties[parentIndex].updatedAt = new Date().toISOString();
+          fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf8');
+          
+          return res.status(200).json({ 
+            item: db.properties[parentIndex].units[unitIndexInArray],
+            success: true,
+            message: 'تم تحديث الوحدة بنجاح'
+          });
+        }
+      }
       
-      db.properties[unitIndex] = updatedUnit;
-      
-      // حفظ
-      fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf8');
-      
-      return res.status(200).json({ 
-        item: updatedUnit,
-        success: true,
-        message: 'تم تحديث الوحدة بنجاح'
-      });
+      return res.status(404).json({ error: 'الوحدة غير موجودة' });
     }
     
     if (req.method === 'DELETE') {
-      if (unitIndex === -1) {
-        return res.status(404).json({ error: 'الوحدة غير موجودة' });
+      // حذف وحدة منفصلة
+      if (unitIndex !== -1) {
+        db.properties.splice(unitIndex, 1);
+        fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf8');
+        
+        return res.status(200).json({ 
+          success: true,
+          message: 'تم حذف الوحدة بنجاح'
+        });
       }
       
-      // حذف الوحدة
-      db.properties.splice(unitIndex, 1);
+      // حذف وحدة من units[]
+      if (unitData && parentProperty) {
+        const parentIndex = db.properties.findIndex((p: any) => p.id === parentProperty.id);
+        if (parentIndex !== -1) {
+          db.properties[parentIndex].units.splice(unitIndexInArray, 1);
+          db.properties[parentIndex].totalUnits = db.properties[parentIndex].units.length;
+          db.properties[parentIndex].updatedAt = new Date().toISOString();
+          
+          fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf8');
+          
+          return res.status(200).json({ 
+            success: true,
+            message: 'تم حذف الوحدة بنجاح'
+          });
+        }
+      }
       
-      // حفظ
-      fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf8');
-      
-      return res.status(200).json({ 
-        success: true,
-        message: 'تم حذف الوحدة بنجاح'
-      });
+      return res.status(404).json({ error: 'الوحدة غير موجودة' });
     }
     
     if (req.method === 'PATCH') {
-      // تحديث جزئي (مثلاً: نشر/إخفاء، أرشفة)
-      if (unitIndex === -1) {
-        return res.status(404).json({ error: 'الوحدة غير موجودة' });
+      // تحديث وحدة منفصلة
+      if (unitIndex !== -1) {
+        db.properties[unitIndex] = {
+          ...db.properties[unitIndex],
+          ...req.body,
+          updatedAt: new Date().toISOString()
+        };
+        
+        fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf8');
+        
+        return res.status(200).json({ 
+          item: db.properties[unitIndex],
+          success: true,
+          message: 'تم تحديث الوحدة بنجاح'
+        });
       }
       
-      db.properties[unitIndex] = {
-        ...db.properties[unitIndex],
-        ...req.body,
-        updatedAt: new Date().toISOString()
-      };
+      // تحديث وحدة داخل units[]
+      if (unitData && parentProperty) {
+        const parentIndex = db.properties.findIndex((p: any) => p.id === parentProperty.id);
+        if (parentIndex !== -1) {
+          db.properties[parentIndex].units[unitIndexInArray] = {
+            ...db.properties[parentIndex].units[unitIndexInArray],
+            ...req.body,
+            updatedAt: new Date().toISOString()
+          };
+          
+          db.properties[parentIndex].updatedAt = new Date().toISOString();
+          fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf8');
+          
+          return res.status(200).json({ 
+            item: db.properties[parentIndex].units[unitIndexInArray],
+            success: true,
+            message: 'تم تحديث الوحدة بنجاح'
+          });
+        }
+      }
       
-      // حفظ
-      fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf8');
-      
-      return res.status(200).json({ 
-        item: db.properties[unitIndex],
-        success: true,
-        message: 'تم تحديث الوحدة بنجاح'
-      });
+      return res.status(404).json({ error: 'الوحدة غير موجودة' });
     }
     
     return res.status(405).json({ error: 'Method not allowed' });

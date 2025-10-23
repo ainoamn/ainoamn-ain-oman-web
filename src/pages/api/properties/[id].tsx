@@ -83,6 +83,52 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const all = getAll();
       item = resolvePropertyByAnyId(all, String(id));
     }
+    
+    // إذا لم نجد العقار، ابحث في units[] (ربما يكون ID لوحدة)
+    if (!item) {
+      const all = getAll();
+      for (const property of all) {
+        if (property.units && Array.isArray(property.units)) {
+          const unit = property.units.find((u: any) => u.id === String(id));
+          if (unit) {
+            // تحويل الوحدة إلى شكل عقار للعرض
+            item = {
+              ...unit,
+              id: unit.id,
+              referenceNo: unit.referenceNo || `UNIT-${property.referenceNo || property.id}-${unit.unitNo}`,
+              isUnit: true,
+              parentPropertyId: property.id,
+              
+              // نسخ من العقار الأم
+              province: unit.province || property.province,
+              state: unit.state || property.state,
+              city: unit.city || property.city,
+              address: unit.address || `${property.address} - وحدة ${unit.unitNo}`,
+              latitude: unit.latitude || property.latitude,
+              longitude: unit.longitude || property.longitude,
+              mapAddress: unit.mapAddress || property.mapAddress,
+              surveyNumber: unit.surveyNumber || property.surveyNumber,
+              landNumber: unit.landNumber || property.landNumber,
+              ownerName: unit.ownerName || property.ownerName,
+              ownerPhone: unit.ownerPhone || property.ownerPhone,
+              ownerEmail: unit.ownerEmail || property.ownerEmail,
+              amenities: [...(property.amenities || []), ...(unit.amenities || [])],
+              customAmenities: [...(property.customAmenities || []), ...(unit.features || [])],
+              
+              titleAr: unit.titleAr || `وحدة ${unit.unitNo} - ${property.titleAr || ''}`,
+              titleEn: unit.titleEn || `Unit ${unit.unitNo} - ${property.titleEn || ''}`,
+              descriptionAr: unit.descriptionAr || property.descriptionAr,
+              descriptionEn: unit.descriptionEn || property.descriptionEn,
+              
+              type: unit.type || 'apartment',
+              purpose: 'rent',
+              buildingType: 'single',
+            };
+            break;
+          }
+        }
+      }
+    }
 
     if (!item) {
       res.status(404).json({
