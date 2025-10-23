@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import InstantImage from '@/components/InstantImage';
 import InstantLink from '@/components/InstantLink';
 import NotificationsDropdown from '@/components/NotificationsDropdown';
+import AuthModal from '@/components/auth/AuthModal';
 import { useRouter } from "next/router";
 import { 
   MagnifyingGlassIcon, 
@@ -111,6 +112,8 @@ export default function Header() {
   const [theme, setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
   const [language, setLanguage] = useState('ar');
   const [currency, setCurrency] = useState('OMR');
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState<'login' | 'signup'>('login');
   const [user, setUser] = useState<User | null>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isOnline, setIsOnline] = useState(true);
@@ -547,7 +550,9 @@ export default function Header() {
             setUser(null);
             setIsUserMenuOpen(false);
             window.dispatchEvent(new CustomEvent('ain_auth:change'));
-            router.push('/login');
+            // فتح modal تسجيل الدخول بدلاً من الانتقال للصفحة
+            setAuthModalTab('login');
+            setIsAuthModalOpen(true);
           }}
         >
           <ArrowRightIcon className="w-5 h-5 text-red-500" />
@@ -757,18 +762,24 @@ export default function Header() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <InstantLink
-                  href={`/login?return=${encodeURIComponent(router.asPath)}`}
-                  className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                <button
+                  onClick={() => {
+                    setAuthModalTab('login');
+                    setIsAuthModalOpen(true);
+                  }}
+                  className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
                 >
                   تسجيل الدخول
-                </InstantLink>
-                <InstantLink
-                  href={`/login?return=${encodeURIComponent(router.asPath)}`}
-                  className="px-4 py-2 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl hover:from-green-700 hover:to-blue-700 transition-all shadow-md"
+                </button>
+                <button
+                  onClick={() => {
+                    setAuthModalTab('signup');
+                    setIsAuthModalOpen(true);
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl hover:from-green-700 hover:to-blue-700 transition-all shadow-md font-bold"
                 >
                   إنشاء حساب
-                </InstantLink>
+                </button>
               </div>
             )}
 
@@ -812,6 +823,13 @@ export default function Header() {
           </div>
         </div>
       )}
+      
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        defaultTab={authModalTab}
+      />
     </header>
   );
 }
