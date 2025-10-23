@@ -121,12 +121,27 @@ export default function AdminUsersPage() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // محاكاة البيانات
-      const mockUsers: any[] = []; // تم إزالة البيانات الوهمية - يتم الجلب من API
-
-      setUsers(mockUsers);
+      console.log('🔄 جلب المستخدمين من API...');
+      const response = await fetch('/api/users');
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ تم جلب المستخدمين:', data);
+        
+        const usersData = data.users || [];
+        console.log('👥 عدد المستخدمين:', usersData.length);
+        
+        setUsers(usersData);
+        
+        // تحديث الإحصائيات إذا وجدت
+        if (data.stats) {
+          setStats(data.stats);
+        }
+      } else {
+        console.error('❌ فشل جلب المستخدمين:', response.status);
+      }
     } catch (error) {
-
+      console.error('❌ خطأ في جلب المستخدمين:', error);
     } finally {
       setLoading(false);
     }
@@ -295,19 +310,49 @@ export default function AdminUsersPage() {
     setShowEditModal(true);
   };
 
-  const handleUpdateUser = () => {
+  const handleUpdateUser = async () => {
     if (!selectedUser) return;
     
-    setUsers(users.map(u => u.id === selectedUser.id ? selectedUser : u));
-    setShowEditModal(false);
-    setSelectedUser(null);
-    alert('تم تحديث المستخدم بنجاح!');
+    try {
+      const response = await fetch(`/api/users?id=${selectedUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(selectedUser)
+      });
+
+      if (response.ok) {
+        alert('✅ تم تحديث المستخدم بنجاح!');
+        setShowEditModal(false);
+        setSelectedUser(null);
+        fetchUsers();
+      } else {
+        const error = await response.json();
+        alert('❌ خطأ: ' + (error.error || 'فشل تحديث المستخدم'));
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      alert('❌ حدث خطأ أثناء تحديث المستخدم');
+    }
   };
 
-  const handleDeleteUser = (userId: string) => {
+  const handleDeleteUser = async (userId: string) => {
     if (confirm('هل أنت متأكد من حذف هذا المستخدم؟')) {
-      setUsers(users.filter(u => u.id !== userId));
-      alert('تم حذف المستخدم بنجاح!');
+      try {
+        const response = await fetch(`/api/users?id=${userId}`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          alert('✅ تم حذف المستخدم بنجاح!');
+          fetchUsers();
+        } else {
+          const error = await response.json();
+          alert('❌ خطأ: ' + (error.error || 'فشل حذف المستخدم'));
+        }
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        alert('❌ حدث خطأ أثناء حذف المستخدم');
+      }
     }
   };
 
