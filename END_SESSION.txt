@@ -10,6 +10,114 @@
 ⚠️ مهم جداً: هذا الملف يجب تنفيذه في نهاية كل جلسة عمل
 ================================================================================
 
+## 🚀 نسخ سريع - للتنفيذ المباشر (COPY & PASTE)
+
+### ⚡ انسخ هذه الأوامر ونفذها في PowerShell قبل إغلاق الجهاز:
+
+```powershell
+# ═══════════════════════════════════════════════════════════════════════════
+# 🔚 أوامر إنهاء الجلسة - يجب تنفيذها في نهاية كل جلسة
+# ═══════════════════════════════════════════════════════════════════════════
+
+# 1️⃣ التحقق من الحالة الحالية
+Write-Host "`n=== 1. Checking Current Status ===" -ForegroundColor Yellow
+git status
+
+# 2️⃣ إضافة جميع الملفات المُعدّلة
+Write-Host "`n=== 2. Adding All Changes ===" -ForegroundColor Yellow
+git add .
+git add -f .data/*.json
+
+# 3️⃣ عرض الملفات التي ستُحفظ
+Write-Host "`n=== 3. Files to be Committed ===" -ForegroundColor Yellow
+git status --short
+
+# 4️⃣ Commit التغييرات (عدّل الرسالة حسب عملك)
+Write-Host "`n=== 4. Committing Changes ===" -ForegroundColor Yellow
+$date = Get-Date -Format "yyyy-MM-dd-HHmm"
+git commit -m "session $date: [اكتب ملخص مختصر لما تم إنجازه]
+
+- Update files
+- Save all data
+- Ready for multi-device sync"
+
+# 5️⃣ رفع جميع التغييرات إلى GitHub
+Write-Host "`n=== 5. Pushing to GitHub ===" -ForegroundColor Yellow
+git push origin main
+
+# 6️⃣ التحقق النهائي
+Write-Host "`n=== 6. Final Verification ===" -ForegroundColor Green
+Write-Host "Total Commits: $(git rev-list --count HEAD)" -ForegroundColor Cyan
+Write-Host "Data Files: $(git ls-files .data/ | Measure-Object -Line | Select-Object -ExpandProperty Lines)" -ForegroundColor Cyan
+Write-Host "Git Status: " -ForegroundColor Cyan -NoNewline
+git status --short
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "`n✅ ALL DONE! Safe to close this computer!" -ForegroundColor Green
+    Write-Host "📱 Ready to work from home computer!" -ForegroundColor Green
+} else {
+    Write-Host "`n⚠️ WARNING: Check errors above!" -ForegroundColor Red
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
+```
+
+### 📝 ملاحظة:
+- في السطر 4️⃣ (الـ commit)، **عدّل الرسالة** لتصف ما أنجزته في الجلسة
+- مثال: `"session 2025-10-23-1930: Fix property images and add units system"`
+
+================================================================================
+
+## 🏠 نسخ سريع - للجهاز الآخر (المنزل)
+
+### ⚡ انسخ هذه الأوامر ونفذها على جهاز المنزل:
+
+```powershell
+# ═══════════════════════════════════════════════════════════════════════════
+# 🏠 أوامر البدء على الجهاز الآخر (المنزل)
+# ═══════════════════════════════════════════════════════════════════════════
+
+# السيناريو 1: إذا كان المشروع موجود مسبقاً (تحديث)
+# ────────────────────────────────────────────────────────────────────────────
+Write-Host "`n=== Updating Existing Project ===" -ForegroundColor Yellow
+cd C:\dev\ain-oman-web  # أو المسار الصحيح عندك
+git pull origin main
+npm install
+npm run dev
+# ثم افتح: http://localhost:3000
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# السيناريو 2: إذا كان المشروع غير موجود (أول مرة)
+# ────────────────────────────────────────────────────────────────────────────
+Write-Host "`n=== Cloning Project (First Time) ===" -ForegroundColor Yellow
+cd C:\dev  # أو أي مجلد تريده
+git clone https://github.com/ainoamn/ainoamn-ain-oman-web.git
+cd ainoamn-ain-oman-web
+npm install
+npm run dev
+# ثم افتح: http://localhost:3000
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ✅ التحقق من البيانات (بعد التشغيل)
+# ────────────────────────────────────────────────────────────────────────────
+Write-Host "`n=== Verifying Data ===" -ForegroundColor Green
+Write-Host "Checking db.json..." -ForegroundColor Cyan
+Test-Path .data\db.json
+(Get-Item .data\db.json).Length / 1MB  # يجب أن يكون > 3 MB
+
+Write-Host "`nChecking users.json..." -ForegroundColor Cyan
+Test-Path .data\users.json
+(Get-Item .data\users.json).Length / 1KB  # يجب أن يكون > 11 KB
+
+Write-Host "`n✅ If both files exist, you're ready to work!" -ForegroundColor Green
+Write-Host "📱 Open: http://localhost:3000" -ForegroundColor Yellow
+
+# ═══════════════════════════════════════════════════════════════════════════
+```
+
+================================================================================
+
 ## 📋 قائمة التحقق النهائية (MANDATORY CHECKLIST)
 
 ### ✅ المرحلة 1: التحقق من الملفات المحلية
