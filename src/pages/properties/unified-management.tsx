@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import Head from 'next/head';
 import InstantLink from '@/components/InstantLink';
+import BuildingUnitsManager from '@/components/property/BuildingUnitsManager';
 
 import { FaBuilding, FaHome, FaEye, FaEdit, FaTrash, FaPlus, FaSearch, FaFilter, FaSort, FaChevronDown, FaChevronUp, FaExpand, FaArchive, FaGlobe, FaEyeSlash, FaChartLine, FaRobot, FaMapMarkerAlt, FaBed, FaBath, FaRuler, FaTag, FaCalendar, FaUser, FaPhone, FaEnvelope, FaCog, FaDownload, FaPrint, FaShare, FaHeart, FaStar, FaCheck, FaTimes, FaExclamationTriangle, FaInfoCircle, FaQuestionCircle, FaLightbulb, FaArrowUp, FaArrowDown, FaEquals, FaClock, FaHistory } from 'react-icons/fa';
 
@@ -1576,19 +1577,15 @@ export default function UnifiedPropertyManagement() {
                           </div>
                         )}
 
-                        {/* Multi-unit indicator */}
+                        {/* Multi-unit badge */}
                         {property.buildingType === 'multi' && (
                           <div className="mb-4">
-                            <button
-                              onClick={() => togglePropertyExpansion(property.id)}
-                              className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
-                              title="عرض/إخفاء وحدات المبنى"
-                            >
-                              <span className="ml-2">
-                                {expandedProperties.has(property.id) ? 'إخفاء الوحدات' : 'عرض الوحدات'}
+                            <div className="bg-purple-50 border border-purple-200 rounded-lg p-2 text-center">
+                              <span className="text-purple-700 font-bold text-sm">
+                                <FaBuilding className="inline ml-1" />
+                                مبنى متعدد الوحدات ({(property.units || []).length} وحدة)
                               </span>
-                              {expandedProperties.has(property.id) ? <FaChevronUp /> : <FaChevronDown />}
-                            </button>
+                            </div>
                           </div>
                         )}
 
@@ -1621,49 +1618,36 @@ export default function UnifiedPropertyManagement() {
                         </div>
                       </div>
 
-                      {/* Units List (if expanded) */}
-                      {property.buildingType === 'multi' && expandedProperties.has(property.id) && (
-                        <div className="border-t border-gray-200 p-4 bg-gray-50">
-                          <h4 className="text-sm font-semibold text-gray-700 mb-3">وحدات المبنى ({(property.units || []).length})</h4>
-                          <div className="space-y-2">
-                            {((property.units || []).length > 0 ? property.units : getPropertyUnits(property.id)).map((unit: any) => (
-                              <div key={unit.id} className="bg-white rounded-lg p-3 border border-gray-200">
-                                <div className="flex items-center justify-between">
-                                  <div>
-                                    <div className="font-medium text-sm">{unit.unitNo || unit.unitNumber}</div>
-                                    <div className="text-xs text-gray-500">
-                                      {unit.area} م² • {unit.beds} غرف • {unit.baths} حمامات
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center space-x-2">
-                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getUnitStatusColor(unit.status)}`}>
-                                      {getUnitStatusLabel(unit.status)}
-                                    </span>
-                                    {unit.rentalPrice && (
-                                      <span className="text-sm font-medium text-blue-600">
-                                        {formatPrice(Number(unit.rentalPrice))}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                            {(property.units || []).length === 0 && getPropertyUnits(property.id).length === 0 && (
-                              <div className="text-center text-gray-500 text-sm py-4">
-                                لا توجد وحدات محددة لهذا المبنى
-                                <br />
-                                <InstantLink 
-                                  href={`/properties/${property.id}/edit`}
-                                  className="text-blue-600 hover:text-blue-700 text-xs underline mt-2 inline-block"
-                                >
-                                  إضافة وحدات →
-                                </InstantLink>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
                     </div>
+                    
+                    {/* Building Units Manager Component */}
+                    {property.buildingType === 'multi' && (
+                      <BuildingUnitsManager
+                        property={property}
+                        onDeleteUnit={(unitId) => {
+                          console.log('Delete unit:', unitId);
+                          // يمكن إضافة API call هنا
+                        }}
+                        onEditUnit={(unitId) => {
+                          console.log('Edit unit:', unitId);
+                          // يمكن فتح modal تعديل أو الانتقال لصفحة التعديل
+                        }}
+                        onViewUnit={(unitId) => {
+                          console.log('View unit:', unitId);
+                          // يمكن فتح modal عرض أو الانتقال لصفحة التفاصيل
+                        }}
+                        onArchiveUnit={(unitId) => {
+                          console.log('Archive unit:', unitId);
+                          // يمكن إضافة API call هنا
+                        }}
+                        onPublishUnit={(unitId, published) => {
+                          console.log('Publish unit:', unitId, published);
+                          // يمكن إضافة API call هنا
+                        }}
+                        onDeleteProperty={(propertyId) => deleteProperty(propertyId)}
+                      />
+                    )}
+                    
                   ))}
                 </div>
               </div>
