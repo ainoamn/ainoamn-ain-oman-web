@@ -1,0 +1,324 @@
+[
+  {
+    "id": "SUB-001",
+    "userId": "USER-001",
+    "planId": "PLAN-002",
+    "planName": "الخطة المتقدمة",
+    "status": "active",
+    "startDate": "2025-09-01T16:49:03.055Z",
+    "endDate": "2025-10-31T16:49:03.055Z",
+    "nextBillingDate": "2025-10-31T16:49:03.055Z",
+    "billingCycle": "monthly",
+    "price": 75,
+    "currency": "OMR",
+    "paymentMethod": "credit_card",
+    "paymentStatus": "paid",
+    "lastPaymentDate": "2025-09-01T16:49:03.055Z",
+    "nextPaymentAmount": 75,
+    "totalPaid": 75,
+    "autoRenew": true,
+    "features": [
+      {
+        "id": "FEAT-005",
+        "name": "إدارة العقارات المتقدمة",
+        "description": "إضافة وإدارة العقارات مع ميزات متقدمة",
+        "included": true,
+        "limit": 100,
+        "used": 15
+      },
+      {
+        "id": "FEAT-006",
+        "name": "إدارة المزادات",
+        "description": "إنشاء وإدارة المزادات العقارية",
+        "included": true,
+        "limit": 20,
+        "used": 3
+      },
+      {
+        "id": "FEAT-007",
+        "name": "إدارة العملاء المتقدمة",
+        "description": "إدارة قاعدة بيانات العملاء مع ميزات متقدمة",
+        "included": true,
+        "limit": 500,
+        "used": 45
+      },
+      {
+        "id": "FEAT-008",
+        "name": "التقارير المتقدمة",
+        "description": "تقارير متقدمة وتحليلات مفصلة",
+        "included": true,
+        "limit": 50,
+        "used": 8
+      }
+    ],
+    "limits": {
+      "properties": 100,
+      "auctions": 20,
+      "customers": 500,
+      "storage": 10,
+      "apiCalls": 10000,
+      "users": 10,
+      "reports": 50,
+      "support": "phone"
+    },
+    "usage": {
+      "properties": 15,
+      "auctions": 3,
+      "customers": 45,
+      "storage": 2.5,
+      "apiCalls": 2500,
+      "users": 3,
+      "reports": 8
+    },
+    "restrictions": {
+      "canCreateProperties": true,
+      "canCreateAuctions": true,
+      "canManageCustomers": true,
+      "canAccessAnalytics": true,
+      "canExportData": true,
+      "canUseAPI": false,
+      "canCustomizeBranding": false,
+      "canWhiteLabel": false
+    },
+    "createdAt": "2025-09-01T16:49:03.055Z",
+    "updatedAt": "2025-09-01T16:49:03.055Z",
+    "createdBy": "USER-001",
+    "updatedBy": "USER-001"
+  },
+  {
+    "id": "SUB-002",
+    "userId": "USER-002",
+    "planId": "PLAN-001",
+    "planName": "الخطة الأساسية",
+    "status": "trial",
+    "startDate": "2025-09-24T16:49:03.055Z",
+    "endDate": "2025-10-08T16:49:03.055Z",
+    "nextBillingDate": "2025-10-08T16:49:03.055Z",
+    "billingCycle": "monthly",
+    "price": 25,
+    "currency": "OMR",
+    "paymentMethod": "credit_card",
+    "paymentStatus": "pending",
+    "nextPaymentAmount": 25,
+    "totalPaid": 0,
+    "autoRenew": true,
+    "trialEndDate": "2025-10-08T16:49:03.055Z",
+    "features": [
+      {
+        "id": "FEAT-001",
+        "name": "إدارة العقارات",
+        "description": "إضافة وإدارة العقارات",
+        "included": true,
+        "limit": 10,
+        "used": 2
+      },
+      {
+        "id": "FEAT-002",
+        "name": "إدارة العملاء",
+        "description": "إدارة قاعدة بيانات العملاء",
+        "included": true,
+        "limit": 50,
+        "used": 8
+      },
+      {
+        "id": "FEAT-003",
+        "name": "التقارير الأساسية",
+        "description": "تقارير أساسية عن العقارات والعملاء",
+        "included": true,
+        "limit": 5,
+        "used": 1
+      }
+    ],
+    "limits": {
+      "properties": 10,
+      "auctions": 0,
+      "customers": 50,
+      "storage": 1,
+      "apiCalls": 1000,
+      "users": 2,
+      "reports": 5,
+      "support": "email"
+    },
+    "usage": {
+      "properties": 2,
+      "auctions": 0,
+      "customers": 8,
+      "storage": 0.2,
+      "apiCalls": 150,
+      "users": 1,
+      "reports": 1
+    },
+    "restrictions": {
+      "canCreateProperties": true,
+      "canCreateAuctions": false,
+      "canManageCustomers": true,
+      "canAccessAnalytics": false,
+      "canExportData": false,
+      "canUseAPI": false,
+      "canCustomizeBranding": false,
+      "canWhiteLabel": false
+    },
+    "createdAt": "2025-09-24T16:49:03.055Z",
+    "updatedAt": "2025-09-24T16:49:03.055Z",
+    "createdBy": "USER-002",
+    "updatedBy": "USER-002"
+  },
+  {
+    "id": "SUB-003",
+    "userId": "USER-003",
+    "planId": "PLAN-003",
+    "planName": "الخطة الاحترافية",
+    "status": "active",
+    "startDate": "2025-08-02T16:49:03.055Z",
+    "endDate": "2025-10-31T16:49:03.055Z",
+    "nextBillingDate": "2025-10-31T16:49:03.055Z",
+    "billingCycle": "monthly",
+    "price": 150,
+    "currency": "OMR",
+    "paymentMethod": "bank_transfer",
+    "paymentStatus": "paid",
+    "lastPaymentDate": "2025-09-01T16:49:03.055Z",
+    "nextPaymentAmount": 150,
+    "totalPaid": 300,
+    "autoRenew": true,
+    "features": [
+      {
+        "id": "FEAT-011",
+        "name": "إدارة العقارات الاحترافية",
+        "description": "إضافة وإدارة العقارات مع ميزات احترافية",
+        "included": true,
+        "unlimited": true,
+        "used": 25
+      },
+      {
+        "id": "FEAT-012",
+        "name": "إدارة المزادات الاحترافية",
+        "description": "إنشاء وإدارة المزادات العقارية مع ميزات احترافية",
+        "included": true,
+        "limit": 100,
+        "used": 12
+      },
+      {
+        "id": "FEAT-013",
+        "name": "إدارة العملاء الاحترافية",
+        "description": "إدارة قاعدة بيانات العملاء مع ميزات احترافية",
+        "included": true,
+        "unlimited": true,
+        "used": 150
+      },
+      {
+        "id": "FEAT-014",
+        "name": "التقارير الاحترافية",
+        "description": "تقارير احترافية وتحليلات مفصلة",
+        "included": true,
+        "unlimited": true,
+        "used": 35
+      }
+    ],
+    "limits": {
+      "properties": -1,
+      "auctions": 100,
+      "customers": -1,
+      "storage": 100,
+      "apiCalls": 100000,
+      "users": 50,
+      "reports": -1,
+      "support": "dedicated"
+    },
+    "usage": {
+      "properties": 25,
+      "auctions": 12,
+      "customers": 150,
+      "storage": 15.5,
+      "apiCalls": 15000,
+      "users": 8,
+      "reports": 35
+    },
+    "restrictions": {
+      "canCreateProperties": true,
+      "canCreateAuctions": true,
+      "canManageCustomers": true,
+      "canAccessAnalytics": true,
+      "canExportData": true,
+      "canUseAPI": true,
+      "canCustomizeBranding": true,
+      "canWhiteLabel": false
+    },
+    "createdAt": "2025-08-02T16:49:03.055Z",
+    "updatedAt": "2025-08-02T16:49:03.055Z",
+    "createdBy": "USER-003",
+    "updatedBy": "USER-003"
+  },
+  {
+    "id": "SUB-004",
+    "userId": "USER-004",
+    "planId": "PLAN-001",
+    "planName": "الخطة الأساسية",
+    "status": "cancelled",
+    "startDate": "2025-07-03T16:49:03.055Z",
+    "endDate": "2025-09-01T16:49:03.055Z",
+    "nextBillingDate": "2025-09-01T16:49:03.055Z",
+    "billingCycle": "monthly",
+    "price": 25,
+    "currency": "OMR",
+    "paymentMethod": "credit_card",
+    "paymentStatus": "cancelled",
+    "lastPaymentDate": "2025-08-02T16:49:03.055Z",
+    "nextPaymentAmount": 0,
+    "totalPaid": 50,
+    "autoRenew": false,
+    "cancellationDate": "2025-09-01T16:49:03.055Z",
+    "cancellationReason": "عدم الحاجة للخدمة",
+    "features": [
+      {
+        "id": "FEAT-001",
+        "name": "إدارة العقارات",
+        "description": "إضافة وإدارة العقارات",
+        "included": true,
+        "limit": 10,
+        "used": 5
+      },
+      {
+        "id": "FEAT-002",
+        "name": "إدارة العملاء",
+        "description": "إدارة قاعدة بيانات العملاء",
+        "included": true,
+        "limit": 50,
+        "used": 15
+      }
+    ],
+    "limits": {
+      "properties": 10,
+      "auctions": 0,
+      "customers": 50,
+      "storage": 1,
+      "apiCalls": 1000,
+      "users": 2,
+      "reports": 5,
+      "support": "email"
+    },
+    "usage": {
+      "properties": 5,
+      "auctions": 0,
+      "customers": 15,
+      "storage": 0.5,
+      "apiCalls": 800,
+      "users": 1,
+      "reports": 3
+    },
+    "restrictions": {
+      "canCreateProperties": true,
+      "canCreateAuctions": false,
+      "canManageCustomers": true,
+      "canAccessAnalytics": false,
+      "canExportData": false,
+      "canUseAPI": false,
+      "canCustomizeBranding": false,
+      "canWhiteLabel": false
+    },
+    "createdAt": "2025-07-03T16:49:03.055Z",
+    "updatedAt": "2025-09-01T16:49:03.055Z",
+    "createdBy": "USER-004",
+    "updatedBy": "USER-004"
+  }
+]

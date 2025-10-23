@@ -1,0 +1,58 @@
+[
+  {
+    "id": "U-OWNER-001",
+    "name": "محمد العبري",
+    "email": "owner@ainoman.om",
+    "password": "Owner@2025",
+    "phone": "96892000001",
+    "role": "property_owner",
+    "isVerified": true,
+    "avatar": "/demo/owner1.jpg",
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "subscription": {
+      "plan": "enterprise",
+      "status": "active",
+      "expiresAt": "2026-12-31T23:59:59.999Z"
+    },
+    "permissions": [
+      "manage_properties",
+      "manage_units",
+      "manage_tenants",
+      "manage_contracts",
+      "manage_invoices",
+      "manage_checks",
+      "manage_maintenance",
+      "manage_tasks",
+      "view_reports",
+      "manage_legal"
+    ]
+  },
+  {
+    "id": "U-TENANT-001",
+    "name": "أحمد المحمودي",
+    "email": "tenant@example.com",
+    "password": "Tenant@2025",
+    "phone": "96891234567",
+    "role": "tenant",
+    "isVerified": true,
+    "nationalId": "12345678",
+    "avatar": "/demo/user1.jpg",
+    "createdAt": "2025-10-01T00:00:00.000Z",
+    "subscription": {
+      "plan": "basic",
+      "status": "active",
+      "expiresAt": "2026-10-31T23:59:59.999Z"
+    },
+    "permissions": [
+      "browse_properties",
+      "book_properties",
+      "view_contracts",
+      "sign_contracts",
+      "pay_invoices",
+      "submit_maintenance",
+      "upload_documents",
+      "view_my_bookings"
+    ]
+  }
+]
+

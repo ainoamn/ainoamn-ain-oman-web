@@ -1,0 +1,148 @@
+[
+  {
+    "id": "T-20250922173224",
+    "name": "عقد إيجار سكني موحّد / Residential Lease",
+    "scope": "unified",
+    "bodyAr": "عقد إيجار سكني (موحّد)\nالمؤجر: {{landlordName}}\nالمستأجر: {{tenantName}}\nالوحدة: {{unitRef}}\nقيمة الإيجار: {{rentAmount}} {{rentCurrency}}\nتاريخ البداية: {{startDate}} لمدة {{durationMonths}} شهرًا.\nجدول السداد: {{paymentSchedule}}\nالتأمين: {{depositAmount}}\nالخدمات: {{utilities}}\nالالتزامات: {{rules}}\nيقر الطرفان بالالتزام بالشروط المذكورة أعلاه والقوانين المعمول بها.",
+    "bodyEn": "Residential Lease Agreement (Unified)\nLandlord: {{landlordName}}\nTenant: {{tenantName}}\nUnit: {{unitRef}}\nRent: {{rentAmount}} {{rentCurrency}}\nStart: {{startDate}} for {{durationMonths}} month(s).\nPayment Schedule: {{paymentSchedule}}\nSecurity Deposit: {{depositAmount}}\nUtilities: {{utilities}}\nRules: {{rules}}\nBoth parties agree to the above terms and applicable laws.",
+    "fields": [
+      {
+        "key": "landlordName",
+        "labelAr": "اسم المؤجر",
+        "labelEn": "Landlord Name",
+        "required": true
+      },
+      {
+        "key": "tenantName",
+        "labelAr": "اسم المستأجر",
+        "labelEn": "Tenant Name",
+        "required": true
+      },
+      {
+        "key": "unitRef",
+        "labelAr": "رقم/مرجع الوحدة",
+        "labelEn": "Unit Ref",
+        "required": true
+      },
+      {
+        "key": "rentAmount",
+        "labelAr": "قيمة الإيجار",
+        "labelEn": "Rent Amount",
+        "required": true
+      },
+      {
+        "key": "rentCurrency",
+        "labelAr": "العملة",
+        "labelEn": "Currency",
+        "required": true
+      },
+      {
+        "key": "startDate",
+        "labelAr": "تاريخ بداية العقد",
+        "labelEn": "Start Date",
+        "required": true
+      },
+      {
+        "key": "durationMonths",
+        "labelAr": "المدة بالأشهر",
+        "labelEn": "Duration (months)",
+        "required": true
+      },
+      {
+        "key": "paymentSchedule",
+        "labelAr": "جدول السداد",
+        "labelEn": "Payment Schedule"
+      },
+      {
+        "key": "depositAmount",
+        "labelAr": "التأمين",
+        "labelEn": "Security Deposit"
+      },
+      {
+        "key": "utilities",
+        "labelAr": "الخدمات",
+        "labelEn": "Utilities"
+      },
+      {
+        "key": "rules",
+        "labelAr": "الالتزامات/القواعد",
+        "labelEn": "Rules"
+      }
+    ],
+    "createdAt": "2025-09-22T17:32:24.831Z",
+    "updatedAt": "2025-09-22T17:32:24.831Z"
+  },
+  {
+    "id": "T-20250922173224",
+    "name": "عقد إيجار تجاري / Commercial Lease",
+    "scope": "per-unit",
+    "bodyAr": "عقد إيجار تجاري\nالمؤجر: {{landlordName}}\nالمستأجر: {{tenantName}}\nالمحل/الوحدة: {{unitRef}}\nالإيجار: {{rentAmount}} {{rentCurrency}} لمدة {{durationMonths}} شهرًا اعتبارًا من {{startDate}}.\nجدول السداد: {{paymentSchedule}}\nالتأمين: {{depositAmount}}\nالخدمات: {{utilities}}\nالشروط الخاصة: {{rules}}\nيُعمل بهذا العقد وفقًا للأنظمة التجارية النافذة.",
+    "bodyEn": "Commercial Lease Agreement\nLandlord: {{landlordName}}\nTenant: {{tenantName}}\nShop/Unit: {{unitRef}}\nRent: {{rentAmount}} {{rentCurrency}} for {{durationMonths}} month(s) starting {{startDate}}.\nPayment Schedule: {{paymentSchedule}}\nSecurity Deposit: {{depositAmount}}\nUtilities: {{utilities}}\nSpecial Terms: {{rules}}\nThis agreement is governed by applicable commercial regulations.",
+    "fields": [
+      {
+        "key": "landlordName",
+        "labelAr": "اسم المؤجر",
+        "labelEn": "Landlord Name",
+        "required": true
+      },
+      {
+        "key": "tenantName",
+        "labelAr": "اسم المستأجر",
+        "labelEn": "Tenant Name",
+        "required": true
+      },
+      {
+        "key": "unitRef",
+        "labelAr": "رقم/مرجع الوحدة",
+        "labelEn": "Unit Ref",
+        "required": true
+      },
+      {
+        "key": "rentAmount",
+        "labelAr": "قيمة الإيجار",
+        "labelEn": "Rent Amount",
+        "required": true
+      },
+      {
+        "key": "rentCurrency",
+        "labelAr": "العملة",
+        "labelEn": "Currency",
+        "required": true
+      },
+      {
+        "key": "startDate",
+        "labelAr": "تاريخ بداية العقد",
+        "labelEn": "Start Date",
+        "required": true
+      },
+      {
+        "key": "durationMonths",
+        "labelAr": "المدة بالأشهر",
+        "labelEn": "Duration (months)",
+        "required": true
+      },
+      {
+        "key": "paymentSchedule",
+        "labelAr": "جدول السداد",
+        "labelEn": "Payment Schedule"
+      },
+      {
+        "key": "depositAmount",
+        "labelAr": "التأمين",
+        "labelEn": "Security Deposit"
+      },
+      {
+        "key": "utilities",
+        "labelAr": "الخدمات",
+        "labelEn": "Utilities"
+      },
+      {
+        "key": "rules",
+        "labelAr": "الالتزامات/القواعد",
+        "labelEn": "Rules"
+      }
+    ],
+    "createdAt": "2025-09-22T17:32:24.831Z",
+    "updatedAt": "2025-09-22T17:32:24.831Z"
+  }
+]

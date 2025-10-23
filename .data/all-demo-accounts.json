@@ -1,0 +1,299 @@
+{
+  "accounts": [
+    {
+      "id": "ACC-001",
+      "role": "company_admin",
+      "name": "شركة عين عُمان للإدارة العقارية",
+      "contactPerson": "سعيد الهنائي",
+      "email": "admin@ainoman.om",
+      "password": "Admin@2025",
+      "phone": "96824000000",
+      "avatar": "/demo/company-logo.png",
+      "description": "الشركة الأم - إدارة جميع العقارات",
+      "permissions": [
+        "full_access",
+        "manage_all_properties",
+        "manage_all_units",
+        "manage_all_tenants",
+        "manage_all_contracts",
+        "manage_all_finances",
+        "manage_property_managers",
+        "view_all_reports",
+        "manage_legal_cases",
+        "system_settings"
+      ],
+      "managedProperties": ["ALL"],
+      "subscription": "enterprise_unlimited"
+    },
+    {
+      "id": "ACC-002",
+      "role": "property_owner",
+      "name": "محمد العبري",
+      "email": "owner@ainoman.om",
+      "password": "Owner@2025",
+      "phone": "96892000001",
+      "avatar": "/demo/owner1.jpg",
+      "description": "مالك عقارات - أسند إدارة عقاراته للشركة",
+      "permissions": [
+        "view_own_properties",
+        "view_own_units",
+        "view_own_tenants",
+        "view_own_contracts",
+        "view_own_finances",
+        "view_own_reports",
+        "approve_major_decisions",
+        "assign_property_manager"
+      ],
+      "ownedProperties": [
+        "P-TOWER-001",
+        "P-VILLA-002"
+      ],
+      "assignedTo": "company_admin",
+      "subscription": "premium"
+    },
+    {
+      "id": "ACC-003",
+      "role": "property_manager",
+      "name": "فاطمة البلوشية",
+      "email": "manager@ainoman.om",
+      "password": "Manager@2025",
+      "phone": "96895000001",
+      "avatar": "/demo/manager1.jpg",
+      "description": "مديرة عقار مفوضة - تدير عقارات محددة",
+      "permissions": [
+        "manage_assigned_properties",
+        "manage_assigned_units",
+        "manage_assigned_tenants",
+        "manage_assigned_contracts",
+        "issue_invoices",
+        "manage_checks",
+        "manage_maintenance",
+        "manage_tasks",
+        "view_assigned_reports",
+        "communicate_with_tenants"
+      ],
+      "assignedBy": "owner@ainoman.om",
+      "managedProperties": [
+        "P-TOWER-001"
+      ],
+      "commission": "5%",
+      "subscription": "professional"
+    },
+    {
+      "id": "ACC-004",
+      "role": "tenant",
+      "name": "أحمد المحمودي",
+      "email": "tenant@example.com",
+      "password": "Tenant@2025",
+      "phone": "96891234567",
+      "nationalId": "12345678",
+      "avatar": "/demo/user1.jpg",
+      "description": "مستأجر - حجز وحدة A-101",
+      "permissions": [
+        "browse_properties",
+        "book_properties",
+        "view_my_contracts",
+        "sign_contracts",
+        "pay_invoices",
+        "submit_maintenance_requests",
+        "upload_documents",
+        "view_my_bookings",
+        "chat_with_owner"
+      ],
+      "currentUnit": "A-101",
+      "currentContract": "C-2025-001",
+      "subscription": "basic"
+    },
+    {
+      "id": "ACC-005",
+      "role": "maintenance_staff",
+      "name": "خالد السعيدي",
+      "email": "maintenance@ainoman.om",
+      "password": "Maint@2025",
+      "phone": "96893000001",
+      "avatar": "/demo/maintenance1.jpg",
+      "description": "فني صيانة - معالجة طلبات الصيانة",
+      "permissions": [
+        "view_maintenance_requests",
+        "update_maintenance_status",
+        "add_maintenance_costs",
+        "upload_maintenance_photos",
+        "mark_as_completed",
+        "view_units_details"
+      ],
+      "specialization": "general",
+      "subscription": "staff"
+    },
+    {
+      "id": "ACC-006",
+      "role": "accountant",
+      "name": "عائشة الشحية",
+      "email": "accountant@ainoman.om",
+      "password": "Account@2025",
+      "phone": "96894000001",
+      "avatar": "/demo/accountant1.jpg",
+      "description": "محاسبة - إدارة الفواتير والمدفوعات",
+      "permissions": [
+        "view_all_invoices",
+        "create_invoices",
+        "manage_checks",
+        "view_financial_reports",
+        "manage_payments",
+        "export_reports",
+        "reconciliation"
+      ],
+      "department": "finance",
+      "subscription": "professional"
+    },
+    {
+      "id": "ACC-007",
+      "role": "legal_advisor",
+      "name": "يوسف المعمري",
+      "email": "legal@ainoman.om",
+      "password": "Legal@2025",
+      "phone": "96895000002",
+      "avatar": "/demo/lawyer1.jpg",
+      "description": "مستشار قانوني - إدارة العقود والقضايا",
+      "permissions": [
+        "view_all_contracts",
+        "review_contracts",
+        "manage_legal_cases",
+        "provide_legal_advice",
+        "approve_contract_terms",
+        "manage_legal_documents"
+      ],
+      "licenseNumber": "LAW-OM-12345",
+      "subscription": "professional"
+    },
+    {
+      "id": "ACC-008",
+      "role": "sales_agent",
+      "name": "نورة الحبسية",
+      "email": "sales@ainoman.om",
+      "password": "Sales@2025",
+      "phone": "96896000001",
+      "avatar": "/demo/sales1.jpg",
+      "description": "مندوبة مبيعات - عرض وتسويق العقارات",
+      "permissions": [
+        "browse_all_properties",
+        "create_bookings_for_customers",
+        "view_customer_info",
+        "send_property_proposals",
+        "schedule_viewings",
+        "track_leads"
+      ],
+      "commission": "3%",
+      "subscription": "professional"
+    },
+    {
+      "id": "ACC-009",
+      "role": "customer_viewer",
+      "name": "مريم الشكيلية",
+      "email": "viewer@example.com",
+      "password": "Viewer@2025",
+      "phone": "96897000001",
+      "avatar": "/demo/user2.jpg",
+      "description": "عميل - تصفح فقط بدون حجز",
+      "permissions": [
+        "browse_properties",
+        "view_property_details",
+        "add_to_favorites",
+        "request_viewing",
+        "chat_inquiries"
+      ],
+      "subscription": "free"
+    },
+    {
+      "id": "ACC-010",
+      "role": "investor",
+      "name": "سلطان البوسعيدي",
+      "email": "investor@ainoman.om",
+      "password": "Invest@2025",
+      "phone": "96898000001",
+      "avatar": "/demo/investor1.jpg",
+      "description": "مستثمر - يبحث عن فرص استثمارية",
+      "permissions": [
+        "browse_investment_properties",
+        "view_roi_reports",
+        "view_market_analytics",
+        "request_financial_reports",
+        "submit_investment_proposals"
+      ],
+      "investmentCapital": "500000",
+      "subscription": "premium"
+    }
+  ],
+  "roleDescriptions": {
+    "company_admin": {
+      "title": "مدير الشركة",
+      "color": "red",
+      "icon": "🏢",
+      "level": 10,
+      "description": "الصلاحيات الكاملة - إدارة الشركة بالكامل"
+    },
+    "property_owner": {
+      "title": "مالك العقار",
+      "color": "purple",
+      "icon": "👑",
+      "level": 9,
+      "description": "مالك عقارات - يتابع ويوافق على القرارات الكبرى"
+    },
+    "property_manager": {
+      "title": "مدير عقار مفوض",
+      "color": "blue",
+      "icon": "🎯",
+      "level": 7,
+      "description": "مدير مفوض - يدير عقارات محددة نيابة عن المالك"
+    },
+    "accountant": {
+      "title": "محاسب",
+      "color": "green",
+      "icon": "💰",
+      "level": 6,
+      "description": "محاسب - إدارة الفواتير والمدفوعات والتقارير المالية"
+    },
+    "legal_advisor": {
+      "title": "مستشار قانوني",
+      "color": "indigo",
+      "icon": "⚖️",
+      "level": 6,
+      "description": "مستشار قانوني - مراجعة العقود والقضايا القانونية"
+    },
+    "sales_agent": {
+      "title": "مندوب مبيعات",
+      "color": "orange",
+      "icon": "📊",
+      "level": 5,
+      "description": "مندوب - تسويق وبيع/تأجير العقارات"
+    },
+    "maintenance_staff": {
+      "title": "فني صيانة",
+      "color": "yellow",
+      "icon": "🔧",
+      "level": 4,
+      "description": "فني - معالجة طلبات الصيانة"
+    },
+    "tenant": {
+      "title": "مستأجر",
+      "color": "cyan",
+      "icon": "👤",
+      "level": 3,
+      "description": "مستأجر - حجز ودفع وتوقيع عقود"
+    },
+    "investor": {
+      "title": "مستثمر",
+      "color": "pink",
+      "icon": "💼",
+      "level": 3,
+      "description": "مستثمر - البحث عن فرص استثمارية"
+    },
+    "customer_viewer": {
+      "title": "عميل متصفح",
+      "color": "gray",
+      "icon": "👁️",
+      "level": 1,
+      "description": "عميل - تصفح فقط بدون حجز"
+    }
+  }
+}
+

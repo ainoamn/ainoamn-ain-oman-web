@@ -8,14 +8,9 @@ coverage/
 .env
 .env.*
 *.local
-# بيانات مهمة
-# حفظ الملفات المهمة في .data
-.data/*
-!.data/db.json
-!.data/users.json
-!.data/properties.json
-!.data/tasks.json
-!.data/notifications.json
+# بيانات - حفظ كل شيء ما عدا الـ temporary files
+# نحتفظ بجميع ملفات .data للعمل من أجهزة متعددة
+# يمكن إضافة ملفات محددة للاستثناء لاحقاً إذا لزم الأمر
 # ?????
 npm-debug.log*
 yarn-debug.log*

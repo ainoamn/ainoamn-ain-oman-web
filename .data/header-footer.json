@@ -1,0 +1,75 @@
+{
+  "header": {
+    "backgroundColor": "#0d9488",
+    "textColor": "#ffffff",
+    "logo": "/logo.png",
+    "menuItems": [
+      {
+        "label": "الرئيسية",
+        "href": "/"
+      },
+      {
+        "label": "العقارات",
+        "href": "/properties"
+      },
+      {
+        "label": "المزادات",
+        "href": "/auctions"
+      }
+    ],
+    "notifications": [],
+    "showUserColorPicker": true,
+    "availableColors": [
+      "#0d9488",
+      "#2563eb",
+      "#7c3aed",
+      "#dc2626",
+      "#0f766e"
+    ]
+  },
+  "footer": {
+    "textColor": "#ffffff",
+    "transparency": 55,
+    "sections": [
+      {
+        "title": "عن المنصة",
+        "links": [
+          {
+            "label": "من نحن",
+            "href": "/about"
+          },
+          {
+            "label": "تواصل معنا",
+            "href": "/contact"
+          }
+        ]
+      },
+      {
+        "title": "خدمات",
+        "links": [
+          {
+            "label": "العقارات",
+            "href": "/properties"
+          },
+          {
+            "label": "المزادات",
+            "href": "/auctions"
+          }
+        ]
+      }
+    ],
+    "contact": {
+      "email": "info@example.com",
+      "phone": "+96891115341",
+      "address": "مسقط، عُمان"
+    },
+    "payments": [
+      {
+        "name": "Visa"
+      },
+      {
+        "name": "Mastercard"
+      }
+    ]
+  }
+}
