@@ -5,7 +5,7 @@ import Head from "next/head";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import InstantLink from "@/components/InstantLink";
-import { FaPlus, FaCog } from 'react-icons/fa';
+import { FaPlus, FaCog } from "react-icons/fa";
 import PropertyCard from "@/components/properties/PropertyCard";
 import RentalStatusChart from "@/components/dashboard/RentalStatusChart";
 import StatsOverview from "@/components/dashboard/StatsOverview";
@@ -41,17 +41,15 @@ const OwnerDashboard: NextPage = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("properties");
   
-  // ✅ استخدام Context للحجوزات
+  // استخدام Context للحجوزات
   const { bookings: allBookings, loading: bookingsLoading } = useBookings();
   
-  console.log('🔍 Owner Dashboard: allBookings count =', allBookings.length);
-  console.log('📊 Owner Dashboard: bookingsLoading =', bookingsLoading);
+
   
-  // فلترة حجوزات المالك فقط
+  // تصفية الحجوزات الخاصة بالمالك
   const ownerBookings = useMemo(() => {
     const userId = session?.user?.id;
-    console.log('👤 Owner Dashboard: userId =', userId);
-    console.log('🏠 Owner Dashboard: properties count =', properties.length);
+
     
     if (!userId) return [];
     
@@ -59,11 +57,10 @@ const OwnerDashboard: NextPage = () => {
       properties.some(p => p.id === b.propertyId && p.ownerId === userId)
     );
     
-    console.log('✅ Owner Dashboard: ownerBookings count =', filtered.length);
+
     
-    // ✅ مؤقتاً: إذا لم نجد أي حجوزات، نعرض الكل للاختبار
+    // للتطوير: إذا لم يكن هناك تطابق، نعرض جميع الحجوزات
     if (filtered.length === 0) {
-      console.log('⚠️ Owner Dashboard: No bookings found for owner, showing ALL');
       return allBookings;
     }
     
@@ -96,7 +93,7 @@ const OwnerDashboard: NextPage = () => {
         setRentals(items);
       }
     } catch (error) {
-      console.error("Failed to fetch data:", error);
+      console.error('Error fetching owner data:', error);
     } finally {
       setLoading(false);
     }
@@ -120,33 +117,33 @@ const OwnerDashboard: NextPage = () => {
   return (
     <>
       <Head>
-        <title>لوحة تحكم المعلن | Ain Oman</title>
+        <title>لوحة تحكم المالك | Ain Oman</title>
       </Head>
 
       <div className="min-h-screen bg-gray-50">
         <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <h1 className="text-2xl font-bold text-gray-900">لوحة تحكم المعلن</h1>
+            <h1 className="text-2xl font-bold text-gray-900">لوحة تحكم المالك</h1>
             <p className="text-gray-600">مرحباً {text(session?.user?.name)}</p>
           </div>
         </header>
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* نظرة عامة على الإحصائيات */}
+          {/* بطاقات الإحصائيات */}
           <StatsOverview stats={stats} />
 
-          {/* مخطط حالة العقارات */}
+          {/* مخطط حالة الإيجارات */}
           <div className="mt-8">
             <RentalStatusChart rentals={rentals} />
           </div>
 
-          {/* تبويبات التنقل */}
+          {/* التبويبات الرئيسية */}
           <div className="mt-8 border-b border-gray-200">
             <nav className="-mb-px flex space-x-8">
               {[
-                { id: "properties", name: "عقاراتي", count: properties.length },
-                { id: "rentals", name: "طلبات الإيجار", count: rentals.length },
-                { id: "analytics", name: "التقارير", count: 0 }
+                { id: "properties", name: "العقارات", count: properties.length },
+                { id: "rentals", name: "عقود الإيجار", count: rentals.length },
+                { id: "analytics", name: "التحليلات", count: 0 }
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -202,7 +199,7 @@ const OwnerDashboard: NextPage = () => {
                         className="inline-flex items-center px-6 py-3 border-2 border-blue-600 rounded-xl shadow-lg text-sm font-bold text-blue-600 bg-white hover:bg-blue-50 transition-all"
                       >
                         <FaCog className="ml-2" />
-                        الإدارة المتقدمة
+                        الإدارة الموحدة
                       </InstantLink>
                     </div>
                   </div>
@@ -256,8 +253,8 @@ const OwnerDashboard: NextPage = () => {
                     <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">لا توجد طلبات إيجار</h3>
-                    <p className="mt-1 text-sm text-gray-500">عندما يحجز أحد العملاء عقارك، ستظهر الطلبات هنا.</p>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">لا توجد عقود إيجار</h3>
+                    <p className="mt-1 text-sm text-gray-500">عندما يحجز أحد المستأجرين عقاراً، ستظهر التفاصيل هنا.</p>
                   </div>
                 )}
               </motion.div>
@@ -275,11 +272,11 @@ function getStateLabel(state: string): string {
     "paid": "تم الدفع",
     "docs_submitted": "تم رفع المستندات",
     "docs_verified": "تم التحقق",
-    "contract_generated": "تم توليد العقد",
+    "contract_generated": "تم إنشاء العقد",
     "tenant_signed": "تم توقيع المستأجر",
     "owner_signed": "تم توقيع المالك",
-    "accountant_checked": "تم اعتماد المحاسب",
-    "admin_approved": "تمت الموافقة الإدارية",
+    "accountant_checked": "تم المراجعة المالية",
+    "admin_approved": "اعتمد المشرف العام",
     "handover_ready": "جاهز للتسليم",
     "handover_completed": "تم التسليم"
   };
