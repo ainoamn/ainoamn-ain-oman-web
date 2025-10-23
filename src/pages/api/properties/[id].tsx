@@ -103,6 +103,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               province: unit.province || property.province,
               state: unit.state || property.state,
               city: unit.city || property.city,
+              village: unit.village || property.village,
               address: unit.address || `${property.address} - وحدة ${unit.unitNo}`,
               latitude: unit.latitude || property.latitude,
               longitude: unit.longitude || property.longitude,
@@ -120,9 +121,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               descriptionAr: unit.descriptionAr || property.descriptionAr,
               descriptionEn: unit.descriptionEn || property.descriptionEn,
               
+              // الصور من الوحدة (أو من العقار الأم كاحتياطي)
+              images: unit.images && unit.images.length > 0 ? unit.images : property.images || [],
+              videoUrl: unit.videoUrl || property.videoUrl || '',
+              coverIndex: unit.coverIndex || 0,
+              
+              // التفاصيل الخاصة بالوحدة
               type: unit.type || 'apartment',
-              purpose: 'rent',
+              purpose: unit.purpose || property.purpose || 'rent',
               buildingType: 'single',
+              buildingAge: property.buildingAge || '',
+              area: unit.area?.toString() || '',
+              beds: unit.beds?.toString() || '',
+              baths: unit.baths?.toString() || '',
+              halls: unit.halls || '',
+              majlis: unit.majlis || '',
+              kitchens: '1',
+              floors: '1',
+              
+              // السعر من الوحدة
+              priceOMR: unit.price?.toString() || unit.priceOMR?.toString() || '',
+              rentalPrice: unit.rentalPrice?.toString() || unit.monthlyRent?.toString() || unit.price?.toString() || '',
+              deposit: unit.deposit?.toString() || '',
+              
+              // معلومات المستأجر
+              tenantName: unit.tenantName,
+              leaseStartDate: unit.leaseStartDate,
+              leaseEndDate: unit.leaseEndDate,
+              
+              // الحالة
+              status: unit.status || 'available',
+              published: unit.published !== false,
+              
+              createdAt: unit.createdAt || property.createdAt,
+              updatedAt: unit.updatedAt || new Date().toISOString(),
             };
             break;
           }
