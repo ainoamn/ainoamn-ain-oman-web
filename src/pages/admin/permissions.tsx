@@ -12,6 +12,7 @@ import {
   ROLE_DEFAULT_PERMISSIONS,
   getUserPermissions 
 } from '@/lib/permissions';
+import { getRoleNameAr, getPlanNameAr, getCategoryNameAr } from '@/lib/translations';
 
 interface UserPermissionSetting {
   userId: string;
@@ -237,13 +238,13 @@ export default function PermissionsManagementPage() {
                         </td>
                         <td className="px-6 py-4">
                           <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                            {user.role}
+                            {getRoleNameAr(user.role)}
                           </span>
                         </td>
                         <td className="px-6 py-4">
                           {user.subscription ? (
                             <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                              {user.subscription.plan}
+                              {getPlanNameAr(user.subscription.plan || user.subscription.planName || 'مجاني')}
                             </span>
                           ) : (
                             <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
@@ -306,12 +307,12 @@ export default function PermissionsManagementPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-gray-600">الدور:</p>
-                      <p className="font-bold text-gray-900">{selectedUser.role}</p>
+                      <p className="font-bold text-gray-900">{getRoleNameAr(selectedUser.role)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">الباقة:</p>
                       <p className="font-bold text-gray-900">
-                        {selectedUser.subscription?.plan || 'بدون باقة'}
+                        {getPlanNameAr(selectedUser.subscription?.plan || selectedUser.subscription?.planName || 'مجاني')}
                       </p>
                     </div>
                   </div>
@@ -399,11 +400,11 @@ export default function PermissionsManagementPage() {
                                 </div>
                                 <h3 className="font-bold text-gray-900">{permission.name.ar}</h3>
                                 <span className={`px-2 py-1 text-xs rounded-full ${categoryColors[permission.category]}`}>
-                                  {permission.category}
+                                  {getCategoryNameAr(permission.category)}
                                 </span>
                                 {permission.requiredPlan && (
                                   <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">
-                                    يتطلب: {permission.requiredPlan}
+                                    يتطلب: {getPlanNameAr(permission.requiredPlan)}
                                   </span>
                                 )}
                               </div>
