@@ -8,8 +8,14 @@ coverage/
 .env
 .env.*
 *.local
-# ?????? ?????
-.data/
+# بيانات مهمة
+# حفظ الملفات المهمة في .data
+.data/*
+!.data/db.json
+!.data/users.json
+!.data/properties.json
+!.data/tasks.json
+!.data/notifications.json
 # ?????
 npm-debug.log*
 yarn-debug.log*
