@@ -28,6 +28,9 @@ interface Property {
   status?: string;
   published?: boolean;
   amenities?: string[];
+  isUnit?: boolean;
+  parentPropertyId?: string;
+  referenceNo?: string;
 }
 
 export default function PropertiesPage() {
@@ -69,23 +72,77 @@ export default function PropertiesPage() {
           if (response.ok) {
             const data = await response.json();
             console.log('📊 API Response keys:', Object.keys(data));
-            console.log('📊 API Response:', data);
             const props = data.properties || data.items || [];
             console.log('🏘️ Total properties from API:', props.length);
-            console.log('📝 Properties:', props);
-            const filtered = props.filter((p: Property) => p.published !== false);
-            console.log('✅ Published properties:', filtered.length);
-            console.log('✅ Filtered:', filtered);
+            
+            // استخراج الوحدات من العقارات متعددة الوحدات
+            const allItems: Property[] = [];
+            
+            for (const property of props) {
+              // إضافة العقار الرئيسي (إذا لم يكن parent مخفي)
+              if (!property.isParent || property.published !== false) {
+                allItems.push(property);
+              }
+              
+              // استخراج الوحدات المنشورة وإضافتها كعقارات منفصلة
+              if (property.units && Array.isArray(property.units)) {
+                for (const unit of property.units) {
+                  if (unit.published !== false) {
+                    allItems.push({
+                      ...unit,
+                      id: unit.id,
+                      referenceNo: unit.referenceNo || `UNIT-${property.referenceNo || property.id}-${unit.unitNo}`,
+                      isUnit: true,
+                      parentPropertyId: property.id,
+                      
+                      // نسخ البيانات من الأم
+                      titleAr: unit.titleAr || `وحدة ${unit.unitNo} - ${property.titleAr || ''}`,
+                      title: unit.title || `وحدة ${unit.unitNo} - ${property.titleAr || ''}`,
+                      province: unit.province || property.province,
+                      state: unit.state || property.state,
+                      city: unit.city || property.city,
+                      
+                      // السعر من الوحدة
+                      priceOMR: unit.price || unit.priceOMR || unit.rentalPrice,
+                      rentalPrice: unit.rentalPrice || unit.price,
+                      
+                      // التفاصيل
+                      beds: unit.beds || unit.bedrooms,
+                      baths: unit.baths || unit.bathrooms,
+                      area: unit.area,
+                      type: unit.type || 'apartment',
+                      purpose: unit.purpose || property.purpose || 'rent',
+                      
+                      // الصور
+                      images: unit.images && unit.images.length > 0 ? unit.images : property.images,
+                      coverImage: unit.coverImage || (unit.images && unit.images[0]),
+                      coverIndex: unit.coverIndex || 0,
+                      
+                      // الحالة
+                      status: unit.status,
+                      published: unit.published !== false,
+                      amenities: [...(property.amenities || []), ...(unit.amenities || [])],
+                    });
+                  }
+                }
+              }
+            }
+            
+            console.log('🏘️ Total items (properties + units):', allItems.length);
+            
+            // فلترة المنشورة فقط
+            const filtered = allItems.filter((p: Property) => p.published !== false);
+            console.log('✅ Published items:', filtered.length);
             setProperties(filtered);
         
-        // Trending properties (محاكاة)
-        const trending = props
-          .filter((p: Property) => p.promoted || p.rating && p.rating >= 4)
-          .slice(0, 3);
-        setTrendingProperties(trending);
+            // Trending properties (محاكاة)
+            const trending = filtered
+              .filter((p: Property) => p.promoted || p.rating && p.rating >= 4)
+              .slice(0, 3);
+            setTrendingProperties(trending);
           }
         } catch (error) {
-      console.error('Error loading properties:', error);
+          console.error('Error loading properties:', error);
         } finally {
           setLoading(false);
     }
@@ -412,6 +469,11 @@ function PropertyCard({ property, featured = false, viewMode = 'grid' }: {
                 <FaFire /> مميز
               </div>
             )}
+            {property.isUnit && (
+              <div className="absolute top-2 left-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
+                <FaBuilding /> وحدة
+              </div>
+            )}
           </div>
           
           <div className="flex-1">
@@ -473,6 +535,12 @@ function PropertyCard({ property, featured = false, viewMode = 'grid' }: {
           {featured && (
             <div className="absolute top-3 right-3 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg">
               <FaFire /> مميز
+            </div>
+          )}
+          
+          {property.isUnit && !featured && (
+            <div className="absolute top-3 right-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg">
+              <FaBuilding /> وحدة
             </div>
           )}
 

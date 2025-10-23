@@ -294,9 +294,15 @@ function PropertyDetailsPage() {
       loadPropertyBadges();
       loadSimilarProperties();
       loadCurrentUser();
-      checkMultiUnitBuilding();
     }
   }, [id]);
+  
+  // فحص الوحدات بعد تحميل بيانات العقار
+  useEffect(() => {
+    if (property) {
+      checkMultiUnitBuilding();
+    }
+  }, [property]);
 
   // تحميل رؤى الذكاء الاصطناعي
   const loadAIInsights = async () => {
@@ -617,8 +623,11 @@ function PropertyDetailsPage() {
   // Check if property is part of multi-unit building
   const checkMultiUnitBuilding = async () => {
     try {
-      // محاكاة فحص إذا كان العقار جزء من مبنى متعدد الوحدات
-      if (property?.buildingType === 'multi' && property?.totalUnits && parseInt(property.totalUnits) > 1) {
+      // فحص إذا كان العقار متعدد الوحدات وله units[]
+      const hasUnits = property?.units && Array.isArray(property.units) && property.units.length > 0;
+      const isMulti = property?.buildingType === 'multi' || hasUnits;
+      
+      if (isMulti && hasUnits) {
         setIsMultiUnitBuilding(true);
         await loadBuildingUnits();
       } else {
@@ -632,9 +641,32 @@ function PropertyDetailsPage() {
   // Load Building Units
   const loadBuildingUnits = async () => {
     try {
-      // محاكاة بيانات وحدات المبنى
-      const mockUnits: BuildingUnit[] = []; // تم إزالة البيانات الوهمية
-      setBuildingUnits(mockUnits);
+      // تحميل الوحدات الحقيقية من property.units[]
+      if (!property?.units || !Array.isArray(property.units)) {
+        setBuildingUnits([]);
+        return;
+      }
+      
+      const units: BuildingUnit[] = property.units.map((unit: any, index: number) => ({
+        id: unit.id || `unit-${index}`,
+        unitNumber: unit.unitNo || `${index + 1}`,
+        floor: unit.floor || Math.floor(index / 4) + 1,
+        type: unit.type || 'apartment',
+        beds: unit.beds || unit.bedrooms || 2,
+        baths: unit.baths || unit.bathrooms || 1,
+        area: unit.area || 0,
+        price: unit.rentalPrice || unit.price || 0,
+        status: unit.status || 'available',
+        images: unit.images || property.images || [],
+        tenantName: unit.tenantName || '',
+        leaseStartDate: unit.leaseStartDate || '',
+        leaseEndDate: unit.leaseEndDate || '',
+        monthlyRent: unit.rentalPrice || unit.price || 0,
+        deposit: unit.deposit || 0,
+      }));
+      
+      console.log('📦 Loaded building units:', units.length);
+      setBuildingUnits(units);
     } catch (error) {
       console.error('Error loading building units:', error);
     }
@@ -1887,30 +1919,21 @@ function PropertyDetailsPage() {
                               
                               {/* Actions */}
                               <div className="flex gap-2">
-                                {unit.published && unit.permissions.includes('view') && (
-              <Link
-                                    href={`/properties/${unit.id}`}
-                                    className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm text-center hover:bg-blue-700 transition-colors"
-              >
-                                    عرض التفاصيل
-              </Link>
-                                )}
+                                <InstantLink
+                                  href={`/properties/${unit.id}`}
+                                  className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm text-center hover:bg-blue-700 transition-colors"
+                                >
+                                  عرض التفاصيل
+                                </InstantLink>
                                 {unit.status === 'available' && (
-                                  <button
-                                    onClick={() => handleBookUnit()}
-                                    className="flex-1 bg-green-600 text-white py-2 px-3 rounded text-sm hover:bg-green-700 transition-colors"
+                                  <InstantLink
+                                    href={`/properties/${unit.id}/book`}
+                                    className="flex-1 bg-green-600 text-white py-2 px-3 rounded text-sm text-center hover:bg-green-700 transition-colors"
                                   >
-                                    حجز
-                                  </button>
+                                    حجز الآن
+                                  </InstantLink>
                                 )}
                               </div>
-                              
-                              {/* Permission Notice */}
-                              {!unit.published && (
-                                <div className="mt-2 text-xs text-gray-500 text-center">
-                                  هذه الوحدة غير متاحة للعرض العام
-                                </div>
-                              )}
                             </div>
                           </div>
                         ))}
