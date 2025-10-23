@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * API: GET/PUT /api/admin/notifications/templates
  * Stores templates in .data/notifications-templates.json

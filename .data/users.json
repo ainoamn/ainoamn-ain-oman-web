@@ -1,4 +1,387 @@
-{
-  "users": [],
-  "lastId": 0
-}
+[
+  {
+    "id": "OWNER-000",
+    "name": "عبدالحميد - مالك الموقع",
+    "email": "owner@byfpro.com",
+    "password": "ByfPro@2025",
+    "phone": "+968 99999999",
+    "role": "site_owner",
+    "status": "active",
+    "isVerified": true,
+    "permissions": ["*"],
+    "profile": {
+      "avatar": "https://ui-avatars.com/api/?name=عبدالحميد&background=7c3aed&color=fff&size=200",
+      "company": "ByfPro - عين عُمان",
+      "location": "مسقط، سلطنة عُمان",
+      "lastLogin": "2025-01-23T15:00:00Z",
+      "loginCount": 1523
+    },
+    "subscription": {
+      "plan": "site_owner",
+      "planName": "مالك الموقع",
+      "status": "active",
+      "expiresAt": "2099-12-31T23:59:59.999Z",
+      "remainingDays": 99999
+    },
+    "stats": {
+      "properties": 0,
+      "units": 0,
+      "bookings": 0,
+      "revenue": 0,
+      "tasks": 0,
+      "legalCases": 0
+    },
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "lastActive": "2025-01-23T15:00:00Z"
+  },
+  {
+    "id": "USER-001",
+    "name": "سعيد بن محمد الهنائي",
+    "email": "saeed.alhinai@ainoman.om",
+    "password": "Admin@2025",
+    "phone": "+968 92123456",
+    "role": "company_admin",
+    "status": "active",
+    "isVerified": true,
+    "permissions": ["*"],
+    "profile": {
+      "avatar": "https://ui-avatars.com/api/?name=سعيد+الهنائي&background=ef4444&color=fff&size=200",
+      "company": "شركة عين عُمان للإدارة العقارية",
+      "location": "مسقط، سلطنة عُمان",
+      "lastLogin": "2025-01-23T10:30:00Z",
+      "loginCount": 245
+    },
+    "subscription": {
+      "plan": "enterprise_unlimited",
+      "planName": "إدارة الشركة",
+      "status": "active",
+      "expiresAt": "2099-12-31T23:59:59.999Z",
+      "remainingDays": 99999
+    },
+    "stats": {
+      "properties": 0,
+      "units": 0,
+      "bookings": 0,
+      "revenue": 0,
+      "tasks": 0,
+      "legalCases": 0
+    },
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "lastActive": "2025-01-23T10:30:00Z"
+  },
+  {
+    "id": "USER-002",
+    "name": "خالد بن سالم العبري",
+    "email": "khalid.alabri@ainoman.om",
+    "password": "Owner@2025",
+    "phone": "+968 92234567",
+    "role": "property_owner",
+    "status": "active",
+    "isVerified": true,
+    "permissions": [],
+    "profile": {
+      "avatar": "https://ui-avatars.com/api/?name=خالد+العبري&background=10b981&color=fff&size=200",
+      "company": "مجموعة العبري العقارية",
+      "location": "صلالة، سلطنة عُمان",
+      "lastLogin": "2025-01-23T09:15:00Z",
+      "loginCount": 189
+    },
+    "subscription": {
+      "plan": "premium",
+      "planName": "الخطة المميزة",
+      "status": "active",
+      "expiresAt": "2025-12-31T23:59:59.999Z",
+      "remainingDays": 342
+    },
+    "stats": {
+      "properties": 8,
+      "units": 32,
+      "bookings": 15,
+      "revenue": 45000,
+      "tasks": 5,
+      "legalCases": 1
+    },
+    "createdAt": "2024-03-15T08:00:00.000Z",
+    "lastActive": "2025-01-23T09:15:00Z"
+  },
+  {
+    "id": "USER-003",
+    "name": "فاطمة بنت حمد البلوشية",
+    "email": "fatima.albalushi@ainoman.om",
+    "password": "Manager@2025",
+    "phone": "+968 92345678",
+    "role": "property_manager",
+    "status": "active",
+    "isVerified": true,
+    "permissions": [],
+    "profile": {
+      "avatar": "https://ui-avatars.com/api/?name=فاطمة+البلوشية&background=8b5cf6&color=fff&size=200",
+      "company": "شركة عين عُمان للإدارة العقارية",
+      "location": "مسقط، سلطنة عُمان",
+      "lastLogin": "2025-01-23T08:45:00Z",
+      "loginCount": 134
+    },
+    "subscription": {
+      "plan": "professional",
+      "planName": "الخطة الاحترافية",
+      "status": "active",
+      "expiresAt": "2025-10-31T23:59:59.999Z",
+      "remainingDays": 281
+    },
+    "stats": {
+      "properties": 5,
+      "units": 18,
+      "bookings": 8,
+      "revenue": 0,
+      "tasks": 12,
+      "legalCases": 0
+    },
+    "createdAt": "2024-05-20T10:00:00.000Z",
+    "lastActive": "2025-01-23T08:45:00Z"
+  },
+  {
+    "id": "USER-004",
+    "name": "عبدالله بن راشد الشحي",
+    "email": "abdullah.alshihi@ainoman.om",
+    "password": "Account@2025",
+    "phone": "+968 92456789",
+    "role": "accountant",
+    "status": "active",
+    "isVerified": true,
+    "permissions": [],
+    "profile": {
+      "avatar": "https://ui-avatars.com/api/?name=عبدالله+الشحي&background=f97316&color=fff&size=200",
+      "company": "شركة عين عُمان للإدارة العقارية",
+      "location": "مسقط، سلطنة عُمان",
+      "lastLogin": "2025-01-23T07:30:00Z",
+      "loginCount": 201
+    },
+    "subscription": {
+      "plan": "professional",
+      "planName": "الخطة الاحترافية",
+      "status": "active",
+      "expiresAt": "2025-11-30T23:59:59.999Z",
+      "remainingDays": 311
+    },
+    "stats": {
+      "properties": 0,
+      "units": 0,
+      "bookings": 0,
+      "revenue": 0,
+      "tasks": 28,
+      "legalCases": 0
+    },
+    "createdAt": "2024-04-10T09:00:00.000Z",
+    "lastActive": "2025-01-23T07:30:00Z"
+  },
+  {
+    "id": "USER-005",
+    "name": "يوسف بن علي المعمري",
+    "email": "youssef.almaamari@ainoman.om",
+    "password": "Legal@2025",
+    "phone": "+968 92567890",
+    "role": "legal_advisor",
+    "status": "active",
+    "isVerified": true,
+    "permissions": [],
+    "profile": {
+      "avatar": "https://ui-avatars.com/api/?name=يوسف+المعمري&background=dc2626&color=fff&size=200",
+      "company": "مكتب المعمري للاستشارات القانونية",
+      "location": "مسقط، سلطنة عُمان",
+      "lastLogin": "2025-01-22T16:20:00Z",
+      "loginCount": 98
+    },
+    "subscription": {
+      "plan": "professional",
+      "planName": "الخطة الاحترافية",
+      "status": "active",
+      "expiresAt": "2025-09-30T23:59:59.999Z",
+      "remainingDays": 250
+    },
+    "stats": {
+      "properties": 0,
+      "units": 0,
+      "bookings": 0,
+      "revenue": 0,
+      "tasks": 7,
+      "legalCases": 14
+    },
+    "createdAt": "2024-06-01T11:00:00.000Z",
+    "lastActive": "2025-01-22T16:20:00Z"
+  },
+  {
+    "id": "USER-006",
+    "name": "نورة بنت سعيد الحبسية",
+    "email": "noura.alhabsi@ainoman.om",
+    "password": "Sales@2025",
+    "phone": "+968 92678901",
+    "role": "sales_agent",
+    "status": "active",
+    "isVerified": true,
+    "permissions": [],
+    "profile": {
+      "avatar": "https://ui-avatars.com/api/?name=نورة+الحبسية&background=06b6d4&color=fff&size=200",
+      "company": "شركة عين عُمان للإدارة العقارية",
+      "location": "نزوى، سلطنة عُمان",
+      "lastLogin": "2025-01-23T11:00:00Z",
+      "loginCount": 167
+    },
+    "subscription": {
+      "plan": "professional",
+      "planName": "الخطة الاحترافية",
+      "status": "active",
+      "expiresAt": "2025-12-15T23:59:59.999Z",
+      "remainingDays": 326
+    },
+    "stats": {
+      "properties": 3,
+      "units": 0,
+      "bookings": 22,
+      "revenue": 12000,
+      "tasks": 9,
+      "legalCases": 0
+    },
+    "createdAt": "2024-07-10T13:00:00.000Z",
+    "lastActive": "2025-01-23T11:00:00Z"
+  },
+  {
+    "id": "USER-007",
+    "name": "محمد بن حمد السعيدي",
+    "email": "mohamed.alsaidi@ainoman.om",
+    "password": "Maint@2025",
+    "phone": "+968 92789012",
+    "role": "maintenance_staff",
+    "status": "active",
+    "isVerified": true,
+    "permissions": [],
+    "profile": {
+      "avatar": "https://ui-avatars.com/api/?name=محمد+السعيدي&background=6b7280&color=fff&size=200",
+      "company": "شركة عين عُمان للإدارة العقارية",
+      "location": "مسقط، سلطنة عُمان",
+      "lastLogin": "2025-01-23T06:00:00Z",
+      "loginCount": 312
+    },
+    "subscription": {
+      "plan": "staff",
+      "planName": "حساب موظف",
+      "status": "active",
+      "expiresAt": "2099-12-31T23:59:59.999Z",
+      "remainingDays": 99999
+    },
+    "stats": {
+      "properties": 0,
+      "units": 0,
+      "bookings": 0,
+      "revenue": 0,
+      "tasks": 45,
+      "legalCases": 0
+    },
+    "createdAt": "2024-02-20T07:00:00.000Z",
+    "lastActive": "2025-01-23T06:00:00Z"
+  },
+  {
+    "id": "USER-008",
+    "name": "أحمد بن عبدالله المحمودي",
+    "email": "ahmed.almahmoudi@gmail.com",
+    "password": "Tenant@2025",
+    "phone": "+968 92890123",
+    "role": "tenant",
+    "status": "active",
+    "isVerified": true,
+    "permissions": [],
+    "profile": {
+      "avatar": "https://ui-avatars.com/api/?name=أحمد+المحمودي&background=14b8a6&color=fff&size=200",
+      "company": "",
+      "location": "صحار، سلطنة عُمان",
+      "lastLogin": "2025-01-23T12:30:00Z",
+      "loginCount": 56
+    },
+    "subscription": {
+      "plan": "basic",
+      "planName": "الخطة المجانية",
+      "status": "active",
+      "expiresAt": "2099-12-31T23:59:59.999Z",
+      "remainingDays": 99999
+    },
+    "stats": {
+      "properties": 0,
+      "units": 1,
+      "bookings": 3,
+      "revenue": 0,
+      "tasks": 2,
+      "legalCases": 0
+    },
+    "createdAt": "2024-10-15T14:00:00.000Z",
+    "lastActive": "2025-01-23T12:30:00Z"
+  },
+  {
+    "id": "USER-009",
+    "name": "سلطان بن راشد البوسعيدي",
+    "email": "sultan.albusaidi@investors.om",
+    "password": "Invest@2025",
+    "phone": "+968 92901234",
+    "role": "investor",
+    "status": "active",
+    "isVerified": true,
+    "permissions": [],
+    "profile": {
+      "avatar": "https://ui-avatars.com/api/?name=سلطان+البوسعيدي&background=ec4899&color=fff&size=200",
+      "company": "مجموعة البوسعيدي للاستثمار",
+      "location": "مسقط، سلطنة عُمان",
+      "lastLogin": "2025-01-22T14:00:00Z",
+      "loginCount": 78
+    },
+    "subscription": {
+      "plan": "premium",
+      "planName": "الخطة المميزة",
+      "status": "active",
+      "expiresAt": "2026-01-23T23:59:59.999Z",
+      "remainingDays": 730
+    },
+    "stats": {
+      "properties": 0,
+      "units": 0,
+      "bookings": 0,
+      "revenue": 0,
+      "tasks": 0,
+      "legalCases": 0
+    },
+    "createdAt": "2024-08-01T10:00:00.000Z",
+    "lastActive": "2025-01-22T14:00:00Z"
+  },
+  {
+    "id": "USER-010",
+    "name": "مريم بنت حمد الشكيلية",
+    "email": "mariam.alshikaili@outlook.com",
+    "password": "Viewer@2025",
+    "phone": "+968 93012345",
+    "role": "customer_viewer",
+    "status": "active",
+    "isVerified": true,
+    "permissions": [],
+    "profile": {
+      "avatar": "https://ui-avatars.com/api/?name=مريم+الشكيلية&background=9ca3af&color=fff&size=200",
+      "company": "",
+      "location": "البريمي، سلطنة عُمان",
+      "lastLogin": "2025-01-23T13:45:00Z",
+      "loginCount": 23
+    },
+    "subscription": {
+      "plan": "free",
+      "planName": "مجاني",
+      "status": "active",
+      "expiresAt": "2099-12-31T23:59:59.999Z",
+      "remainingDays": 99999
+    },
+    "stats": {
+      "properties": 0,
+      "units": 0,
+      "bookings": 0,
+      "revenue": 0,
+      "tasks": 0,
+      "legalCases": 0
+    },
+    "createdAt": "2025-01-05T15:00:00.000Z",
+    "lastActive": "2025-01-23T13:45:00Z"
+  }
+]

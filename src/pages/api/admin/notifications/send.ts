@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * API: POST /api/admin/notifications/send
  * Simulates sending (email/whatsapp) & appends to log

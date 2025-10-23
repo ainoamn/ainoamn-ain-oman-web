@@ -1,4 +1,3 @@
-// @ts-nocheck
 // src/pages/api/user/notifications.ts - إشعارات المستخدم
 import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
@@ -58,10 +57,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   const { limit = 20, unreadOnly = false } = req.query;
-  const userId = String(req.query.userId || "");
-
+  
   let notifications = readNotifications();
-
+  
   // تصفية الإشعارات حسب المستخدم
   notifications = notifications.filter(notification => notification.userId === userId);
   
@@ -115,7 +113,6 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
 async function handlePatch(req: NextApiRequest, res: NextApiResponse) {
   const { notificationId, read } = req.body;
-  const userId = String(req.query.userId || "");
 
   if (!notificationId) {
     return res.status(400).json({ error: 'Notification ID is required' });

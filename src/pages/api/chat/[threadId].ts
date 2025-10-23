@@ -1,4 +1,3 @@
-// @ts-nocheck
 // src/pages/api/chat/[threadId].ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { readJson, writeJson } from "../../../server/fsdb";

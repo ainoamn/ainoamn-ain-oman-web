@@ -347,9 +347,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           return res.status(404).json({ error: 'المستخدم غير موجود' });
         }
 
-        // منع حذف المدير الرئيسي
-        if (users[deleteIndex].role === 'company_admin' || users[deleteIndex].id === 'USER-001') {
-          return res.status(403).json({ error: 'لا يمكن حذف المدير الرئيسي' });
+        // منع حذف المدير الرئيسي ومالك الموقع
+        if (users[deleteIndex].role === 'site_owner' || 
+            users[deleteIndex].role === 'company_admin' || 
+            users[deleteIndex].id === 'OWNER-000' || 
+            users[deleteIndex].id === 'USER-001') {
+          return res.status(403).json({ error: 'لا يمكن حذف مالك الموقع أو المدير الرئيسي' });
         }
 
         users.splice(deleteIndex, 1);

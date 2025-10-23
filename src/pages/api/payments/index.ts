@@ -1,18 +1,12 @@
-// @ts-nocheck
 // src/pages/api/payments/index.ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import fsdb from "@/server/fsdb";
-
-function genId(prefix = '') {
-  const n = Date.now().toString(36).toUpperCase();
-  return prefix ? `${prefix}-${n}` : n;
-}
+import { readJson, writeJson, genId } from "@/server/fsdb";
 
 type Payment = { id: string; bookingId: string; amount: number; method?: string; paidAt: string; meta?: any };
 
 const FILE = "payments.json";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
     const items = readJson<Payment[]>(FILE, []);
     return res.status(200).json(items);
@@ -28,9 +22,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       paidAt: new Date().toISOString(),
       meta: body.meta || {},
     };
-    const items = await fsdb.readJson<Payment[]>(FILE, []);
+    const items = readJson<Payment[]>(FILE, []);
     items.push(p);
-    await fsdb.writeJson(FILE, items);
+    writeJson(FILE, items);
     return res.status(201).json(p);
   }
 

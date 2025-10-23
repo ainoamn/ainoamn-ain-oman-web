@@ -28,6 +28,15 @@ interface RoleConfig {
 // الأدوار الافتراضية
 const DEFAULT_ROLES: RoleConfig[] = [
   {
+    id: 'site_owner',
+    name: { ar: 'مالك الموقع', en: 'Site Owner' },
+    description: { ar: 'المالك الرئيسي للموقع - أعلى صلاحية', en: 'Main site owner - highest authority' },
+    permissions: ['*'],
+    color: 'purple',
+    icon: '👨‍💼',
+    isActive: true
+  },
+  {
     id: 'company_admin',
     name: { ar: 'مدير الشركة', en: 'Company Admin' },
     description: { ar: 'صلاحيات كاملة لإدارة النظام', en: 'Full system administration' },

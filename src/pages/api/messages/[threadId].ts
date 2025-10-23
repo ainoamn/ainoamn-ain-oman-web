@@ -13,9 +13,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === "POST") {
-    const { senderId, toId, propertyId, text } = req.body || {};
-    if (!senderId || !toId || !text || !propertyId) return res.status(400).json({ error: "Missing fields" });
-    const msg = await addMessage({ propertyId: String(propertyId), fromId: String(senderId), toId: String(toId), text: String(text) });
+    const { senderId, text } = req.body || {};
+    if (!senderId || !text) return res.status(400).json({ error: "Missing fields" });
+    const msg = await addMessage(String(tid), String(senderId), String(text));
     const data = await getThread(String(tid));
     return res.status(200).json({ ok:true, last: msg, messages: data.messages });
   }

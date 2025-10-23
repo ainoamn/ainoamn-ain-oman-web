@@ -1,9 +1,8 @@
-// @ts-nocheck
 // src/pages/api/tasks/invite.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdminApi } from "@/server/auth";
 import { getTask, updateTask, type TaskAccessRole } from "@/server/tasks";
-import { sendEmail, sendWhatsApp } from "@/server/notify";
+import { sendEmail, sendWhatsapp } from "@/server/notify";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!requireAdminApi(req, res)) return;
@@ -33,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (v.includes("@")) {
       await sendEmail({ to: v, subject: `دعوة لمهمة ${t.serial}`, text }).catch(()=>null);
     } else {
-      await sendWhatsApp({ to: v, body: text }).catch(()=>null);
+      await sendWhatsapp({ to: v, body: text }).catch(()=>null);
     }
   }
 

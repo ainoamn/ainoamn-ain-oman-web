@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * API: GET/DELETE /api/admin/notifications/log
  * - GET: ?page=1&pageSize=50
