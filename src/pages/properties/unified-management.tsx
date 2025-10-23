@@ -1306,7 +1306,8 @@ export default function UnifiedPropertyManagement() {
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
                         {getFilteredData().map((property: Property) => (
-                          <tr key={property.id} className="hover:bg-gray-50 transition-colors duration-200">
+                          <React.Fragment key={property.id}>
+                          <tr className="hover:bg-gray-50 transition-colors duration-200">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
                                 <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0 ml-3">
@@ -1468,7 +1469,7 @@ export default function UnifiedPropertyManagement() {
                               </td>
                             </tr>
                           )}
-                          
+                          </React.Fragment>
                         ))}
                       </tbody>
                     </table>
