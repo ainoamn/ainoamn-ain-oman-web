@@ -515,29 +515,47 @@ export default function BuildingUnitsManager({
                       {/* Unit Actions */}
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                         <InstantLink
-                          href={`/properties/${property.id}?unit=${unit.id}`}
+                          href={`/properties/${unit.id || property.id}`}
                           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center"
-                          title="عرض تفاصيل الوحدة"
+                          title="عرض تفاصيل الوحدة فقط"
                         >
                           <FaEye className="ml-1" />
                           عرض
                         </InstantLink>
                         
                         <InstantLink
-                          href={`/properties/${property.id}/edit?unit=${unit.id}`}
+                          href={`/properties/${unit.id || property.id}/edit`}
                           className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center"
-                          title="تعديل الوحدة"
+                          title="تعديل الوحدة فقط"
                         >
                           <FaEdit className="ml-1" />
                           تعديل
                         </InstantLink>
                         
                         <button
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            if (onPublishUnit) {
-                              onPublishUnit(unit.id, !(unit.published !== false));
+                            
+                            const newPublished = !(unit.published !== false);
+                            
+                            try {
+                              const response = await fetch(`/api/units/${unit.id}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ published: newPublished })
+                              });
+                              
+                              if (response.ok) {
+                                alert(`✅ تم ${newPublished ? 'نشر' : 'إخفاء'} الوحدة بنجاح`);
+                                if (onPublishUnit) onPublishUnit(unit.id, newPublished);
+                                window.location.reload();
+                              } else {
+                                alert('❌ فشل تحديث حالة النشر');
+                              }
+                            } catch (error) {
+                              console.error('Error publishing unit:', error);
+                              alert('❌ حدث خطأ');
                             }
                           }}
                           className={`${
@@ -545,7 +563,7 @@ export default function BuildingUnitsManager({
                               ? 'bg-orange-600 hover:bg-orange-700'
                               : 'bg-purple-600 hover:bg-purple-700'
                           } text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center`}
-                          title={unit.published !== false ? 'إخفاء الوحدة' : 'نشر الوحدة'}
+                          title={unit.published !== false ? 'إخفاء الوحدة فقط' : 'نشر الوحدة فقط'}
                         >
                           {unit.published !== false ? (
                             <>
@@ -561,32 +579,64 @@ export default function BuildingUnitsManager({
                         </button>
                         
                         <button
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            if (onArchiveUnit) {
-                              onArchiveUnit(unit.id);
+                            
+                            try {
+                              const response = await fetch(`/api/units/${unit.id}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ status: 'archived', published: false })
+                              });
+                              
+                              if (response.ok) {
+                                alert('✅ تم أرشفة الوحدة بنجاح');
+                                if (onArchiveUnit) onArchiveUnit(unit.id);
+                                window.location.reload();
+                              } else {
+                                alert('❌ فشل أرشفة الوحدة');
+                              }
+                            } catch (error) {
+                              console.error('Error archiving unit:', error);
+                              alert('❌ حدث خطأ');
                             }
                           }}
                           className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center"
-                          title="أرشفة الوحدة"
+                          title="أرشفة الوحدة فقط"
                         >
                           <FaArchive className="ml-1" />
                           أرشفة
                         </button>
                         
                         <button
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            if (confirm(`هل أنت متأكد من حذف وحدة ${unit.unitNo}؟`)) {
-                              if (onDeleteUnit) {
-                                onDeleteUnit(unit.id);
+                            
+                            if (!confirm(`هل أنت متأكد من حذف وحدة ${unit.unitNo}؟\n\nهذا سيحذف الوحدة فقط وليس العقار الأم.`)) {
+                              return;
+                            }
+                            
+                            try {
+                              const response = await fetch(`/api/units/${unit.id}`, {
+                                method: 'DELETE'
+                              });
+                              
+                              if (response.ok) {
+                                alert('✅ تم حذف الوحدة بنجاح');
+                                if (onDeleteUnit) onDeleteUnit(unit.id);
+                                window.location.reload();
+                              } else {
+                                alert('❌ فشل حذف الوحدة');
                               }
+                            } catch (error) {
+                              console.error('Error deleting unit:', error);
+                              alert('❌ حدث خطأ');
                             }
                           }}
                           className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center"
-                          title="حذف الوحدة"
+                          title="حذف الوحدة فقط"
                         >
                           <FaTrash className="ml-1" />
                           حذف
