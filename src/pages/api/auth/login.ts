@@ -15,22 +15,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'البريد الإلكتروني وكلمة المرور مطلوبان' });
     }
 
-    // قراءة الحسابات التجريبية
+    // قراءة الحسابات التجريبية من كلا الملفين
     const demoUsersPath = path.join(process.cwd(), '.data', 'demo-users.json');
     const allAccountsPath = path.join(process.cwd(), '.data', 'all-demo-accounts.json');
     
     let users: any[] = [];
     
-    // محاولة قراءة من demo-users أولاً
+    // قراءة من demo-users.json
     if (fs.existsSync(demoUsersPath)) {
       const demoData = JSON.parse(fs.readFileSync(demoUsersPath, 'utf8'));
-      users = Array.isArray(demoData) ? demoData : [];
+      const demoUsers = Array.isArray(demoData) ? demoData : [];
+      users = [...users, ...demoUsers];
     }
     
-    // إذا لم توجد، جرب all-demo-accounts
-    if (users.length === 0 && fs.existsSync(allAccountsPath)) {
+    // قراءة من all-demo-accounts.json
+    if (fs.existsSync(allAccountsPath)) {
       const allData = JSON.parse(fs.readFileSync(allAccountsPath, 'utf8'));
-      users = Array.isArray(allData) ? allData : [];
+      const allUsers = Array.isArray(allData) ? allData : (allData.accounts || []);
+      users = [...users, ...allUsers];
     }
 
     // البحث عن المستخدم
