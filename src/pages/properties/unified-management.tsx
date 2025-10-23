@@ -1617,37 +1617,31 @@ export default function UnifiedPropertyManagement() {
                           </button>
                         </div>
                       </div>
+                      
+                      {/* Building Units Manager Component */}
+                      {property.buildingType === 'multi' && (
+                        <BuildingUnitsManager
+                          property={property}
+                          onDeleteUnit={(unitId) => {
+                            console.log('Delete unit:', unitId);
+                          }}
+                          onEditUnit={(unitId) => {
+                            console.log('Edit unit:', unitId);
+                          }}
+                          onViewUnit={(unitId) => {
+                            console.log('View unit:', unitId);
+                          }}
+                          onArchiveUnit={(unitId) => {
+                            console.log('Archive unit:', unitId);
+                          }}
+                          onPublishUnit={(unitId, published) => {
+                            console.log('Publish unit:', unitId, published);
+                          }}
+                          onDeleteProperty={(propertyId) => deleteProperty(propertyId)}
+                        />
+                      )}
 
                     </div>
-                    
-                    {/* Building Units Manager Component */}
-                    {property.buildingType === 'multi' && (
-                      <BuildingUnitsManager
-                        property={property}
-                        onDeleteUnit={(unitId) => {
-                          console.log('Delete unit:', unitId);
-                          // يمكن إضافة API call هنا
-                        }}
-                        onEditUnit={(unitId) => {
-                          console.log('Edit unit:', unitId);
-                          // يمكن فتح modal تعديل أو الانتقال لصفحة التعديل
-                        }}
-                        onViewUnit={(unitId) => {
-                          console.log('View unit:', unitId);
-                          // يمكن فتح modal عرض أو الانتقال لصفحة التفاصيل
-                        }}
-                        onArchiveUnit={(unitId) => {
-                          console.log('Archive unit:', unitId);
-                          // يمكن إضافة API call هنا
-                        }}
-                        onPublishUnit={(unitId, published) => {
-                          console.log('Publish unit:', unitId, published);
-                          // يمكن إضافة API call هنا
-                        }}
-                        onDeleteProperty={(propertyId) => deleteProperty(propertyId)}
-                      />
-                    )}
-                    
                   ))}
                 </div>
               </div>
