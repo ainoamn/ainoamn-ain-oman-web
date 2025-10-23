@@ -1,23 +1,523 @@
-أنا أعمل على مشروع Ain Oman Web في المسار: C:\dev\ain-oman-web
+================================================================================
+🚀 تعليمات بدء الجلسة - START SESSION CHECKLIST
+================================================================================
 
-قم بالتالي بالترتيب:
+📅 آخر تحديث: 23 أكتوبر 2025
+⏰ الوقت: 19:45
+🎯 المشروع: Ain Oman Web - منصة عقارات متقدمة
+📂 المسار: C:\dev\ain-oman-web
+🌐 GitHub: https://github.com/ainoamn/ainoamn-ain-oman-web
 
-1.اسحب كل الملفات الموجوده في https://github.com/ainoamn/ainoamn-ain-oman-web
-2.اقرأ ملف C:\dev\ain-oman-web\CONVERSATION_HISTORY.md لفهم العمل السابق
+================================================================================
+⚠️ مهم جداً: نفذ هذا الملف في بداية كل جلسة عمل على أي جهاز
+================================================================================
 
-3. اقرأ ملف C:\dev\ain-oman-web\PROJECT_GUIDE.md لفهم المعايير والتقنيات
+## 🚀 نسخ سريع - للتنفيذ المباشر (COPY & PASTE)
 
-4. قدم لي ملخصاً مختصراً (10-30 نقاط) يحتوي على:
-   - 📅 تاريخ ووقت آخر تحديث للملفات
-   - ✅ آخر 10 إنجازات تمت
-   - 🔄 المهام المتبقية (إن وجدت)
-   - ⚠️ أي مشاكل معروفة
-   - 🎯 التقنيات الأساسية المستخدمة
-5. شغل السيرفر 
-6. ثم اسألني: "ما الذي تريد العمل عليه اليوم؟"
+### ⚡ انسخ هذه الأوامر ونفذها في PowerShell عند بدء الجلسة:
 
-ملاحظات مهمة:
-- التزم بجميع المعايير في PROJECT_GUIDE.md
-- استخدم: InstantLink، toSafeText، useBookings، formatDate (ميلادي)
-- لا تستورد Header/Footer مباشرة
-- عند إنشاء/تعديل ملفات، تجنب التكرار والتضارب
+```powershell
+# ═══════════════════════════════════════════════════════════════════════════
+# 🚀 أوامر بدء الجلسة - يجب تنفيذها في بداية كل جلسة
+# ═══════════════════════════════════════════════════════════════════════════
+
+# 1️⃣ الانتقال لمجلد المشروع
+Write-Host "`n=== 1. Navigating to Project ===" -ForegroundColor Yellow
+cd C:\dev\ain-oman-web
+
+# 2️⃣ التحقق من حالة Git الحالية
+Write-Host "`n=== 2. Checking Git Status ===" -ForegroundColor Yellow
+git status
+
+# 3️⃣ حفظ أي تغييرات محلية مؤقتاً (إذا وجدت)
+Write-Host "`n=== 3. Stashing Local Changes (if any) ===" -ForegroundColor Yellow
+$stashOutput = git stash
+Write-Host $stashOutput -ForegroundColor Cyan
+
+# 4️⃣ سحب جميع التحديثات من GitHub
+Write-Host "`n=== 4. Pulling Latest Changes from GitHub ===" -ForegroundColor Yellow
+git fetch origin
+git pull origin main
+
+# 5️⃣ استرجاع التغييرات المحلية المؤقتة (إذا تم حفظها)
+Write-Host "`n=== 5. Restoring Local Changes (if any) ===" -ForegroundColor Yellow
+if ($stashOutput -ne "No local changes to save") {
+    git stash pop
+    Write-Host "Local changes restored" -ForegroundColor Green
+} else {
+    Write-Host "No local changes to restore" -ForegroundColor Cyan
+}
+
+# 6️⃣ تحديث Dependencies (إذا تغيرت)
+Write-Host "`n=== 6. Checking for Dependency Updates ===" -ForegroundColor Yellow
+if ((Test-Path package-lock.json) -and ((Get-Item package-lock.json).LastWriteTime -gt (Get-Date).AddDays(-1))) {
+    Write-Host "Running npm install..." -ForegroundColor Yellow
+    npm install
+} else {
+    Write-Host "Dependencies are up to date" -ForegroundColor Green
+}
+
+# 7️⃣ التحقق من الملفات المهمة
+Write-Host "`n=== 7. Verifying Critical Files ===" -ForegroundColor Green
+$critical = @{
+    "db.json" = (Test-Path .data\db.json)
+    "users.json" = (Test-Path .data\users.json)
+    "package.json" = (Test-Path package.json)
+    "next.config.js" = (Test-Path next.config.js)
+}
+
+foreach ($file in $critical.GetEnumerator()) {
+    if ($file.Value) {
+        Write-Host "✅ $($file.Key) - Found" -ForegroundColor Green
+    } else {
+        Write-Host "❌ $($file.Key) - MISSING!" -ForegroundColor Red
+    }
+}
+
+# 8️⃣ عرض معلومات المشروع
+Write-Host "`n=== 8. Project Information ===" -ForegroundColor Cyan
+Write-Host "Total Commits: $(git rev-list --count HEAD)" -ForegroundColor White
+Write-Host "Latest Commit: $(git log --oneline -1)" -ForegroundColor White
+Write-Host "Data Files: $(git ls-files .data/ | Measure-Object -Line | Select-Object -ExpandProperty Lines)" -ForegroundColor White
+Write-Host "Branch: $(git branch --show-current)" -ForegroundColor White
+
+# 9️⃣ فحص حجم الملفات المهمة
+Write-Host "`n=== 9. File Sizes ===" -ForegroundColor Cyan
+if (Test-Path .data\db.json) {
+    $dbSize = (Get-Item .data\db.json).Length / 1MB
+    Write-Host "db.json: $([math]::Round($dbSize, 2)) MB" -ForegroundColor White
+}
+if (Test-Path .data\users.json) {
+    $usersSize = (Get-Item .data\users.json).Length / 1KB
+    Write-Host "users.json: $([math]::Round($usersSize, 2)) KB" -ForegroundColor White
+}
+
+# 🔟 تشغيل السيرفر
+Write-Host "`n=== 10. Starting Development Server ===" -ForegroundColor Green
+Write-Host "Opening: http://localhost:3000" -ForegroundColor Yellow
+Write-Host "Press Ctrl+C to stop the server`n" -ForegroundColor Yellow
+npm run dev
+
+# ═══════════════════════════════════════════════════════════════════════════
+```
+
+### 📝 ملاحظة:
+- إذا كانت هذه أول مرة على هذا الجهاز، استخدم أوامر **السيناريو الأول** أدناه
+
+================================================================================
+
+## 🆕 السيناريو الأول: أول مرة على هذا الجهاز
+
+### ⚡ انسخ هذه الأوامر إذا كان المشروع غير موجود:
+
+```powershell
+# ═══════════════════════════════════════════════════════════════════════════
+# 🆕 أول مرة - Clone المشروع من GitHub
+# ═══════════════════════════════════════════════════════════════════════════
+
+# 1️⃣ الانتقال للمجلد الأب
+Write-Host "`n=== 1. Navigating to Parent Directory ===" -ForegroundColor Yellow
+cd C:\dev  # أو أي مجلد تريده
+
+# 2️⃣ Clone المشروع من GitHub
+Write-Host "`n=== 2. Cloning Project from GitHub ===" -ForegroundColor Yellow
+git clone https://github.com/ainoamn/ainoamn-ain-oman-web.git
+
+# 3️⃣ الدخول لمجلد المشروع
+Write-Host "`n=== 3. Entering Project Directory ===" -ForegroundColor Yellow
+cd ainoamn-ain-oman-web
+
+# 4️⃣ تثبيت Dependencies
+Write-Host "`n=== 4. Installing Dependencies ===" -ForegroundColor Yellow
+Write-Host "This may take 2-5 minutes..." -ForegroundColor Cyan
+npm install
+
+# 5️⃣ التحقق من الملفات المهمة
+Write-Host "`n=== 5. Verifying Critical Files ===" -ForegroundColor Green
+$files = @("db.json", "users.json", "properties.json", "roles-config.json")
+foreach ($file in $files) {
+    if (Test-Path ".data\$file") {
+        Write-Host "✅ .data\$file - Found" -ForegroundColor Green
+    } else {
+        Write-Host "❌ .data\$file - MISSING!" -ForegroundColor Red
+    }
+}
+
+# 6️⃣ عرض معلومات المشروع
+Write-Host "`n=== 6. Project Information ===" -ForegroundColor Cyan
+Write-Host "Repository: https://github.com/ainoamn/ainoamn-ain-oman-web" -ForegroundColor White
+Write-Host "Branch: $(git branch --show-current)" -ForegroundColor White
+Write-Host "Latest Commit: $(git log --oneline -1)" -ForegroundColor White
+
+# 7️⃣ تشغيل السيرفر
+Write-Host "`n=== 7. Starting Development Server ===" -ForegroundColor Green
+Write-Host "Opening: http://localhost:3000" -ForegroundColor Yellow
+Write-Host "Press Ctrl+C to stop the server`n" -ForegroundColor Yellow
+npm run dev
+
+# ═══════════════════════════════════════════════════════════════════════════
+```
+
+================================================================================
+
+## 📋 قائمة التحقق التفصيلية (Manual Checklist)
+
+إذا كنت تفضل التنفيذ اليدوي، اتبع هذه الخطوات:
+
+### ✅ الخطوة 1: التحقق من Git
+
+```bash
+# التحقق من الحالة الحالية
+git status
+
+# التحقق من الـ remote
+git remote -v
+# يجب أن ترى: origin https://github.com/ainoamn/ainoamn-ain-oman-web.git
+
+# التحقق من الـ branch
+git branch --show-current
+# يجب أن يكون: main
+```
+
+### ✅ الخطوة 2: سحب جميع التحديثات
+
+```bash
+# حفظ التغييرات المحلية مؤقتاً (إن وجدت)
+git stash
+
+# سحب آخر التحديثات
+git fetch origin
+git pull origin main
+
+# استرجاع التغييرات المحلية
+git stash pop
+```
+
+**النتيجة المتوقعة:**
+```
+Already up to date.
+# أو
+Updating xxxxx..yyyyy
+Fast-forward
+ .data/db.json              | 100 ++++++
+ src/pages/properties/...   | 50 ++++
+ ...
+```
+
+### ✅ الخطوة 3: تحديث Dependencies
+
+```bash
+# فقط إذا تغير package.json
+npm install
+
+# أو للتحقق السريع
+npm ci  # أسرع وأدق
+```
+
+### ✅ الخطوة 4: التحقق من الملفات المهمة
+
+```bash
+# التحقق من وجود الملفات
+Test-Path .data\db.json        # يجب أن يكون True
+Test-Path .data\users.json     # يجب أن يكون True
+Test-Path package.json         # يجب أن يكون True
+
+# التحقق من حجم db.json
+(Get-Item .data\db.json).Length / 1MB  # يجب أن يكون > 3 MB
+```
+
+### ✅ الخطوة 5: قراءة الملفات المرجعية
+
+#### 5.1 قراءة CONVERSATION_HISTORY.md
+```bash
+# اقرأ آخر مرحلة (المرحلة 27 حالياً)
+# لفهم آخر ما تم إنجازه
+```
+
+**ما تبحث عنه:**
+- ✅ آخر تاريخ تحديث
+- ✅ المهام المنجزة
+- ✅ الأخطاء المُصلحة
+- ✅ التقنيات الجديدة
+
+#### 5.2 قراءة PROJECT_GUIDE.md
+```bash
+# لفهم المعايير والتقنيات
+```
+
+**ما تبحث عنه:**
+- ✅ معايير الكود (InstantLink, toSafeText)
+- ✅ التقنيات المستخدمة
+- ✅ هيكل المشروع
+- ✅ Best Practices
+
+#### 5.3 قراءة SESSION_*.md الأخير
+```bash
+# اقرأ sessions/SESSION_2025-10-23.md
+# لمعرفة آخر جلسة عمل
+```
+
+### ✅ الخطوة 6: تشغيل السيرفر
+
+```bash
+npm run dev
+```
+
+**النتيجة المتوقعة:**
+```
+> ain-oman-web@0.1.0 dev
+> next dev
+
+- ready started server on 0.0.0.0:3000, url: http://localhost:3000
+- event compiled client and server successfully in 2.5s
+```
+
+**افتح المتصفح:** http://localhost:3000
+
+### ✅ الخطوة 7: التحقق من عمل النظام
+
+#### اختبار سريع:
+1. افتح: http://localhost:3000
+2. افتح: http://localhost:3000/properties
+3. سجل دخول بأحد الحسابات:
+   - `owner@byfpro.com` / `ByfPro@2025` (Site Owner)
+   - `admin@ainoman.om` / `Admin@2025` (Admin)
+
+#### يجب أن ترى:
+- ✅ الصفحة الرئيسية تعمل
+- ✅ صفحة العقارات تعرض 20+ عقار
+- ✅ الوحدات تظهر مع شارة "وحدة"
+- ✅ تسجيل الدخول يعمل
+- ✅ لوحة التحكم تعمل
+
+================================================================================
+
+## ⚠️ استكشاف الأخطاء وحلها
+
+### المشكلة 1: "fatal: not a git repository"
+**الحل:**
+```bash
+# المشروع غير موجود - استخدم أوامر السيناريو الأول
+cd C:\dev
+git clone https://github.com/ainoamn/ainoamn-ain-oman-web.git
+```
+
+### المشكلة 2: "db.json not found" أو حجمه صغير
+**الحل:**
+```bash
+# الملف لم يُسحب بشكل صحيح
+git pull origin main --force
+
+# أو احذف وأعد Clone
+cd C:\dev
+Remove-Item -Recurse -Force ain-oman-web
+git clone https://github.com/ainoamn/ainoamn-ain-oman-web.git
+```
+
+### المشكلة 3: "merge conflict"
+**الحل:**
+```bash
+# احفظ تغييراتك
+git stash
+
+# اسحب التحديثات
+git pull origin main
+
+# استرجع تغييراتك
+git stash pop
+
+# حل الـ conflicts يدوياً ثم:
+git add .
+git commit -m "fix: resolve merge conflicts"
+```
+
+### المشكلة 4: "ENOENT: no such file or directory, scandir 'node_modules'"
+**الحل:**
+```bash
+# Dependencies غير مثبتة
+npm install
+
+# أو احذف وأعد التثبيت
+Remove-Item -Recurse -Force node_modules
+npm install
+```
+
+### المشكلة 5: "Port 3000 is already in use"
+**الحل:**
+```bash
+# أوقف العملية على Port 3000
+netstat -ano | findstr :3000
+# ثم:
+taskkill /PID [رقم العملية] /F
+
+# أو استخدم port آخر
+$env:PORT=3001; npm run dev
+```
+
+### المشكلة 6: صفحة فارغة أو "لا توجد عقارات"
+**الحل:**
+```bash
+# تحقق من db.json
+Test-Path .data\db.json
+(Get-Item .data\db.json).Length / 1MB  # يجب أن يكون > 3 MB
+
+# إذا كان صغيراً أو مفقوداً:
+git pull origin main --force
+```
+
+================================================================================
+
+## 📊 المعلومات المتوقعة (للتحقق)
+
+### إحصائيات المشروع الحالية:
+```
+📊 إجمالي Commits: 280+
+📦 ملفات .data: 66
+💾 حجم db.json: 3.4+ MB
+👥 المستخدمين: 11
+🏢 العقارات: 20+
+🏠 الوحدات: 50+
+📄 التوثيق: محدث
+🌐 GitHub: متزامن
+```
+
+### الملفات المهمة ومواقعها:
+```
+.data/
+  ├── db.json (3.4 MB) - قاعدة البيانات الرئيسية
+  ├── users.json (11.5 KB) - 11 حساب مستخدم
+  ├── roles-config.json (4.9 KB) - الصلاحيات
+  ├── subscription-plans.json (13 KB) - خطط الاشتراكات
+  └── [42+ ملف آخر]
+
+src/
+  ├── pages/ - الصفحات
+  ├── components/ - المكونات
+  ├── lib/ - المكتبات
+  └── styles/ - الأنماط
+
+docs/
+  ├── CONVERSATION_HISTORY.md - سجل العمل (المرحلة 27)
+  ├── PROJECT_GUIDE.md - دليل المشروع
+  ├── MULTI_DEVICE_SYNC_ISSUES.md - حل مشكلة المزامنة
+  └── sessions/ - تقارير الجلسات
+```
+
+================================================================================
+
+## 🎯 بعد تشغيل السيرفر
+
+### قدم ملخصاً للمستخدم يحتوي على:
+
+#### 📅 معلومات المشروع:
+- تاريخ آخر تحديث: [من CONVERSATION_HISTORY.md]
+- المرحلة الحالية: 27 - نظام الوحدات المتقدم
+- آخر جلسة: 23 أكتوبر 2025
+
+#### ✅ آخر 10 إنجازات:
+1. ✅ نظام الوحدات المتقدم - عرض وإدارة كاملة
+2. ✅ إصلاح عرض الصور في صفحة الوحدة
+3. ✅ إصلاح الإيجار الشهري (غير محدد → يظهر السعر)
+4. ✅ عرض الوحدات في `/properties` كعقارات منفصلة
+5. ✅ تبويب "وحدات المبنى" في صفحة العقار الأم
+6. ✅ إضافة 48 ملف بيانات للمزامنة بين الأجهزة
+7. ✅ إنشاء `MULTI_DEVICE_SYNC_ISSUES.md` - توثيق شامل
+8. ✅ إنشاء `END_SESSION.txt` - دليل إنهاء الجلسة
+9. ✅ إنشاء `START_SESSION.txt` - دليل بدء الجلسة
+10. ✅ شارة بنفسجية "🏢 وحدة" في Grid و List views
+
+#### 🔄 المهام المتبقية:
+- 🔄 اختبار شامل على جهاز المنزل
+- 🔄 إضافة lazy loading للصور
+- 🔄 تحسين SEO للوحدات
+- 🔄 إضافة analytics للوحدات
+
+#### ⚠️ مشاكل معروفة:
+- ⚠️ الصور الكبيرة في `public/uploads/` (136 صورة) غير مرفوعة على Git
+- ⚠️ يُنصح بالانتقال لقاعدة بيانات حقيقية عند نمو المشروع
+- ⚠️ للإنتاج: استخدم JWT بدلاً من localStorage
+
+#### 🎯 التقنيات الأساسية:
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- React Context + Hooks
+- InstantLink & InstantImage (أداء فائق)
+- JSON Files (.data/) للبيانات
+- Recharts للرسوم البيانية
+
+#### 🚀 الميزات الحالية:
+- ✅ نظام الوحدات المتقدم (عرض، تعديل، إدارة)
+- ✅ Unified Management (لوحة تحكم موحدة)
+- ✅ Multi-Unit Properties (عقارات متعددة الوحدات)
+- ✅ Advanced Filters (فلاتر متقدمة)
+- ✅ Real-time Sync (مزامنة فورية)
+- ✅ AI Insights (توصيات ذكية)
+- ✅ Dark Mode (وضع ليلي)
+- ✅ WhatsApp Integration (تكامل واتساب)
+
+================================================================================
+
+## 💡 ملاحظات مهمة للعمل
+
+### ✅ التزم بهذه المعايير:
+
+#### استخدم دائماً:
+```javascript
+// للروابط - أداء فائق
+import InstantLink from '@/components/InstantLink';
+<InstantLink href="/properties">عقارات</InstantLink>
+
+// للصور - تحسين تلقائي
+import InstantImage from '@/components/InstantImage';
+<InstantImage src="/image.jpg" alt="..." />
+
+// لتنظيف النصوص
+import { toSafeText } from '@/lib/safeText';
+const cleanText = toSafeText(userInput);
+
+// للحجوزات
+import { useBookings } from '@/context/BookingsContext';
+const { bookings, addBooking } = useBookings();
+
+// للتواريخ (ميلادي فقط)
+import { formatDate } from '@/lib/dateUtils';
+const date = formatDate(new Date());  // "2025-10-23"
+```
+
+#### لا تفعل:
+```javascript
+// ❌ لا تستورد Header/Footer مباشرة
+import Header from '@/components/layout/Header';  // خطأ
+
+// ✅ استخدم Layout
+import Layout from '@/components/layout/Layout';
+<Layout>{/* المحتوى */}</Layout>
+
+// ❌ لا تستخدم التواريخ الهجرية
+// ❌ لا تنشئ ملفات مكررة
+// ❌ لا تتجاهل TypeScript errors
+```
+
+================================================================================
+
+## 🎉 جاهز للعمل!
+
+### ✅ تأكد من:
+- [x] السيرفر يعمل على http://localhost:3000
+- [x] db.json موجود (3.4+ MB)
+- [x] users.json موجود (11.5+ KB)
+- [x] الصفحة الرئيسية تعمل
+- [x] صفحة العقارات تعرض البيانات
+- [x] قرأت آخر مرحلة في CONVERSATION_HISTORY.md
+
+### 🚀 الآن اسأل المستخدم:
+
+**"ما الذي تريد العمل عليه اليوم؟"**
+
+================================================================================
+آخر تحديث: 23 أكتوبر 2025 - 19:45
+المرحلة: 27 - نظام الوحدات المتقدم + المزامنة بين الأجهزة
+إجمالي Commits: 280
+حالة المشروع: ✅ Ready to Work
+================================================================================
