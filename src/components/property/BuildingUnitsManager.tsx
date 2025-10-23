@@ -6,7 +6,7 @@ import {
   FaBuilding, FaDoorOpen, FaBed, FaBath, FaRuler, FaTag, FaKey,
   FaCheck, FaTimes, FaClock, FaUser, FaHome, FaEyeSlash, FaGlobe,
   FaCopy, FaImage, FaMapMarkerAlt, FaMoneyBillWave, FaCalendar,
-  FaExpand, FaCompress, FaBoxes
+  FaExpand, FaCompress, FaBoxes, FaPlus
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -514,26 +514,32 @@ export default function BuildingUnitsManager({
 
                       {/* Unit Actions */}
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-                        <button
-                          onClick={() => onViewUnit && onViewUnit(unit.id)}
+                        <InstantLink
+                          href={`/properties/${property.id}?unit=${unit.id}`}
                           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center"
                           title="عرض تفاصيل الوحدة"
                         >
                           <FaEye className="ml-1" />
                           عرض
-                        </button>
+                        </InstantLink>
                         
-                        <button
-                          onClick={() => onEditUnit && onEditUnit(unit.id)}
+                        <InstantLink
+                          href={`/properties/${property.id}/edit?unit=${unit.id}`}
                           className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center"
                           title="تعديل الوحدة"
                         >
                           <FaEdit className="ml-1" />
                           تعديل
-                        </button>
+                        </InstantLink>
                         
                         <button
-                          onClick={() => onPublishUnit && onPublishUnit(unit.id, !(unit.published !== false))}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (onPublishUnit) {
+                              onPublishUnit(unit.id, !(unit.published !== false));
+                            }
+                          }}
                           className={`${
                             unit.published !== false
                               ? 'bg-orange-600 hover:bg-orange-700'
@@ -555,7 +561,13 @@ export default function BuildingUnitsManager({
                         </button>
                         
                         <button
-                          onClick={() => onArchiveUnit && onArchiveUnit(unit.id)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (onArchiveUnit) {
+                              onArchiveUnit(unit.id);
+                            }
+                          }}
                           className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center"
                           title="أرشفة الوحدة"
                         >
@@ -564,9 +576,13 @@ export default function BuildingUnitsManager({
                         </button>
                         
                         <button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             if (confirm(`هل أنت متأكد من حذف وحدة ${unit.unitNo}؟`)) {
-                              onDeleteUnit && onDeleteUnit(unit.id);
+                              if (onDeleteUnit) {
+                                onDeleteUnit(unit.id);
+                              }
                             }
                           }}
                           className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center"

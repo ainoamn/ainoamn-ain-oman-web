@@ -1441,6 +1441,34 @@ export default function UnifiedPropertyManagement() {
                               </div>
                             </td>
                           </tr>
+                          
+                          {/* Building Units Manager in List View */}
+                          {property.buildingType === 'multi' && (
+                            <tr>
+                              <td colSpan={7} className="px-0 py-0">
+                                <BuildingUnitsManager
+                                  property={property}
+                                  onDeleteUnit={(unitId) => {
+                                    console.log('Delete unit:', unitId);
+                                  }}
+                                  onEditUnit={(unitId) => {
+                                    console.log('Edit unit:', unitId);
+                                  }}
+                                  onViewUnit={(unitId) => {
+                                    console.log('View unit:', unitId);
+                                  }}
+                                  onArchiveUnit={(unitId) => {
+                                    console.log('Archive unit:', unitId);
+                                  }}
+                                  onPublishUnit={(unitId, published) => {
+                                    console.log('Publish unit:', unitId, published);
+                                  }}
+                                  onDeleteProperty={(propertyId) => deleteProperty(propertyId)}
+                                />
+                              </td>
+                            </tr>
+                          )}
+                          
                         ))}
                       </tbody>
                     </table>
