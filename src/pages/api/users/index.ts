@@ -1,5 +1,7 @@
 // src/pages/api/users/index.ts - API إدارة المستخدمين
 import type { NextApiRequest, NextApiResponse } from 'next';
+import fs from 'fs';
+import path from 'path';
 import { USER_ROLES, UserRole, getUserRoleConfig } from '@/lib/user-roles';
 
 interface User {
@@ -7,13 +9,16 @@ interface User {
   name: string;
   email: string;
   phone: string;
-  role: UserRole;
+  role: UserRole | string;
   status: 'active' | 'inactive' | 'suspended' | 'pending';
+  permissions?: string[];
   subscription?: {
-    planName: string;
+    planName?: string;
+    plan?: string;
     status: 'active' | 'expired' | 'cancelled';
-    expiryDate: string;
-    remainingDays: number;
+    expiryDate?: string;
+    expiresAt?: string;
+    remainingDays?: number;
   };
   profile?: {
     avatar?: string;
@@ -40,6 +45,7 @@ interface User {
   };
   createdAt: string;
   lastActive: string;
+  isVerified?: boolean;
   password?: string; // Only for internal use
 }
 
@@ -54,16 +60,15 @@ interface UserStats {
   topUsers: User[];
 }
 
-// قراءة المستخدمين من قاعدة البيانات الحقيقية
-import fs from 'fs';
-import path from 'path';
-
 function loadUsers(): User[] {
   try {
     const usersPath = path.join(process.cwd(), '.data', 'users.json');
+    console.log('📂 Loading users from:', usersPath);
+    
     if (fs.existsSync(usersPath)) {
       const usersData = fs.readFileSync(usersPath, 'utf8');
       const users = JSON.parse(usersData);
+      console.log('✅ Loaded', users.length, 'users from file');
       
       // تحميل صلاحيات الأدوار من roles-config
       const rolesPath = path.join(process.cwd(), '.data', 'roles-config.json');
@@ -71,20 +76,25 @@ function loadUsers(): User[] {
         const rolesData = fs.readFileSync(rolesPath, 'utf8');
         const roles = JSON.parse(rolesData);
         
-        // إضافة صلاحيات الدور لكل مستخدم
+        // إضافة صلاحيات الدور لكل مستخدم إذا لم تكن موجودة
         return users.map((user: User) => {
-          const userRole = roles.find((r: any) => r.id === user.role);
-          if (userRole && user.permissions.length === 0) {
-            user.permissions = userRole.permissions;
+          if (!user.permissions || user.permissions.length === 0) {
+            const userRole = roles.find((r: any) => r.id === user.role);
+            if (userRole) {
+              user.permissions = userRole.permissions;
+            }
           }
           return user;
         });
       }
       
+      console.log('✅ Returning', users.length, 'users');
       return users;
+    } else {
+      console.error('❌ Users file not found at:', usersPath);
     }
   } catch (error) {
-    console.error('Error loading users:', error);
+    console.error('❌ Error loading users:', error);
   }
   
   // إرجاع مصفوفة فارغة إذا لم يتم العثور على الملف
