@@ -75,7 +75,7 @@ export default function NewMaintenancePage() {
         setTenants(tenantsData.tenants || []);
       }
     } catch (error) {
-      console.error('Error loading data:', error);
+
     }
   };
 

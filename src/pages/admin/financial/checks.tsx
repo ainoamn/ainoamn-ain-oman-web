@@ -30,7 +30,7 @@ export default function ChecksPage() {
 
       setChecks([]); // تم استبدال mockChecks ببيانات فارغة
     } catch (error) {
-      console.error('Error fetching checks:', error);
+
     } finally {
       setLoading(false);
     }

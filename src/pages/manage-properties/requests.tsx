@@ -1,11 +1,10 @@
-// @ts-nocheck
 // src/pages/manage-properties/requests.tsx - طلبات إدارة العقارات
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import InstantLink from '@/components/InstantLink';
 import { 
   FiPlus, FiEdit, FiTrash2, FiEye, FiSearch, FiFilter,
-  FiUser, FiCalendar, FiDollarSign, FiCheck, FiX,
+  FiBuilding, FiUser, FiCalendar, FiDollarSign, FiCheck, FiX,
   FiClock, FiAlertTriangle, FiTrendingUp, FiMapPin
 } from 'react-icons/fi';
 // Layout handled by _app.tsx
@@ -53,7 +52,7 @@ export default function PropertyRequestsPage() {
         setRequests(data.requests || []);
       }
     } catch (error) {
-      console.error('Error loading requests:', error);
+
     } finally {
       setLoading(false);
     }
@@ -150,7 +149,7 @@ export default function PropertyRequestsPage() {
         loadRequests();
       }
     } catch (error) {
-      console.error('Error approving request:', error);
+
     }
   };
 
@@ -168,7 +167,7 @@ export default function PropertyRequestsPage() {
         loadRequests();
       }
     } catch (error) {
-      console.error('Error rejecting request:', error);
+
     }
   };
 
@@ -413,7 +412,7 @@ export default function PropertyRequestsPage() {
 
               {filteredRequests.length === 0 && (
                 <div className="text-center py-12">
-                  <FaBuilding className="mx-auto h-12 w-12 text-gray-400" />
+                  <FiBuilding className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="mt-2 text-sm font-medium text-gray-900">لا توجد طلبات</h3>
                   <p className="mt-1 text-sm text-gray-500">
                     ابدأ بإنشاء طلب جديد لإدارة العقارات.

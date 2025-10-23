@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 // Layout handled by _app.tsx
-import { FaPlus, FaSearch, FaFilter, FaSort, FaSortUp, FaSortDown, FaEye, FaEdit, FaShare, FaTrash, FaBalanceScale, FaUser, FaUserTie, FaBuilding, FaCalendarAlt, FaClock, FaCheckCircle, FaExclamationTriangle, FaPlay, FaPause, FaGavel, FaFileAlt, FaMoneyBillWave, FaChartBar, FaRobot, FaDownload, FaPrint, FaQrcode, FaExternalLinkAlt, FaChevronDown, FaChevronUp, FaTimes, FaSpinner } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaFilter, FaSort, FaSortUp, FaSortDown, FaEye, FaEdit, FaShare, FaTrash, FaBalanceScale, FaUser, FaUserTie, FaBuilding, FaCalendarAlt, FaClock, FaCheckCircle, FaExclamationTriangle, FaPlay, FaPause, FaGavel, FaFileAlt, FaMoneyBillWave, FaChartBar, FaBrain, FaDownload, FaPrint, FaQrcode, FaExternalLinkAlt, FaChevronDown, FaChevronUp, FaTimes, FaSpinner } from 'react-icons/fa';
 
 type ViewMode = "table" | "grid";
 type SortField = "caseNumber" | "title" | "status" | "priority" | "updatedAt" | "createdAt";
@@ -161,7 +161,7 @@ export default function LegalCasesPage() {
         resolvedCases: 0
       });
     } catch (error) {
-      console.error('Error loading data:', error);
+
       setCases([]);
       setLawyers([]);
       setClients([]);
@@ -328,11 +328,11 @@ export default function LegalCasesPage() {
 
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
-      'OPEN': 'Ù…ÙØªÙˆØ­Ø©',
-      'IN_PROGRESS': 'Ù‚ÙŠØ¯ Ø§Ù„Ø¹Ù…Ù„',
-      'ON_HOLD': 'Ù…Ø¹Ù„Ù‚Ø©',
-      'CLOSED': 'Ù…ØºÙ„Ù‚Ø©',
-      'RESOLVED': 'Ù…Ø­Ù„ÙˆÙ„Ø©'
+      'OPEN': 'ãİÊæÍÉ',
+      'IN_PROGRESS': 'ŞíÏ ÇáÚãá',
+      'ON_HOLD': 'ãÚáŞÉ',
+      'CLOSED': 'ãÛáŞÉ',
+      'RESOLVED': 'ãÍáæáÉ'
     };
     return labels[status] || status;
   };
@@ -350,17 +350,17 @@ export default function LegalCasesPage() {
 
   const getTypeLabel = (type: string) => {
     const types: Record<string, string> = {
-      'RENTAL_DISPUTE': 'Ù†Ø²Ø§Ø¹ Ø¥ÙŠØ¬Ø§Ø±',
-      'PAYMENT_DISPUTE': 'Ù†Ø²Ø§Ø¹ Ø¯ÙØ¹',
-      'CONTRACT_BREACH': 'Ø®Ø±Ù‚ Ø¹Ù‚Ø¯',
-      'PROPERTY_DAMAGE': 'ØªÙ„Ù Ø¹Ù‚Ø§Ø±',
-      'EVICTION': 'Ø¥Ø®Ù„Ø§Ø¡',
-      'MAINTENANCE': 'ØµÙŠØ§Ù†Ø©',
-      'INSURANCE': 'ØªØ£Ù…ÙŠÙ†',
-      'CRIMINAL': 'Ø¬Ù†Ø§Ø¦ÙŠ',
-      'CIVIL': 'Ù…Ø¯Ù†ÙŠ',
-      'ADMINISTRATIVE': 'Ø¥Ø¯Ø§Ø±ÙŠ',
-      'OTHER': 'Ø£Ø®Ø±Ù‰'
+      'RENTAL_DISPUTE': 'äÒÇÚ ÅíÌÇÑ',
+      'PAYMENT_DISPUTE': 'äÒÇÚ ÏİÚ',
+      'CONTRACT_BREACH': 'ÎÑŞ ÚŞÏ',
+      'PROPERTY_DAMAGE': 'Êáİ ÚŞÇÑ',
+      'EVICTION': 'ÅÎáÇÁ',
+      'MAINTENANCE': 'ÕíÇäÉ',
+      'INSURANCE': 'ÊÃãíä',
+      'CRIMINAL': 'ÌäÇÆí',
+      'CIVIL': 'ãÏäí',
+      'ADMINISTRATIVE': 'ÅÏÇÑí',
+      'OTHER': 'ÃÎÑì'
     };
     return types[type] || type;
   };
@@ -386,7 +386,7 @@ export default function LegalCasesPage() {
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Ø¬Ø§Ø±ÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù‚Ø¶Ø§ÙŠØ§...</p>
+            <p className="text-gray-600">ÌÇÑí ÊÍãíá ÇáŞÖÇíÇ...</p>
           </div>
         </div>
       </>
@@ -396,7 +396,7 @@ export default function LegalCasesPage() {
   return (
     <>
       <Head>
-        <title>Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù‚Ø¶Ø§ÙŠØ§ Ø§Ù„Ù‚Ø§Ù†ÙˆÙ†ÙŠØ© - Ù†Ø¸Ø§Ù… Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù‚Ø¶Ø§ÙŠØ§</title>
+        <title>ÅÏÇÑÉ ÇáŞÖÇíÇ ÇáŞÇäæäíÉ - äÙÇã ÅÏÇÑÉ ÇáŞÖÇíÇ</title>
       </Head>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -404,15 +404,15 @@ export default function LegalCasesPage() {
         <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-xl p-6 mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù‚Ø¶Ø§ÙŠØ§ Ø§Ù„Ù‚Ø§Ù†ÙˆÙ†ÙŠØ©</h1>
-              <p className="text-blue-100">Ø¥Ø¯Ø§Ø±Ø© ÙˆÙ…ØªØ§Ø¨Ø¹Ø© Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù‚Ø¶Ø§ÙŠØ§ Ø§Ù„Ù‚Ø§Ù†ÙˆÙ†ÙŠØ©</p>
+              <h1 className="text-3xl font-bold mb-2">ÅÏÇÑÉ ÇáŞÖÇíÇ ÇáŞÇäæäíÉ</h1>
+              <p className="text-blue-100">ÅÏÇÑÉ æãÊÇÈÚÉ ÌãíÚ ÇáŞÖÇíÇ ÇáŞÇäæäíÉ</p>
             </div>
             <button
               onClick={() => router.push('/legal/new')}
               className="flex items-center gap-2 px-6 py-3 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
             >
               <FaPlus />
-              Ø¥Ø¶Ø§ÙØ© Ù‚Ø¶ÙŠØ© Ø¬Ø¯ÙŠØ¯Ø©
+              ÅÖÇİÉ ŞÖíÉ ÌÏíÏÉ
             </button>
           </div>
         </div>
@@ -422,7 +422,7 @@ export default function LegalCasesPage() {
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù‚Ø¶Ø§ÙŠØ§</p>
+                <p className="text-sm font-medium text-gray-600">ÅÌãÇáí ÇáŞÖÇíÇ</p>
                 <p className="text-2xl font-bold text-gray-900">{String(analytics.totalCases || 0)}</p>
               </div>
               <div className="p-3 bg-blue-100 rounded-lg">
@@ -434,7 +434,7 @@ export default function LegalCasesPage() {
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Ù‚Ø¶Ø§ÙŠØ§ Ù…ÙØªÙˆØ­Ø©</p>
+                <p className="text-sm font-medium text-gray-600">ŞÖÇíÇ ãİÊæÍÉ</p>
                 <p className="text-2xl font-bold text-green-600">{String(analytics.openCases || 0)}</p>
               </div>
               <div className="p-3 bg-green-100 rounded-lg">
@@ -446,7 +446,7 @@ export default function LegalCasesPage() {
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Ù‚Ø¶Ø§ÙŠØ§ Ù‚ÙŠØ¯ Ø§Ù„Ø¹Ù…Ù„</p>
+                <p className="text-sm font-medium text-gray-600">ŞÖÇíÇ ŞíÏ ÇáÚãá</p>
                 <p className="text-2xl font-bold text-blue-600">{String(analytics.inProgressCases || 0)}</p>
               </div>
               <div className="p-3 bg-blue-100 rounded-lg">
@@ -458,7 +458,7 @@ export default function LegalCasesPage() {
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Ù‚Ø¶Ø§ÙŠØ§ Ù…Ø­Ù„ÙˆÙ„Ø©</p>
+                <p className="text-sm font-medium text-gray-600">ŞÖÇíÇ ãÍáæáÉ</p>
                 <p className="text-2xl font-bold text-purple-600">{String(analytics.resolvedCases || 0)}</p>
               </div>
               <div className="p-3 bg-purple-100 rounded-lg">
@@ -471,13 +471,13 @@ export default function LegalCasesPage() {
         {/* Filters and Search */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Ø§Ù„Ø¨Ø­Ø« ÙˆØ§Ù„ØªØµÙÙŠØ©</h2>
+            <h2 className="text-lg font-semibold text-gray-900">ÇáÈÍË æÇáÊÕİíÉ</h2>
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
             >
               <FaFilter />
-              {showFilters ? 'Ø¥Ø®ÙØ§Ø¡ Ø§Ù„Ù…Ø±Ø´Ø­Ø§Øª' : 'Ø¥Ø¸Ù‡Ø§Ø± Ø§Ù„Ù…Ø±Ø´Ø­Ø§Øª'}
+              {showFilters ? 'ÅÎİÇÁ ÇáãÑÔÍÇÊ' : 'ÅÙåÇÑ ÇáãÑÔÍÇÊ'}
             </button>
           </div>
 
@@ -488,7 +488,7 @@ export default function LegalCasesPage() {
                 value={filters.searchTerm}
                 onChange={(e) => handleFilterChange('searchTerm', e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Ø§Ø¨Ø­Ø« ÙÙŠ Ø§Ù„Ù‚Ø¶Ø§ÙŠØ§..."
+                placeholder="ÇÈÍË İí ÇáŞÖÇíÇ..."
               />
               <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
@@ -503,70 +503,70 @@ export default function LegalCasesPage() {
           {showFilters && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ø§Ù„Ø­Ø§Ù„Ø©</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">ÇáÍÇáÉ</label>
                 <select
                   value={filters.status}
                   onChange={(e) => handleFilterChange('status', e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ø§Ù„Ø§Øª</option>
-                  <option value="OPEN">Ù…ÙØªÙˆØ­Ø©</option>
-                  <option value="IN_PROGRESS">Ù‚ÙŠØ¯ Ø§Ù„Ø¹Ù…Ù„</option>
-                  <option value="ON_HOLD">Ù…Ø¹Ù„Ù‚Ø©</option>
-                  <option value="CLOSED">Ù…ØºÙ„Ù‚Ø©</option>
-                  <option value="RESOLVED">Ù…Ø­Ù„ÙˆÙ„Ø©</option>
+                  <option value="">ÌãíÚ ÇáÍÇáÇÊ</option>
+                  <option value="OPEN">ãİÊæÍÉ</option>
+                  <option value="IN_PROGRESS">ŞíÏ ÇáÚãá</option>
+                  <option value="ON_HOLD">ãÚáŞÉ</option>
+                  <option value="CLOSED">ãÛáŞÉ</option>
+                  <option value="RESOLVED">ãÍáæáÉ</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ø§Ù„Ù†ÙˆØ¹</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">ÇáäæÚ</label>
                 <select
                   value={filters.type}
                   onChange={(e) => handleFilterChange('type', e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø£Ù†ÙˆØ§Ø¹</option>
-                  <option value="RENTAL_DISPUTE">Ù†Ø²Ø§Ø¹ Ø¥ÙŠØ¬Ø§Ø±</option>
-                  <option value="PAYMENT_DISPUTE">Ù†Ø²Ø§Ø¹ Ø¯ÙØ¹</option>
-                  <option value="CONTRACT_BREACH">Ø®Ø±Ù‚ Ø¹Ù‚Ø¯</option>
-                  <option value="PROPERTY_DAMAGE">ØªÙ„Ù Ø¹Ù‚Ø§Ø±</option>
-                  <option value="EVICTION">Ø¥Ø®Ù„Ø§Ø¡</option>
-                  <option value="MAINTENANCE">ØµÙŠØ§Ù†Ø©</option>
-                  <option value="INSURANCE">ØªØ£Ù…ÙŠÙ†</option>
-                  <option value="CRIMINAL">Ø¬Ù†Ø§Ø¦ÙŠ</option>
-                  <option value="CIVIL">Ù…Ø¯Ù†ÙŠ</option>
-                  <option value="ADMINISTRATIVE">Ø¥Ø¯Ø§Ø±ÙŠ</option>
-                  <option value="OTHER">Ø£Ø®Ø±Ù‰</option>
+                  <option value="">ÌãíÚ ÇáÃäæÇÚ</option>
+                  <option value="RENTAL_DISPUTE">äÒÇÚ ÅíÌÇÑ</option>
+                  <option value="PAYMENT_DISPUTE">äÒÇÚ ÏİÚ</option>
+                  <option value="CONTRACT_BREACH">ÎÑŞ ÚŞÏ</option>
+                  <option value="PROPERTY_DAMAGE">Êáİ ÚŞÇÑ</option>
+                  <option value="EVICTION">ÅÎáÇÁ</option>
+                  <option value="MAINTENANCE">ÕíÇäÉ</option>
+                  <option value="INSURANCE">ÊÃãíä</option>
+                  <option value="CRIMINAL">ÌäÇÆí</option>
+                  <option value="CIVIL">ãÏäí</option>
+                  <option value="ADMINISTRATIVE">ÅÏÇÑí</option>
+                  <option value="OTHER">ÃÎÑì</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ø§Ù„Ù…Ø­Ø§Ù…ÙŠ</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">ÇáãÍÇãí</label>
                 <select
                   value={filters.lawyer}
                   onChange={(e) => handleFilterChange('lawyer', e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù…Ø­Ø§Ù…ÙŠÙ†</option>
+                  <option value="">ÌãíÚ ÇáãÍÇãíä</option>
                   {lawyers.map((lawyer) => (
                     <option key={lawyer.id} value={lawyer.id}>
-                      {lawyer.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}
+                      {lawyer.name || 'ÛíÑ ãÍÏÏ'}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ø§Ù„Ø¹Ù…ÙŠÙ„</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">ÇáÚãíá</label>
                 <select
                   value={filters.client}
                   onChange={(e) => handleFilterChange('client', e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡</option>
+                  <option value="">ÌãíÚ ÇáÚãáÇÁ</option>
                   {clients.map((client) => (
                     <option key={client.id} value={client.id}>
-                      {client.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}
+                      {client.name || 'ÛíÑ ãÍÏÏ'}
                     </option>
                   ))}
                 </select>
@@ -581,19 +581,19 @@ export default function LegalCasesPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <h2 className="text-lg font-semibold text-gray-900">
-                  Ø§Ù„Ù‚Ø¶Ø§ÙŠØ§ ({filteredAndSortedCases.length})
+                  ÇáŞÖÇíÇ ({filteredAndSortedCases.length})
                 </h2>
                 
                 {selectedCases.length > 0 && (
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-600">
-                      {selectedCases.length} Ù…Ø­Ø¯Ø¯
+                      {selectedCases.length} ãÍÏÏ
                     </span>
                     <button
                       onClick={() => setSelectedCases([])}
                       className="text-sm text-blue-600 hover:text-blue-800"
                     >
-                      Ø¥Ù„ØºØ§Ø¡ Ø§Ù„ØªØ­Ø¯ÙŠØ¯
+                      ÅáÛÇÁ ÇáÊÍÏíÏ
                     </button>
                   </div>
                 )}
@@ -638,7 +638,7 @@ export default function LegalCasesPage() {
                         onClick={() => handleSort('caseNumber')}
                         className="flex items-center gap-1 hover:text-gray-700"
                       >
-                        Ø±Ù‚Ù… Ø§Ù„Ù‚Ø¶ÙŠØ©
+                        ÑŞã ÇáŞÖíÉ
                         {sortOptions.field === 'caseNumber' && (
                           sortOptions.direction === 'asc' ? <FaSortUp /> : <FaSortDown />
                         )}
@@ -649,43 +649,43 @@ export default function LegalCasesPage() {
                         onClick={() => handleSort('title')}
                         className="flex items-center gap-1 hover:text-gray-700"
                       >
-                        Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ù‚Ø¶ÙŠØ©
+                        ÚäæÇä ÇáŞÖíÉ
                         {sortOptions.field === 'title' && (
                           sortOptions.direction === 'asc' ? <FaSortUp /> : <FaSortDown />
                         )}
                       </button>
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ø§Ù„Ø­Ø§Ù„Ø©
+                      ÇáÍÇáÉ
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ø§Ù„Ù†ÙˆØ¹
+                      ÇáäæÚ
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ø§Ù„Ø£ÙˆÙ„ÙˆÙŠØ©
+                      ÇáÃæáæíÉ
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ø§Ù„Ø¹Ù‚Ø§Ø±
+                      ÇáÚŞÇÑ
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ø§Ù„Ù…Ø­Ø§Ù…ÙŠ
+                      ÇáãÍÇãí
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ø§Ù„Ø¹Ù…ÙŠÙ„
+                      ÇáÚãíá
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       <button
                         onClick={() => handleSort('updatedAt')}
                         className="flex items-center gap-1 hover:text-gray-700"
                       >
-                        Ø¢Ø®Ø± ØªØ­Ø¯ÙŠØ«
+                        ÂÎÑ ÊÍÏíË
                         {sortOptions.field === 'updatedAt' && (
                           sortOptions.direction === 'asc' ? <FaSortUp /> : <FaSortDown />
                         )}
                       </button>
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª
+                      ÇáÅÌÑÇÁÇÊ
                     </th>
                   </tr>
                 </thead>
@@ -705,10 +705,10 @@ export default function LegalCasesPage() {
                           />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {String(case_.id || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}
+                          {String(case_.id || 'ÛíÑ ãÍÏÏ')}
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm font-medium text-gray-900">{case_.title || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}</div>
+                          <div className="text-sm font-medium text-gray-900">{case_.title || 'ÛíÑ ãÍÏÏ'}</div>
                           {case_.description && (
                             <div className="text-sm text-gray-500 truncate max-w-xs">
                               {case_.description}
@@ -732,36 +732,36 @@ export default function LegalCasesPage() {
                         <td className="px-6 py-4">
                           {case_.propertyReference && case_.propertyReference.propertyTitle ? (
                             <div className="text-sm">
-                              <div className="font-medium text-gray-900">{case_.propertyReference.propertyTitle || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}</div>
+                              <div className="font-medium text-gray-900">{case_.propertyReference.propertyTitle || 'ÛíÑ ãÍÏÏ'}</div>
                               {case_.propertyReference.buildingNumber && (
-                                <div className="text-gray-500">Ø±Ù‚Ù… Ø§Ù„Ù…Ø¨Ù†Ù‰: {case_.propertyReference.buildingNumber}</div>
+                                <div className="text-gray-500">ÑŞã ÇáãÈäì: {case_.propertyReference.buildingNumber}</div>
                               )}
                               {case_.propertyReference.address && (
                                 <div className="text-gray-500 truncate max-w-xs">{case_.propertyReference.address}</div>
                               )}
                             </div>
                           ) : (
-                            <span className="text-sm text-gray-500">ØºÙŠØ± Ù…Ø±ØªØ¨Ø·</span>
+                            <span className="text-sm text-gray-500">ÛíÑ ãÑÊÈØ</span>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {lawyer ? (
                             <div>
-                              <div className="font-medium">{lawyer.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}</div>
+                              <div className="font-medium">{lawyer.name || 'ÛíÑ ãÍÏÏ'}</div>
                               <div className="text-gray-500">{lawyer.subscriptionNo || ''}</div>
                             </div>
                           ) : (
-                            'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'
+                            'ÛíÑ ãÍÏÏ'
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {client ? (
                             <div>
-                              <div className="font-medium">{client.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}</div>
+                              <div className="font-medium">{client.name || 'ÛíÑ ãÍÏÏ'}</div>
                               <div className="text-gray-500">{client.subscriptionNo || ''}</div>
                             </div>
                           ) : (
-                            'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'
+                            'ÛíÑ ãÍÏÏ'
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -772,20 +772,20 @@ export default function LegalCasesPage() {
                             <button
                               onClick={() => router.push(`/legal/${String(case_.id || '')}`)}
                               className="text-blue-600 hover:text-blue-900"
-                              title="Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„"
+                              title="ÚÑÖ ÇáÊİÇÕíá"
                             >
                               <FaEye />
                             </button>
                             <button
                               onClick={() => router.push(`/legal/${String(case_.id || '')}/edit`)}
                               className="text-green-600 hover:text-green-900"
-                              title="ØªØ¹Ø¯ÙŠÙ„"
+                              title="ÊÚÏíá"
                             >
                               <FaEdit />
                             </button>
                             <button
                               className="text-purple-600 hover:text-purple-900"
-                              title="Ù…Ø´Ø§Ø±ÙƒØ©"
+                              title="ãÔÇÑßÉ"
                             >
                               <FaShare />
                             </button>
@@ -808,8 +808,8 @@ export default function LegalCasesPage() {
                     <div key={case_.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 mb-2">{case_.title || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}</h3>
-                          <p className="text-sm text-gray-600 mb-2">Ø±Ù‚Ù… Ø§Ù„Ù‚Ø¶ÙŠØ©: {String(case_.id || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</p>
+                          <h3 className="font-semibold text-gray-900 mb-2">{case_.title || 'ÛíÑ ãÍÏÏ'}</h3>
+                          <p className="text-sm text-gray-600 mb-2">ÑŞã ÇáŞÖíÉ: {String(case_.id || 'ÛíÑ ãÍÏÏ')}</p>
                           {case_.description && (
                             <p className="text-sm text-gray-700 mb-3 line-clamp-2">{case_.description}</p>
                           )}
@@ -829,12 +829,12 @@ export default function LegalCasesPage() {
                         </div>
                         
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-gray-600">Ø§Ù„Ù†ÙˆØ¹:</span>
+                          <span className="text-sm text-gray-600">ÇáäæÚ:</span>
                           <span className="text-sm font-medium text-gray-900">{getTypeLabel(case_.type || 'OTHER')}</span>
                         </div>
                         
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-gray-600">Ø§Ù„Ø£ÙˆÙ„ÙˆÙŠØ©:</span>
+                          <span className="text-sm text-gray-600">ÇáÃæáæíÉ:</span>
                           <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getPriorityColor(case_.priority || 'MEDIUM')}`}>
                             {case_.priority || 'MEDIUM'}
                           </span>
@@ -844,9 +844,9 @@ export default function LegalCasesPage() {
                           <div className="flex items-center gap-2">
                             <FaBuilding className="text-gray-400" />
                             <div className="text-sm">
-                              <div className="font-medium text-gray-900">{case_.propertyReference.propertyTitle || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}</div>
+                              <div className="font-medium text-gray-900">{case_.propertyReference.propertyTitle || 'ÛíÑ ãÍÏÏ'}</div>
                               {case_.propertyReference.buildingNumber && (
-                                <div className="text-gray-500">Ø±Ù‚Ù… Ø§Ù„Ù…Ø¨Ù†Ù‰: {case_.propertyReference.buildingNumber}</div>
+                                <div className="text-gray-500">ÑŞã ÇáãÈäì: {case_.propertyReference.buildingNumber}</div>
                               )}
                             </div>
                           </div>
@@ -855,7 +855,7 @@ export default function LegalCasesPage() {
                         <div className="flex items-center gap-2">
                           <FaUserTie className="text-gray-400" />
                           <div className="text-sm">
-                            <div className="font-medium text-gray-900">{lawyer && lawyer.name ? lawyer.name : 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}</div>
+                            <div className="font-medium text-gray-900">{lawyer && lawyer.name ? lawyer.name : 'ÛíÑ ãÍÏÏ'}</div>
                             <div className="text-gray-500">{lawyer && lawyer.subscriptionNo ? lawyer.subscriptionNo : ''}</div>
                           </div>
                         </div>
@@ -863,14 +863,14 @@ export default function LegalCasesPage() {
                         <div className="flex items-center gap-2">
                           <FaUser className="text-gray-400" />
                           <div className="text-sm">
-                            <div className="font-medium text-gray-900">{client && client.name ? client.name : 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}</div>
+                            <div className="font-medium text-gray-900">{client && client.name ? client.name : 'ÛíÑ ãÍÏÏ'}</div>
                             <div className="text-gray-500">{client && client.subscriptionNo ? client.subscriptionNo : ''}</div>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-2">
                           <FaCalendarAlt className="text-gray-400" />
-                          <span className="text-sm text-gray-600">Ø¢Ø®Ø± ØªØ­Ø¯ÙŠØ«: {formatDate(case_.updatedAt || '')}</span>
+                          <span className="text-sm text-gray-600">ÂÎÑ ÊÍÏíË: {formatDate(case_.updatedAt || '')}</span>
         </div>
       </div>
 
@@ -879,7 +879,7 @@ export default function LegalCasesPage() {
                           onClick={() => router.push(`/legal/${String(case_.id || '')}`)}
                           className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                         >
-                          Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„
+                          ÚÑÖ ÇáÊİÇÕíá
                         </button>
                         <button
                           onClick={() => router.push(`/legal/${String(case_.id || '')}/edit`)}
@@ -901,11 +901,11 @@ export default function LegalCasesPage() {
           {filteredAndSortedCases.length === 0 && (
             <div className="text-center py-12">
               <FaBalanceScale className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù‚Ø¶Ø§ÙŠØ§</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">áÇ ÊæÌÏ ŞÖÇíÇ</h3>
               <p className="text-gray-500 mb-4">
                 {filters.searchTerm || filters.status || filters.type || filters.priority || filters.lawyer || filters.client || filters.propertyId
-                  ? 'Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ù‚Ø¶Ø§ÙŠØ§ ØªØ·Ø§Ø¨Ù‚ Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„Ø¨Ø­Ø«'
-                  : 'Ù„Ù… ÙŠØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø£ÙŠ Ù‚Ø¶Ø§ÙŠØ§ Ø¨Ø¹Ø¯'
+                  ? 'áã íÊã ÇáÚËæÑ Úáì ŞÖÇíÇ ÊØÇÈŞ ãÚÇííÑ ÇáÈÍË'
+                  : 'áã íÊã ÅäÔÇÁ Ãí ŞÖÇíÇ ÈÚÏ'
                 }
               </p>
               <button
@@ -913,7 +913,7 @@ export default function LegalCasesPage() {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <FaPlus />
-                Ø¥Ø¶Ø§ÙØ© Ù‚Ø¶ÙŠØ© Ø¬Ø¯ÙŠØ¯Ø©
+                ÅÖÇİÉ ŞÖíÉ ÌÏíÏÉ
               </button>
             </div>
           )}

@@ -7,7 +7,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('✅ AdminDashboard mounted');
+
     setLoading(false);
   }, []);
 

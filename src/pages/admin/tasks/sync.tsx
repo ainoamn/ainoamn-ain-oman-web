@@ -22,14 +22,14 @@ export default function TasksSyncPage() {
       if (response.ok) {
         const data = await response.json();
         setResult(data);
-        console.log("Sync completed:", data);
+
       } else {
         const errorData = await response.json();
         throw new Error(errorData.error || "فشل في المزامنة");
       }
     } catch (err: any) {
       setError(err.message || "خطأ في المزامنة");
-      console.error("Sync error:", err);
+
     } finally {
       setSyncing(false);
     }

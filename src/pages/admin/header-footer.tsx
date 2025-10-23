@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useRef, useState } from "react";
 import InstantImage from '@/components/InstantImage';
 import Head from "next/head";
@@ -26,17 +25,17 @@ const K = { header: "hf.header.v1", footer: "hf.footer.v1" };
 /* ===== Defaults ===== */
 const defaultHeader: HeaderSettings = {
   backgroundColor: "#0d9488", textColor: "#ffffff", logo: "/logo.png",
-  menuItems: [{ label: "Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©", href: "/" }, { label: "Ø§Ù„Ø¹Ù‚Ø§Ø±Ø§Øª", href: "/properties" }, { label: "Ø§Ù„Ù…Ø²Ø§Ø¯Ø§Øª", href: "/auctions" }],
+  menuItems: [{ label: "ÇáÑÆíÓíÉ", href: "/" }, { label: "ÇáÚŞÇÑÇÊ", href: "/properties" }, { label: "ÇáãÒÇÏÇÊ", href: "/auctions" }],
   notifications: [], showUserColorPicker: true,
   availableColors: ["#0d9488","#2563eb","#7c3aed","#dc2626","#0f766e"],
 };
 const defaultFooter: FooterSettings = {
   textColor: "#ffffff", transparency: 70,
   sections: [
-    { title: "Ø¹Ù† Ø§Ù„Ù…Ù†ØµØ©", links: [{ label: "Ù…Ù† Ù†Ø­Ù†", href: "/about" }, { label: "ØªÙˆØ§ØµÙ„ Ù…Ø¹Ù†Ø§", href: "/contact" }] },
-    { title: "Ø®Ø¯Ù…Ø§Øª", links: [{ label: "Ø§Ù„Ø¹Ù‚Ø§Ø±Ø§Øª", href: "/properties" }, { label: "Ø§Ù„Ù…Ø²Ø§Ø¯Ø§Øª", href: "/auctions" }] },
+    { title: "Úä ÇáãäÕÉ", links: [{ label: "ãä äÍä", href: "/about" }, { label: "ÊæÇÕá ãÚäÇ", href: "/contact" }] },
+    { title: "ÎÏãÇÊ", links: [{ label: "ÇáÚŞÇÑÇÊ", href: "/properties" }, { label: "ÇáãÒÇÏÇÊ", href: "/auctions" }] },
   ],
-  contact: { email: "info@example.com", phone: "+96800000000", address: "Ù…Ø³Ù‚Ø·ØŒ Ø¹ÙÙ…Ø§Ù†" },
+  contact: { email: "info@example.com", phone: "+96800000000", address: "ãÓŞØ¡ ÚõãÇä" },
   payments: [{ name: "Visa" }, { name: "Mastercard" }],
 };
 
@@ -93,7 +92,7 @@ export default function HeaderFooterAdminPage() {
   const saveHeader = (p: Partial<HeaderSettings>) => setHeader((prev)=>({ ...prev, ...p }));
   const saveFooter = (p: Partial<FooterSettings>) => setFooter((prev)=>({ ...prev, ...p }));
 
-  if (!ready) return <div style={{ padding:24 }}>Ø¬Ø§Ø±Ù Ø§Ù„ØªØ­Ù…ÙŠÙ„â€¦</div>;
+  if (!ready) return <div style={{ padding:24 }}>ÌÇÑö ÇáÊÍãíá…</div>;
 
   const stickyHeaderStyle: React.CSSProperties = {
     backgroundColor: header.backgroundColor, color: header.textColor, borderBottom:"1px solid rgba(255,255,255,0.2)",
@@ -103,14 +102,14 @@ export default function HeaderFooterAdminPage() {
 
   return (
     <>
-      <Head><title>Ù„ÙˆØ­Ø© Ø§Ù„Ù‡ÙŠØ¯Ø± ÙˆØ§Ù„ÙÙˆØªØ± | Ain Oman</title></Head>
+      <Head><title>áæÍÉ ÇáåíÏÑ æÇáİæÊÑ | Ain Oman</title></Head>
 
       {/* preview header */}
       <header style={stickyHeaderStyle}>
         <div style={{ maxWidth:1120, margin:"0 auto", padding:"12px 16px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
             <InstantImage src={header.logo} alt="logo" style={{ width:36, height:36, objectFit:"contain" }} loading="lazy" width={400} height={300}/>
-            <strong style={{ opacity:.9 }}>Ø¹ÙŠÙ† Ø¹ÙÙ…Ø§Ù†</strong>
+            <strong style={{ opacity:.9 }}>Úíä ÚõãÇä</strong>
           </div>
           <nav style={{ display:"flex", gap:8 }}>
             {header.menuItems.map(m => (
@@ -124,39 +123,39 @@ export default function HeaderFooterAdminPage() {
       <div style={{ maxWidth:1120, margin:"12px auto 0", padding:"0 16px", display:"flex", justifyContent:"flex-end", gap:8 }}>
         <button onClick={saveAll} disabled={saving}
           style={{ background:"#0ea5e9", color:"#fff", padding:"10px 14px", borderRadius:10, fontWeight:700 }}>
-          {saving? "Ø¬Ø§Ø±ÙŠ Ø§Ù„Ø­ÙØ¸â€¦" : "Ø­ÙØ¸"}
+          {saving? "ÌÇÑí ÇáÍİÙ…" : "ÍİÙ"}
         </button>
       </div>
 
       {/* tabs */}
       <main style={{ maxWidth:1120, margin:"16px auto 24px", padding:"0 16px" }}>
         <div style={{ display:"flex", gap:8, marginBottom:12 }}>
-          <button onClick={()=>setTab("header")} style={tabBtn(tab==="header")}>Ø§Ù„Ù‡ÙŠØ¯Ø±</button>
-          <button onClick={()=>setTab("footer")} style={tabBtn(tab==="footer")}>Ø§Ù„ÙÙˆØªØ±</button>
+          <button onClick={()=>setTab("header")} style={tabBtn(tab==="header")}>ÇáåíÏÑ</button>
+          <button onClick={()=>setTab("footer")} style={tabBtn(tab==="footer")}>ÇáİæÊÑ</button>
         </div>
 
         {tab==="header" ? (
           <div style={{ display:"grid", gap:16, gridTemplateColumns:"1fr 1fr" }}>
             <section style={panel}>
-              <h2 style={h2}>Ø£Ù„ÙˆØ§Ù† Ø§Ù„Ù‡ÙŠØ¯Ø±</h2>
-              <Row label="Ù„ÙˆÙ† Ø§Ù„Ø®Ù„ÙÙŠØ©">
+              <h2 style={h2}>ÃáæÇä ÇáåíÏÑ</h2>
+              <Row label="áæä ÇáÎáİíÉ">
                 <input type="color" value={header.backgroundColor} onChange={(e)=>saveHeader({ backgroundColor: e.target.value })}/>
                 <Input value={header.backgroundColor} onChange={(e)=>saveHeader({ backgroundColor: e.target.value })}/>
               </Row>
-              <Row label="Ù„ÙˆÙ† Ø§Ù„Ù†Øµ">
+              <Row label="áæä ÇáäÕ">
                 <input type="color" value={header.textColor} onChange={(e)=>saveHeader({ textColor: e.target.value })}/>
                 <Input value={header.textColor} onChange={(e)=>saveHeader({ textColor: e.target.value })}/>
               </Row>
-              <Row label="Ø§Ù„Ø´Ø¹Ø§Ø±">
+              <Row label="ÇáÔÚÇÑ">
                 <Input value={header.logo} onChange={(e)=>saveHeader({ logo: e.target.value })}/>
               </Row>
 
-              <h3 style={h3}>Ù„ÙˆØ­Ø© Ø£Ù„ÙˆØ§Ù† Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù…</h3>
-              <Row label="Ø¥Ø¸Ù‡Ø§Ø± ÙÙŠ Ø§Ù„Ù‡ÙŠØ¯Ø±">
+              <h3 style={h3}>áæÍÉ ÃáæÇä ááãÓÊÎÏã</h3>
+              <Row label="ÅÙåÇÑ İí ÇáåíÏÑ">
                 <label style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
                   <input type="checkbox" checked={header.showUserColorPicker}
                          onChange={(e)=>saveHeader({ showUserColorPicker: e.target.checked })}/>
-                  <span style={{ fontSize:14 }}>Ù…ÙØ¨Ø¯Ù‘Ù„ Ø§Ù„Ù„ÙˆÙ†</span>
+                  <span style={{ fontSize:14 }}>ãõÈÏøá Çááæä</span>
                 </label>
               </Row>
               <div style={{ display:"grid", gap:8 }}>
@@ -169,18 +168,18 @@ export default function HeaderFooterAdminPage() {
                       const arr=[...header.availableColors]; arr[i]=e.target.value; saveHeader({ availableColors: arr });
                     }}/>
                     <button onClick={()=> saveHeader({ availableColors: header.availableColors.filter((_,x)=>x!==i) })}
-                      style={btnDanger}>Ø­Ø°Ù</button>
+                      style={btnDanger}>ÍĞİ</button>
                   </div>
                 ))}
                 <div>
                   <button onClick={()=> header.availableColors.length<5 && saveHeader({ availableColors:[...header.availableColors, "#0ea5e9"] })}
-                    style={btnPrimary} disabled={header.availableColors.length>=5}>+ Ù„ÙˆÙ†</button>
+                    style={btnPrimary} disabled={header.availableColors.length>=5}>+ áæä</button>
                 </div>
               </div>
             </section>
 
             <section style={panel}>
-              <h2 style={h2}>Ù‚ÙˆØ§Ø¦Ù… Ø§Ù„Ù‡ÙŠØ¯Ø±</h2>
+              <h2 style={h2}>ŞæÇÆã ÇáåíÏÑ</h2>
               {header.menuItems.map((m,i)=>(
                 <div key={i} style={row}>
                   <Input value={m.label} onChange={(e)=> {
@@ -189,55 +188,55 @@ export default function HeaderFooterAdminPage() {
                   <Input value={m.href} onChange={(e)=> {
                     const arr=[...header.menuItems]; arr[i]={...m, href:e.target.value}; saveHeader({ menuItems: arr });
                   }}/>
-                  <button style={btnDanger} onClick={()=> saveHeader({ menuItems: header.menuItems.filter((_,x)=>x!==i) })}>Ø­Ø°Ù</button>
+                  <button style={btnDanger} onClick={()=> saveHeader({ menuItems: header.menuItems.filter((_,x)=>x!==i) })}>ÍĞİ</button>
                 </div>
               ))}
               <div style={row}>
-                <button style={btnPrimary} onClick={()=> saveHeader({ menuItems: [...header.menuItems, { label:"Ø±Ø§Ø¨Ø· Ø¬Ø¯ÙŠØ¯", href:"#"}] })}>+ Ø¹Ù†ØµØ±</button>
+                <button style={btnPrimary} onClick={()=> saveHeader({ menuItems: [...header.menuItems, { label:"ÑÇÈØ ÌÏíÏ", href:"#"}] })}>+ ÚäÕÑ</button>
               </div>
 
-              <h2 style={h2}>Ø§Ù„Ø¥Ø´Ø¹Ø§Ø± Ø§Ù„Ø¹Ù„ÙˆÙŠ</h2>
+              <h2 style={h2}>ÇáÅÔÚÇÑ ÇáÚáæí</h2>
               <div style={{ display:"flex", gap:8 }}>
-                <Input value={notifDraft} onChange={(e)=>setNotifDraft(e.target.value)} placeholder="Ø±Ø³Ø§Ù„Ø© Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±"/>
+                <Input value={notifDraft} onChange={(e)=>setNotifDraft(e.target.value)} placeholder="ÑÓÇáÉ ÇáÅÔÚÇÑ"/>
                 <button style={btnPrimary} onClick={()=> {
                   const v = notifDraft.trim(); if(!v) return;
                   setNotifDraft("");
                   setHeader(h=>({ ...h, notifications:[...h.notifications, { id: crypto.randomUUID(), message:v, visible:true }] }));
-                }}>Ø¥Ø¶Ø§ÙØ©</button>
+                }}>ÅÖÇİÉ</button>
               </div>
             </section>
           </div>
         ) : (
           <div style={{ display:"grid", gap:16, gridTemplateColumns:"1fr 1fr" }}>
             <section style={panel}>
-              <h2 style={h2}>Ø£Ù„ÙˆØ§Ù† Ø§Ù„ÙÙˆØªØ±</h2>
-              <Row label="Ø´ÙØ§ÙÙŠØ© Ø§Ù„Ù„ÙˆÙ†">
+              <h2 style={h2}>ÃáæÇä ÇáİæÊÑ</h2>
+              <Row label="ÔİÇİíÉ Çááæä">
                 <input type="range" min={20} max={100} step={5} value={footer.transparency}
                   onChange={(e)=>saveFooter({ transparency: parseInt(e.target.value) })}/>
                 <span>{footer.transparency}%</span>
               </Row>
-              <Row label="Ù„ÙˆÙ† Ø§Ù„Ù†Øµ">
+              <Row label="áæä ÇáäÕ">
                 <input type="color" value={footer.textColor} onChange={(e)=>saveFooter({ textColor: e.target.value })}/>
                 <Input value={footer.textColor} onChange={(e)=>saveFooter({ textColor: e.target.value })}/>
               </Row>
             </section>
 
             <section style={panel}>
-              <h2 style={h2}>Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„ØªÙˆØ§ØµÙ„</h2>
-              <Row label="Ø§Ù„Ø¨Ø±ÙŠØ¯"><Input value={footer.contact.email} onChange={(e)=>saveFooter({ contact:{ ...footer.contact, email:e.target.value }})}/></Row>
-              <Row label="Ø§Ù„Ù‡Ø§ØªÙ"><Input value={footer.contact.phone} onChange={(e)=>saveFooter({ contact:{ ...footer.contact, phone:e.target.value }})}/></Row>
-              <Row label="Ø§Ù„Ø¹Ù†ÙˆØ§Ù†"><Input value={footer.contact.address} onChange={(e)=>saveFooter({ contact:{ ...footer.contact, address:e.target.value }})}/></Row>
+              <h2 style={h2}>ãÚáæãÇÊ ÇáÊæÇÕá</h2>
+              <Row label="ÇáÈÑíÏ"><Input value={footer.contact.email} onChange={(e)=>saveFooter({ contact:{ ...footer.contact, email:e.target.value }})}/></Row>
+              <Row label="ÇáåÇÊİ"><Input value={footer.contact.phone} onChange={(e)=>saveFooter({ contact:{ ...footer.contact, phone:e.target.value }})}/></Row>
+              <Row label="ÇáÚäæÇä"><Input value={footer.contact.address} onChange={(e)=>saveFooter({ contact:{ ...footer.contact, address:e.target.value }})}/></Row>
             </section>
 
             <section style={{ ...panel, gridColumn:"1 / -1" }}>
-              <h2 style={h2}>Ø£Ù‚Ø³Ø§Ù… Ø§Ù„ÙÙˆØªØ±</h2>
+              <h2 style={h2}>ÃŞÓÇã ÇáİæÊÑ</h2>
               {footer.sections.map((s,i)=>(
                 <div key={i} style={{ border:"1px solid #e5e7eb", borderRadius:10, padding:12, marginBottom:10 }}>
-                  <Row label={`Ø§Ù„Ø¹Ù†ÙˆØ§Ù† #${i+1}`}>
+                  <Row label={`ÇáÚäæÇä #${i+1}`}>
                     <Input value={s.title} onChange={(e)=> {
                       const arr=[...footer.sections]; arr[i]={ ...s, title:e.target.value }; saveFooter({ sections: arr });
                     }}/>
-                    <button style={btnDanger} onClick={()=> saveFooter({ sections: footer.sections.filter((_,x)=>x!==i) })}>Ø­Ø°Ù Ø§Ù„Ù‚Ø³Ù…</button>
+                    <button style={btnDanger} onClick={()=> saveFooter({ sections: footer.sections.filter((_,x)=>x!==i) })}>ÍĞİ ÇáŞÓã</button>
                   </Row>
 
                   {s.links.map((l,j)=>(
@@ -250,36 +249,36 @@ export default function HeaderFooterAdminPage() {
                       }}/>
                       <button style={btnDanger} onClick={()=> {
                         const arr=[...footer.sections]; const links=[...arr[i].links]; links.splice(j,1); arr[i]={ ...arr[i], links }; saveFooter({ sections: arr });
-                      }}>Ø­Ø°Ù</button>
+                      }}>ÍĞİ</button>
                     </div>
                   ))}
                   <div style={row}>
                     <button style={btnPrimary} onClick={()=> {
-                      const arr=[...footer.sections]; arr[i]={ ...s, links:[...s.links, { label:"Ø±Ø§Ø¨Ø·", href:"#"}] }; saveFooter({ sections: arr });
-                    }}>+ Ø±Ø§Ø¨Ø·</button>
+                      const arr=[...footer.sections]; arr[i]={ ...s, links:[...s.links, { label:"ÑÇÈØ", href:"#"}] }; saveFooter({ sections: arr });
+                    }}>+ ÑÇÈØ</button>
                   </div>
                 </div>
               ))}
               <div style={row}>
-                <button style={btnPrimary} onClick={()=> saveFooter({ sections:[...footer.sections, { title:"Ù‚Ø³Ù… Ø¬Ø¯ÙŠØ¯", links:[{ label:"Ø±Ø§Ø¨Ø·", href:"#"}] } ] })}>+ Ù‚Ø³Ù…</button>
+                <button style={btnPrimary} onClick={()=> saveFooter({ sections:[...footer.sections, { title:"ŞÓã ÌÏíÏ", links:[{ label:"ÑÇÈØ", href:"#"}] } ] })}>+ ŞÓã</button>
               </div>
             </section>
 
             <section style={{ ...panel, gridColumn:"1 / -1" }}>
-              <h2 style={h2}>Ø·Ø±Ù‚ Ø§Ù„Ø¯ÙØ¹</h2>
+              <h2 style={h2}>ØÑŞ ÇáÏİÚ</h2>
               {footer.payments.map((p,i)=>(
                 <div key={i} style={row}>
                   <Input value={p.name} onChange={(e)=> {
                     const arr=[...footer.payments]; arr[i]={ ...p, name:e.target.value }; saveFooter({ payments: arr });
-                  }} placeholder="Ø§Ù„Ø§Ø³Ù…"/>
+                  }} placeholder="ÇáÇÓã"/>
                   <Input value={p.icon||""} onChange={(e)=> {
                     const arr=[...footer.payments]; arr[i]={ ...p, icon:e.target.value }; saveFooter({ payments: arr });
-                  }} placeholder="Ø±Ø§Ø¨Ø· Ø§Ù„Ø£ÙŠÙ‚ÙˆÙ†Ø© (Ø§Ø®ØªÙŠØ§Ø±ÙŠ)"/>
-                  <button style={btnDanger} onClick={()=> saveFooter({ payments: footer.payments.filter((_,x)=>x!==i) })}>Ø­Ø°Ù</button>
+                  }} placeholder="ÑÇÈØ ÇáÃíŞæäÉ (ÇÎÊíÇÑí)"/>
+                  <button style={btnDanger} onClick={()=> saveFooter({ payments: footer.payments.filter((_,x)=>x!==i) })}>ÍĞİ</button>
                 </div>
               ))}
               <div style={row}>
-                <button style={btnPrimary} onClick={()=> saveFooter({ payments:[...footer.payments, { name:"Ø·Ø±ÙŠÙ‚Ø© Ø¬Ø¯ÙŠØ¯Ø©" }] })}>+ Ø·Ø±ÙŠÙ‚Ø©</button>
+                <button style={btnPrimary} onClick={()=> saveFooter({ payments:[...footer.payments, { name:"ØÑíŞÉ ÌÏíÏÉ" }] })}>+ ØÑíŞÉ</button>
               </div>
             </section>
           </div>
@@ -290,7 +289,7 @@ export default function HeaderFooterAdminPage() {
       <footer style={{ background: footerBg, color: footer.textColor, borderTop:"1px solid rgba(255,255,255,0.2)" }}>
         <div style={{ maxWidth:1120, margin:"0 auto", padding:"32px 16px" }}>
           <div style={{ display:"grid", gap:24, gridTemplateColumns:"repeat(4,minmax(0,1fr))" }}>
-            <div><div style={{ fontWeight:600, fontSize:18 }}>Ø¹ÙŠÙ† Ø¹ÙÙ…Ø§Ù†</div><p style={{ opacity:.9, marginTop:8, fontSize:14 }}>Ù…Ù†ØµÙ‘Ø© Ø¹Ù‚Ø§Ø±ÙŠØ© Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø¹Ù‚Ø§Ø±Ø§Øª ÙˆØ§Ù„Ù…Ø²Ø§Ø¯Ø§Øª.</p></div>
+            <div><div style={{ fontWeight:600, fontSize:18 }}>Úíä ÚõãÇä</div><p style={{ opacity:.9, marginTop:8, fontSize:14 }}>ãäÕøÉ ÚŞÇÑíÉ áÅÏÇÑÉ ÇáÚŞÇÑÇÊ æÇáãÒÇÏÇÊ.</p></div>
             {footer.sections.map((s,i)=>(
               <div key={i}>
                 <div style={{ fontWeight:600 }}>{s.title}</div>
@@ -300,20 +299,20 @@ export default function HeaderFooterAdminPage() {
               </div>
             ))}
             <div>
-              <div style={{ fontWeight:600 }}>ØªÙˆØ§ØµÙ„</div>
+              <div style={{ fontWeight:600 }}>ÊæÇÕá</div>
               <ul style={{ marginTop:12, fontSize:14, lineHeight:"28px" }}>
-                <li>Ø§Ù„Ø¨Ø±ÙŠØ¯: <a href={`mailto:${footer.contact.email}`} style={{ color:"inherit" }}>{footer.contact.email}</a></li>
-                <li>Ø§Ù„Ù‡Ø§ØªÙ: <a href={`tel:${footer.contact.phone}`} style={{ color:"inherit" }}>{footer.contact.phone}</a></li>
-                <li>Ø§Ù„Ø¹Ù†ÙˆØ§Ù†: {footer.contact.address}</li>
+                <li>ÇáÈÑíÏ: <a href={`mailto:${footer.contact.email}`} style={{ color:"inherit" }}>{footer.contact.email}</a></li>
+                <li>ÇáåÇÊİ: <a href={`tel:${footer.contact.phone}`} style={{ color:"inherit" }}>{footer.contact.phone}</a></li>
+                <li>ÇáÚäæÇä: {footer.contact.address}</li>
               </ul>
-              <div style={{ marginTop:16, fontSize:12, opacity:.9 }}>Ø·Ø±Ù‚ Ø§Ù„Ø¯ÙØ¹: {footer.payments.map(p=>p.name).join(" â€¢ ")}</div>
+              <div style={{ marginTop:16, fontSize:12, opacity:.9 }}>ØÑŞ ÇáÏİÚ: {footer.payments.map(p=>p.name).join(" • ")}</div>
             </div>
           </div>
           <div style={{ marginTop:24, paddingTop:16, borderTop:"1px solid rgba(255,255,255,0.2)", fontSize:12, opacity:.8, display:"flex", justifyContent:"space-between", gap:12, flexWrap:"wrap" }}>
-            <div>Â© {new Date().getFullYear()} Ø¹ÙŠÙ† Ø¹ÙÙ…Ø§Ù†</div>
+            <div>© {new Date().getFullYear()} Úíä ÚõãÇä</div>
             <div style={{ display:"flex", gap:16 }}>
-              <a href="/terms" style={{ color:"inherit" }}>Ø§Ù„Ø´Ø±ÙˆØ·</a>
-              <a href="/privacy" style={{ color:"inherit" }}>Ø§Ù„Ø®ØµÙˆØµÙŠØ©</a>
+              <a href="/terms" style={{ color:"inherit" }}>ÇáÔÑæØ</a>
+              <a href="/privacy" style={{ color:"inherit" }}>ÇáÎÕæÕíÉ</a>
             </div>
           </div>
         </div>

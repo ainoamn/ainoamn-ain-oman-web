@@ -1,12 +1,10 @@
-// @ts-nocheck
 // src/pages/dashboard/advanced.tsx - لوحة التحكم المتقدمة
 import React, { useState, useEffect } from 'react';
 import { 
-  FiShield, FiUser, FiTrendingUp, FiActivity,
-  FiBarChart2, FiUsers, FiCalendar, FiDollarSign, FiSettings,
-  FiBell, FiSearch, FiFilter, FiGlobe, FiZap
+  FiShield, FiBuilding, FiUser, FiTrendingUp, FiActivity,
+  FiBarChart3, FiUsers, FiCalendar, FiDollarSign, FiSettings,
+  FiBell, FiSearch, FiFilter, FiGlobe, FiBrain, FiZap
 } from 'react-icons/fi';
-import { FaBuilding, FaRobot } from 'react-icons/fa';
 import { UserRole, ROLE_PERMISSIONS } from '@/lib/userRoles';
 import { SubscriptionPlan, SUBSCRIPTION_PLANS } from '@/lib/subscriptionSystem';
 import { aiEngine, AIInsight } from '@/lib/aiSystem';
@@ -35,7 +33,7 @@ export default function AdvancedDashboard() {
       );
       setAiInsights(insights);
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+
     } finally {
       setLoading(false);
     }
@@ -126,7 +124,7 @@ export default function AdvancedDashboard() {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center mb-4">
               <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                <FaRobot size={24} className="text-purple-600" />
+                <FiBrain size={24} className="text-purple-600" />
               </div>
               <div className="mr-4">
                 <h3 className="text-lg font-semibold text-gray-900">الذكاء الاصطناعي</h3>
@@ -193,7 +191,7 @@ export default function AdvancedDashboard() {
           <h2 className="text-xl font-semibold text-gray-900 mb-6">إجراءات سريعة</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             <button className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-center">
-              <FaBuilding size={24} className="text-blue-600 mx-auto mb-2" />
+              <FiBuilding size={24} className="text-blue-600 mx-auto mb-2" />
               <span className="text-sm font-medium text-blue-800">العقارات</span>
             </button>
             <button className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-center">
@@ -213,7 +211,7 @@ export default function AdvancedDashboard() {
               <span className="text-sm font-medium text-red-800">العملاء</span>
             </button>
             <button className="p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors text-center">
-              <FiBarChart2 size={24} className="text-indigo-600 mx-auto mb-2" />
+              <FiBarChart3 size={24} className="text-indigo-600 mx-auto mb-2" />
               <span className="text-sm font-medium text-indigo-800">التقارير</span>
             </button>
           </div>

@@ -170,7 +170,7 @@ export default function PurchaseInvoicesPage() {
       return;
     }
 
-    console.log('حفظ فاتورة المشتريات:', formData);
+
     alert('تم حفظ الفاتورة بنجاح!');
     setShowCreateModal(false);
     loadInvoices();

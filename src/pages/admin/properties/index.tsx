@@ -16,7 +16,7 @@ function resolveSrc(name?:string){
   if(!name) return "";
   if(/^https?:\/\//.test(name) || name.startsWith("data:")) return name;
   if(name.startsWith("/")) return name;
-  // ÙŠÙØªØ±Ø¶ ÙˆØ¬ÙˆØ¯ Ø§Ù„Ù…Ù„ÙØ§Øª ØªØ­Øª public/uploads
+  // íİÊÑÖ æÌæÏ ÇáãáİÇÊ ÊÍÊ public/uploads
   return `/uploads/${name}`;
 }
 
@@ -53,7 +53,7 @@ export default function AdminPropertiesList(){
     });
     if(r.ok) refresh();
   }
-  // Ø§Ø³ØªØ¹Ù…Ù„ unitNo Ù„ØªÙØ§Ø¯ÙŠ ØªÙƒØ±Ø§Ø± Ø§Ù„Ù…Ø¹Ø±ÙØ§Øª
+  // ÇÓÊÚãá unitNo áÊİÇÏí ÊßÑÇÑ ÇáãÚÑİÇÊ
   async function toggleUnitPublish(bid:string, unitNo:string, val:boolean){
     const r = await fetch(`/api/buildings/${encodeURIComponent(bid)}`, {
       method:"PATCH", headers:{ "content-type":"application/json" },
@@ -62,7 +62,7 @@ export default function AdminPropertiesList(){
     if(r.ok) refresh();
   }
   async function archiveBuilding(id:string){
-    if(!confirm("Ø£Ø±Ø´ÙØ© Ø§Ù„Ù…Ø¨Ù†Ù‰ØŸ")) return;
+    if(!confirm("ÃÑÔİÉ ÇáãÈäì¿")) return;
     const r = await fetch(`/api/buildings/${encodeURIComponent(id)}`, {
       method:"PATCH", headers:{ "content-type":"application/json" },
       body: JSON.stringify({ op:"archive", archived: true })
@@ -86,32 +86,32 @@ export default function AdminPropertiesList(){
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Head><title>Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø¹Ù‚Ø§Ø±Ø§Øª</title></Head>
+      <Head><title>ÅÏÇÑÉ ÇáÚŞÇÑÇÊ</title></Head>
       
       <main className="container mx-auto p-4 flex-1 space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Ø§Ù„Ø¹Ù‚Ø§Ø±Ø§Øª</h1>
-          <InstantLink href="/properties/new" className="btn btn-primary">Ø¥Ø¯Ø®Ø§Ù„ Ù…Ø¨Ù†Ù‰</InstantLink>
+          <h1 className="text-xl font-semibold">ÇáÚŞÇÑÇÊ</h1>
+          <InstantLink href="/properties/new" className="btn btn-primary">ÅÏÎÇá ãÈäì</InstantLink>
         </div>
 
         <div className="border rounded-2xl p-3 grid sm:grid-cols-6 gap-2">
-          <input className="form-input" placeholder="Ø±Ù‚Ù… Ø§Ù„Ù…Ø¨Ù†Ù‰" value={fNo} onChange={e=>setFNo(e.target.value)} />
-          <input className="form-input sm:col-span-2" placeholder="Ø§Ù„Ø¹Ù†ÙˆØ§Ù†" value={fAddr} onChange={e=>setFAddr(e.target.value)} />
+          <input className="form-input" placeholder="ÑŞã ÇáãÈäì" value={fNo} onChange={e=>setFNo(e.target.value)} />
+          <input className="form-input sm:col-span-2" placeholder="ÇáÚäæÇä" value={fAddr} onChange={e=>setFAddr(e.target.value)} />
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={showArchived} onChange={e=>setShowArchived(e.target.checked)} />
-            Ø¹Ø±Ø¶ Ø§Ù„Ù…Ø¨Ø§Ù†ÙŠ Ø§Ù„Ù…Ø¤Ø±Ø´ÙØ©
+            ÚÑÖ ÇáãÈÇäí ÇáãÄÑÔİÉ
           </label>
         </div>
 
-        {loading? <div>Ø¬Ø§Ø±Ù Ø§Ù„ØªØ­Ù…ÙŠÙ„â€¦</div> : (
+        {loading? <div>ÌÇÑò ÇáÊÍãíá…</div> : (
           <div className="overflow-auto">
             <table className="w-full text-sm border">
               <thead>
                 <tr className="border-b bg-gray-50">
-                  <th className="p-2 text-left">Ø§Ù„Ù…Ø¨Ù†Ù‰</th>
-                  <th className="p-2 text-left">Ø§Ù„Ø¹Ù†ÙˆØ§Ù†</th>
-                  <th className="p-2 text-left">Ø§Ù„ÙˆØ­Ø¯Ø§Øª</th>
-                  <th className="p-2 text-left">Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª</th>
+                  <th className="p-2 text-left">ÇáãÈäì</th>
+                  <th className="p-2 text-left">ÇáÚäæÇä</th>
+                  <th className="p-2 text-left">ÇáæÍÏÇÊ</th>
+                  <th className="p-2 text-left">ÅÌÑÇÁÇÊ</th>
                 </tr>
               </thead>
               <tbody>
@@ -122,12 +122,12 @@ export default function AdminPropertiesList(){
                         <BuildingThumb b={b}/>
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <div className="font-medium">Ù…Ø¨Ù†Ù‰ {b.buildingNo}</div>
+                            <div className="font-medium">ãÈäì {b.buildingNo}</div>
                             <label className="text-xs inline-flex items-center gap-1">
                               <input type="checkbox" checked={!!b.published} onChange={e=>toggleBuildingPublish(b.id,e.target.checked)} />
-                              Ù†Ø´Ø±
+                              äÔÑ
                             </label>
-                            {b.archived && <span className="text-xs px-2 py-0.5 rounded bg-yellow-100 text-yellow-800">Ù…Ø¤Ø±Ø´Ù</span>}
+                            {b.archived && <span className="text-xs px-2 py-0.5 rounded bg-yellow-100 text-yellow-800">ãÄÑÔİ</span>}
                           </div>
                           <div className="text-xs text-gray-500">{new Date(b.createdAt).toLocaleDateString()}</div>
                         </div>
@@ -143,24 +143,24 @@ export default function AdminPropertiesList(){
                             <UnitThumb u={u}/>
                             <div className="text-sm">
                               <div className="flex items-center gap-2">
-                                <span>ÙˆØ­Ø¯Ø© {u.unitNo}</span>
+                                <span>æÍÏÉ {u.unitNo}</span>
                                 <label className="text-xs inline-flex items-center gap-1">
                                   <input
                                     type="checkbox"
                                     checked={!!u.published}
                                     onChange={e=>toggleUnitPublish(b.id,u.unitNo,e.target.checked)}
                                   />
-                                  Ù†Ø´Ø± Ø§Ù„ÙˆØ­Ø¯Ø©
+                                  äÔÑ ÇáæÍÏÉ
                                 </label>
                               </div>
                               <div className="text-xs text-gray-500">
-                                {u.rentAmount||0} {u.currency||"OMR"} â€¢ {u.status==="leased"?"Ù…Ø¤Ø¬Ø±":u.status==="reserved"?"Ù…Ø­Ø¬ÙˆØ²":"Ø´Ø§ØºØ±"}
+                                {u.rentAmount||0} {u.currency||"OMR"} • {u.status==="leased"?"ãÄÌÑ":u.status==="reserved"?"ãÍÌæÒ":"ÔÇÛÑ"}
                               </div>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <InstantLink className="btn btn-outline btn-sm" href={`/admin/rent/${encodeURIComponent(b.id)}/${encodeURIComponent(u.id)}`}>Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„ØªØ£Ø¬ÙŠØ±</InstantLink>
-                            <InstantLink className="btn btn-outline btn-sm" href={`/admin/buildings/edit/${encodeURIComponent(b.id)}`}>ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª</InstantLink>
+                            <InstantLink className="btn btn-outline btn-sm" href={`/admin/rent/${encodeURIComponent(b.id)}/${encodeURIComponent(u.id)}`}>ÅÏÇÑÉ ÇáÊÃÌíÑ</InstantLink>
+                            <InstantLink className="btn btn-outline btn-sm" href={`/admin/buildings/edit/${encodeURIComponent(b.id)}`}>ÊÚÏíá ÇáÈíÇäÇÊ</InstantLink>
                           </div>
                         </div>
                       ))}
@@ -168,17 +168,17 @@ export default function AdminPropertiesList(){
 
                     <td className="p-2">
                       <div className="flex flex-col gap-2">
-                        <InstantLink className="btn btn-outline btn-sm" href={`/admin/buildings/edit/${encodeURIComponent(b.id)}`}>ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ù…Ø¨Ù†Ù‰</InstantLink>
+                        <InstantLink className="btn btn-outline btn-sm" href={`/admin/buildings/edit/${encodeURIComponent(b.id)}`}>ÊÚÏíá ÇáãÈäì</InstantLink>
                         {!b.archived ? (
-                          <button className="btn btn-outline btn-sm" onClick={()=>archiveBuilding(b.id)}>Ø£Ø±Ø´ÙØ© Ø§Ù„Ù…Ø¨Ù†Ù‰</button>
+                          <button className="btn btn-outline btn-sm" onClick={()=>archiveBuilding(b.id)}>ÃÑÔİÉ ÇáãÈäì</button>
                         ) : (
-                          <button className="btn btn-outline btn-sm" onClick={()=>unarchiveBuilding(b.id)}>Ø¥Ù„ØºØ§Ø¡ Ø§Ù„Ø£Ø±Ø´ÙØ©</button>
+                          <button className="btn btn-outline btn-sm" onClick={()=>unarchiveBuilding(b.id)}>ÅáÛÇÁ ÇáÃÑÔİÉ</button>
                         )}
                       </div>
                     </td>
                   </tr>
                 ))}
-                {filtered.length===0 && <tr><td className="p-3 text-center text-gray-600" colSpan={4}>Ù„Ø§ ØªÙˆØ¬Ø¯ Ø³Ø¬Ù„Ø§Øª.</td></tr>}
+                {filtered.length===0 && <tr><td className="p-3 text-center text-gray-600" colSpan={4}>áÇ ÊæÌÏ ÓÌáÇÊ.</td></tr>}
               </tbody>
             </table>
           </div>

@@ -97,7 +97,7 @@ export default function NewCasePage() {
       setLawyers(lawyersData || []);
       setClients(clientsData || []);
     } catch (error) {
-      console.error('Error loading initial data:', error);
+
     }
   };
 
@@ -133,7 +133,7 @@ export default function NewCasePage() {
         }));
       }
     } catch (error) {
-      console.error('Error loading property details:', error);
+
     }
   };
 
@@ -153,7 +153,7 @@ export default function NewCasePage() {
         setProperties(data || []);
       }
     } catch (error) {
-      console.error('Error searching properties:', error);
+
     }
   };
 
@@ -272,7 +272,7 @@ export default function NewCasePage() {
         alert('حدث خطأ: ' + (error.message || 'فشل في إنشاء القضية'));
       }
     } catch (error) {
-      console.error('Error creating case:', error);
+
       alert('حدث خطأ في إنشاء القضية');
     } finally {
       setLoading(false);

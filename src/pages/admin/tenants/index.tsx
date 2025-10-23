@@ -34,7 +34,7 @@ export default function TenantsManagementPage() {
         setTenants(data.tenants || []);
       }
     } catch (error) {
-      console.error('Error loading tenants:', error);
+
     } finally {
       setLoading(false);
     }

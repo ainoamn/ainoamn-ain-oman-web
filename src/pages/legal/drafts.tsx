@@ -1,4 +1,3 @@
-// @ts-nocheck
 // src/pages/legal/drafts.tsx
 import React, { useEffect, useState } from "react";
 

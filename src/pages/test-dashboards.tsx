@@ -1,14 +1,12 @@
-// @ts-nocheck
 // src/pages/test-dashboards.tsx - صفحة اختبار لوحات التحكم
 import React from 'react';
 import InstantLink from '@/components/InstantLink';
 import { 
-  FiShield, FiUser, FiArrowRight,
-  FiBarChart2, FiUsers, FiCalendar, FiActivity,
+  FiShield, FiBuilding, FiUser, FiArrowRight,
+  FiBarChart3, FiUsers, FiCalendar, FiActivity,
   FiSettings, FiTrendingUp, FiPackage, FiDollarSign,
   FiCheckCircle, FiAlertTriangle, FiInfo
 } from 'react-icons/fi';
-import { FaBuilding } from 'react-icons/fa';
 
 export default function TestDashboards() {
   const dashboardTests = [
@@ -40,7 +38,7 @@ export default function TestDashboards() {
       title: 'لوحة إدارة العقار والملاك',
       url: '/dashboard/property-owner',
       description: 'لوحة تحكم للملاك وإدارة العقارات',
-      icon: <FaBuilding size={32} />,
+      icon: <FiBuilding size={32} />,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
       features: [
@@ -128,7 +126,7 @@ export default function TestDashboards() {
                 العودة للوحات التحكم
               </InstantLink>
               <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <FiBarChart2 size={20} className="text-white" />
+                <FiBarChart3 size={20} className="text-white" />
               </div>
             </div>
           </div>
@@ -281,7 +279,7 @@ export default function TestDashboards() {
               href="/manage-properties" 
               className="p-4 bg-white rounded-lg hover:shadow-md transition-shadow text-center"
             >
-              <FaBuilding size={24} className="text-orange-600 mx-auto mb-2" />
+              <FiBuilding size={24} className="text-orange-600 mx-auto mb-2" />
               <span className="text-sm font-medium text-gray-800">إدارة العقارات</span>
             </InstantLink>
           </div>

@@ -1,4 +1,3 @@
-// @ts-nocheck
 // src/pages/dashboard/customer.tsx - لوحة تحكم العميل
 import React, { useState, useEffect } from 'react';
 import InstantLink from '@/components/InstantLink';
@@ -22,7 +21,7 @@ export default function CustomerDashboard() {
           setBookings(Array.isArray(data.items) ? data.items : []);
         }
       } catch (error) {
-        console.error('Error fetching bookings:', error);
+
       } finally {
         setLoading(false);
       }

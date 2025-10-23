@@ -76,7 +76,7 @@ export default function NewInvoicePage() {
         setTenants(tenantsData.tenants || []);
       }
     } catch (error) {
-      console.error('Error loading data:', error);
+
     }
   };
 

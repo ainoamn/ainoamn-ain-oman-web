@@ -3,7 +3,11 @@ import InstantLink from "@/components/InstantLink";
 import { useState, useEffect } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useRouter } from "next/router";
-import { FaGoogle, FaFacebook, FaTwitter, FaLinkedin, FaApple, FaEnvelope, FaPhone, FaUser, FaLock, FaCheckCircle, FaShieldAlt, FaExclamationCircle } from 'react-icons/fa';
+import { 
+  FaGoogle, FaFacebook, FaTwitter, FaLinkedin, FaApple,
+  FaEnvelope, FaPhone, FaUser, FaLock, FaCheckCircle,
+  FaShieldAlt, FaExclamationCircle
+} from "react-icons/fa";
 
 type AinAuth = { 
   id: string; 

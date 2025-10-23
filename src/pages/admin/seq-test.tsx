@@ -1,4 +1,3 @@
-// @ts-nocheck
 // src/pages/admin/seq-test.tsx
 import { useState } from "react";
 import Head from "next/head";

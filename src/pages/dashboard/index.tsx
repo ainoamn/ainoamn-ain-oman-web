@@ -1,4 +1,3 @@
-// @ts-nocheck
 // src/pages/dashboard/index.tsx - نظام التوجيه التلقائي للوحات التحكم
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
@@ -73,7 +72,7 @@ export default function DashboardRouter() {
         router.push('/login');
       }
     } catch (error) {
-      console.error('Error loading user data:', error);
+
       // في حالة الخطأ، التوجيه لصفحة تسجيل الدخول
       router.push('/login');
     } finally {

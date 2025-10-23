@@ -71,7 +71,7 @@ export default function TasksIndexPage() {
   }, [router.isReady, router.query.propertyId]);
 
   async function load(pid: string) {
-    console.log("Admin tasks loading all tasks from unified API");
+
     setLoading(true);
     setErr("");
     try {
@@ -87,12 +87,12 @@ export default function TasksIndexPage() {
         console.log("Admin tasks loaded:", data.tasks?.length || 0, "tasks", pid ? `(propertyId=${pid})` : "");
         setItems(Array.isArray(data.tasks) ? data.tasks : []);
       } else {
-        console.error("Failed to fetch tasks:", response.status);
+
         setErr("فشل في جلب البيانات");
         setItems([]);
       }
     } catch (e: any) {
-      console.error("Admin tasks load error:", e);
+
       setErr(e?.message || "fetch failed");
       setItems([]);
     } finally {
@@ -116,10 +116,10 @@ export default function TasksIndexPage() {
       bc = new BroadcastChannel("ao_tasks");
       bc.onmessage = (ev) => {
         if (ev?.data?.type === "updated") {
-          console.log("Admin tasks received broadcast:", ev.data);
+
           // إعادة تحميل البيانات عند أي تحديث مع تأخير صغير لضمان تحديث البيانات
           setTimeout(() => {
-            console.log("Admin tasks reloading after broadcast");
+
             load(propertyId);
           }, 100);
         }

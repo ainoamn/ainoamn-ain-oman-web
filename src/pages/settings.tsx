@@ -1,11 +1,16 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import InstantImage from '@/components/InstantImage';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import InstantLink from '@/components/InstantLink';
 import { useI18n } from '@/lib/i18n';
-import { FaUser, FaBell, FaLock, FaPalette, FaGlobe, FaCog, FaEnvelope, FaPhone, FaMapMarkerAlt, FaCamera, FaSave, FaKey, FaShieldAlt, FaEye, FaEyeSlash, FaMoon, FaSun, FaDesktop, FaCheckCircle, FaExclamationTriangle, FaTrash, FaSignOutAlt, FaEdit, FaUpload, FaClock, FaLanguage } from 'react-icons/fa';
+import { 
+  FaUser, FaBell, FaLock, FaPalette, FaGlobe, FaCog,
+  FaEnvelope, FaPhone, FaMapMarkerAlt, FaCamera, FaSave,
+  FaKey, FaShieldAlt, FaEye, FaEyeOff, FaMoon, FaSun,
+  FaDesktop, FaCheckCircle, FaExclamationTriangle, FaTrash,
+  FaSignOutAlt, FaEdit, FaUpload, FaClock, FaLanguage
+} from 'react-icons/fa';
 
 interface UserSettings {
   id: string;
@@ -55,12 +60,12 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [user, setUser] = useState<any>(null);
 
-  // ูู…ุงุฐุฌ
+  // ไใวะฬ
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAvatarUpload, setShowAvatarUpload] = useState(false);
 
-  // ุญููู ููู…ุฉ ุงูู…ุฑูุฑ
+  // อÞๆแ ฿แใษ วแใัๆั
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -81,7 +86,7 @@ export default function SettingsPage() {
         router.replace('/login?return=/settings');
       }
     } catch (error) {
-      console.error('Error loading user:', error);
+
       router.replace('/login?return=/settings');
     }
   };
@@ -103,7 +108,7 @@ export default function SettingsPage() {
         const data = await res.json();
         setSettings(data.settings);
       } else {
-        // ุฅูุดุงุก ุฅุนุฏุงุฏุงุช ุงูุชุฑุงุถูุฉ
+        // ลไิวม ลฺฯวฯวส วÝสัวึํษ
         const defaultSettings: UserSettings = {
           id: `SETTINGS-${Date.now()}`,
           userId,
@@ -113,7 +118,7 @@ export default function SettingsPage() {
             phone: userData.phone || '',
             avatar: userData.picture || userData.avatar,
             bio: '',
-            location: 'ู…ุณูุทุ ุณูุทูุฉ ุนูู…ุงู'
+            location: 'ใำÞุก ำแุไษ ฺ๕ใวไ'
           },
           notifications: {
             email: true,
@@ -142,7 +147,7 @@ export default function SettingsPage() {
         setSettings(defaultSettings);
       }
     } catch (error) {
-      console.error('Error loading settings:', error);
+
     } finally {
       setLoading(false);
     }
@@ -160,9 +165,9 @@ export default function SettingsPage() {
       });
 
       if (res.ok) {
-        alert('โ… ุชู… ุญูุธ ุงูุฅุนุฏุงุฏุงุช ุจูุฌุงุญ!');
+        alert('? สใ อÝู วแลฺฯวฯวส ศไฬวอ!');
         
-        // ุชุญุฏูุซ ุจูุงูุงุช ุงูู…ุณุชุฎุฏู… ูู localStorage
+        // สอฯํห ศํวไวส วแใำสฮฯใ Ýํ localStorage
         const authData = localStorage.getItem('ain_auth');
         if (authData) {
           const userData = JSON.parse(authData);
@@ -174,11 +179,11 @@ export default function SettingsPage() {
         }
       } else {
         const error = await res.json();
-        alert('ุฎุทุฃ: ' + (error.error || 'ูุดู ุญูุธ ุงูุฅุนุฏุงุฏุงุช'));
+        alert('ฮุร: ' + (error.error || 'Ýิแ อÝู วแลฺฯวฯวส'));
       }
     } catch (error) {
-      console.error('Error saving settings:', error);
-      alert('ุญุฏุซ ุฎุทุฃ ุฃุซูุงุก ุญูุธ ุงูุฅุนุฏุงุฏุงุช');
+
+      alert('อฯห ฮุร รหไวม อÝู วแลฺฯวฯวส');
     } finally {
       setSaving(false);
     }
@@ -186,15 +191,15 @@ export default function SettingsPage() {
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      return alert('ุงูุฑุฌุงุก ู…ูุก ุฌู…ูุน ุงูุญููู');
+      return alert('วแัฬวม ใแม ฬใํฺ วแอÞๆแ');
     }
     
     if (newPassword !== confirmPassword) {
-      return alert('ููู…ุฉ ุงูู…ุฑูุฑ ุงูุฌุฏูุฏุฉ ูุชุฃููุฏูุง ุบูุฑ ู…ุชุทุงุจูุชูู');
+      return alert('฿แใษ วแใัๆั วแฬฯํฯษ ๆสร฿ํฯๅว Ûํั ใสุวศÞสํไ');
     }
     
     if (newPassword.length < 8) {
-      return alert('ููู…ุฉ ุงูู…ุฑูุฑ ูุฌุจ ุฃู ุชููู 8 ุฃุญุฑู ุนูู ุงูุฃูู');
+      return alert('฿แใษ วแใัๆั ํฬศ รไ ส฿ๆไ 8 รอัÝ ฺแ์ วแรÞแ');
     }
 
     try {
@@ -209,23 +214,23 @@ export default function SettingsPage() {
       });
 
       if (res.ok) {
-        alert('โ… ุชู… ุชุบููุฑ ููู…ุฉ ุงูู…ุฑูุฑ ุจูุฌุงุญ!');
+        alert('? สใ สÛํํั ฿แใษ วแใัๆั ศไฬวอ!');
         setShowPasswordModal(false);
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
       } else {
         const error = await res.json();
-        alert('ุฎุทุฃ: ' + (error.error || 'ูุดู ุชุบููุฑ ููู…ุฉ ุงูู…ุฑูุฑ'));
+        alert('ฮุร: ' + (error.error || 'Ýิแ สÛํํั ฿แใษ วแใัๆั'));
       }
     } catch (error) {
-      console.error('Error changing password:', error);
-      alert('ุญุฏุซ ุฎุทุฃ ุฃุซูุงุก ุชุบููุฑ ููู…ุฉ ุงูู…ุฑูุฑ');
+
+      alert('อฯห ฮุร รหไวม สÛํํั ฿แใษ วแใัๆั');
     }
   };
 
   const handleDeleteAccount = async () => {
-    if (!confirm('ูู ุฃูุช ู…ุชุฃูุฏ ู…ู ุญุฐู ุญุณุงุจูุ ูุฐุง ุงูุฅุฌุฑุงุก ูุง ูู…ูู ุงูุชุฑุงุฌุน ุนูู!')) {
+    if (!confirm('ๅแ รไส ใสร฿ฯ ใไ อะÝ อำวศ฿ฟ ๅะว วแลฬัวม แว ํใ฿ไ วแสัวฬฺ ฺไๅ!')) {
       return;
     }
 
@@ -237,28 +242,28 @@ export default function SettingsPage() {
       });
 
       if (res.ok) {
-        alert('ุชู… ุญุฐู ุญุณุงุจู ุจูุฌุงุญ');
+        alert('สใ อะÝ อำวศ฿ ศไฬวอ');
         localStorage.removeItem('ain_auth');
         localStorage.removeItem('auth_token');
         router.replace('/');
       } else {
         const error = await res.json();
-        alert('ุฎุทุฃ: ' + (error.error || 'ูุดู ุญุฐู ุงูุญุณุงุจ'));
+        alert('ฮุร: ' + (error.error || 'Ýิแ อะÝ วแอำวศ'));
       }
     } catch (error) {
-      console.error('Error deleting account:', error);
-      alert('ุญุฏุซ ุฎุทุฃ ุฃุซูุงุก ุญุฐู ุงูุญุณุงุจ');
+
+      alert('อฯห ฮุร รหไวม อะÝ วแอำวศ');
     }
   };
 
   if (loading) {
     return (
       <>
-        <Head><title>ุฌุงุฑู ุงูุชุญู…ูู... | Ain Oman</title></Head>
+        <Head><title>ฬวัํ วแสอใํแ... | Ain Oman</title></Head>
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">ุฌุงุฑู ุชุญู…ูู ุงูุฅุนุฏุงุฏุงุช...</p>
+            <p className="text-gray-600">ฬวัํ สอใํแ วแลฺฯวฯวส...</p>
           </div>
         </div>
       </>
@@ -268,13 +273,13 @@ export default function SettingsPage() {
   if (!settings || !user) {
     return (
       <>
-        <Head><title>ุฎุทุฃ | Ain Oman</title></Head>
+        <Head><title>ฮุร | Ain Oman</title></Head>
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <FaExclamationTriangle className="text-6xl text-red-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">ุฎุทุฃ ูู ุชุญู…ูู ุงูุฅุนุฏุงุฏุงุช</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">ฮุร Ýํ สอใํแ วแลฺฯวฯวส</h1>
             <InstantLink href="/login?return=/settings" className="text-green-600 hover:text-green-700 font-medium">
-              ุชุณุฌูู ุงูุฏุฎูู
+              สำฬํแ วแฯฮๆแ
             </InstantLink>
           </div>
         </div>
@@ -283,18 +288,18 @@ export default function SettingsPage() {
   }
 
   const tabs = [
-    { id: 'profile', label: 'ุงูู…ูู ุงูุดุฎุตู', icon: FaUser },
-    { id: 'notifications', label: 'ุงูุฅุดุนุงุฑุงุช', icon: FaBell },
-    { id: 'privacy', label: 'ุงูุฎุตูุตูุฉ', icon: FaShieldAlt },
-    { id: 'appearance', label: 'ุงูู…ุธูุฑ', icon: FaPalette },
-    { id: 'security', label: 'ุงูุฃู…ุงู', icon: FaLock },
-    { id: 'account', label: 'ุงูุญุณุงุจ', icon: FaCog }
+    { id: 'profile', label: 'วแใแÝ วแิฮีํ', icon: FaUser },
+    { id: 'notifications', label: 'วแลิฺวัวส', icon: FaBell },
+    { id: 'privacy', label: 'วแฮีๆีํษ', icon: FaShieldAlt },
+    { id: 'appearance', label: 'วแใูๅั', icon: FaPalette },
+    { id: 'security', label: 'วแรใวไ', icon: FaLock },
+    { id: 'account', label: 'วแอำวศ', icon: FaCog }
   ];
 
   return (
     <>
       <Head>
-        <title>ุงูุฅุนุฏุงุฏุงุช | Ain Oman</title>
+        <title>วแลฺฯวฯวส | Ain Oman</title>
       </Head>
 
       <div dir={dir} className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-green-50 py-8 px-4">
@@ -303,8 +308,8 @@ export default function SettingsPage() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">ุงูุฅุนุฏุงุฏุงุช</h1>
-                <p className="text-gray-600">ุฅุฏุงุฑุฉ ุญุณุงุจู ูุชูุถููุงุชู</p>
+                <h1 className="text-4xl font-bold text-gray-900 mb-2">วแลฺฯวฯวส</h1>
+                <p className="text-gray-600">ลฯวัษ อำวศ฿ ๆสÝึํแวส฿</p>
               </div>
               <button
                 onClick={handleSaveSettings}
@@ -312,7 +317,7 @@ export default function SettingsPage() {
                 className="bg-gradient-to-r from-green-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-blue-700 disabled:opacity-50 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
               >
                 <FaSave />
-                {saving ? 'ุฌุงุฑู ุงูุญูุธ...' : 'ุญูุธ ุงูุชุบููุฑุงุช'}
+                {saving ? 'ฬวัํ วแอÝู...' : 'อÝู วแสÛํํัวส'}
               </button>
             </div>
           </div>
@@ -350,8 +355,8 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-4 mb-6">
                       <FaUser className="text-3xl text-green-600" />
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900">ุงูู…ูู ุงูุดุฎุตู</h2>
-                        <p className="text-gray-600">ุฅุฏุงุฑุฉ ู…ุนููู…ุงุชู ุงูุดุฎุตูุฉ</p>
+                        <h2 className="text-2xl font-bold text-gray-900">วแใแÝ วแิฮีํ</h2>
+                        <p className="text-gray-600">ลฯวัษ ใฺแๆใวส฿ วแิฮีํษ</p>
                       </div>
                     </div>
 
@@ -376,7 +381,7 @@ export default function SettingsPage() {
                           onClick={() => setShowAvatarUpload(true)}
                           className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                         >
-                          ุชุบููุฑ ุงูุตูุฑุฉ
+                          สÛํํั วแีๆัษ
                         </button>
                       </div>
                     </div>
@@ -386,7 +391,7 @@ export default function SettingsPage() {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           <FaUser className="inline-block ml-2" />
-                          ุงูุงุณู… ุงููุงู…ู
+                          วแวำใ วแ฿วใแ
                         </label>
                         <input
                           type="text"
@@ -402,7 +407,7 @@ export default function SettingsPage() {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           <FaEnvelope className="inline-block ml-2" />
-                          ุงูุจุฑูุฏ ุงูุฅููุชุฑููู
+                          วแศัํฯ วแลแ฿สัๆไํ
                         </label>
                         <input
                           type="email"
@@ -419,7 +424,7 @@ export default function SettingsPage() {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           <FaPhone className="inline-block ml-2" />
-                          ุฑูู… ุงููุงุชู
+                          ัÞใ วแๅวสÝ
                         </label>
                         <input
                           type="tel"
@@ -436,7 +441,7 @@ export default function SettingsPage() {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           <FaMapMarkerAlt className="inline-block ml-2" />
-                          ุงูู…ููุน
+                          วแใๆÞฺ
                         </label>
                         <input
                           type="text"
@@ -452,7 +457,7 @@ export default function SettingsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        ูุจุฐุฉ ุนูู
+                        ไศะษ ฺไ฿
                       </label>
                       <textarea
                         value={settings.profile.bio || ''}
@@ -462,7 +467,7 @@ export default function SettingsPage() {
                         })}
                         rows={4}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none"
-                        placeholder="ุฃุฎุจุฑูุง ุนู ููุณู..."
+                        placeholder="รฮศัไว ฺไ ไÝำ฿..."
                       />
                     </div>
                   </div>
@@ -474,19 +479,19 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-4 mb-6">
                       <FaBell className="text-3xl text-blue-600" />
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900">ุงูุฅุดุนุงุฑุงุช</h2>
-                        <p className="text-gray-600">ุชุญูู… ูู ุงูุฅุดุนุงุฑุงุช ุงูุชู ุชุชููุงูุง</p>
+                        <h2 className="text-2xl font-bold text-gray-900">วแลิฺวัวส</h2>
+                        <p className="text-gray-600">สอ฿ใ Ýํ วแลิฺวัวส วแสํ สสแÞวๅว</p>
                       </div>
                     </div>
 
                     <div className="space-y-4">
                       {[
-                        { key: 'email', label: 'ุฅุดุนุงุฑุงุช ุงูุจุฑูุฏ ุงูุฅููุชุฑููู', desc: 'ุชููู ุฅุดุนุงุฑุงุช ุนุจุฑ ุงูุจุฑูุฏ', icon: FaEnvelope },
-                        { key: 'sms', label: 'ุฅุดุนุงุฑุงุช ุงูุฑุณุงุฆู ุงููุตูุฉ', desc: 'ุชููู ุฅุดุนุงุฑุงุช ุนุจุฑ SMS', icon: FaPhone },
-                        { key: 'push', label: 'ุงูุฅุดุนุงุฑุงุช ุงูููุฑูุฉ', desc: 'ุฅุดุนุงุฑุงุช ุงูู…ุชุตูุญ', icon: FaBell },
-                        { key: 'bookings', label: 'ุฅุดุนุงุฑุงุช ุงูุญุฌูุฒุงุช', desc: 'ุชุญุฏูุซุงุช ุญูู ุญุฌูุฒุงุชู', icon: FaCheckCircle },
-                        { key: 'payments', label: 'ุฅุดุนุงุฑุงุช ุงูู…ุฏููุนุงุช', desc: 'ุชูุจููุงุช ุงูุฏูุน ูุงูููุงุชูุฑ', icon: FaCheckCircle },
-                        { key: 'marketing', label: 'ุฅุดุนุงุฑุงุช ุชุณููููุฉ', desc: 'ุนุฑูุถ ูุฃุฎุจุงุฑ', icon: FaBell }
+                        { key: 'email', label: 'ลิฺวัวส วแศัํฯ วแลแ฿สัๆไํ', desc: 'สแÞํ ลิฺวัวส ฺศั วแศัํฯ', icon: FaEnvelope },
+                        { key: 'sms', label: 'ลิฺวัวส วแัำวฦแ วแไีํษ', desc: 'สแÞํ ลิฺวัวส ฺศั SMS', icon: FaPhone },
+                        { key: 'push', label: 'วแลิฺวัวส วแÝๆัํษ', desc: 'ลิฺวัวส วแใสีÝอ', icon: FaBell },
+                        { key: 'bookings', label: 'ลิฺวัวส วแอฬๆาวส', desc: 'สอฯํหวส อๆแ อฬๆาวส฿', icon: FaCheckCircle },
+                        { key: 'payments', label: 'ลิฺวัวส วแใฯÝๆฺวส', desc: 'สไศํๅวส วแฯÝฺ ๆวแÝๆวสํั', icon: FaCheckCircle },
+                        { key: 'marketing', label: 'ลิฺวัวส สำๆํÞํษ', desc: 'ฺัๆึ ๆรฮศวั', icon: FaBell }
                       ].map((item) => (
                         <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
                           <div className="flex items-center gap-3">
@@ -523,20 +528,20 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-4 mb-6">
                       <FaShieldAlt className="text-3xl text-purple-600" />
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900">ุงูุฎุตูุตูุฉ</h2>
-                        <p className="text-gray-600">ุชุญูู… ูู ู…ู ูุฑู ู…ุนููู…ุงุชู</p>
+                        <h2 className="text-2xl font-bold text-gray-900">วแฮีๆีํษ</h2>
+                        <p className="text-gray-600">สอ฿ใ Ýํ ใไ ํั์ ใฺแๆใวส฿</p>
                       </div>
                     </div>
 
                     <div className="space-y-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
-                          ุธููุฑ ุงูู…ูู ุงูุดุฎุตู
+                          ูๅๆั วแใแÝ วแิฮีํ
                         </label>
                         <div className="space-y-2">
                           {[
-                            { value: 'public', label: 'ุนุงู…', desc: 'ูู…ูู ููุฌู…ูุน ุฑุคูุฉ ู…ููู' },
-                            { value: 'private', label: 'ุฎุงุต', desc: 'ุฃูุช ููุท ู…ู ูู…ููู ุฑุคูุฉ ู…ููู' }
+                            { value: 'public', label: 'ฺวใ', desc: 'ํใ฿ไ แแฬใํฺ ัฤํษ ใแÝ฿' },
+                            { value: 'private', label: 'ฮวี', desc: 'รไส ÝÞุ ใไ ํใ฿ไๅ ัฤํษ ใแÝ฿' }
                           ].map((option) => (
                             <label key={option.value} className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 cursor-pointer transition-all">
                               <input
@@ -564,9 +569,9 @@ export default function SettingsPage() {
 
                       <div className="space-y-4">
                         {[
-                          { key: 'showEmail', label: 'ุฅุธูุงุฑ ุงูุจุฑูุฏ ุงูุฅููุชุฑููู', icon: FaEnvelope },
-                          { key: 'showPhone', label: 'ุฅุธูุงุฑ ุฑูู… ุงููุงุชู', icon: FaPhone },
-                          { key: 'allowMessages', label: 'ุงูุณู…ุงุญ ุจุงูุฑุณุงุฆู', icon: FaBell }
+                          { key: 'showEmail', label: 'ลูๅวั วแศัํฯ วแลแ฿สัๆไํ', icon: FaEnvelope },
+                          { key: 'showPhone', label: 'ลูๅวั ัÞใ วแๅวสÝ', icon: FaPhone },
+                          { key: 'allowMessages', label: 'วแำใวอ ศวแัำวฦแ', icon: FaBell }
                         ].map((item) => (
                           <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                             <div className="flex items-center gap-3">
@@ -601,21 +606,21 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-4 mb-6">
                       <FaPalette className="text-3xl text-pink-600" />
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900">ุงูู…ุธูุฑ</h2>
-                        <p className="text-gray-600">ุฎุตุต ุดูู ุงูู…ููุน ุญุณุจ ุฐููู</p>
+                        <h2 className="text-2xl font-bold text-gray-900">วแใูๅั</h2>
+                        <p className="text-gray-600">ฮีี ิ฿แ วแใๆÞฺ อำศ ะๆÞ฿</p>
                       </div>
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-3">
                         <FaPalette className="inline-block ml-2" />
-                        ุงูู…ุธูุฑ
+                        วแใูๅั
                       </label>
                       <div className="grid grid-cols-3 gap-4">
                         {[
-                          { value: 'light', label: 'ูุงุชุญ', icon: FaSun },
-                          { value: 'dark', label: 'ุฏุงูู', icon: FaMoon },
-                          { value: 'auto', label: 'ุชููุงุฆู', icon: FaDesktop }
+                          { value: 'light', label: 'Ýวสอ', icon: FaSun },
+                          { value: 'dark', label: 'ฯว฿ไ', icon: FaMoon },
+                          { value: 'auto', label: 'สแÞวฦํ', icon: FaDesktop }
                         ].map((theme) => (
                           <button
                             key={theme.value}
@@ -641,7 +646,7 @@ export default function SettingsPage() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-3">
                         <FaLanguage className="inline-block ml-2" />
-                        ุงููุบุฉ
+                        วแแÛษ
                       </label>
                       <select
                         value={settings.appearance.language}
@@ -651,20 +656,20 @@ export default function SettingsPage() {
                         })}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                       >
-                        <option value="ar">ุงูุนุฑุจูุฉ</option>
+                        <option value="ar">วแฺัศํษ</option>
                         <option value="en">English</option>
                       </select>
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-3">
-                        ุญุฌู… ุงูุฎุท
+                        อฬใ วแฮุ
                       </label>
                       <div className="grid grid-cols-3 gap-4">
                         {[
-                          { value: 'small', label: 'ุตุบูุฑ' },
-                          { value: 'medium', label: 'ู…ุชูุณุท' },
-                          { value: 'large', label: 'ูุจูุฑ' }
+                          { value: 'small', label: 'ีÛํั' },
+                          { value: 'medium', label: 'ใสๆำุ' },
+                          { value: 'large', label: '฿ศํั' }
                         ].map((size) => (
                           <button
                             key={size.value}
@@ -692,8 +697,8 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-4 mb-6">
                       <FaLock className="text-3xl text-red-600" />
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900">ุงูุฃู…ุงู</h2>
-                        <p className="text-gray-600">ุญู…ุงูุฉ ุญุณุงุจู ูุจูุงูุงุชู</p>
+                        <h2 className="text-2xl font-bold text-gray-900">วแรใวไ</h2>
+                        <p className="text-gray-600">อใวํษ อำวศ฿ ๆศํวไวส฿</p>
                       </div>
                     </div>
 
@@ -703,15 +708,15 @@ export default function SettingsPage() {
                         <div>
                           <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
                             <FaKey className="text-blue-600" />
-                            ููู…ุฉ ุงูู…ุฑูุฑ
+                            ฿แใษ วแใัๆั
                           </h3>
-                          <p className="text-sm text-gray-600">ุขุฎุฑ ุชุบููุฑ: ู…ูุฐ 30 ููู…</p>
+                          <p className="text-sm text-gray-600">ยฮั สÛํํั: ใไะ 30 ํๆใ</p>
                         </div>
                         <button
                           onClick={() => setShowPasswordModal(true)}
                           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all"
                         >
-                          ุชุบููุฑ ููู…ุฉ ุงูู…ุฑูุฑ
+                          สÛํํั ฿แใษ วแใัๆั
                         </button>
                       </div>
                     </div>
@@ -721,14 +726,14 @@ export default function SettingsPage() {
                       {[
                         { 
                           key: 'twoFactorAuth', 
-                          label: 'ุงูู…ุตุงุฏูุฉ ุงูุซูุงุฆูุฉ (2FA)', 
-                          desc: 'ุทุจูุฉ ุฃู…ุงู ุฅุถุงููุฉ ูุญุณุงุจู',
+                          label: 'วแใีวฯÞษ วแหไวฦํษ (2FA)', 
+                          desc: 'ุศÞษ รใวไ ลึวÝํษ แอำวศ฿',
                           icon: FaShieldAlt
                         },
                         { 
                           key: 'loginAlerts', 
-                          label: 'ุชูุจููุงุช ุชุณุฌูู ุงูุฏุฎูู', 
-                          desc: 'ุฅุดุนุงุฑ ุนูุฏ ุชุณุฌูู ุฏุฎูู ุฌุฏูุฏ',
+                          label: 'สไศํๅวส สำฬํแ วแฯฮๆแ', 
+                          desc: 'ลิฺวั ฺไฯ สำฬํแ ฯฮๆแ ฬฯํฯ',
                           icon: FaBell
                         }
                       ].map((item) => (
@@ -767,27 +772,27 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-4 mb-6">
                       <FaCog className="text-3xl text-gray-600" />
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900">ุงูุญุณุงุจ</h2>
-                        <p className="text-gray-600">ุฅุฏุงุฑุฉ ุญุณุงุจู ูุจูุงูุงุชู</p>
+                        <h2 className="text-2xl font-bold text-gray-900">วแอำวศ</h2>
+                        <p className="text-gray-600">ลฯวัษ อำวศ฿ ๆศํวไวส฿</p>
                       </div>
                     </div>
 
                     {/* Account Info */}
                     <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border-2 border-green-200">
-                      <h3 className="font-semibold text-gray-900 mb-4">ู…ุนููู…ุงุช ุงูุญุณุงุจ</h3>
+                      <h3 className="font-semibold text-gray-900 mb-4">ใฺแๆใวส วแอำวศ</h3>
                       <div className="space-y-3 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-gray-600">ู…ุนุฑู ุงูู…ุณุชุฎุฏู…:</span>
+                          <span className="text-gray-600">ใฺัÝ วแใำสฮฯใ:</span>
                           <span className="font-mono text-gray-900">{user.id}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">ููุน ุงูุญุณุงุจ:</span>
+                          <span className="text-gray-600">ไๆฺ วแอำวศ:</span>
                           <span className="font-medium text-gray-900">{user.role || 'user'}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">ุญุงูุฉ ุงูุชูุซูู:</span>
+                          <span className="text-gray-600">อวแษ วแสๆหํÞ:</span>
                           <span className={`font-medium ${user.isVerified ? 'text-green-600' : 'text-yellow-600'}`}>
-                            {user.isVerified ? 'โ… ู…ูุซู' : 'โ ๏ธ ุบูุฑ ู…ูุซู'}
+                            {user.isVerified ? '? ใๆหÞ' : '?? Ûํั ใๆหÞ'}
                           </span>
                         </div>
                       </div>
@@ -797,13 +802,13 @@ export default function SettingsPage() {
                     <div className="bg-blue-50 p-6 rounded-xl border-2 border-blue-200">
                       <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
                         <FaUpload className="text-blue-600" />
-                        ุชุตุฏูุฑ ุงูุจูุงูุงุช
+                        สีฯํั วแศํวไวส
                       </h3>
                       <p className="text-sm text-gray-600 mb-4">
-                        ุงุญุตู ุนูู ูุณุฎุฉ ู…ู ุฌู…ูุน ุจูุงูุงุชู
+                        วอีแ ฺแ์ ไำฮษ ใไ ฬใํฺ ศํวไวส฿
                       </p>
                       <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
-                        ุชุตุฏูุฑ ุงูุจูุงูุงุช
+                        สีฯํั วแศํวไวส
                       </button>
                     </div>
 
@@ -811,10 +816,10 @@ export default function SettingsPage() {
                     <div className="bg-red-50 p-6 rounded-xl border-2 border-red-200">
                       <h3 className="font-semibold text-red-900 mb-2 flex items-center gap-2">
                         <FaExclamationTriangle className="text-red-600" />
-                        ู…ูุทูุฉ ุงูุฎุทุฑ
+                        ใไุÞษ วแฮุั
                       </h3>
                       <p className="text-sm text-red-700 mb-4">
-                        ุงูุฅุฌุฑุงุกุงุช ุงูุชุงููุฉ ูุง ูู…ูู ุงูุชุฑุงุฌุน ุนููุง
+                        วแลฬัวมวส วแสวแํษ แว ํใ฿ไ วแสัวฬฺ ฺไๅว
                       </p>
                       <div className="space-y-3">
                         <button
@@ -826,14 +831,14 @@ export default function SettingsPage() {
                           className="w-full bg-white border-2 border-red-300 text-red-700 px-4 py-2 rounded-lg hover:bg-red-50 transition-all flex items-center justify-center gap-2"
                         >
                           <FaSignOutAlt />
-                          ุชุณุฌูู ุงูุฎุฑูุฌ ู…ู ุฌู…ูุน ุงูุฃุฌูุฒุฉ
+                          สำฬํแ วแฮัๆฬ ใไ ฬใํฺ วแรฬๅาษ
                         </button>
                         <button
                           onClick={() => setShowDeleteModal(true)}
                           className="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2"
                         >
                           <FaTrash />
-                          ุญุฐู ุงูุญุณุงุจ ููุงุฆูุงู
+                          อะÝ วแอำวศ ไๅวฦํว๐
                         </button>
                       </div>
                     </div>
@@ -847,12 +852,12 @@ export default function SettingsPage() {
           {showPasswordModal && (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
               <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">ุชุบููุฑ ููู…ุฉ ุงูู…ุฑูุฑ</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">สÛํํั ฿แใษ วแใัๆั</h3>
                 
                 <div className="space-y-4 mb-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ููู…ุฉ ุงูู…ุฑูุฑ ุงูุญุงููุฉ
+                      ฿แใษ วแใัๆั วแอวแํษ
                     </label>
                     <div className="relative">
                       <input
@@ -866,14 +871,14 @@ export default function SettingsPage() {
                         onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                       >
-                        {showCurrentPassword ? <FaEyeSlash /> : <FaEye />}
+                        {showCurrentPassword ? <FaEyeOff /> : <FaEye />}
                       </button>
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ููู…ุฉ ุงูู…ุฑูุฑ ุงูุฌุฏูุฏุฉ
+                      ฿แใษ วแใัๆั วแฬฯํฯษ
                     </label>
                     <div className="relative">
                       <input
@@ -887,14 +892,14 @@ export default function SettingsPage() {
                         onClick={() => setShowNewPassword(!showNewPassword)}
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                       >
-                        {showNewPassword ? <FaEyeSlash /> : <FaEye />}
+                        {showNewPassword ? <FaEyeOff /> : <FaEye />}
                       </button>
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ุชุฃููุฏ ููู…ุฉ ุงูู…ุฑูุฑ
+                      สร฿ํฯ ฿แใษ วแใัๆั
                     </label>
                     <input
                       type="password"
@@ -910,7 +915,7 @@ export default function SettingsPage() {
                     onClick={handleChangePassword}
                     className="flex-1 bg-gradient-to-r from-green-600 to-blue-600 text-white py-3 rounded-xl font-semibold hover:from-green-700 hover:to-blue-700 transition-all"
                   >
-                    ุญูุธ
+                    อÝู
                   </button>
                   <button
                     onClick={() => {
@@ -921,7 +926,7 @@ export default function SettingsPage() {
                     }}
                     className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-all"
                   >
-                    ุฅูุบุงุก
+                    ลแÛวม
                   </button>
                 </div>
               </div>
@@ -936,9 +941,9 @@ export default function SettingsPage() {
                   <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <FaExclamationTriangle className="text-3xl text-red-600" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">ุญุฐู ุงูุญุณุงุจ</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">อะÝ วแอำวศ</h3>
                   <p className="text-gray-600">
-                    ูู ุฃูุช ู…ุชุฃูุฏ ู…ู ุญุฐู ุญุณุงุจูุ ุณูุชู… ุญุฐู ุฌู…ูุน ุจูุงูุงุชู ููุง ูู…ูู ุงุณุชุนุงุฏุชูุง.
+                    ๅแ รไส ใสร฿ฯ ใไ อะÝ อำวศ฿ฟ ำํสใ อะÝ ฬใํฺ ศํวไวส฿ ๆแว ํใ฿ไ วำสฺวฯสๅว.
                   </p>
                 </div>
 
@@ -947,13 +952,13 @@ export default function SettingsPage() {
                     onClick={handleDeleteAccount}
                     className="flex-1 bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition-all"
                   >
-                    ูุนู…ุ ุงุญุฐู ุญุณุงุจู
+                    ไฺใก วอะÝ อำวศํ
                   </button>
                   <button
                     onClick={() => setShowDeleteModal(false)}
                     className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-all"
                   >
-                    ุฅูุบุงุก
+                    ลแÛวม
                   </button>
                 </div>
               </div>

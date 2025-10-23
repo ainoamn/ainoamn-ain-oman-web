@@ -1,4 +1,3 @@
-// @ts-nocheck
 // src/pages/admin/dashboard/widgets.tsx
 import Head from "next/head";
 import InstantLink from '@/components/InstantLink';
@@ -144,7 +143,7 @@ function saveAdminLinks(links: AdminLink[]) {
   if (typeof window !== "undefined") window.dispatchEvent(new Event("ain:adminLinks:change"));
 }
 function loadWidgetOverrides(): WidgetOverrides {
-  return loadJSON<WidgetOverrides>(LS_WIDGET_OVERRIDES, {} as WidgetOverrides, (x)=> typeof x === "object" && x);
+  return loadJSON<WidgetOverrides>(LS_WIDGET_OVERRIDES, {}, (x)=> typeof x === "object" && x);
 }
 function saveWidgetOverrides(ov: WidgetOverrides){
   saveJSON(LS_WIDGET_OVERRIDES, ov);

@@ -35,7 +35,7 @@ export default function MaintenanceManagementPage() {
         setRequests(data.requests || []);
       }
     } catch (error) {
-      console.error('Error loading maintenance requests:', error);
+
     } finally {
       setLoading(false);
     }

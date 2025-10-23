@@ -70,7 +70,7 @@ export default function UnitsManagementPage() {
         setUnits(data.units || []);
       }
     } catch (error) {
-      console.error('Error loading units:', error);
+
     } finally {
       setLoading(false);
     }
@@ -84,7 +84,7 @@ export default function UnitsManagementPage() {
         setBuildings(data.buildings || []);
       }
     } catch (error) {
-      console.error('Error loading buildings:', error);
+
     }
   };
 
@@ -96,7 +96,7 @@ export default function UnitsManagementPage() {
         setStats(data);
       }
     } catch (error) {
-      console.error('Error loading stats:', error);
+
     }
   };
 
@@ -174,7 +174,7 @@ export default function UnitsManagementPage() {
           loadStats();
         }
       } catch (error) {
-        console.error('Error deleting unit:', error);
+
       }
     }
   };

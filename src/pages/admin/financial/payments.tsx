@@ -30,7 +30,7 @@ export default function PaymentsPage() {
 
       setPayments([]); // تم استبدال mockPayments ببيانات فارغة
     } catch (error) {
-      console.error('Error fetching payments:', error);
+
     } finally {
       setLoading(false);
     }

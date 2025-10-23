@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 // Layout handled by _app.tsx
-import { FaEdit, FaTrash, FaShare, FaDownload, FaPrint, FaFileAlt, FaCalendarAlt, FaUser, FaUserTie, FaBuilding, FaMapMarkerAlt, FaPhone, FaEnvelope, FaWhatsapp, FaTelegram, FaTwitter, FaFacebook, FaLinkedin, FaCopy, FaEye, FaClock, FaCheckCircle, FaExclamationTriangle, FaInfoCircle, FaRobot, FaChartLine, FaHistory, FaComments, FaMoneyBillWave, FaFileContract, FaGavel, FaBalanceScale, FaPlus, FaUpload, FaSearch, FaFilter, FaSort, FaSortUp, FaSortDown, FaChevronDown, FaChevronUp, FaExternalLinkAlt, FaQrcode, FaShieldAlt, FaLock, FaUnlock, FaKey, FaFingerprint, FaIdCard, FaCertificate, FaAward, FaTrophy, FaMedal, FaStar, FaHeart, FaThumbsUp, FaThumbsDown, FaReply, FaForward, FaBackward, FaPlay, FaPause, FaStop, FaMicrophone, FaVideo, FaCamera, FaImage, FaImages, FaFileImage, FaFilePdf, FaFileWord, FaFileExcel, FaFilePowerpoint, FaFileArchive, FaFileCode, FaFileInvoice, FaFileInvoiceDollar, FaFileMedical, FaFilePrescription, FaFileSignature, FaFileUpload, FaFileDownload, FaFileExport, FaFileImport, FaClipboard, FaClipboardList, FaClipboardCheck } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaShare, FaDownload, FaPrint, FaFileAlt, FaCalendarAlt, FaUser, FaUserTie, FaBuilding, FaMapMarkerAlt, FaPhone, FaEnvelope, FaWhatsapp, FaTelegram, FaTwitter, FaFacebook, FaLinkedin, FaCopy, FaEye, FaClock, FaCheckCircle, FaExclamationTriangle, FaInfoCircle, FaBrain, FaChartLine, FaHistory, FaComments, FaMoneyBillWave, FaFileContract, FaGavel, FaBalanceScale, FaPlus, FaUpload, FaSearch, FaFilter, FaSort, FaSortUp, FaSortDown, FaChevronDown, FaChevronUp, FaExternalLinkAlt, FaQrcode, FaShieldAlt, FaLock, FaUnlock, FaKey, FaFingerprint, FaIdCard, FaCertificate, FaAward, FaTrophy, FaMedal, FaStar, FaHeart, FaThumbsUp, FaThumbsDown, FaReply, FaForward, FaBackward, FaPlay, FaPause, FaStop, FaMicrophone, FaVideo, FaCamera, FaImage, FaImages, FaFileImage, FaFilePdf, FaFileWord, FaFileExcel, FaFilePowerpoint, FaFileArchive, FaFileCode, FaFileInvoice, FaFileInvoiceDollar, FaFileMedical, FaFilePrescription, FaFileSignature, FaFileUpload, FaFileDownload, FaFileExport, FaFileImport, FaClipboard, FaClipboardList, FaClipboardCheck } from 'react-icons/fa';
 
 type Tab = "overview"|"timeline"|"documents"|"updates"|"expenses"|"analytics"|"ai-insights";
 
@@ -404,7 +404,7 @@ export default function CasePage() {
                 { id: 'updates', label: 'التحديثات', icon: FaComments },
                 { id: 'expenses', label: 'المصاريف', icon: FaMoneyBillWave },
                 { id: 'analytics', label: 'التحليلات', icon: FaChartLine },
-                { id: 'ai-insights', label: 'الذكاء الاصطناعي', icon: FaRobot }
+                { id: 'ai-insights', label: 'الذكاء الاصطناعي', icon: FaBrain }
               ].map((tab) => {
                 const Icon = tab.icon;
                 return (
@@ -776,7 +776,7 @@ export default function CasePage() {
         {activeTab === 'ai-insights' && (
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <FaRobot className="text-purple-600" />
+              <FaBrain className="text-purple-600" />
               تحليل الذكاء الاصطناعي
             </h2>
             

@@ -139,11 +139,11 @@ export default function RolesPermissionsPage() {
         setRoles(data.roles);
         // حفظ في localStorage أيضاً
         localStorage.setItem('roles_permissions_config', JSON.stringify(data.roles));
-        console.log('✅ Roles: Loaded from API:', data.roles.length, 'roles');
+
         return;
       }
     } catch (error) {
-      console.log('⚠️ Roles: Failed to load from API, trying localStorage...');
+
     }
     
     // fallback إلى localStorage
@@ -152,13 +152,13 @@ export default function RolesPermissionsPage() {
       try {
         const config = JSON.parse(savedConfig);
         setRoles(config);
-        console.log('✅ Roles: Loaded from localStorage:', config.length, 'roles');
+
       } catch (error) {
-        console.error('❌ Roles: Error loading roles config:', error);
+
         initializeDefaultRoles();
       }
     } else {
-      console.log('⚠️ Roles: No config found, initializing default roles...');
+
       initializeDefaultRoles();
     }
   };
@@ -166,7 +166,7 @@ export default function RolesPermissionsPage() {
   const initializeDefaultRoles = () => {
     localStorage.setItem('roles_permissions_config', JSON.stringify(DEFAULT_ROLES));
     setRoles(DEFAULT_ROLES);
-    console.log('✅ Roles: Default roles initialized and saved:', DEFAULT_ROLES.length, 'roles');
+
     
     // إرسال إشعار للتبويبات الأخرى
     try {
@@ -177,7 +177,7 @@ export default function RolesPermissionsPage() {
       });
       channel.close();
     } catch (error) {
-      console.error('Error broadcasting initialization:', error);
+
     }
   };
 
@@ -220,9 +220,9 @@ export default function RolesPermissionsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roles: updatedRoles })
       });
-      console.log('✅ Roles saved to API');
+
     } catch (error) {
-      console.error('❌ Failed to save to API:', error);
+
     }
     
     // إرسال إشعار للتبويبات الأخرى باستخدام BroadcastChannel
@@ -234,14 +234,14 @@ export default function RolesPermissionsPage() {
         timestamp: Date.now() 
       });
       channel.close();
-      console.log('✅ Broadcast message sent for real-time sync');
+
       
       // أيضاً إرسال CustomEvent للتبويب الحالي
       window.dispatchEvent(new CustomEvent('permissions:updated', { 
         detail: { roleId: selectedRole.id } 
       }));
     } catch (error) {
-      console.error('Error broadcasting update:', error);
+
     }
     
     alert('✅ تم حفظ صلاحيات الدور بنجاح!\n\nسيتم تطبيقها على جميع المستخدمين والمتصفحات.');

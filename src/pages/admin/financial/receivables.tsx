@@ -42,7 +42,7 @@ export default function ReceivablesPage() {
 
       setReceivables([]); // تم استبدال mockReceivables ببيانات فارغة
     } catch (error) {
-      console.error('Error fetching receivables:', error);
+
     } finally {
       setLoading(false);
     }

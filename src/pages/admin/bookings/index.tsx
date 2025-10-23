@@ -1,4 +1,3 @@
-// @ts-nocheck
 import Head from "next/head";
 import InstantLink from '@/components/InstantLink';
 import { useEffect, useState, useMemo } from "react";
@@ -50,9 +49,9 @@ export default function AdminBookingsListPage(){
   // ✅ استخدام Context الموحد بدلاً من fetch محلي
   const { bookings: items, loading, error: err, lastUpdate } = useBookings();
   
-  console.log('🔍 Admin Bookings: items count =', items.length);
-  console.log('📊 Admin Bookings: loading =', loading);
-  console.log('❌ Admin Bookings: error =', err);
+
+
+
   
   const [filters, setFilters] = useState<FilterState>({
     searchTerm: '',
