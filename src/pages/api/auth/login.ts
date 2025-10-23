@@ -15,24 +15,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'البريد الإلكتروني وكلمة المرور مطلوبان' });
     }
 
-    // قراءة الحسابات التجريبية من كلا الملفين
-    const demoUsersPath = path.join(process.cwd(), '.data', 'demo-users.json');
-    const allAccountsPath = path.join(process.cwd(), '.data', 'all-demo-accounts.json');
+    // قراءة المستخدمين من قاعدة البيانات الحقيقية
+    const usersPath = path.join(process.cwd(), '.data', 'users.json');
     
     let users: any[] = [];
     
-    // قراءة من demo-users.json
-    if (fs.existsSync(demoUsersPath)) {
-      const demoData = JSON.parse(fs.readFileSync(demoUsersPath, 'utf8'));
-      const demoUsers = Array.isArray(demoData) ? demoData : [];
-      users = [...users, ...demoUsers];
-    }
-    
-    // قراءة من all-demo-accounts.json
-    if (fs.existsSync(allAccountsPath)) {
-      const allData = JSON.parse(fs.readFileSync(allAccountsPath, 'utf8'));
-      const allUsers = Array.isArray(allData) ? allData : (allData.accounts || []);
-      users = [...users, ...allUsers];
+    if (fs.existsSync(usersPath)) {
+      const usersData = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+      users = Array.isArray(usersData) ? usersData : [];
+      
+      // تحميل صلاحيات الأدوار وإضافتها للمستخدمين
+      const rolesPath = path.join(process.cwd(), '.data', 'roles-config.json');
+      if (fs.existsSync(rolesPath)) {
+        const rolesData = JSON.parse(fs.readFileSync(rolesPath, 'utf8'));
+        const roles = Array.isArray(rolesData) ? rolesData : [];
+        
+        users = users.map((user: any) => {
+          // إذا كان المستخدم ليس لديه صلاحيات مخصصة، استخدم صلاحيات الدور
+          if (!user.permissions || user.permissions.length === 0) {
+            const userRole = roles.find((r: any) => r.id === user.role);
+            if (userRole) {
+              user.permissions = userRole.permissions;
+            }
+          }
+          return user;
+        });
+      }
     }
 
     // البحث عن المستخدم

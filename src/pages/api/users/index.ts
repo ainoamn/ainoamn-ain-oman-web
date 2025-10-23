@@ -54,195 +54,53 @@ interface UserStats {
   topUsers: User[];
 }
 
-// محاكاة قاعدة البيانات
-let users: User[] = [
-  {
-    id: '1',
-    name: 'أحمد محمد السالمي',
-    email: 'ahmed@example.com',
-    phone: '+968 9123 4567',
-    role: 'property_landlord',
-    status: 'active',
-    subscription: {
-      planName: 'الخطة المعيارية',
-      status: 'active',
-      expiryDate: '2025-12-31',
-      remainingDays: 350
-    },
-    profile: {
-      avatar: '/avatars/ahmed.jpg',
-      company: 'شركة السالمي العقارية',
-      location: 'مسقط، سلطنة عُمان',
-      ipAddress: '192.168.1.100',
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      lastLogin: '2025-01-15T10:30:00Z',
-      loginCount: 156,
-      documents: [
-        { type: 'id', name: 'بطاقة الهوية', url: '/docs/ahmed_id.pdf', verified: true },
-        { type: 'license', name: 'رخصة تجارية', url: '/docs/ahmed_license.pdf', verified: true },
-        { type: 'bank', name: 'البيانات البنكية', url: '/docs/ahmed_bank.pdf', verified: true }
-      ]
-    },
-    stats: {
-      properties: 12,
-      units: 45,
-      bookings: 23,
-      revenue: 15420.50,
-      tasks: 8,
-      legalCases: 2
-    },
-    createdAt: '2024-06-15T08:00:00Z',
-    lastActive: '2025-01-15T10:30:00Z'
-  },
-  {
-    id: '2',
-    name: 'فاطمة علي الشنفري',
-    email: 'fatima@company.com',
-    phone: '+968 9876 5432',
-    role: 'corporate_tenant',
-    status: 'active',
-    subscription: {
-      planName: 'الخطة المميزة',
-      status: 'active',
-      expiryDate: '2025-11-30',
-      remainingDays: 319
-    },
-    profile: {
-      avatar: '/avatars/fatima.jpg',
-      company: 'شركة الشنفري للتجارة',
-      location: 'صلالة، سلطنة عُمان',
-      ipAddress: '192.168.1.101',
-      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      lastLogin: '2025-01-15T09:15:00Z',
-      loginCount: 89,
-      documents: [
-        { type: 'id', name: 'بطاقة الهوية', url: '/docs/fatima_id.pdf', verified: true },
-        { type: 'commercial', name: 'السجل التجاري', url: '/docs/fatima_commercial.pdf', verified: true }
-      ]
-    },
-    stats: {
-      properties: 0,
-      units: 8,
-      bookings: 12,
-      revenue: 0,
-      tasks: 3,
-      legalCases: 0
-    },
-    createdAt: '2024-08-20T12:00:00Z',
-    lastActive: '2025-01-15T09:15:00Z'
-  },
-  {
-    id: '3',
-    name: 'سالم بن راشد الغافري',
-    email: 'salim@realestate.com',
-    phone: '+968 9234 5678',
-    role: 'real_estate_agent',
-    status: 'active',
-    subscription: {
-      planName: 'الخطة الأساسية',
-      status: 'active',
-      expiryDate: '2025-10-15',
-      remainingDays: 273
-    },
-    profile: {
-      avatar: '/avatars/salim.jpg',
-      company: 'مكتب الغافري العقاري',
-      location: 'نزوى، سلطنة عُمان',
-      ipAddress: '192.168.1.102',
-      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15',
-      lastLogin: '2025-01-14T16:45:00Z',
-      loginCount: 234,
-      documents: [
-        { type: 'id', name: 'بطاقة الهوية', url: '/docs/salim_id.pdf', verified: true },
-        { type: 'license', name: 'رخصة الوساطة العقارية', url: '/docs/salim_broker.pdf', verified: true }
-      ]
-    },
-    stats: {
-      properties: 25,
-      units: 67,
-      bookings: 45,
-      revenue: 8750.25,
-      tasks: 12,
-      legalCases: 1
-    },
-    createdAt: '2024-03-10T14:30:00Z',
-    lastActive: '2025-01-14T16:45:00Z'
-  },
-  {
-    id: '4',
-    name: 'مريم أحمد العبري',
-    email: 'mariam@tenant.com',
-    phone: '+968 9456 7890',
-    role: 'individual_tenant',
-    status: 'active',
-    subscription: {
-      planName: 'مجاني',
-      status: 'active',
-      expiryDate: 'غير محدد',
-      remainingDays: 999999
-    },
-    profile: {
-      avatar: '/avatars/mariam.jpg',
-        company: undefined,
-      location: 'صور، سلطنة عُمان',
-      ipAddress: '192.168.1.103',
-      userAgent: 'Mozilla/5.0 (Android 14; Mobile; rv:121.0) Gecko/121.0 Firefox/121.0',
-      lastLogin: '2025-01-13T20:15:00Z',
-      loginCount: 67,
-      documents: [
-        { type: 'id', name: 'بطاقة الهوية', url: '/docs/mariam_id.pdf', verified: true },
-        { type: 'contract', name: 'عقد الإيجار', url: '/docs/mariam_contract.pdf', verified: true }
-      ]
-    },
-    stats: {
-      properties: 0,
-      units: 1,
-      bookings: 2,
-      revenue: 0,
-      tasks: 1,
-      legalCases: 0
-    },
-    createdAt: '2024-11-05T10:00:00Z',
-    lastActive: '2025-01-13T20:15:00Z'
-  },
-  {
-    id: '5',
-    name: 'خالد بن سعيد الكندي',
-    email: 'khalid@admin.com',
-    phone: '+968 9567 8901',
-    role: 'site_admin',
-    status: 'active',
-    subscription: {
-      planName: 'إدارة الموقع',
-      status: 'active',
-      expiryDate: 'غير محدد',
-      remainingDays: 999999
-    },
-    profile: {
-      avatar: '/avatars/khalid.jpg',
-      company: 'عين عُمان',
-      location: 'مسقط، سلطنة عُمان',
-      ipAddress: '192.168.1.104',
-      userAgent: 'Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/537.36',
-      lastLogin: '2025-01-15T11:00:00Z',
-      loginCount: 567,
-      documents: [
-        { type: 'id', name: 'بطاقة الهوية', url: '/docs/khalid_id.pdf', verified: true },
-        { type: 'employment', name: 'عقد العمل', url: '/docs/khalid_employment.pdf', verified: true }
-      ]
-    },
-    stats: {
-      properties: 0,
-      units: 0,
-      bookings: 0,
-      revenue: 0,
-      tasks: 0,
-      legalCases: 0
-    },
-    createdAt: '2024-01-01T00:00:00Z',
-    lastActive: '2025-01-15T11:00:00Z'
+// قراءة المستخدمين من قاعدة البيانات الحقيقية
+import fs from 'fs';
+import path from 'path';
+
+function loadUsers(): User[] {
+  try {
+    const usersPath = path.join(process.cwd(), '.data', 'users.json');
+    if (fs.existsSync(usersPath)) {
+      const usersData = fs.readFileSync(usersPath, 'utf8');
+      const users = JSON.parse(usersData);
+      
+      // تحميل صلاحيات الأدوار من roles-config
+      const rolesPath = path.join(process.cwd(), '.data', 'roles-config.json');
+      if (fs.existsSync(rolesPath)) {
+        const rolesData = fs.readFileSync(rolesPath, 'utf8');
+        const roles = JSON.parse(rolesData);
+        
+        // إضافة صلاحيات الدور لكل مستخدم
+        return users.map((user: User) => {
+          const userRole = roles.find((r: any) => r.id === user.role);
+          if (userRole && user.permissions.length === 0) {
+            user.permissions = userRole.permissions;
+          }
+          return user;
+        });
+      }
+      
+      return users;
+    }
+  } catch (error) {
+    console.error('Error loading users:', error);
   }
-];
+  
+  // إرجاع مصفوفة فارغة إذا لم يتم العثور على الملف
+  return [];
+}
+
+function saveUsers(users: User[]): void {
+  try {
+    const usersPath = path.join(process.cwd(), '.data', 'users.json');
+    fs.writeFileSync(usersPath, JSON.stringify(users, null, 2), 'utf8');
+  } catch (error) {
+    console.error('Error saving users:', error);
+  }
+}
+
+let users: User[] = loadUsers();
 
 // دوال مساعدة
 function generateUserId(): string {
@@ -314,6 +172,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     switch (method) {
       case 'GET':
+        // إعادة تحميل المستخدمين من الملف في كل طلب GET
+        users = loadUsers();
+        
         if (id) {
           // جلب مستخدم محدد
           const user = users.find(u => u.id === id);
@@ -423,6 +284,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         };
 
         users.push(newUser);
+        
+        // حفظ المستخدمين في الملف
+        saveUsers(users);
 
         // إزالة كلمة المرور من الاستجابة
         const { password, ...userWithoutPassword } = newUser;
@@ -460,6 +324,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           id: users[userIndex].id, // الحفاظ على المعرف
           createdAt: users[userIndex].createdAt // الحفاظ على تاريخ الإنشاء
         };
+        
+        // حفظ المستخدمين في الملف
+        saveUsers(users);
 
         // إزالة كلمة المرور من الاستجابة
         const { password: _, ...updatedUserWithoutPassword } = users[userIndex];
@@ -481,11 +348,14 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         }
 
         // منع حذف المدير الرئيسي
-        if (users[deleteIndex].role === 'site_admin' && users[deleteIndex].email === 'khalid@admin.com') {
+        if (users[deleteIndex].role === 'company_admin' || users[deleteIndex].id === 'USER-001') {
           return res.status(403).json({ error: 'لا يمكن حذف المدير الرئيسي' });
         }
 
         users.splice(deleteIndex, 1);
+        
+        // حفظ المستخدمين في الملف
+        saveUsers(users);
 
         return res.status(200).json({ 
           message: 'تم حذف المستخدم بنجاح'
