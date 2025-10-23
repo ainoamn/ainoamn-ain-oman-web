@@ -2378,10 +2378,25 @@ export default function EditProperty({ property }: { property: any }) {
                                 {unit.images && unit.images.length > 0 && (
                                   <div className="mt-3">
                                     <div className="grid grid-cols-3 gap-2">
-                                      {unit.images.map((image, imgIndex) => (
+                                      {unit.images.map((image, imgIndex) => {
+                                        // التحقق من نوع الصورة وإنشاء URL صالح
+                                        let imageUrl = '';
+                                        try {
+                                          if (typeof image === 'string') {
+                                            imageUrl = image;
+                                          } else if (image instanceof File) {
+                                            imageUrl = URL.createObjectURL(image);
+                                          } else {
+                                            imageUrl = '/placeholder-image.jpg'; // صورة احتياطية
+                                          }
+                                        } catch (err) {
+                                          imageUrl = '/placeholder-image.jpg';
+                                        }
+                                        
+                                        return (
                                         <div key={imgIndex} className="relative">
                                           <img
-                                            src={typeof image === 'string' ? image : URL.createObjectURL(image)}
+                                            src={imageUrl}
                                             alt={`صورة الوحدة ${imgIndex + 1}`}
                                             className="w-full h-20 object-cover rounded"
                                           />
@@ -2403,7 +2418,8 @@ export default function EditProperty({ property }: { property: any }) {
                                             <FaTrash />
                                           </button>
                                         </div>
-                                      ))}
+                                        );
+                                      })}
                                     </div>
                                   </div>
                                 )}
@@ -2504,10 +2520,25 @@ export default function EditProperty({ property }: { property: any }) {
                   {formData.images.length > 0 && (
                     <div className="mt-4">
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {formData.images.map((image, index) => (
+                        {formData.images.map((image, index) => {
+                          // التحقق من نوع الصورة وإنشاء URL صالح
+                          let imageUrl = '';
+                          try {
+                            if (typeof image === 'string') {
+                              imageUrl = image;
+                            } else if (image instanceof File) {
+                              imageUrl = URL.createObjectURL(image);
+                            } else {
+                              imageUrl = '/placeholder-image.jpg';
+                            }
+                          } catch (err) {
+                            imageUrl = '/placeholder-image.jpg';
+                          }
+                          
+                          return (
                           <div key={index} className="relative">
                             <img
-                              src={typeof image === 'string' ? image : URL.createObjectURL(image)}
+                              src={imageUrl}
                               alt={`صورة ${index + 1}`}
                               className="w-full h-24 object-cover rounded-lg"
                             />
@@ -2546,7 +2577,8 @@ export default function EditProperty({ property }: { property: any }) {
                               <FaTrash />
                             </button>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   )}
