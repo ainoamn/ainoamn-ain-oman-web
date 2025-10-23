@@ -301,9 +301,14 @@ export default function EditProperty({ property }: { property: any }) {
       };
 
       // تحميل الصور إذا كانت موجودة
-      let loadedImages: File[] = [];
-      if (propertyData.images && propertyData.images.length > 0) {
+      let loadedImages: (File | string)[] = [];
+      if (propertyData.images && Array.isArray(propertyData.images) && propertyData.images.length > 0) {
         loadedImages = await loadImagesFromServer(propertyData.images);
+      }
+      
+      // التأكد من أن loadedImages هي array
+      if (!Array.isArray(loadedImages)) {
+        loadedImages = [];
       }
 
       // تحديث البيانات مباشرة
@@ -432,7 +437,7 @@ export default function EditProperty({ property }: { property: any }) {
         
         // تحميل الصور من الخادم
         setLoadingImages(true);
-        const originalImageUrls = property.images || []; // الاحتفاظ بالـ URLs الأصلية
+        const originalImageUrls = Array.isArray(property.images) ? property.images : []; // الاحتفاظ بالـ URLs الأصلية
         // ✅ لا نحول الصور إلى Files عند التعديل - نبقيها كـ URLs (strings)
         const loadedImages = originalImageUrls; // استخدام URLs مباشرة بدون تحويل
         
@@ -441,7 +446,7 @@ export default function EditProperty({ property }: { property: any }) {
         const loadedUnits = await Promise.all(
           unitsArray.map(async (unit: any, index: number) => {
             // ✅ نفس الشيء للوحدات - استخدام URLs مباشرة
-            const unitImages = unit.images || [];
+            const unitImages = Array.isArray(unit.images) ? unit.images : [];
             return {
               id: unit.id || `unit-${index}`,
               unitNo: unit.unitNo || `U${index + 1}`,
@@ -499,7 +504,7 @@ export default function EditProperty({ property }: { property: any }) {
           rentalPrice: property.rentalPrice?.toString() || '',
           amenities: Array.isArray(property.amenities) ? property.amenities.filter((a: string) => !fixCorruptedText(a).includes('�')) : [],
           customAmenities: Array.isArray(property.customAmenities) ? property.customAmenities.filter((a: string) => !fixCorruptedText(a).includes('�')) : [],
-          images: loadedImages, // تحميل الصور من الخادم
+          images: Array.isArray(loadedImages) ? loadedImages : [], // تحميل الصور من الخادم
           videoUrl: property.videoUrl || '',
           coverIndex: property.coverIndex || 0,
           useUserContact: property.useUserContact !== false,
@@ -511,7 +516,7 @@ export default function EditProperty({ property }: { property: any }) {
           referenceNo: property.referenceNo || property.id || '',
           surveyNumber: property.surveyNumber || property.geo?.landNo || '',
           landNumber: property.landNumber || property.geo?.mapNo || '',
-          units: loadedUnits
+          units: Array.isArray(loadedUnits) ? loadedUnits : []
         });
 
         // تحديث القوائم المفلترة
@@ -2517,7 +2522,7 @@ export default function EditProperty({ property }: { property: any }) {
                     </label>
         </div>
 
-                  {formData.images.length > 0 && (
+                  {Array.isArray(formData.images) && formData.images.length > 0 && (
                     <div className="mt-4">
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {formData.images.map((image, index) => {
