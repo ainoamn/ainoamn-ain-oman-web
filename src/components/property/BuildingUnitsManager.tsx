@@ -548,8 +548,10 @@ export default function BuildingUnitsManager({
                               
                               if (response.ok) {
                                 alert(`✅ تم ${newPublished ? 'نشر' : 'إخفاء'} الوحدة بنجاح`);
-                                if (onPublishUnit) onPublishUnit(unit.id, newPublished);
-                                window.location.reload();
+                                if (onPublishUnit) {
+                                  onPublishUnit(unit.id, newPublished);
+                                }
+                                // تحديث عن طريق إعادة جلب البيانات من الصفحة الأم
                               } else {
                                 alert('❌ فشل تحديث حالة النشر');
                               }
@@ -592,8 +594,10 @@ export default function BuildingUnitsManager({
                               
                               if (response.ok) {
                                 alert('✅ تم أرشفة الوحدة بنجاح');
-                                if (onArchiveUnit) onArchiveUnit(unit.id);
-                                window.location.reload();
+                                if (onArchiveUnit) {
+                                  onArchiveUnit(unit.id);
+                                }
+                                // تحديث عن طريق إعادة جلب البيانات من الصفحة الأم
                               } else {
                                 alert('❌ فشل أرشفة الوحدة');
                               }
@@ -625,8 +629,10 @@ export default function BuildingUnitsManager({
                               
                               if (response.ok) {
                                 alert('✅ تم حذف الوحدة بنجاح');
-                                if (onDeleteUnit) onDeleteUnit(unit.id);
-                                window.location.reload();
+                                if (onDeleteUnit) {
+                                  onDeleteUnit(unit.id);
+                                }
+                                // تحديث عن طريق إعادة جلب البيانات من الصفحة الأم
                               } else {
                                 alert('❌ فشل حذف الوحدة');
                               }

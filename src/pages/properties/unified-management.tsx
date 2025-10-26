@@ -1243,8 +1243,8 @@ export default function UnifiedPropertyManagement() {
             </div>
           )}
 
-          {/* Properties Display */}
-          {activeTab === 'properties' && (
+          {/* Properties Display - List View */}
+          {activeTab === 'properties' && viewMode === 'list' && (
             <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
               {loading ? (
                 <div className="p-8 text-center">
@@ -1449,8 +1449,9 @@ export default function UnifiedPropertyManagement() {
                               <td colSpan={7} className="px-0 py-0">
                                 <BuildingUnitsManager
                                   property={property}
-                                  onDeleteUnit={(unitId) => {
+                                  onDeleteUnit={async (unitId) => {
                                     console.log('Delete unit:', unitId);
+                                    await fetchData(); // إعادة جلب البيانات بدون إعادة تحميل الصفحة
                                   }}
                                   onEditUnit={(unitId) => {
                                     console.log('Edit unit:', unitId);
@@ -1458,11 +1459,13 @@ export default function UnifiedPropertyManagement() {
                                   onViewUnit={(unitId) => {
                                     console.log('View unit:', unitId);
                                   }}
-                                  onArchiveUnit={(unitId) => {
+                                  onArchiveUnit={async (unitId) => {
                                     console.log('Archive unit:', unitId);
+                                    await fetchData(); // إعادة جلب البيانات بدون إعادة تحميل الصفحة
                                   }}
-                                  onPublishUnit={(unitId, published) => {
+                                  onPublishUnit={async (unitId, published) => {
                                     console.log('Publish unit:', unitId, published);
+                                    await fetchData(); // إعادة جلب البيانات بدون إعادة تحميل الصفحة
                                   }}
                                   onDeleteProperty={(propertyId) => deleteProperty(propertyId)}
                                 />
@@ -1651,8 +1654,9 @@ export default function UnifiedPropertyManagement() {
                       {property.buildingType === 'multi' && (
                         <BuildingUnitsManager
                           property={property}
-                          onDeleteUnit={(unitId) => {
+                          onDeleteUnit={async (unitId) => {
                             console.log('Delete unit:', unitId);
+                            await fetchData(); // إعادة جلب البيانات بدون إعادة تحميل الصفحة
                           }}
                           onEditUnit={(unitId) => {
                             console.log('Edit unit:', unitId);
@@ -1660,11 +1664,13 @@ export default function UnifiedPropertyManagement() {
                           onViewUnit={(unitId) => {
                             console.log('View unit:', unitId);
                           }}
-                          onArchiveUnit={(unitId) => {
+                          onArchiveUnit={async (unitId) => {
                             console.log('Archive unit:', unitId);
+                            await fetchData(); // إعادة جلب البيانات بدون إعادة تحميل الصفحة
                           }}
-                          onPublishUnit={(unitId, published) => {
+                          onPublishUnit={async (unitId, published) => {
                             console.log('Publish unit:', unitId, published);
+                            await fetchData(); // إعادة جلب البيانات بدون إعادة تحميل الصفحة
                           }}
                           onDeleteProperty={(propertyId) => deleteProperty(propertyId)}
                         />
