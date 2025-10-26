@@ -1502,7 +1502,22 @@ export default function UnifiedPropertyManagement() {
           {activeTab === 'properties' && viewMode === 'grid' && (
             <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
               <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">عرض العقارات الشبكي</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">عرض العقارات الشبكي</h3>
+                  <div className="flex items-center space-x-3">
+                    <span className="text-sm text-gray-600">
+                      {getFilteredData().length} من {properties.length} عقار
+                    </span>
+                    <button
+                      onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors flex items-center text-sm"
+                      title={viewMode === 'grid' ? 'التبديل إلى عرض القائمة' : 'التبديل إلى العرض الشبكي'}
+                    >
+                      {viewMode === 'grid' ? <FaSort className="ml-1" /> : <FaExpand className="ml-1" />}
+                      {viewMode === 'grid' ? 'عرض قائمة' : 'عرض شبكي'}
+                    </button>
+                  </div>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {getFilteredData().length === 0 ? (
                     <div className="col-span-full text-center py-12">
