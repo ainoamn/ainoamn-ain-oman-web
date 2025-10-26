@@ -1683,7 +1683,7 @@ export default function UnifiedPropertyManagement() {
                       )}
 
                     </div>
-                  ))
+                  ))}
                   )}
                 </div>
               </div>
