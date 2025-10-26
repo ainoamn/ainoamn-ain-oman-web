@@ -1077,8 +1077,8 @@ export default function UnifiedPropertyManagement() {
                     onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
                     className="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors flex items-center"
                   >
-                    {viewMode === 'grid' ? <FaExpand className="ml-1" /> : <FaSort className="ml-1" />}
-                    {viewMode === 'grid' ? 'عرض شبكي' : 'عرض قائمة'}
+                    {viewMode === 'list' ? <FaExpand className="ml-1" /> : <FaSort className="ml-1" />}
+                    {viewMode === 'list' ? 'عرض شبكي' : 'عرض قائمة'}
                   </button>
                 </div>
               </div>
@@ -1267,10 +1267,10 @@ export default function UnifiedPropertyManagement() {
                         <button
                           onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
                           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors flex items-center text-sm"
-                          title={viewMode === 'grid' ? 'التبديل إلى العرض الشبكي' : 'التبديل إلى عرض القائمة'}
+                          title={viewMode === 'list' ? 'التبديل إلى العرض الشبكي' : 'التبديل إلى عرض القائمة'}
                         >
-                          {viewMode === 'grid' ? <FaExpand className="ml-1" /> : <FaSort className="ml-1" />}
-                          {viewMode === 'grid' ? 'عرض شبكي' : 'عرض قائمة'}
+                          {viewMode === 'list' ? <FaExpand className="ml-1" /> : <FaSort className="ml-1" />}
+                          {viewMode === 'list' ? 'عرض شبكي' : 'عرض قائمة'}
                         </button>
                       </div>
                     </div>
