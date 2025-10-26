@@ -1451,7 +1451,12 @@ export default function UnifiedPropertyManagement() {
                                   property={property}
                                   onDeleteUnit={async (unitId) => {
                                     console.log('Delete unit:', unitId);
-                                    await fetchData(); // إعادة جلب البيانات بدون إعادة تحميل الصفحة
+                                    // تحديث محلي فقط بدون إعادة تحميل الصفحة
+                                    setProperties(prev => prev.map(p => 
+                                      p.id === property.id 
+                                        ? { ...p, units: p.units?.filter(u => u.id !== unitId) || [] }
+                                        : p
+                                    ));
                                   }}
                                   onEditUnit={(unitId) => {
                                     console.log('Edit unit:', unitId);
@@ -1461,11 +1466,25 @@ export default function UnifiedPropertyManagement() {
                                   }}
                                   onArchiveUnit={async (unitId) => {
                                     console.log('Archive unit:', unitId);
-                                    await fetchData(); // إعادة جلب البيانات بدون إعادة تحميل الصفحة
+                                    // تحديث محلي فقط بدون إعادة تحميل الصفحة
+                                    setProperties(prev => prev.map(p => 
+                                      p.id === property.id 
+                                        ? { ...p, units: p.units?.map(u => 
+                                            u.id === unitId ? { ...u, status: 'archived', published: false } : u
+                                          ) || [] }
+                                        : p
+                                    ));
                                   }}
                                   onPublishUnit={async (unitId, published) => {
                                     console.log('Publish unit:', unitId, published);
-                                    await fetchData(); // إعادة جلب البيانات بدون إعادة تحميل الصفحة
+                                    // تحديث محلي فقط بدون إعادة تحميل الصفحة
+                                    setProperties(prev => prev.map(p => 
+                                      p.id === property.id 
+                                        ? { ...p, units: p.units?.map(u => 
+                                            u.id === unitId ? { ...u, published } : u
+                                          ) || [] }
+                                        : p
+                                    ));
                                   }}
                                   onDeleteProperty={(propertyId) => deleteProperty(propertyId)}
                                 />
@@ -1677,7 +1696,12 @@ export default function UnifiedPropertyManagement() {
                           property={property}
                           onDeleteUnit={async (unitId) => {
                             console.log('Delete unit:', unitId);
-                            await fetchData(); // إعادة جلب البيانات بدون إعادة تحميل الصفحة
+                            // تحديث محلي فقط بدون إعادة تحميل الصفحة
+                            setProperties(prev => prev.map(p => 
+                              p.id === property.id 
+                                ? { ...p, units: p.units?.filter(u => u.id !== unitId) || [] }
+                                : p
+                            ));
                           }}
                           onEditUnit={(unitId) => {
                             console.log('Edit unit:', unitId);
@@ -1687,11 +1711,25 @@ export default function UnifiedPropertyManagement() {
                           }}
                           onArchiveUnit={async (unitId) => {
                             console.log('Archive unit:', unitId);
-                            await fetchData(); // إعادة جلب البيانات بدون إعادة تحميل الصفحة
+                            // تحديث محلي فقط بدون إعادة تحميل الصفحة
+                            setProperties(prev => prev.map(p => 
+                              p.id === property.id 
+                                ? { ...p, units: p.units?.map(u => 
+                                    u.id === unitId ? { ...u, status: 'archived', published: false } : u
+                                  ) || [] }
+                                : p
+                            ));
                           }}
                           onPublishUnit={async (unitId, published) => {
                             console.log('Publish unit:', unitId, published);
-                            await fetchData(); // إعادة جلب البيانات بدون إعادة تحميل الصفحة
+                            // تحديث محلي فقط بدون إعادة تحميل الصفحة
+                            setProperties(prev => prev.map(p => 
+                              p.id === property.id 
+                                ? { ...p, units: p.units?.map(u => 
+                                    u.id === unitId ? { ...u, published } : u
+                                  ) || [] }
+                                : p
+                            ));
                           }}
                           onDeleteProperty={(propertyId) => deleteProperty(propertyId)}
                         />
