@@ -1502,8 +1502,14 @@ export default function UnifiedPropertyManagement() {
           {activeTab === 'properties' && viewMode === 'grid' && (
             <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
               <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">عرض العقارات الشبكي</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {getFilteredData().map((property: Property) => (
+                  {getFilteredData().length === 0 ? (
+                    <div className="col-span-full text-center py-12">
+                      <p className="text-gray-500">لا توجد عقارات للعرض</p>
+                    </div>
+                  ) : (
+                    getFilteredData().map((property: Property) => (
                     <div key={property.id} className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden">
                       {/* Property Image */}
                       <div className="relative h-48 bg-gray-200">
@@ -1677,7 +1683,8 @@ export default function UnifiedPropertyManagement() {
                       )}
 
                     </div>
-                  ))}
+                  ))
+                  )}
                 </div>
               </div>
             </div>
