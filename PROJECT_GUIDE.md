@@ -1339,7 +1339,205 @@ const form = formidable({
 
 ---
 
-*آخر تحديث: 22 أكتوبر 2025*  
+## 🔍 نظام البحث الذكي المتقدم
+
+### نظرة عامة
+نظام بحث ذكي متكامل في صفحة إنشاء عقود الإيجار (`/rentals/new`) يدعم 4 أنواع بحث مختلفة مع قوائم منسدلة ذكية وفلترة فورية.
+
+### أنواع البحث المدعومة
+
+#### 1. البحث برقم المبنى (`buildingNumber`)
+```typescript
+// البيانات المتاحة
+const buildingNumbers = ['BLD-001', 'BLD-002', 'BLD-003', 'BLD-004', 'BLD-005'];
+
+// الفلترة
+const filtered = buildingNumbers.filter(num => 
+  num.toLowerCase().includes(searchQuery.toLowerCase())
+);
+```
+
+#### 2. البحث بمعرف المالك (`ownerId`)
+```typescript
+// البيانات المتاحة
+const ownerIds = ['khalid.alabri@ainoman.om'];
+
+// الفلترة
+const filtered = ownerIds.filter(id => 
+  id.toLowerCase().includes(searchQuery.toLowerCase())
+);
+```
+
+#### 3. البحث بالرقم المتسلسل (`serialNumber`)
+```typescript
+// البيانات المتاحة
+const serialNumbers = ['SER-001', 'SER-002', 'SER-003', 'SER-004', 'SER-005'];
+
+// الفلترة
+const filtered = serialNumbers.filter(serial => 
+  serial.toLowerCase().includes(searchQuery.toLowerCase())
+);
+```
+
+#### 4. البحث بمعرف العقار (`propertyId`)
+```typescript
+// البيانات المتاحة
+const propertyIds = [
+  { id: 'P-20251022085429', title: 'فيلا فاخرة في الخوير', address: 'شارع السلطان قابوس' },
+  { id: 'P-20251022094422', title: 'شقة عصرية في الغبرة', address: 'شارع الغبرة' },
+  // ...
+];
+
+// الفلترة المتعددة
+const filtered = propertyIds.filter(prop => 
+  prop.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  prop.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  prop.address.toLowerCase().includes(searchQuery.toLowerCase())
+);
+```
+
+### المكونات الرئيسية
+
+#### SmartSearchDropdown Component
+```typescript
+interface SearchDropdownProps {
+  searchType: 'buildingNumber' | 'ownerId' | 'serialNumber' | 'propertyId';
+  searchQuery: string;
+  onSelect: (value: string) => void;
+  showDropdown: boolean;
+  setShowDropdown: (show: boolean) => void;
+}
+```
+
+#### API Integration
+```typescript
+// API endpoint: /api/properties?mine=true
+const fetchUserProperties = async () => {
+  const response = await fetch('/api/properties?mine=true');
+  const data = await response.json();
+  return data.items || [];
+};
+```
+
+### الميزات الذكية
+
+#### 1. القوائم المنسدلة التفاعلية
+- **ظهور تلقائي:** عند التركيز على حقل البحث
+- **إخفاء ذكي:** عند فقدان التركيز (مع تأخير 200ms)
+- **فلترة فورية:** أثناء الكتابة مع debounce 300ms
+- **اختيار بنقرة واحدة:** من القائمة المنسدلة
+
+#### 2. رسائل المساعدة الديناميكية
+```typescript
+const getHelpMessage = (searchType: string) => {
+  switch (searchType) {
+    case 'buildingNumber':
+      return '💡 يمكنك الاختيار من القائمة أو الكتابة للبحث';
+    case 'ownerId':
+      return '💡 يمكنك الاختيار من قائمة الملاك أو الكتابة للبحث';
+    case 'serialNumber':
+      return '💡 أدخل الرقم المتسلسل الدقيق للعقار';
+    case 'propertyId':
+      return '💡 يمكنك البحث بالمعرف أو العنوان أو اسم العقار';
+  }
+};
+```
+
+#### 3. أزرار التحكم اليدوي
+```typescript
+<button 
+  type="button"
+  onClick={() => setShowDropdown(!showDropdown)}
+  className="mt-1 px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200"
+>
+  {showDropdown ? 'إخفاء القائمة' : 'إظهار القائمة'}
+</button>
+```
+
+### البيانات الحقيقية
+
+#### العقارات المتاحة للمالك خالد بن سالم العبري:
+
+1. **فيلا فاخرة في الخوير (P-20251022085429)**
+   - رقم المبنى: BLD-003
+   - الرقم المتسلسل: SER-003
+   - السعر: 800 ريال عماني/شهر
+
+2. **شقة عصرية في الغبرة (P-20251022094422)**
+   - رقم المبنى: BLD-004
+   - الرقم المتسلسل: SER-004
+   - السعر: 450 ريال عماني/شهر
+
+3. **مبنى تجاري في مطرح (P-20251022100011)**
+   - رقم المبنى: BLD-005
+   - الرقم المتسلسل: SER-005
+   - السعر: 1200 ريال عماني/شهر
+
+### تحسينات الأداء
+
+#### 1. Debouncing
+```typescript
+useEffect(() => {
+  const timeoutId = setTimeout(() => {
+    if (searchQuery.trim()) {
+      searchProperties();
+    } else {
+      setFilteredProperties(properties);
+    }
+  }, 300);
+  
+  return () => clearTimeout(timeoutId);
+}, [searchQuery]);
+```
+
+#### 2. Memoization
+```typescript
+const dropdownOptions = useMemo(() => {
+  return getDropdownOptions();
+}, [searchType, searchQuery, buildingNumbers, ownerIds, serialNumbers, propertyIds]);
+```
+
+#### 3. Lazy Loading
+```typescript
+const [showDropdown, setShowDropdown] = useState(false);
+
+// إظهار القائمة فقط عند الحاجة
+{showDropdown && dropdownOptions.length > 0 && (
+  <DropdownComponent options={dropdownOptions} />
+)}
+```
+
+### استكشاف الأخطاء
+
+#### مشكلة: القوائم المنسدلة لا تظهر
+**الحل:**
+1. تحقق من وجود البيانات في `prepareDropdownData()`
+2. تأكد من تعيين `showDropdown` بشكل صحيح
+3. تحقق من z-index في CSS (يجب أن يكون z-50+)
+
+#### مشكلة: البيانات لا تظهر
+**الحل:**
+1. تحقق من API `/api/properties?mine=true`
+2. تأكد من وجود حقول `ownerId`, `buildingNumber`, `serialNumber`
+3. تحقق من console.log للبيانات
+
+#### مشكلة: الفلترة لا تعمل
+**الحل:**
+1. تحقق من `getDropdownOptions()` function
+2. تأكد من تطابق case sensitivity
+3. تحقق من وجود البيانات في arrays
+
+### أفضل الممارسات
+
+1. **استخدم TypeScript:** لضمان نوع البيانات الصحيح
+2. **أضف Error Boundaries:** لمعالجة الأخطاء
+3. **اختبر على أجهزة مختلفة:** للتأكد من التوافق
+4. **استخدم Console.log:** للتطوير والتصحيح
+5. **احفظ البيانات في Git:** لضمان المزامنة
+
+---
+
+*آخر تحديث: 23 أكتوبر 2025*  
 *الحالة: دليل نشط - يُحدّث مع كل تطوير*  
 *الغرض: مرجع شامل للعمل من أي كمبيوتر*
 

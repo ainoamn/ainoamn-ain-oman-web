@@ -143,6 +143,9 @@ const OwnerDashboard: NextPage = () => {
               {[
                 { id: "properties", name: "العقارات", count: properties.length },
                 { id: "rentals", name: "عقود الإيجار", count: rentals.length },
+                { id: "unit-rentals", name: "تأجير الوحدات", count: 0 },
+                { id: "tenants", name: "المستأجرين", count: 0 },
+                { id: "contracts", name: "إدارة العقود", count: 0 },
                 { id: "analytics", name: "التحليلات", count: 0 }
               ].map((tab) => (
                 <button
@@ -257,6 +260,186 @@ const OwnerDashboard: NextPage = () => {
                     <p className="mt-1 text-sm text-gray-500">عندما يحجز أحد المستأجرين عقاراً، ستظهر التفاصيل هنا.</p>
                   </div>
                 )}
+              </motion.div>
+            )}
+
+            {activeTab === "unit-rentals" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white shadow overflow-hidden sm:rounded-md"
+              >
+                <div className="px-4 py-5 sm:px-6">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">تأجير الوحدات</h3>
+                  <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                    إدارة تأجير الوحدات الفردية في العقارات متعددة الوحدات
+                  </p>
+                </div>
+                
+                <div className="border-t border-gray-200">
+                  <div className="px-4 py-5 sm:p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {properties.filter(p => p.buildingType === 'multi').map((property) => (
+                        <div key={property.id} className="border border-gray-200 rounded-lg p-4">
+                          <h4 className="font-medium text-gray-900 mb-2">{text(property.titleAr)}</h4>
+                          <p className="text-sm text-gray-500 mb-4">{property.address}</p>
+                          
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>إجمالي الوحدات:</span>
+                              <span className="font-medium">{property.totalUnits || 0}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span>الوحدات المؤجرة:</span>
+                              <span className="font-medium text-green-600">0</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span>الوحدات المتاحة:</span>
+                              <span className="font-medium text-blue-600">{property.totalUnits || 0}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-4 flex gap-2">
+                            <InstantLink
+                              href={`/properties/${property.id}`}
+                              className="flex-1 text-center px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100"
+                            >
+                              عرض الوحدات
+                            </InstantLink>
+                            <InstantLink
+                              href={`/rentals/new?propertyId=${property.id}`}
+                              className="flex-1 text-center px-3 py-2 text-sm bg-green-50 text-green-700 rounded-md hover:bg-green-100"
+                            >
+                              تأجير وحدة
+                            </InstantLink>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {properties.filter(p => p.buildingType === 'multi').length === 0 && (
+                      <div className="text-center py-12">
+                        <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m2-12h2m-2 0h-2m2 6h2m-2 0h-2m2 6h2m-2 0h-2" />
+                        </svg>
+                        <h3 className="mt-2 text-sm font-medium text-gray-900">لا توجد عقارات متعددة الوحدات</h3>
+                        <p className="mt-1 text-sm text-gray-500">أضف عقاراً متعدد الوحدات لبدء تأجير الوحدات الفردية.</p>
+                        <div className="mt-6">
+                          <InstantLink
+                            href="/properties/new"
+                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                          >
+                            إضافة عقار جديد
+                          </InstantLink>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "tenants" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white shadow overflow-hidden sm:rounded-md"
+              >
+                <div className="px-4 py-5 sm:px-6">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">إدارة المستأجرين</h3>
+                  <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                    عرض وإدارة معلومات المستأجرين وعقودهم
+                  </p>
+                </div>
+                
+                <div className="border-t border-gray-200">
+                  <div className="px-4 py-5 sm:p-6">
+                    <div className="text-center py-12">
+                      <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                      </svg>
+                      <h3 className="mt-2 text-sm font-medium text-gray-900">لا يوجد مستأجرين حالياً</h3>
+                      <p className="mt-1 text-sm text-gray-500">عندما يتم تأجير وحدات، ستظهر معلومات المستأجرين هنا.</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "contracts" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white shadow overflow-hidden sm:rounded-md"
+              >
+                <div className="px-4 py-5 sm:px-6">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-lg leading-6 font-medium text-gray-900">إدارة العقود</h3>
+                      <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                        إنشاء وإدارة عقود الإيجار والمستندات القانونية
+                      </p>
+                    </div>
+                    <InstantLink
+                      href="/contracts/new"
+                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                    >
+                      <FaPlus className="ml-2" />
+                      إنشاء عقد جديد
+                    </InstantLink>
+                  </div>
+                </div>
+                
+                <div className="border-t border-gray-200">
+                  <div className="px-4 py-5 sm:p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <div className="border border-gray-200 rounded-lg p-6 text-center">
+                        <svg className="mx-auto h-12 w-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <h4 className="mt-2 text-lg font-medium text-gray-900">عقود الإيجار</h4>
+                        <p className="mt-1 text-sm text-gray-500">إنشاء وإدارة عقود إيجار الوحدات</p>
+                        <InstantLink
+                          href="/contracts/rental"
+                          className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                        >
+                          إدارة العقود
+                        </InstantLink>
+                      </div>
+                      
+                      <div className="border border-gray-200 rounded-lg p-6 text-center">
+                        <svg className="mx-auto h-12 w-12 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        <h4 className="mt-2 text-lg font-medium text-gray-900">قوالب العقود</h4>
+                        <p className="mt-1 text-sm text-gray-500">استخدام قوالب جاهزة للعقود</p>
+                        <InstantLink
+                          href="/contracts/templates"
+                          className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700"
+                        >
+                          عرض القوالب
+                        </InstantLink>
+                      </div>
+                      
+                      <div className="border border-gray-200 rounded-lg p-6 text-center">
+                        <svg className="mx-auto h-12 w-12 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h4 className="mt-2 text-lg font-medium text-gray-900">التوقيع الإلكتروني</h4>
+                        <p className="mt-1 text-sm text-gray-500">توقيع العقود إلكترونياً</p>
+                        <InstantLink
+                          href="/contracts/sign"
+                          className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700"
+                        >
+                          التوقيع الإلكتروني
+                        </InstantLink>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </motion.div>
             )}
           </div>

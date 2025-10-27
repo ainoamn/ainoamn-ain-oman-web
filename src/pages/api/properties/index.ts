@@ -130,41 +130,68 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === "GET") {
     try {
       const items = getAll();
+      
       // تنظيف البيانات القديمة التي تأتي كـ arrays وإصلاح مسارات الصور
       const cleanedItems = items.map(item => {
-      const cleaned: any = {};
-      for (const [key, value] of Object.entries(item)) {
-        if (Array.isArray(value) && value.length === 1) {
-          // إذا كان array يحتوي على عنصر واحد، استخرجه
-          cleaned[key] = value[0];
-        } else {
-          cleaned[key] = value;
-        }
-      }
-      
-      // إصلاح مسارات الصور
-      if (cleaned.images && Array.isArray(cleaned.images)) {
-        cleaned.images = cleaned.images.map((img: string) => {
-          if (img && !img.startsWith('/uploads/') && !img.startsWith('http') && !img.startsWith('data:')) {
-            // إذا كان اسم ملف فقط، أضف المسار الكامل
-            return `/uploads/properties/${cleaned.id}/${img}`;
+        const cleaned: any = {};
+        for (const [key, value] of Object.entries(item)) {
+          if (Array.isArray(value) && value.length === 1) {
+            // إذا كان array يحتوي على عنصر واحد، استخرجه
+            cleaned[key] = value[0];
+          } else {
+            cleaned[key] = value;
           }
-          return img;
-        });
-      } else if (cleaned.images && typeof cleaned.images === 'string') {
-        // إذا كانت الصور كسلسلة نصية واحدة
-        if (cleaned.images && !cleaned.images.startsWith('/uploads/') && !cleaned.images.startsWith('http') && !cleaned.images.startsWith('data:')) {
-          cleaned.images = `/uploads/properties/${cleaned.id}/${cleaned.images}`;
         }
+        
+        // إصلاح مسارات الصور
+        if (cleaned.images && Array.isArray(cleaned.images)) {
+          cleaned.images = cleaned.images.map((img: string) => {
+            if (img && !img.startsWith('/uploads/') && !img.startsWith('http') && !img.startsWith('data:')) {
+              // إذا كان اسم ملف فقط، أضف المسار الكامل
+              return `/uploads/properties/${cleaned.id}/${img}`;
+            }
+            return img;
+          });
+        } else if (cleaned.images && typeof cleaned.images === 'string') {
+          // إذا كانت الصور كسلسلة نصية واحدة
+          if (cleaned.images && !cleaned.images.startsWith('/uploads/') && !cleaned.images.startsWith('http') && !cleaned.images.startsWith('data:')) {
+            cleaned.images = `/uploads/properties/${cleaned.id}/${cleaned.images}`;
+          }
+        }
+        
+        // إصلاح صورة الغلاف
+        if (cleaned.coverImage && !cleaned.coverImage.startsWith('/uploads/') && !cleaned.coverImage.startsWith('http') && !cleaned.coverImage.startsWith('data:')) {
+          cleaned.coverImage = `/uploads/properties/${cleaned.id}/${cleaned.coverImage}`;
+        }
+        
+        return cleaned;
+      });
+      
+      // التعامل مع معامل mine=true
+      if (req.query.mine === 'true') {
+        // الحصول على معرف المستخدم من الهيدر أو من الكوكيز
+        const userId = req.headers['x-user-id'] as string || 
+                      req.headers['user-id'] as string ||
+                      req.query.userId as string ||
+                      'khalid.alabri@ainoman.om'; // المستخدم الافتراضي للاختبار
+        
+        console.log('Filtering properties for user:', userId);
+        
+        // فلترة العقارات حسب المالك
+        const userProperties = cleanedItems.filter(property => {
+          // البحث في حقول مختلفة للمالك
+          return property.ownerId === userId || 
+                 property.owner === userId ||
+                 property.userId === userId ||
+                 property.createdBy === userId ||
+                 // إذا لم يكن هناك مالك محدد، نعرض جميع العقارات للاختبار
+                 (!property.ownerId && !property.owner && !property.userId && !property.createdBy);
+        });
+        
+        console.log(`Found ${userProperties.length} properties for user ${userId}`);
+        return res.status(200).json({ properties: userProperties, items: userProperties });
       }
       
-      // إصلاح صورة الغلاف
-      if (cleaned.coverImage && !cleaned.coverImage.startsWith('/uploads/') && !cleaned.coverImage.startsWith('http') && !cleaned.coverImage.startsWith('data:')) {
-        cleaned.coverImage = `/uploads/properties/${cleaned.id}/${cleaned.coverImage}`;
-      }
-      
-      return cleaned;
-    });
       return res.status(200).json({ properties: cleanedItems, items: cleanedItems }); // دعم كلا التنسيقين
     } catch (error: any) {
       console.error('Error in GET /api/properties:', error);

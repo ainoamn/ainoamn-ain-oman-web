@@ -1518,7 +1518,7 @@ export default function AddNewProperty() {
                 />
               </div>
 
-                    <div>
+              <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         <FaBuilding className="inline ml-2" />
                         عدد الطوابق
@@ -1530,8 +1530,54 @@ export default function AddNewProperty() {
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="عدد الطوابق"
                       />
-            </div>
-                </div>
+                    </div>
+                  </div>
+                )}
+
+                {formData.buildingType === 'single' && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <FaBuilding className="inline ml-2" />
+                        عدد القاعات
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.halls}
+                        onChange={(e) => handleInputChange('halls', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="عدد القاعات"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <FaUsers className="inline ml-2" />
+                        عدد المجالس
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.majlis}
+                        onChange={(e) => handleInputChange('majlis', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="عدد المجالس"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <FaUtensils className="inline ml-2" />
+                        عدد المطابخ
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.kitchens}
+                        onChange={(e) => handleInputChange('kitchens', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="عدد المطابخ"
+                      />
+                    </div>
+                  </div>
                 )}
                       </div>
             )}

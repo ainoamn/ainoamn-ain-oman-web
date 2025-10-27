@@ -206,6 +206,10 @@ export default function ProfilePage() {
     const allActions = [
       { id: 'my_properties', label: 'إدارة عقاراتي', icon: FiHome, link: '/properties/unified-management', permission: 'view_properties', color: 'blue', desc: 'لوحة تحكم متقدمة' },
       { id: 'add_property', label: 'إضافة عقار', icon: FiPackage, link: '/properties/new', permission: 'add_property', color: 'green', desc: 'أضف عقار جديد' },
+      { id: 'rental_contracts', label: 'إدارة العقود', icon: FiFileText, link: '/rentals/new', permission: 'view_properties', color: 'purple', desc: 'إنشاء عقود إيجار' },
+      { id: 'unit_rentals', label: 'تأجير الوحدات', icon: FiHome, link: '/dashboard/owner?tab=unit-rentals', permission: 'view_properties', color: 'indigo', desc: 'إدارة تأجير الوحدات' },
+      { id: 'tenant_management', label: 'إدارة المستأجرين', icon: FiUsers, link: '/dashboard/owner?tab=tenants', permission: 'view_properties', color: 'teal', desc: 'معلومات المستأجرين' },
+      { id: 'contract_management', label: 'إدارة العقود', icon: FiFileText, link: '/dashboard/owner?tab=contracts', permission: 'view_properties', color: 'orange', desc: 'العقود والمستندات' },
       { id: 'roles_permissions', label: 'إدارة الصلاحيات', icon: FiShield, link: '/admin/roles-permissions', permission: 'manage_users', color: 'red', desc: 'التحكم بصلاحيات الأدوار' },
       { id: 'financial', label: 'النظام المالي', icon: FiDollarSign, link: '/admin/financial', permission: 'view_financial', color: 'emerald', desc: 'المالية والحسابات' },
       { id: 'invoices', label: 'الفواتير', icon: FiFileText, link: '/admin/invoices', permission: 'create_invoice', color: 'indigo', desc: 'إدارة الفواتير' },
@@ -259,7 +263,7 @@ export default function ProfilePage() {
   }
 
   if (!mounted || loading) {
-    return (
+  return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
@@ -289,13 +293,13 @@ export default function ProfilePage() {
                   ) : (
                     user.name.charAt(0).toUpperCase()
                   )}
-                </div>
+                  </div>
                 {isAdmin && (
                   <div className="absolute -top-2 -right-2 bg-yellow-400 rounded-full p-1.5 shadow-lg">
                     <FiStar className="w-4 h-4 text-white" />
+                    </div>
+                    )}
                   </div>
-                )}
-              </div>
 
               <div className="flex-1 text-center md:text-right">
                 <h1 className="text-3xl font-bold mb-1">{user.name}</h1>
@@ -303,14 +307,14 @@ export default function ProfilePage() {
                 <div className="flex flex-wrap justify-center md:justify-start gap-2">
                   <span className="bg-white/20 backdrop-blur px-3 py-1 rounded-full text-sm">
                     {user.email}
-                  </span>
+                        </span>
                   {user.subscription && (
                     <span className="bg-yellow-400/30 backdrop-blur px-3 py-1 rounded-full text-sm font-semibold">
                       ⭐ {getPlanName(user.subscription.plan)}
-                    </span>
+                        </span>
                   )}
-                </div>
-              </div>
+                    </div>
+                  </div>
 
               <div className="flex gap-3">
                 {/* زر لوحة التحكم الرئيسي */}
@@ -323,7 +327,7 @@ export default function ProfilePage() {
                 </InstantLink>
 
                 {/* زر التحديث */}
-                <button 
+                  <button 
                   onClick={() => {
                     setLoading(true);
                     loadUserData();
@@ -333,10 +337,10 @@ export default function ProfilePage() {
                 >
                   <FiRefreshCw className="w-5 h-5 inline ml-2" />
                   تحديث
-                </button>
-              </div>
-            </div>
-          </div>
+                  </button>
+                    </div>
+                    </div>
+                  </div>
 
           {/* إحصائيات سريعة */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -348,18 +352,18 @@ export default function ProfilePage() {
                 <p className="text-gray-600 text-sm mb-1">{stat.label}</p>
                 <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
               </div>
-            ))}
-          </div>
+                  ))}
+                </div>
 
           {/* أزرار التحكم السريعة - حسب الصلاحيات */}
           {finalQuickActions.length > 0 && (
             <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
               <div className="flex items-center justify-between mb-6">
-                <div>
+                          <div>
                   <h2 className="text-2xl font-bold text-gray-900">🎯 التحكم السريع</h2>
                   <p className="text-sm text-gray-600 mt-1">{finalQuickActions.length} ميزة متاحة</p>
-                </div>
-              </div>
+                    </div>
+                    </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {finalQuickActions.map((action) => (
                   <InstantLink
@@ -369,19 +373,19 @@ export default function ProfilePage() {
                   >
                     <div className={`w-16 h-16 bg-gradient-to-br from-${action.color}-500 to-${action.color}-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
                       <action.icon className="w-8 h-8 text-white" />
-                    </div>
+                  </div>
                     <div className="text-center">
                       <p className="font-bold text-gray-900 mb-1">{action.label}</p>
                       <p className="text-xs text-gray-600">{action.desc}</p>
-                    </div>
+                </div>
                     <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       <FiArrowRight className={`w-5 h-5 text-${action.color}-600`} />
-                    </div>
+                            </div>
                   </InstantLink>
-                ))}
-              </div>
-            </div>
-          )}
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
           {/* الرسوم البيانية التفاعلية */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -390,8 +394,8 @@ export default function ProfilePage() {
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
                   <FiTrendingUp className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
+                  </div>
+                          <div>
                   <h3 className="text-xl font-bold text-gray-900">أداء العقارات</h3>
                   <p className="text-sm text-gray-600">آخر 6 أشهر</p>
                 </div>
@@ -416,19 +420,19 @@ export default function ProfilePage() {
                   <Area type="monotone" dataKey="bookings" stroke="#10B981" fillOpacity={1} fill="url(#bookingsGradient)" name="الحجوزات" />
                 </AreaChart>
               </ResponsiveContainer>
-            </div>
+                      </div>
 
             {/* الإيرادات */}
             <div className="bg-white rounded-2xl shadow-xl p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
                   <FiDollarSign className="w-5 h-5 text-green-600" />
-                </div>
-                <div>
+                          </div>
+                          <div>
                   <h3 className="text-xl font-bold text-gray-900">الإيرادات الشهرية</h3>
                   <p className="text-sm text-gray-600">مقارنة بالمصروفات</p>
-                </div>
-              </div>
+                          </div>
+                        </div>
               <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={realStats?.chartData?.revenue || []}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -439,8 +443,8 @@ export default function ProfilePage() {
                   <Bar dataKey="expenses" fill="#EF4444" name="المصروفات" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
-            </div>
-          </div>
+                </div>
+                          </div>
 
           {/* الإشعارات والتنبيهات */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -449,52 +453,52 @@ export default function ProfilePage() {
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
                   <FiAlertCircle className="w-5 h-5 text-orange-600" />
-                </div>
+                          </div>
                 <h3 className="text-xl font-bold text-gray-900">التنبيهات</h3>
-              </div>
-              <div className="space-y-3">
+                  </div>
+                <div className="space-y-3">
                 <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg border-r-4 border-yellow-500">
                   <FiClock className="w-5 h-5 text-yellow-600" />
-                  <div>
+                          <div>
                     <p className="font-medium text-gray-900">لا توجد تنبيهات عاجلة</p>
                     <p className="text-sm text-gray-600">جميع المهام محدّثة</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
             {/* المهام */}
             <div className="bg-white rounded-2xl shadow-xl p-6">
-              <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
                   <FiCheck className="w-5 h-5 text-green-600" />
-                </div>
+                      </div>
                 <h3 className="text-xl font-bold text-gray-900">المهام القادمة</h3>
-              </div>
-              <div className="space-y-3">
+                  </div>
+                <div className="space-y-3">
                 <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                   <FiCheckCircle className="w-5 h-5 text-green-600" />
-                  <div>
+                              <div>
                     <p className="font-medium text-gray-900">لا توجد مهام معلقة</p>
                     <p className="text-sm text-gray-600">أحسنت! 🎉</p>
-                  </div>
-                </div>
-              </div>
+                        </div>
+                      </div>
+                            </div>
+                    </div>
             </div>
-          </div>
 
           {/* AI Insights - تحليلات ذكية */}
           <div className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl shadow-2xl p-6 mb-6 text-white">
-            <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
                 <FiActivity className="w-6 h-6" />
-              </div>
+                    </div>
               <div>
                 <h3 className="text-2xl font-bold">🤖 تحليلات ذكية</h3>
                 <p className="text-white/80 text-sm">مدعوم بالذكاء الاصطناعي - {aiInsights.length} توصية</p>
-              </div>
-            </div>
-            
+                  </div>
+                </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {aiInsights.map((insight) => (
                 <div key={insight.id} className="bg-white/10 backdrop-blur rounded-xl p-4 hover:bg-white/20 transition">
@@ -504,17 +508,90 @@ export default function ProfilePage() {
                       <h4 className="font-bold text-lg mb-1">{insight.title}</h4>
                       <p className="text-sm text-white/80">{insight.description}</p>
                     </div>
+                    </div>
+                  </div>
+                          ))}
+                </div>
+                    </div>
+
+          {/* قسم إدارة العقود والتأجير - للمالكين فقط */}
+          {user.role === 'property_owner' && (
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-xl p-6 mb-6 text-white">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <FiFileText className="w-6 h-6" />
+                    </div>
+                <div>
+                  <h2 className="text-2xl font-bold">🏢 إدارة العقود والتأجير</h2>
+                  <p className="text-white/80">أدوات متقدمة لإدارة عقاراتك وعقود الإيجار</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <InstantLink
+                  href="/rentals/new"
+                  className="group bg-white/10 backdrop-blur rounded-xl p-4 hover:bg-white/20 transition-all transform hover:scale-105"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <FiFileText className="w-6 h-6 text-purple-200" />
+                    <h3 className="font-bold text-lg">إنشاء عقد إيجار</h3>
+                    </div>
+                  <p className="text-sm text-white/80">إنشاء عقد إيجار جديد لوحداتك</p>
+                  <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <FiArrowRight className="w-4 h-4 text-purple-200" />
+                    </div>
+                </InstantLink>
+
+                <InstantLink
+                  href="/dashboard/owner?tab=unit-rentals"
+                  className="group bg-white/10 backdrop-blur rounded-xl p-4 hover:bg-white/20 transition-all transform hover:scale-105"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <FiHome className="w-6 h-6 text-indigo-200" />
+                    <h3 className="font-bold text-lg">تأجير الوحدات</h3>
+                      </div>
+                  <p className="text-sm text-white/80">إدارة تأجير الوحدات الفردية</p>
+                  <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <FiArrowRight className="w-4 h-4 text-indigo-200" />
+                      </div>
+                </InstantLink>
+
+                <InstantLink
+                  href="/dashboard/owner?tab=tenants"
+                  className="group bg-white/10 backdrop-blur rounded-xl p-4 hover:bg-white/20 transition-all transform hover:scale-105"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <FiUsers className="w-6 h-6 text-teal-200" />
+                    <h3 className="font-bold text-lg">إدارة المستأجرين</h3>
+                      </div>
+                  <p className="text-sm text-white/80">معلومات المستأجرين وعقودهم</p>
+                  <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <FiArrowRight className="w-4 h-4 text-teal-200" />
+                  </div>
+                </InstantLink>
+
+                <InstantLink
+                  href="/dashboard/owner?tab=contracts"
+                  className="group bg-white/10 backdrop-blur rounded-xl p-4 hover:bg-white/20 transition-all transform hover:scale-105"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <FiFileText className="w-6 h-6 text-orange-200" />
+                    <h3 className="font-bold text-lg">إدارة العقود</h3>
+                      </div>
+                  <p className="text-sm text-white/80">العقود والمستندات القانونية</p>
+                  <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <FiArrowRight className="w-4 h-4 text-orange-200" />
+                    </div>
+                </InstantLink>
+                </div>
+                        </div>
+                      )}
 
           {/* الصلاحيات - قابلة للطي */}
           <div className="bg-white rounded-2xl shadow-xl p-6">
             {/* Header مع زر الإدارة */}
             <div className="flex items-center justify-between mb-4">
-              <button
+                            <button
                 onClick={() => setShowPermissions(!showPermissions)}
                 className="flex-1 flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition"
               >
@@ -525,11 +602,11 @@ export default function ProfilePage() {
                     <p className="text-sm text-gray-600">
                       {isAdmin ? 'جميع الصلاحيات (∞)' : `${user.permissions.length} صلاحية نشطة`}
                     </p>
-                  </div>
-                </div>
+                    </div>
+                    </div>
                 {showPermissions ? <FiChevronUp className="w-6 h-6 text-gray-600" /> : <FiChevronDown className="w-6 h-6 text-gray-600" />}
-              </button>
-              
+                  </button>
+
               {/* زر إدارة الصلاحيات (للمديرين فقط) */}
               {hasPermission('manage_users') && (
                 <InstantLink
@@ -550,14 +627,14 @@ export default function ProfilePage() {
                       <div key={p.id} className="flex items-center gap-2 p-3 bg-green-50 rounded-lg text-sm">
                         <FiCheckCircle className="w-4 h-4 text-green-600" />
                         <span className="text-gray-900 font-medium">{p.name.ar}</span>
-                </div>
+                      </div>
                       ))}
-              </div>
+                      </div>
                 ) : user.permissions.length === 0 ? (
                   <div className="text-center py-8">
                     <FiEyeOff className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                     <p className="text-gray-600">لا توجد صلاحيات مفعّلة</p>
-                    </div>
+                      </div>
                 ) : (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {ALL_PERMISSIONS.filter(p => hasPermission(p.id)).map(p => (
