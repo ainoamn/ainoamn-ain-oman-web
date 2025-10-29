@@ -24,8 +24,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const genAI = new GoogleGenerativeAI(apiKey);
     
-    // Use gemini-1.5-flash for faster and more reliable responses
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    // Use gemini-pro as it's the most stable and widely available model
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
     let prompt = '';
     let result;
