@@ -22,58 +22,69 @@ const NewTemplatePage: NextPage = () => {
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleAI = async (action: 'translate' | 'improve' | 'correct', text: string, lang: 'ar' | 'en', targetLang?: 'ar' | 'en', sectionIndex?: number, clauseIndex?: number, field?: 'title' | 'clause' | 'name' | 'description') => {
+    if (!text || !text.trim()) {
+      setStatus('الرجاء إدخال نص أولاً');
+      return;
+    }
+
     try {
       setLoading(`${action}-${sectionIndex}-${clauseIndex}-${field}`);
+      setStatus(null);
+      
       const res = await fetch('/api/ai/template-assist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action,
-          text,
+          text: text.trim(),
           sourceLang: lang,
           targetLang: targetLang || (lang === 'ar' ? 'en' : 'ar')
         })
       });
 
-      if (res.ok) {
-        const data = await res.json();
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || data.error || 'فشل في معالجة الطلب');
+      }
+
+      if (action === 'translate') {
+        const finalTargetLang = targetLang || (lang === 'ar' ? 'en' : 'ar');
         
-        if (action === 'translate') {
-          const finalTargetLang = targetLang || (lang === 'ar' ? 'en' : 'ar');
-          
-          if (field === 'name') {
-            setName({ ...name, [finalTargetLang]: data.text });
-          } else if (field === 'description') {
-            setDescription({ ...description, [finalTargetLang]: data.text });
-          } else if (field === 'title' && sectionIndex !== undefined) {
-            const newSections = [...sections];
-            newSections[sectionIndex].title[finalTargetLang] = data.text;
-            setSections(newSections);
-          } else if (field === 'clause' && sectionIndex !== undefined && clauseIndex !== undefined) {
-            const newSections = [...sections];
-            newSections[sectionIndex].clauses[clauseIndex][finalTargetLang] = data.text;
-            setSections(newSections);
-          }
-        } else {
-          // للتحسين والتصحيح، تحديث النص مباشرة
-          if (field === 'name') {
-            setName({ ...name, [lang]: data.text });
-          } else if (field === 'description') {
-            setDescription({ ...description, [lang]: data.text });
-          } else if (field === 'title' && sectionIndex !== undefined) {
-            const newSections = [...sections];
-            newSections[sectionIndex].title[lang] = data.text;
-            setSections(newSections);
-          } else if (field === 'clause' && sectionIndex !== undefined && clauseIndex !== undefined) {
-            const newSections = [...sections];
-            newSections[sectionIndex].clauses[clauseIndex][lang] = data.text;
-            setSections(newSections);
-          }
+        if (field === 'name') {
+          setName({ ...name, [finalTargetLang]: data.text });
+        } else if (field === 'description') {
+          setDescription({ ...description, [finalTargetLang]: data.text });
+        } else if (field === 'title' && sectionIndex !== undefined) {
+          const newSections = [...sections];
+          newSections[sectionIndex].title[finalTargetLang] = data.text;
+          setSections(newSections);
+        } else if (field === 'clause' && sectionIndex !== undefined && clauseIndex !== undefined) {
+          const newSections = [...sections];
+          newSections[sectionIndex].clauses[clauseIndex][finalTargetLang] = data.text;
+          setSections(newSections);
+        }
+      } else {
+        // للتحسين والتصحيح، تحديث النص مباشرة
+        if (field === 'name') {
+          setName({ ...name, [lang]: data.text });
+        } else if (field === 'description') {
+          setDescription({ ...description, [lang]: data.text });
+        } else if (field === 'title' && sectionIndex !== undefined) {
+          const newSections = [...sections];
+          newSections[sectionIndex].title[lang] = data.text;
+          setSections(newSections);
+        } else if (field === 'clause' && sectionIndex !== undefined && clauseIndex !== undefined) {
+          const newSections = [...sections];
+          newSections[sectionIndex].clauses[clauseIndex][lang] = data.text;
+          setSections(newSections);
         }
       }
-    } catch (error) {
+      
+      setStatus(null); // Clear any previous errors
+    } catch (error: any) {
       console.error('AI error:', error);
-      setStatus('حدث خطأ في استخدام الذكاء الاصطناعي');
+      setStatus(`حدث خطأ: ${error.message || 'فشل في استخدام الذكاء الاصطناعي'}`);
     } finally {
       setLoading(null);
     }
@@ -183,10 +194,14 @@ const NewTemplatePage: NextPage = () => {
                         type="button"
                         onClick={() => handleAI('translate', name.ar, 'ar', 'en', undefined, undefined, 'name')}
                         disabled={loading !== null}
-                        className="px-3 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 disabled:opacity-50"
+                        className="px-3 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 disabled:opacity-50 relative"
                         title="ترجمة تلقائية"
                       >
-                        <FaLanguage />
+                        {loading?.includes('translate') && loading?.includes('name') ? (
+                          <span className="animate-spin">⏳</span>
+                        ) : (
+                          <FaLanguage />
+                        )}
                       </button>
                     )}
                   </div>
@@ -362,28 +377,40 @@ const NewTemplatePage: NextPage = () => {
                                 type="button"
                                 onClick={() => handleAI('correct', clause.ar, 'ar', undefined, sectionIndex, clauseIndex, 'clause')}
                                 disabled={loading !== null || !clause.ar}
-                                className="px-2 py-1 bg-green-50 text-green-600 rounded-md hover:bg-green-100 disabled:opacity-50 text-xs"
+                                className="px-2 py-1 bg-green-50 text-green-600 rounded-md hover:bg-green-100 disabled:opacity-50 text-xs relative"
                                 title="تصحيح تلقائي"
                               >
-                                <FaSpellCheck />
+                                {loading === `correct-${sectionIndex}-${clauseIndex}-clause` ? (
+                                  <span className="animate-spin">⏳</span>
+                                ) : (
+                                  <FaSpellCheck />
+                                )}
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleAI('improve', clause.ar, 'ar', undefined, sectionIndex, clauseIndex, 'clause')}
                                 disabled={loading !== null || !clause.ar}
-                                className="px-2 py-1 bg-purple-50 text-purple-600 rounded-md hover:bg-purple-100 disabled:opacity-50 text-xs"
+                                className="px-2 py-1 bg-purple-50 text-purple-600 rounded-md hover:bg-purple-100 disabled:opacity-50 text-xs relative"
                                 title="تحسين النص"
                               >
-                                <FaMagic />
+                                {loading === `improve-${sectionIndex}-${clauseIndex}-clause` ? (
+                                  <span className="animate-spin">⏳</span>
+                                ) : (
+                                  <FaMagic />
+                                )}
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleAI('translate', clause.ar, 'ar', 'en', sectionIndex, clauseIndex, 'clause')}
                                 disabled={loading !== null || !clause.ar}
-                                className="px-2 py-1 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 disabled:opacity-50 text-xs"
+                                className="px-2 py-1 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 disabled:opacity-50 text-xs relative"
                                 title="ترجمة تلقائية"
                               >
-                                <FaLanguage />
+                                {loading === `translate-${sectionIndex}-${clauseIndex}-clause` ? (
+                                  <span className="animate-spin">⏳</span>
+                                ) : (
+                                  <FaLanguage />
+                                )}
                               </button>
                             </div>
                           </div>
@@ -460,9 +487,17 @@ const NewTemplatePage: NextPage = () => {
               <div className={`p-3 rounded-md text-sm ${
                 status.includes('نجاح') 
                   ? 'bg-green-50 text-green-700' 
-                  : 'bg-red-50 text-red-700'
+                  : status.includes('خطأ') || status.includes('configure')
+                  ? 'bg-red-50 text-red-700'
+                  : 'bg-yellow-50 text-yellow-700'
               }`}>
                 {status}
+                {status.includes('configure') && (
+                  <div className="mt-2 text-xs">
+                    <p>يرجى إضافة GEMINI_API_KEY في ملف .env.local:</p>
+                    <code className="block mt-1 p-2 bg-gray-100 rounded">GEMINI_API_KEY=your_api_key_here</code>
+                  </div>
+                )}
               </div>
             )}
           </form>
