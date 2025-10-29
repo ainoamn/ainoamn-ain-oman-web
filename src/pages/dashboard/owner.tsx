@@ -40,6 +40,12 @@ const OwnerDashboard: NextPage = () => {
   const [rentals, setRentals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("properties");
+  // بيانات الإدارة الداخلية
+  const [services, setServices] = useState<any[]>([]);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [expenses, setExpenses] = useState<any[]>([]);
+  const [overdueServices, setOverdueServices] = useState<any[]>([]);
+  const [expiringDocuments, setExpiringDocuments] = useState<any[]>([]);
   
   // استخدام Context للحجوزات
   const { bookings: allBookings, loading: bookingsLoading } = useBookings();
@@ -70,6 +76,66 @@ const OwnerDashboard: NextPage = () => {
   useEffect(() => {
     fetchOwnerData();
   }, []);
+
+  // تحميل بيانات الإدارة الداخلية عند فتح تبويباتها
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    const ownerId = session.user.id as string;
+
+    const loadServices = async () => {
+      try {
+        const res = await fetch(`/api/property-services?ownerId=${encodeURIComponent(ownerId)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setServices(Array.isArray(data.services) ? data.services : []);
+        }
+      } catch {}
+    };
+
+    const loadDocuments = async () => {
+      try {
+        const res = await fetch(`/api/property-documents?ownerId=${encodeURIComponent(ownerId)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setDocuments(Array.isArray(data.documents) ? data.documents : []);
+        }
+      } catch {}
+    };
+
+    const loadExpenses = async () => {
+      try {
+        const res = await fetch(`/api/property-expenses?ownerId=${encodeURIComponent(ownerId)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setExpenses(Array.isArray(data.expenses) ? data.expenses : []);
+        }
+      } catch {}
+    };
+
+    const loadOverdue = async () => {
+      try {
+        const sRes = await fetch(`/api/property-services?ownerId=${encodeURIComponent(ownerId)}&overdue=true`);
+        if (sRes.ok) {
+          const sData = await sRes.json();
+          setOverdueServices(Array.isArray(sData.services) ? sData.services : []);
+        }
+        const dRes = await fetch(`/api/property-documents?ownerId=${encodeURIComponent(ownerId)}&expiring=true`);
+        if (dRes.ok) {
+          const dData = await dRes.json();
+          setExpiringDocuments(Array.isArray(dData.documents) ? dData.documents : []);
+        }
+      } catch {}
+    };
+
+    if (activeTab === 'services') loadServices();
+    if (activeTab === 'documents') loadDocuments();
+    if (activeTab === 'expenses') loadExpenses();
+    if (activeTab === 'overdue') loadOverdue();
+    if (activeTab === 'management') {
+      // حمّل ملخصات أساسية
+      loadServices(); loadDocuments(); loadExpenses();
+    }
+  }, [activeTab, session]);
 
   const fetchOwnerData = async () => {
     try {
@@ -147,6 +213,10 @@ const OwnerDashboard: NextPage = () => {
                 { id: "tenants", name: "المستأجرين", count: 0 },
                 { id: "contracts", name: "إدارة العقود", count: 0 },
                 { id: "management", name: "إدارة الخدمات والمستندات", count: 0 },
+                { id: "services", name: "الخدمات والمرافق", count: services.length },
+                { id: "documents", name: "المستندات", count: documents.length },
+                { id: "expenses", name: "المصاريف", count: expenses.length },
+                { id: "overdue", name: "المتأخرات", count: (overdueServices.length + expiringDocuments.length) },
                 { id: "analytics", name: "التحليلات", count: 0 }
               ].map((tab) => (
                 <button
@@ -508,6 +578,180 @@ const OwnerDashboard: NextPage = () => {
                   </div>
                 </div>
               )}
+            </motion.div>
+          )}
+
+          {activeTab === "services" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-xl shadow-sm"
+            >
+              <div className="px-4 py-5 sm:px-6 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">الخدمات والمرافق</h3>
+                  <p className="mt-1 max-w-2xl text-sm text-gray-500">عرض جميع الخدمات المرتبطة بعقاراتك</p>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الخدمة</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحساب</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المزود</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المبلغ الشهري</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الاستحقاق</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {services.map((s) => (
+                      <tr key={s.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm text-gray-900">{s.serviceName}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{s.accountNumber}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{s.provider}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{(s.monthlyAmount || 0).toLocaleString()} {s.currency || 'OMR'}</td>
+                        <td className="px-6 py-4 text-sm">
+                          <span className={`px-2 py-1 rounded-full text-xs ${s.isOverdue ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                            {s.isOverdue ? 'متأخر' : 'مستحق'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                    {services.length === 0 && (
+                      <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500">لا توجد خدمات</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "documents" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-xl shadow-sm"
+            >
+              <div className="px-4 py-5 sm:px-6">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">المستندات</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4 pb-6">
+                {documents.map((d) => (
+                  <div key={d.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="font-medium text-gray-900">{d.documentName}</div>
+                      <span className={`px-2 py-1 rounded-full text-xs ${d.status === 'valid' ? 'bg-green-100 text-green-800' : d.status === 'expired' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>{d.status === 'valid' ? 'صالح' : d.status === 'expired' ? 'منتهي' : 'معلّق'}</span>
+                    </div>
+                    <div className="text-sm text-gray-600">{d.title}</div>
+                  </div>
+                ))}
+                {documents.length === 0 && (
+                  <div className="col-span-full text-center text-gray-500 py-10">لا توجد مستندات</div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "expenses" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-xl shadow-sm"
+            >
+              <div className="px-4 py-5 sm:px-6 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">المصاريف</h3>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">العنوان</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">النوع</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المبلغ</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">التاريخ</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {expenses.map((e) => (
+                      <tr key={e.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm text-gray-900">{e.title}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{e.expenseCategory || e.expenseType}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{(e.amount || 0).toLocaleString()} {e.currency || 'OMR'}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{new Date(e.date).toLocaleDateString('ar')}</td>
+                        <td className="px-6 py-4 text-sm">
+                          <span className={`px-2 py-1 rounded-full text-xs ${e.status === 'paid' ? 'bg-green-100 text-green-800' : e.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>{e.status === 'paid' ? 'مدفوع' : e.status === 'pending' ? 'معلق' : 'متأخر'}</span>
+                        </td>
+                      </tr>
+                    ))}
+                    {expenses.length === 0 && (
+                      <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500">لا توجد مصاريف</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "overdue" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">الخدمات المتأخرة</h3>
+                {overdueServices.length === 0 ? (
+                  <div className="text-gray-500">لا توجد خدمات متأخرة</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الخدمة</th>
+                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحساب</th>
+                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الاستحقاق</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {overdueServices.map((s) => (
+                          <tr key={s.id}>
+                            <td className="px-6 py-4 text-sm text-gray-900">{s.serviceName}</td>
+                            <td className="px-6 py-4 text-sm text-gray-900">{s.accountNumber}</td>
+                            <td className="px-6 py-4 text-sm"><span className="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">متأخر</span></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">المستندات التي تنتهي قريباً</h3>
+                {expiringDocuments.length === 0 ? (
+                  <div className="text-gray-500">لا توجد مستندات منتهية قريباً</div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {expiringDocuments.map((d) => (
+                      <div key={d.id} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="font-medium text-gray-900">{d.documentName}</div>
+                          <span className="px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-800">ينتهي قريباً</span>
+                        </div>
+                        <div className="text-sm text-gray-600">{d.title}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </motion.div>
           )}
           </div>
