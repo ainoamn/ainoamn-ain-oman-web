@@ -24,13 +24,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const genAI = new GoogleGenerativeAI(apiKey);
     
-    // Try different models in order of preference
+    // Use only models that are confirmed to work with v1beta API
+    // Gemini 1.5 Pro and Flash are the current stable models
     const modelsToTry = [
-      'gemini-1.5-pro-latest',
+      'gemini-1.5-flash',
       'gemini-1.5-pro',
-      'gemini-1.0-pro-latest',
-      'gemini-1.0-pro',
-      'gemini-pro'
+      'gemini-pro-vision'  // Fallback option
     ];
     
     let lastError: any = null;
@@ -108,18 +107,34 @@ ${text}`;
         
       } catch (err: any) {
         lastError = err;
-        console.log(`Model ${modelName} failed: ${err.message}`);
-        // Continue to next model
-        continue;
+        const errorMsg = err.message || String(err);
+        console.log(`Model ${modelName} failed: ${errorMsg}`);
+        
+        // If it's a 404 error, continue to next model
+        // If it's another error (like API key issue), return immediately
+        if (errorMsg.includes('404') || errorMsg.includes('not found')) {
+          continue; // Try next model
+        } else if (errorMsg.includes('API key') || errorMsg.includes('permission') || errorMsg.includes('401') || errorMsg.includes('403')) {
+          // API key or permission issue - don't try other models
+          return res.status(500).json({ 
+            error: 'API key or permission error', 
+            message: errorMsg,
+            suggestion: 'Please check your GEMINI_API_KEY and ensure it has access to Gemini models'
+          });
+        } else {
+          // Other errors - continue to next model
+          continue;
+        }
       }
     }
     
     // If all models failed
+    const errorDetail = lastError?.message || 'All models failed';
     return res.status(500).json({ 
       error: 'AI service error', 
-      message: lastError?.message || 'All models failed',
+      message: errorDetail,
       details: `Tried models: ${modelsToTry.join(', ')}`,
-      suggestion: 'Please check your API key and ensure you have access to Gemini models'
+      suggestion: 'Please ensure your API key has access to Gemini 1.5 models. You may need to enable billing in Google AI Studio.'
     });
   } catch (error: any) {
     console.error('AI API error:', error);
