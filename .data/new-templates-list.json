@@ -1,0 +1,245 @@
+[
+  {
+    "id": "residential-unit-details-",
+    "name": {
+      "ar": "Unit Details ",
+      "en": "Unit Details"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  },
+  {
+    "id": "residential-index-commercial---02",
+    "name": {
+      "ar": "Index Commercial - 02",
+      "en": "Page NO"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  },
+  {
+    "id": "residential-01--residential",
+    "name": {
+      "ar": "تأجير وحدة ( مستند رقم 1 )",
+      "en": "RENT A UNIT ( Documents No 1 )"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  },
+  {
+    "id": "residential-01--renewal",
+    "name": {
+      "ar": "تأجير وحدة ( مستند رقم 1 )",
+      "en": "RENT A UNIT ( Documents No 1 )"
+    },
+    "type": "renewal",
+    "category": "contracts"
+  },
+  {
+    "id": "residential-02--extension-of-tenancy",
+    "name": {
+      "ar": "ملحق عقد إيجار  (  مستند رقم  2 - أ )",
+      "en": "Extension of Tenancy Agreement (Document No. 2-A )"
+    },
+    "type": "extension",
+    "category": "contracts"
+  },
+  {
+    "id": "residential-invoice---requirement",
+    "name": {
+      "ar": "المتطلبات",
+      "en": "VATIN OM1100300282"
+    },
+    "type": "invoice",
+    "category": "requests"
+  },
+  {
+    "id": "residential-03--declaration-form",
+    "name": {
+      "ar": "إقـــــــــــــــــــــــــــــرار",
+      "en": "Declaration Form"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  },
+  {
+    "id": "residential-04--tenant-check-in",
+    "name": {
+      "ar": "تسجيل دخول المستأجر (  مستند رقم 4 )",
+      "en": "Tenant Check-In (Document No. 4 )"
+    },
+    "type": "check_in",
+    "category": "contracts"
+  },
+  {
+    "id": "residential-05--tenant-check--out",
+    "name": {
+      "ar": "تسجيل خروج المستأجر (  مستند رقم 5 )",
+      "en": "Tenant Check- out (Document No. 5 )"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  },
+  {
+    "id": "residential-06--tenancy-cancellation",
+    "name": {
+      "ar": "الفاضل /                                      المحترم",
+      "en": "Mr. Director of Contracts Department"
+    },
+    "type": "termination",
+    "category": "contracts"
+  },
+  {
+    "id": "residential------------------",
+    "name": {
+      "ar": "ملحق عقد إيجار  (  مستند رقم  2 - أ )",
+      "en": "Extension of Tenancy Agreement (Document No. 2-A )"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  },
+  {
+    "id": "residential-----1",
+    "name": {
+      "ar": "سيد فياض بن علي - Syed Fayyaz ali",
+      "en": "Azaiba Plot 54, Building 65"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  },
+  {
+    "id": "commercial-unit-details-",
+    "name": {
+      "ar": "Unit Details ",
+      "en": "Unit Details"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  },
+  {
+    "id": "commercial-index-commercial---02",
+    "name": {
+      "ar": "Index Commercial - 02",
+      "en": "Page NO"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  },
+  {
+    "id": "commercial-01--commercial",
+    "name": {
+      "ar": "حجز وحدة (  مستند رقم 1)",
+      "en": "UNIT BOOKING (Document No. 1)"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  },
+  {
+    "id": "commercial-01--renewal",
+    "name": {
+      "ar": "حجز وحدة (  مستند رقم 1)",
+      "en": "UNIT BOOKING (Document No. 1)"
+    },
+    "type": "renewal",
+    "category": "contracts"
+  },
+  {
+    "id": "commercial-02--extension-of-tenancy",
+    "name": {
+      "ar": "ملحق عقد إيجار  (  مستند رقم  2 - ب )",
+      "en": "Extension of Tenancy Agreement (Document No. 2-B)"
+    },
+    "type": "extension",
+    "category": "contracts"
+  },
+  {
+    "id": "commercial-invoice---requirement",
+    "name": {
+      "ar": "المتطلبات",
+      "en": "VATIN OM1100300282"
+    },
+    "type": "invoice",
+    "category": "requests"
+  },
+  {
+    "id": "commercial-03-pg-01",
+    "name": {
+      "ar": "ضمان شخصي (  مستند رقم  3 )",
+      "en": "Personal Guarantee (Document No. 3 )"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  },
+  {
+    "id": "commercial-03-pg-02",
+    "name": {
+      "ar": "ضمان شخصي (  مستند رقم  3 )",
+      "en": "Personal Guarantee (Document No. 3 )"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  },
+  {
+    "id": "commercial-03-pg-03",
+    "name": {
+      "ar": "ضمان شخصي (  مستند رقم  3 )",
+      "en": "Personal Guarantee (Document No. 3 )"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  },
+  {
+    "id": "commercial-04--tenant-check-in",
+    "name": {
+      "ar": "تسجيل دخول المستأجر (  مستند رقم 4 )",
+      "en": "Tenant Check-In (Document No. 4 )"
+    },
+    "type": "check_in",
+    "category": "contracts"
+  },
+  {
+    "id": "commercial-05--tenant-check--out",
+    "name": {
+      "ar": "تسجيل خروج المستأجر (  مستند رقم 5 )",
+      "en": "Tenant Check- out (Document No. 5 )"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  },
+  {
+    "id": "commercial-06--tenancy-cancellation",
+    "name": {
+      "ar": "الفاضل /                                      المحترم",
+      "en": "Mr. Director of Contracts Department"
+    },
+    "type": "termination",
+    "category": "contracts"
+  },
+  {
+    "id": "commercial-terms-and-conditions-for-rentin",
+    "name": {
+      "ar": "الشروط والأحكام لتأجير للوحدات ( التجارية )",
+      "en": "Terms and conditions for renting  units ( Commercial )"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  },
+  {
+    "id": "commercial-personal-guarantee",
+    "name": {
+      "ar": "ضمان شخصي",
+      "en": "Personal Guarantee"
+    },
+    "type": "guarantee",
+    "category": "contracts"
+  },
+  {
+    "id": "commercial-----1",
+    "name": {
+      "ar": "سيد فياض بن علي - Syed Fayyaz ali",
+      "en": "Azaiba Plot 54, Building 65"
+    },
+    "type": "addendum",
+    "category": "contracts"
+  }
+]

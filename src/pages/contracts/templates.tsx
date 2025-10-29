@@ -196,10 +196,17 @@ const ContractTemplatesPage: NextPage = () => {
 
                     <div className="flex gap-2">
                       <InstantLink
-                        href={`/rentals/new?template=${template.id}`}
+                        href={`/contracts/create?template=${template.id}`}
                         className="flex-1 text-center px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100"
                       >
-                        استخدام القالب
+                        إنشاء عقد
+                      </InstantLink>
+                      <InstantLink
+                        href={`/rentals/new?template=${template.id}`}
+                        className="px-3 py-2 text-sm bg-green-50 text-green-700 rounded-md hover:bg-green-100"
+                        title="إنشاء عقد إيجار جديد"
+                      >
+                        عقد إيجار
                       </InstantLink>
                       <InstantLink
                         href={`/contracts/templates/${template.id}/link`}

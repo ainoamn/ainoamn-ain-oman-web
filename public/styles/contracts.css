@@ -1,0 +1,161 @@
+/* تنسيقات إضافية للقوالب والعقود */
+
+/* تنسيق الطباعة المحسن */
+@media print {
+  @page {
+    margin: 1in;
+    size: A4;
+  }
+  
+  body {
+    font-family: 'Arial', 'Tahoma', sans-serif;
+    line-height: 1.6;
+  }
+  
+  .company-header {
+    page-break-after: avoid;
+  }
+  
+  .section {
+    page-break-inside: avoid;
+    margin-bottom: 20px;
+  }
+  
+  .clause {
+    page-break-inside: avoid;
+  }
+  
+  .signature-section {
+    page-break-before: avoid;
+  }
+}
+
+/* تنسيقات الشاشة */
+.bilingual-contract {
+  font-family: 'Arial', 'Tahoma', sans-serif;
+}
+
+.company-header {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 2px solid #cbd5e0;
+  border-radius: 8px;
+}
+
+.document-title {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+}
+
+.section-title {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-right: 4px solid #3b82f6;
+  border-radius: 0 6px 6px 0;
+}
+
+.clause {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.clause:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-color: #cbd5e0;
+}
+
+.clause-number {
+  font-weight: 700;
+  color: #1e40af;
+}
+
+.signature-line {
+  border-bottom: 2px solid #374151;
+  height: 2px;
+  width: 200px;
+  display: inline-block;
+  margin: 0 20px;
+}
+
+/* تحسينات للعرض على الشاشة */
+@media screen {
+  .bilingual-contract {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  
+  .company-header {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .document-title {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  .section {
+    margin-bottom: 2rem;
+  }
+  
+  .clause {
+    margin-bottom: 1rem;
+  }
+}
+
+/* تنسيقات خاصة للطباعة */
+@media print {
+  .company-name-ar {
+    font-size: 20pt !important;
+    font-weight: 900 !important;
+    color: #000000 !important;
+  }
+  
+  .company-name-en {
+    font-size: 18pt !important;
+    font-weight: 700 !important;
+    color: #333333 !important;
+  }
+  
+  .company-contact {
+    font-size: 11pt !important;
+    color: #666666 !important;
+  }
+  
+  .document-title-ar {
+    font-size: 18pt !important;
+    font-weight: 700 !important;
+    color: #000000 !important;
+  }
+  
+  .document-title-en {
+    font-size: 16pt !important;
+    font-weight: 600 !important;
+    color: #333333 !important;
+  }
+  
+  .section-title {
+    font-size: 14pt !important;
+    font-weight: 700 !important;
+    color: #000000 !important;
+    background-color: #f5f5f5 !important;
+    border-right: 3px solid #000000 !important;
+  }
+  
+  .clause-ar {
+    font-size: 12pt !important;
+    line-height: 1.8 !important;
+    color: #000000 !important;
+  }
+  
+  .clause-en {
+    font-size: 11pt !important;
+    line-height: 1.6 !important;
+    color: #444444 !important;
+  }
+  
+  .clause-number {
+    font-weight: 700 !important;
+    color: #000000 !important;
+  }
+}
+
