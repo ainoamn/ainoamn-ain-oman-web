@@ -247,6 +247,22 @@ const OwnerDashboard: NextPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
+                <div className="mb-6 flex justify-between items-center">
+                  <InstantLink
+                    href="/properties/new"
+                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                  >
+                    <FaPlus className="ml-2" />
+                    إضافة عقار جديد
+                  </InstantLink>
+                  <InstantLink
+                    href="/properties/unified-management"
+                    className="inline-flex items-center px-4 py-2 border-2 border-blue-600 rounded-md text-sm font-medium text-blue-600 bg-white hover:bg-blue-50"
+                  >
+                    <FaCog className="ml-2" />
+                    الإدارة الموحدة
+                  </InstantLink>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {properties.map((property) => (
                     <PropertyCard key={property.id} property={property} />
@@ -288,6 +304,16 @@ const OwnerDashboard: NextPage = () => {
                 transition={{ duration: 0.3 }}
                 className="bg-white shadow overflow-hidden sm:rounded-md"
               >
+                <div className="px-4 py-5 sm:px-6 flex items-center justify-between">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">عقود الإيجار</h3>
+                  <InstantLink
+                    href="/rentals/new"
+                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                  >
+                    <FaPlus className="ml-2" />
+                    إنشاء عقد جديد
+                  </InstantLink>
+                </div>
                 <ul className="divide-y divide-gray-200">
                   {rentals.map((rental) => (
                     <li key={rental.id}>
@@ -593,6 +619,13 @@ const OwnerDashboard: NextPage = () => {
                   <h3 className="text-lg leading-6 font-medium text-gray-900">الخدمات والمرافق</h3>
                   <p className="mt-1 max-w-2xl text-sm text-gray-500">عرض جميع الخدمات المرتبطة بعقاراتك</p>
                 </div>
+                <InstantLink
+                  href="/property-management/overdue#add-service"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                >
+                  <FaPlus className="ml-2" />
+                  إضافة خدمة جديدة
+                </InstantLink>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -603,6 +636,7 @@ const OwnerDashboard: NextPage = () => {
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المزود</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المبلغ الشهري</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الاستحقاق</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -617,10 +651,32 @@ const OwnerDashboard: NextPage = () => {
                             {s.isOverdue ? 'متأخر' : 'مستحق'}
                           </span>
                         </td>
+                        <td className="px-6 py-4 text-sm">
+                          <div className="flex gap-2">
+                            <InstantLink
+                              href={`/property-management/${s.propertyId}/services/${s.id}/edit`}
+                              className="px-3 py-1 text-xs bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                            >
+                              تعديل
+                            </InstantLink>
+                            <button
+                              onClick={() => {
+                                if (confirm('هل أنت متأكد من حذف هذه الخدمة؟')) {
+                                  fetch(`/api/property-services/${s.id}`, { method: 'DELETE' })
+                                    .then(() => { setServices(services.filter(ser => ser.id !== s.id)); })
+                                    .catch(err => alert('فشل حذف الخدمة'));
+                                }
+                              }}
+                              className="px-3 py-1 text-xs bg-red-50 text-red-700 rounded hover:bg-red-100"
+                            >
+                              حذف
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                     {services.length === 0 && (
-                      <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500">لا توجد خدمات</td></tr>
+                      <tr><td colSpan={6} className="px-6 py-10 text-center text-gray-500">لا توجد خدمات</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -635,8 +691,18 @@ const OwnerDashboard: NextPage = () => {
               transition={{ duration: 0.3 }}
               className="bg-white rounded-xl shadow-sm"
             >
-              <div className="px-4 py-5 sm:px-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">المستندات</h3>
+              <div className="px-4 py-5 sm:px-6 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">المستندات</h3>
+                  <p className="mt-1 max-w-2xl text-sm text-gray-500">عرض جميع المستندات المرتبطة بعقاراتك</p>
+                </div>
+                <InstantLink
+                  href="/property-management/overdue#add-document"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700"
+                >
+                  <FaPlus className="ml-2" />
+                  إضافة مستند جديد
+                </InstantLink>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4 pb-6">
                 {documents.map((d) => (
@@ -645,7 +711,27 @@ const OwnerDashboard: NextPage = () => {
                       <div className="font-medium text-gray-900">{d.documentName}</div>
                       <span className={`px-2 py-1 rounded-full text-xs ${d.status === 'valid' ? 'bg-green-100 text-green-800' : d.status === 'expired' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>{d.status === 'valid' ? 'صالح' : d.status === 'expired' ? 'منتهي' : 'معلّق'}</span>
                     </div>
-                    <div className="text-sm text-gray-600">{d.title}</div>
+                    <div className="text-sm text-gray-600 mb-3">{d.title}</div>
+                    <div className="flex gap-2 mt-2">
+                      <InstantLink
+                        href={`/property-management/${d.propertyId}/documents/${d.id}/edit`}
+                        className="flex-1 text-center px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                      >
+                        تعديل
+                      </InstantLink>
+                      <button
+                        onClick={() => {
+                          if (confirm('هل أنت متأكد من حذف هذا المستند؟')) {
+                            fetch(`/api/property-documents/${d.id}`, { method: 'DELETE' })
+                              .then(() => { setDocuments(documents.filter(doc => doc.id !== d.id)); })
+                              .catch(err => alert('فشل حذف المستند'));
+                          }
+                        }}
+                        className="flex-1 text-center px-2 py-1 text-xs bg-red-50 text-red-700 rounded hover:bg-red-100"
+                      >
+                        حذف
+                      </button>
+                    </div>
                   </div>
                 ))}
                 {documents.length === 0 && (
@@ -665,7 +751,15 @@ const OwnerDashboard: NextPage = () => {
               <div className="px-4 py-5 sm:px-6 flex items-center justify-between">
                 <div>
                   <h3 className="text-lg leading-6 font-medium text-gray-900">المصاريف</h3>
+                  <p className="mt-1 max-w-2xl text-sm text-gray-500">عرض جميع المصاريف المرتبطة بعقاراتك</p>
                 </div>
+                <InstantLink
+                  href="/property-management/overdue#add-expense"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700"
+                >
+                  <FaPlus className="ml-2" />
+                  إضافة مصروف جديد
+                </InstantLink>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -676,6 +770,7 @@ const OwnerDashboard: NextPage = () => {
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المبلغ</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">التاريخ</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -688,10 +783,32 @@ const OwnerDashboard: NextPage = () => {
                         <td className="px-6 py-4 text-sm">
                           <span className={`px-2 py-1 rounded-full text-xs ${e.status === 'paid' ? 'bg-green-100 text-green-800' : e.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>{e.status === 'paid' ? 'مدفوع' : e.status === 'pending' ? 'معلق' : 'متأخر'}</span>
                         </td>
+                        <td className="px-6 py-4 text-sm">
+                          <div className="flex gap-2">
+                            <InstantLink
+                              href={`/property-management/${e.propertyId}/expenses/${e.id}/edit`}
+                              className="px-3 py-1 text-xs bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                            >
+                              تعديل
+                            </InstantLink>
+                            <button
+                              onClick={() => {
+                                if (confirm('هل أنت متأكد من حذف هذا المصروف؟')) {
+                                  fetch(`/api/property-expenses/${e.id}`, { method: 'DELETE' })
+                                    .then(() => { setExpenses(expenses.filter(exp => exp.id !== e.id)); })
+                                    .catch(err => alert('فشل حذف المصروف'));
+                                }
+                              }}
+                              className="px-3 py-1 text-xs bg-red-50 text-red-700 rounded hover:bg-red-100"
+                            >
+                              حذف
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                     {expenses.length === 0 && (
-                      <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500">لا توجد مصاريف</td></tr>
+                      <tr><td colSpan={6} className="px-6 py-10 text-center text-gray-500">لا توجد مصاريف</td></tr>
                     )}
                   </tbody>
                 </table>
