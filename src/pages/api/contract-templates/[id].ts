@@ -1,32 +1,74 @@
-// @ts-nocheck
-// src/pages/api/contract-templates/[id].ts
-import type { NextApiRequest, NextApiResponse } from "next";
-import fs from "fs"; import fsp from "fs/promises"; import path from "path";
-type ContractTemplate = import("./index").ContractTemplate;
+import type { NextApiRequest, NextApiResponse } from 'next';
+import fs from 'fs';
+import path from 'path';
 
-const DATA_DIR = path.join(process.cwd(), ".data");
-const FILE = path.join(DATA_DIR, "contract_templates.json");
+const templatesPath = path.join(process.cwd(), '.data', 'contract-templates.json');
 
-async function ensure(){ if(!fs.existsSync(DATA_DIR)) await fsp.mkdir(DATA_DIR,{recursive:true}); if(!fs.existsSync(FILE)) await fsp.writeFile(FILE,"[]","utf8"); }
-async function readAll(): Promise<ContractTemplate[]>{ await ensure(); try{ return JSON.parse(await fsp.readFile(FILE,"utf8")); } catch{ return []; } }
-async function writeAll(items: ContractTemplate[]){ await ensure(); await fsp.writeFile(FILE, JSON.stringify(items,null,2), "utf8"); }
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    const { id } = req.query;
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse){
-  const id = String(req.query.id||"");
-  const items = await readAll();
-  const idx = items.findIndex(t => t.id===id);
-  if (req.method === "GET") {
-    if (idx === -1) return res.status(404).json({ error:"Not Found" });
-    return res.status(200).json({ item: items[idx] });
+    if (!fs.existsSync(templatesPath)) {
+      return res.status(404).json({ error: 'Template not found' });
+    }
+
+    const fileData = fs.readFileSync(templatesPath, 'utf8');
+    const data = JSON.parse(fileData);
+    const template = data.templates?.find((t: any) => t.id === id);
+
+    if (!template) {
+      return res.status(404).json({ error: 'Template not found' });
+    }
+
+    if (req.method === 'GET') {
+      return res.status(200).json({ template });
+    }
+
+    if (req.method === 'PATCH') {
+      const updates = req.body;
+
+      // Handle linking/unlinking
+      if (updates.linkProperty !== undefined) {
+        if (!template.linkedProperties) template.linkedProperties = [];
+        if (updates.linkProperty && !template.linkedProperties.includes(updates.linkProperty)) {
+          template.linkedProperties.push(updates.linkProperty);
+        } else if (!updates.linkProperty) {
+          template.linkedProperties = template.linkedProperties.filter((p: string) => p !== updates.linkProperty);
+        }
+      }
+
+      if (updates.linkUnit !== undefined) {
+        if (!template.linkedUnits) template.linkedUnits = [];
+        if (updates.linkUnit && !template.linkedUnits.includes(updates.linkUnit)) {
+          template.linkedUnits.push(updates.linkUnit);
+        } else if (!updates.linkUnit) {
+          template.linkedUnits = template.linkedUnits.filter((u: string) => u !== updates.linkUnit);
+        }
+      }
+
+      if (updates.linkUsageType !== undefined) {
+        if (!template.linkedUsageTypes) template.linkedUsageTypes = [];
+        if (updates.linkUsageType && !template.linkedUsageTypes.includes(updates.linkUsageType)) {
+          template.linkedUsageTypes.push(updates.linkUsageType);
+        } else if (!updates.linkUsageType) {
+          template.linkedUsageTypes = template.linkedUsageTypes.filter((u: string) => u !== updates.linkUsageType);
+        }
+      }
+
+      const index = data.templates.findIndex((t: any) => t.id === id);
+      data.templates[index] = {
+        ...template,
+        ...updates,
+        updatedAt: new Date().toISOString()
+      };
+
+      fs.writeFileSync(templatesPath, JSON.stringify(data, null, 2));
+      return res.status(200).json({ template: data.templates[index] });
+    }
+
+    return res.status(405).json({ error: 'Method not allowed' });
+  } catch (error) {
+    console.error('Error in template API:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
-  if (req.method === "PUT" || req.method === "PATCH") {
-    try{
-      if (idx === -1) return res.status(404).json({ error:"Not Found" });
-      const b = req.body || {};
-      const next = { ...items[idx], ...b, updatedAt: new Date().toISOString() };
-      items[idx] = next; await writeAll(items);
-      return res.status(200).json({ item: next });
-    }catch(e:any){ return res.status(400).json({ error: e?.message || "Bad Request" }); }
-  }
-  res.setHeader("Allow","GET,PUT,PATCH"); return res.status(405).json({ error:"Method Not Allowed" });
 }
