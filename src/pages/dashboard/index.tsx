@@ -40,6 +40,21 @@ interface User {
 
 export default function DashboardRouter() {
   const router = useRouter();
+  // إلغاء صفحة /dashboard نهائياً وتحويلها إلى /profile
+  useEffect(() => {
+    router.replace('/profile');
+  }, [router]);
+
+  return null;
+}
+
+/*
+  Legacy content kept below for reference. The /dashboard landing page is
+  deprecated in favor of /profile as the single hub.
+*/
+// The following code is intentionally unreachable after the early return above.
+// It remains here in comments for future reference if needed.
+/*
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [autoRedirect, setAutoRedirect] = useState(true);

@@ -6,38 +6,20 @@ import { subscriptionManager } from '@/lib/subscriptionSystem';
 // تم استبدال الأيقونات برموز تعبيرية لتجنب مشاكل الاستيراد
 
 export default function PropertyOwnerDashboard() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [bookings, setBookings] = useState([]);
-  const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // جلب البيانات
+  // هذه الصفحة ملغاة. إعادة التوجيه إلى لوحة المالك الموحدة.
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // جلب الحجوزات
-        const bookingsResponse = await fetch('/api/bookings');
-        if (bookingsResponse.ok) {
-          const bookingsData = await bookingsResponse.json();
-          setBookings(Array.isArray(bookingsData.items) ? bookingsData.items : []);
-        }
-
-        // جلب العقارات
-        const propertiesResponse = await fetch('/api/properties');
-        if (propertiesResponse.ok) {
-          const propertiesData = await propertiesResponse.json();
-          setProperties(Array.isArray(propertiesData) ? propertiesData : []);
-        }
-      } catch (error) {
-
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    if (typeof window !== 'undefined') {
+      window.location.replace('/dashboard/owner');
+    }
   }, []);
+  return null;
+}
+
+/*
+  Legacy owner dashboard content has been deprecated in favor of
+  /dashboard/owner with unified tabs (contracts, unit-rentals, tenants, etc.).
+*/
+// The remainder of the old implementation is intentionally removed.
 
   // إحصائيات إدارة العقار
   const propertyStats = [

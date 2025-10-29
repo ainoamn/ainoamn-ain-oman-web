@@ -140,12 +140,13 @@ const OwnerDashboard: NextPage = () => {
           {/* التبويبات الرئيسية */}
           <div className="mt-8 border-b border-gray-200">
             <nav className="-mb-px flex space-x-8">
-              {[
+              {[ 
                 { id: "properties", name: "العقارات", count: properties.length },
                 { id: "rentals", name: "عقود الإيجار", count: rentals.length },
                 { id: "unit-rentals", name: "تأجير الوحدات", count: 0 },
                 { id: "tenants", name: "المستأجرين", count: 0 },
                 { id: "contracts", name: "إدارة العقود", count: 0 },
+                { id: "management", name: "إدارة الخدمات والمستندات", count: 0 },
                 { id: "analytics", name: "التحليلات", count: 0 }
               ].map((tab) => (
                 <button
@@ -442,6 +443,73 @@ const OwnerDashboard: NextPage = () => {
                 </div>
               </motion.div>
             )}
+
+          {activeTab === "management" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="mb-6">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">إدارة الخدمات والمستندات والمصاريف</h3>
+                <p className="mt-1 text-sm text-gray-500">اختر عقاراً لإدارة الخدمات (الكهرباء والماء والإنترنت) والمستندات والمصاريف الداخلية.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {properties.map((property) => (
+                  <div key={property.id} className="bg-white border border-gray-200 rounded-lg p-5">
+                    <h4 className="font-medium text-gray-900 mb-1">{text(property.titleAr)}</h4>
+                    <p className="text-sm text-gray-500 mb-4">{property.address}</p>
+
+                    <div className="grid grid-cols-1 gap-2">
+                      <InstantLink
+                        href={`/property-management/${property.id}?tab=services`}
+                        className="text-center px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100"
+                      >
+                        إدارة الخدمات
+                      </InstantLink>
+                      <InstantLink
+                        href={`/property-management/${property.id}?tab=documents`}
+                        className="text-center px-3 py-2 text-sm bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100"
+                      >
+                        إدارة المستندات
+                      </InstantLink>
+                      <InstantLink
+                        href={`/property-management/${property.id}?tab=expenses`}
+                        className="text-center px-3 py-2 text-sm bg-green-50 text-green-700 rounded-md hover:bg-green-100"
+                      >
+                        إدارة المصاريف
+                      </InstantLink>
+                      <InstantLink
+                        href={`/property-management/${property.id}/reports`}
+                        className="text-center px-3 py-2 text-sm bg-gray-50 text-gray-700 rounded-md hover:bg-gray-100"
+                      >
+                        التقارير المالية
+                      </InstantLink>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {properties.length === 0 && (
+                <div className="text-center py-12">
+                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m2-12h2m-2 0h-2m2 6h2m-2 0h-2m2 6h2m-2 0h-2" />
+                  </svg>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">لا توجد عقارات</h3>
+                  <p className="mt-1 text-sm text-gray-500">ابدأ بإضافة عقارك الأول لإدارة خدماته.</p>
+                  <div className="mt-6">
+                    <InstantLink
+                      href="/properties/new"
+                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                    >
+                      إضافة عقار جديد
+                    </InstantLink>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
           </div>
         </main>
       </div>
