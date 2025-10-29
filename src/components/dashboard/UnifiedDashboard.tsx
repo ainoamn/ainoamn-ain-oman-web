@@ -211,8 +211,8 @@ export default function UnifiedDashboard({ userType, userId }: UnifiedDashboardP
           {subscription && (
             <div className="text-right">
               <p className="text-sm opacity-90">الخطة الحالية</p>
-              <p className="text-lg font-semibold">{subscription.planName}</p>
-              <p className="text-sm opacity-90">{subscription.remainingDays} يوم متبقي</p>
+              <p className="text-lg font-semibold">{subscription?.planName || 'غير محدد'}</p>
+              <p className="text-sm opacity-90">{subscription?.remainingDays || 0} يوم متبقي</p>
             </div>
           )}
         </div>
@@ -235,25 +235,25 @@ export default function UnifiedDashboard({ userType, userId }: UnifiedDashboardP
             <div className="bg-gray-50 rounded-lg p-4">
               <h4 className="font-semibold text-gray-900 mb-2">العقارات</h4>
               <p className="text-2xl font-bold text-blue-600">
-                {subscription.usage.properties}/{subscription.limits.properties === -1 ? '∞' : subscription.limits.properties}
+                {subscription?.usage?.properties || 0}/{subscription?.limits?.properties === -1 ? '∞' : subscription?.limits?.properties || 0}
               </p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
               <h4 className="font-semibold text-gray-900 mb-2">الوحدات</h4>
               <p className="text-2xl font-bold text-green-600">
-                {subscription.usage.units}/{subscription.limits.units === -1 ? '∞' : subscription.limits.units}
+                {subscription?.usage?.units || 0}/{subscription?.limits?.units === -1 ? '∞' : subscription?.limits?.units || 0}
               </p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
               <h4 className="font-semibold text-gray-900 mb-2">الحجوزات</h4>
               <p className="text-2xl font-bold text-purple-600">
-                {subscription.usage.bookings}/{subscription.limits.bookings === -1 ? '∞' : subscription.limits.bookings}
+                {subscription?.usage?.bookings || 0}/{subscription?.limits?.bookings === -1 ? '∞' : subscription?.limits?.bookings || 0}
               </p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
               <h4 className="font-semibold text-gray-900 mb-2">المستخدمون</h4>
               <p className="text-2xl font-bold text-orange-600">
-                {subscription.usage.users}/{subscription.limits.users === -1 ? '∞' : subscription.limits.users}
+                {subscription?.usage?.users || 0}/{subscription?.limits?.users === -1 ? '∞' : subscription?.limits?.users || 0}
               </p>
             </div>
           </div>
