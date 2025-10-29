@@ -15,7 +15,13 @@ const LinkTemplatePage: NextPage = () => {
   const [selectedUnit, setSelectedUnit] = useState<string>('');
   const [selectedUsageType, setSelectedUsageType] = useState<string>('');
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState<string | null>(null);
+  const getText = (obj: any, lang: 'ar' | 'en' = 'ar'): string => {
+    if (typeof obj === 'string') return obj;
+    if (obj && typeof obj === 'object') {
+      return obj[lang] || obj.ar || obj.en || '';
+    }
+    return '';
+  };
 
   useEffect(() => {
     if (id) {
@@ -124,7 +130,7 @@ const LinkTemplatePage: NextPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">ربط القالب</h1>
-                <p className="text-gray-600">{template.name}</p>
+                <p className="text-gray-600">{getText(template?.name)}</p>
               </div>
               <InstantLink
                 href="/contracts/templates"

@@ -6,8 +6,8 @@ import { FaFileContract, FaFileAlt, FaEnvelope, FaLink, FaUnlink } from "react-i
 
 interface Template {
   id: string;
-  name: string;
-  description: string;
+  name: string | { ar: string; en: string };
+  description: string | { ar: string; en: string };
   category: 'contracts' | 'requests' | 'letters';
   type: string;
   usageTypes: string[];
@@ -15,6 +15,14 @@ interface Template {
   linkedUnits?: string[];
   linkedUsageTypes?: string[];
 }
+
+const getText = (obj: any, lang: 'ar' | 'en' = 'ar'): string => {
+  if (typeof obj === 'string') return obj;
+  if (obj && typeof obj === 'object') {
+    return obj[lang] || obj.ar || obj.en || '';
+  }
+  return '';
+};
 
 const ContractTemplatesPage: NextPage = () => {
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -88,7 +96,7 @@ const ContractTemplatesPage: NextPage = () => {
                   className="border border-gray-300 rounded-md text-sm px-2 py-2 bg-white"
                 >
                   {templates.map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
+                    <option key={t.id} value={t.id}>{getText(t.name)}</option>
                   ))}
                 </select>
                 <InstantLink
@@ -146,9 +154,12 @@ const ContractTemplatesPage: NextPage = () => {
                 return (
                   <div key={template.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-1">
                         <CategoryIcon className="text-blue-600" />
-                        <h3 className="text-lg font-medium text-gray-900">{template.name}</h3>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-medium text-gray-900">{getText(template.name)}</h3>
+                          <p className="text-sm text-gray-500 mt-1">{getText(template.name, 'en')}</p>
+                        </div>
                       </div>
                       <InstantLink
                         href={`/contracts/templates/${template.id}`}
@@ -158,7 +169,8 @@ const ContractTemplatesPage: NextPage = () => {
                       </InstantLink>
                     </div>
                     
-                    <p className="text-sm text-gray-600 mb-4">{template.description}</p>
+                    <p className="text-sm text-gray-600 mb-2">{getText(template.description)}</p>
+                    <p className="text-xs text-gray-500 mb-4">{getText(template.description, 'en')}</p>
 
                     {/* أنواع الاستخدام */}
                     {template.usageTypes && template.usageTypes.length > 0 && (

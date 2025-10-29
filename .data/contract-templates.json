@@ -2,68 +2,161 @@
   "templates": [
     {
       "id": "std-rental",
-      "name": "عقد إيجار قياسي",
-      "description": "عقد إيجار شامل يحتوي على جميع البنود الأساسية",
+      "name": {
+        "ar": "عقد إيجار قياسي",
+        "en": "Standard Rental Agreement"
+      },
+      "description": {
+        "ar": "عقد إيجار شامل يحتوي على جميع البنود الأساسية",
+        "en": "Comprehensive rental agreement containing all essential terms"
+      },
       "category": "contracts",
       "type": "rental",
       "usageTypes": ["residential", "commercial", "industrial"],
       "content": {
         "sections": [
           {
-            "title": "بيانات الأطراف",
+            "title": {
+              "ar": "بيانات الأطراف",
+              "en": "Party Information"
+            },
             "clauses": [
-              "الطرف الأول (المؤجر): [اسم المالك]، رقم الهوية: [رقم الهوية]، العنوان: [العنوان]",
-              "الطرف الثاني (المستأجر): [اسم المستأجر]، رقم الهوية: [رقم الهوية]، العنوان: [العنوان]"
+              {
+                "ar": "الطرف الأول (المؤجر): [اسم المالك]، رقم الهوية: [رقم الهوية]، العنوان: [العنوان]",
+                "en": "First Party (Lessor): [Owner Name], ID Number: [ID Number], Address: [Address]"
+              },
+              {
+                "ar": "الطرف الثاني (المستأجر): [اسم المستأجر]، رقم الهوية: [رقم الهوية]، العنوان: [العنوان]",
+                "en": "Second Party (Lessee): [Tenant Name], ID Number: [ID Number], Address: [Address]"
+              }
             ]
           },
           {
-            "title": "بيانات العقار المؤجر",
+            "title": {
+              "ar": "بيانات العقار المؤجر",
+              "en": "Property Information"
+            },
             "clauses": [
-              "العنوان: [عنوان العقار]",
-              "رقم القطعة: [رقم القطعة]",
-              "المساحة: [المساحة] متر مربع",
-              "نوع الاستخدام: [نوع الاستخدام]"
+              {
+                "ar": "العنوان: [عنوان العقار]",
+                "en": "Address: [Property Address]"
+              },
+              {
+                "ar": "رقم القطعة: [رقم القطعة]",
+                "en": "Plot Number: [Plot Number]"
+              },
+              {
+                "ar": "المساحة: [المساحة] متر مربع",
+                "en": "Area: [Area] square meters"
+              },
+              {
+                "ar": "نوع الاستخدام: [نوع الاستخدام]",
+                "en": "Usage Type: [Usage Type]"
+              }
             ]
           },
           {
-            "title": "مدة العقد وقيمته",
+            "title": {
+              "ar": "مدة العقد وقيمته",
+              "en": "Contract Duration and Value"
+            },
             "clauses": [
-              "مدة العقد: [المدة] تبدأ من [تاريخ البداية] وتنتهي في [تاريخ النهاية]",
-              "قيمة الإيجار الشهري: [المبلغ] ريال عماني",
-              "طريقة الدفع: يتم الدفع قبل [تاريخ الاستحقاق] من كل شهر"
+              {
+                "ar": "مدة العقد: [المدة] تبدأ من [تاريخ البداية] وتنتهي في [تاريخ النهاية]",
+                "en": "Contract Duration: [Duration] starting from [Start Date] and ending on [End Date]"
+              },
+              {
+                "ar": "قيمة الإيجار الشهري: [المبلغ] ريال عماني",
+                "en": "Monthly Rent: [Amount] Omani Rial"
+              },
+              {
+                "ar": "طريقة الدفع: يتم الدفع قبل [تاريخ الاستحقاق] من كل شهر",
+                "en": "Payment Method: Payment is due before [Due Date] of each month"
+              }
             ]
           },
           {
-            "title": "التأمين والالتزامات",
+            "title": {
+              "ar": "التأمين والالتزامات",
+              "en": "Security Deposit and Obligations"
+            },
             "clauses": [
-              "يتعهد المستأجر بدفع مبلغ [مبلغ التأمين] ريال عماني كتأمين",
-              "يتعهد المستأجر بالمحافظة على العقار وعدم إجراء أي تعديلات دون موافقة المؤجر",
-              "يتعهد المستأجر بدفع فواتير الخدمات (كهرباء، ماء، إنترنت)"
+              {
+                "ar": "يتعهد المستأجر بدفع مبلغ [مبلغ التأمين] ريال عماني كتأمين",
+                "en": "The tenant agrees to pay [Security Amount] Omani Rial as security deposit"
+              },
+              {
+                "ar": "يتعهد المستأجر بالمحافظة على العقار وعدم إجراء أي تعديلات دون موافقة المؤجر",
+                "en": "The tenant agrees to maintain the property and not make any modifications without the lessor's consent"
+              },
+              {
+                "ar": "يتعهد المستأجر بدفع فواتير الخدمات (كهرباء، ماء، إنترنت)",
+                "en": "The tenant agrees to pay utility bills (electricity, water, internet)"
+              }
             ]
           },
           {
-            "title": "الصيانة والمرافق",
+            "title": {
+              "ar": "الصيانة والمرافق",
+              "en": "Maintenance and Facilities"
+            },
             "clauses": [
-              "المؤجر مسؤول عن الصيانة الأساسية للعقار",
-              "المستأجر مسؤول عن الصيانة البسيطة والأضرار الناتجة عن الإهمال",
-              "المرافق المشمولة: [قائمة المرافق]"
+              {
+                "ar": "المؤجر مسؤول عن الصيانة الأساسية للعقار",
+                "en": "The lessor is responsible for basic property maintenance"
+              },
+              {
+                "ar": "المستأجر مسؤول عن الصيانة البسيطة والأضرار الناتجة عن الإهمال",
+                "en": "The tenant is responsible for minor maintenance and damages resulting from negligence"
+              },
+              {
+                "ar": "المرافق المشمولة: [قائمة المرافق]",
+                "en": "Included Facilities: [Facilities List]"
+              }
             ]
           },
           {
-            "title": "فسخ العقد",
+            "title": {
+              "ar": "فسخ العقد",
+              "en": "Contract Termination"
+            },
             "clauses": [
-              "يحق لأي من الطرفين فسخ العقد بموافقة الطرف الآخر",
-              "في حالة فسخ العقد من قبل المستأجر، يجب إشعار المؤجر قبل [المدة] أشهر",
-              "في حالة فسخ العقد من قبل المؤجر، يجب إشعار المستأجر قبل [المدة] أشهر"
+              {
+                "ar": "يحق لأي من الطرفين فسخ العقد بموافقة الطرف الآخر",
+                "en": "Either party has the right to terminate the contract with the other party's consent"
+              },
+              {
+                "ar": "في حالة فسخ العقد من قبل المستأجر، يجب إشعار المؤجر قبل [المدة] أشهر",
+                "en": "If the tenant terminates the contract, the lessor must be notified [Duration] months in advance"
+              },
+              {
+                "ar": "في حالة فسخ العقد من قبل المؤجر، يجب إشعار المستأجر قبل [المدة] أشهر",
+                "en": "If the lessor terminates the contract, the tenant must be notified [Duration] months in advance"
+              }
             ]
           },
           {
-            "title": "التوقيعات",
+            "title": {
+              "ar": "التوقيعات",
+              "en": "Signatures"
+            },
             "clauses": [
-              "تم الاتفاق على جميع البنود أعلاه",
-              "تاريخ التوقيع: [التاريخ]",
-              "توقيع المؤجر: _______________",
-              "توقيع المستأجر: _______________"
+              {
+                "ar": "تم الاتفاق على جميع البنود أعلاه",
+                "en": "All the above terms have been agreed upon"
+              },
+              {
+                "ar": "تاريخ التوقيع: [التاريخ]",
+                "en": "Signing Date: [Date]"
+              },
+              {
+                "ar": "توقيع المؤجر: _______________",
+                "en": "Lessor Signature: _______________"
+              },
+              {
+                "ar": "توقيع المستأجر: _______________",
+                "en": "Tenant Signature: _______________"
+              }
             ]
           }
         ]
@@ -77,26 +170,53 @@
     },
     {
       "id": "renewal-terms",
-      "name": "بنود التجديد",
-      "description": "بنود تجديد عقد الإيجار",
+      "name": {
+        "ar": "بنود التجديد",
+        "en": "Renewal Terms"
+      },
+      "description": {
+        "ar": "بنود تجديد عقد الإيجار",
+        "en": "Terms for renewing the rental agreement"
+      },
       "category": "contracts",
       "type": "renewal",
       "usageTypes": ["residential", "commercial", "industrial"],
       "content": {
         "sections": [
           {
-            "title": "تجديد العقد",
+            "title": {
+              "ar": "تجديد العقد",
+              "en": "Contract Renewal"
+            },
             "clauses": [
-              "تم الاتفاق على تجديد عقد الإيجار رقم [رقم العقد]",
-              "المدة الجديدة: من [تاريخ البداية] إلى [تاريخ النهاية]",
-              "قيمة الإيجار الجديدة: [المبلغ] ريال عماني شهرياً",
-              "جميع البنود السابقة تبقى سارية ما لم يتم تعديلها كتابياً"
+              {
+                "ar": "تم الاتفاق على تجديد عقد الإيجار رقم [رقم العقد]",
+                "en": "Agreement has been reached to renew rental agreement number [Contract Number]"
+              },
+              {
+                "ar": "المدة الجديدة: من [تاريخ البداية] إلى [تاريخ النهاية]",
+                "en": "New Duration: from [Start Date] to [End Date]"
+              },
+              {
+                "ar": "قيمة الإيجار الجديدة: [المبلغ] ريال عماني شهرياً",
+                "en": "New Rent Amount: [Amount] Omani Rial per month"
+              },
+              {
+                "ar": "جميع البنود السابقة تبقى سارية ما لم يتم تعديلها كتابياً",
+                "en": "All previous terms remain valid unless modified in writing"
+              }
             ]
           },
           {
-            "title": "التعديلات",
+            "title": {
+              "ar": "التعديلات",
+              "en": "Modifications"
+            },
             "clauses": [
-              "[قائمة التعديلات إن وجدت]"
+              {
+                "ar": "[قائمة التعديلات إن وجدت]",
+                "en": "[List of modifications if any]"
+              }
             ]
           }
         ]
@@ -110,36 +230,81 @@
     },
     {
       "id": "termination-addendum",
-      "name": "ملحق إلغاء عقد",
-      "description": "ملحق قانوني لإلغاء عقد الإيجار",
+      "name": {
+        "ar": "ملحق إلغاء عقد",
+        "en": "Contract Termination Addendum"
+      },
+      "description": {
+        "ar": "ملحق قانوني لإلغاء عقد الإيجار",
+        "en": "Legal addendum for terminating rental agreement"
+      },
       "category": "contracts",
       "type": "termination",
       "usageTypes": ["residential", "commercial", "industrial"],
       "content": {
         "sections": [
           {
-            "title": "إلغاء العقد",
+            "title": {
+              "ar": "إلغاء العقد",
+              "en": "Contract Termination"
+            },
             "clauses": [
-              "بناءً على رغبة الطرفين/الطرف [اسم الطرف]",
-              "تم الاتفاق على إلغاء عقد الإيجار رقم [رقم العقد]",
-              "تاريخ الإلغاء: [التاريخ]",
-              "سبب الإلغاء: [السبب]"
+              {
+                "ar": "بناءً على رغبة الطرفين/الطرف [اسم الطرف]",
+                "en": "Based on the request of both parties/party [Party Name]"
+              },
+              {
+                "ar": "تم الاتفاق على إلغاء عقد الإيجار رقم [رقم العقد]",
+                "en": "Agreement has been reached to terminate rental agreement number [Contract Number]"
+              },
+              {
+                "ar": "تاريخ الإلغاء: [التاريخ]",
+                "en": "Termination Date: [Date]"
+              },
+              {
+                "ar": "سبب الإلغاء: [السبب]",
+                "en": "Reason for Termination: [Reason]"
+              }
             ]
           },
           {
-            "title": "التسوية",
+            "title": {
+              "ar": "التسوية",
+              "en": "Settlement"
+            },
             "clauses": [
-              "تم تسوية جميع المبالغ المستحقة",
-              "مبلغ التأمين: [حالة التأمين]",
-              "فواتير الخدمات: [حالة الفواتير]"
+              {
+                "ar": "تم تسوية جميع المبالغ المستحقة",
+                "en": "All due amounts have been settled"
+              },
+              {
+                "ar": "مبلغ التأمين: [حالة التأمين]",
+                "en": "Security Deposit: [Deposit Status]"
+              },
+              {
+                "ar": "فواتير الخدمات: [حالة الفواتير]",
+                "en": "Utility Bills: [Bills Status]"
+              }
             ]
           },
           {
-            "title": "تسليم العقار",
+            "title": {
+              "ar": "تسليم العقار",
+              "en": "Property Handover"
+            },
             "clauses": [
-              "تم تسليم العقار في حالة [حالة العقار]",
-              "تاريخ التسليم: [التاريخ]",
-              "تم التأكد من عدم وجود أضرار"
+              {
+                "ar": "تم تسليم العقار في حالة [حالة العقار]",
+                "en": "Property has been handed over in [Property Condition] condition"
+              },
+              {
+                "ar": "تاريخ التسليم: [التاريخ]",
+                "en": "Handover Date: [Date]"
+              },
+              {
+                "ar": "تم التأكد من عدم وجود أضرار",
+                "en": "Confirmed absence of damages"
+              }
             ]
           }
         ]
@@ -153,35 +318,77 @@
     },
     {
       "id": "renewal-request",
-      "name": "طلب تجديد عقد",
-      "description": "نموذج طلب تجديد عقد الإيجار",
+      "name": {
+        "ar": "طلب تجديد عقد",
+        "en": "Contract Renewal Request"
+      },
+      "description": {
+        "ar": "نموذج طلب تجديد عقد الإيجار",
+        "en": "Form for requesting rental agreement renewal"
+      },
       "category": "requests",
       "type": "renewal_request",
       "usageTypes": ["residential", "commercial", "industrial"],
       "content": {
         "sections": [
           {
-            "title": "بيانات الطلب",
+            "title": {
+              "ar": "بيانات الطلب",
+              "en": "Request Information"
+            },
             "clauses": [
-              "المستأجر: [اسم المستأجر]",
-              "رقم العقد: [رقم العقد]",
-              "تاريخ الطلب: [التاريخ]"
+              {
+                "ar": "المستأجر: [اسم المستأجر]",
+                "en": "Tenant: [Tenant Name]"
+              },
+              {
+                "ar": "رقم العقد: [رقم العقد]",
+                "en": "Contract Number: [Contract Number]"
+              },
+              {
+                "ar": "تاريخ الطلب: [التاريخ]",
+                "en": "Request Date: [Date]"
+              }
             ]
           },
           {
-            "title": "تفاصيل التجديد",
+            "title": {
+              "ar": "تفاصيل التجديد",
+              "en": "Renewal Details"
+            },
             "clauses": [
-              "أطلب تجديد العقد لمدة [المدة]",
-              "بداية الفترة الجديدة: [التاريخ]",
-              "الراتب الشهري المطلوب: [المبلغ] ريال عماني",
-              "تعليقات إضافية: [التعليقات]"
+              {
+                "ar": "أطلب تجديد العقد لمدة [المدة]",
+                "en": "I request to renew the contract for [Duration]"
+              },
+              {
+                "ar": "بداية الفترة الجديدة: [التاريخ]",
+                "en": "Start of New Period: [Date]"
+              },
+              {
+                "ar": "الراتب الشهري المطلوب: [المبلغ] ريال عماني",
+                "en": "Requested Monthly Rent: [Amount] Omani Rial"
+              },
+              {
+                "ar": "تعليقات إضافية: [التعليقات]",
+                "en": "Additional Comments: [Comments]"
+              }
             ]
           },
           {
-            "title": "التوقيع",
+            "title": {
+              "ar": "التوقيع",
+              "en": "Signature"
+            },
             "clauses": [
-              "توقيع المستأجر: _______________",
-              "التاريخ: [التاريخ]"
+              {
+                "ar": "توقيع المستأجر: _______________",
+                "en": "Tenant Signature: _______________"
+              },
+              {
+                "ar": "التاريخ: [التاريخ]",
+                "en": "Date: [Date]"
+              }
             ]
           }
         ]
@@ -195,35 +402,77 @@
     },
     {
       "id": "no-objection-letter",
-      "name": "طلب رسالة عدم الممانعة",
-      "description": "طلب الحصول على رسالة عدم ممانعة",
+      "name": {
+        "ar": "طلب رسالة عدم الممانعة",
+        "en": "No Objection Letter Request"
+      },
+      "description": {
+        "ar": "طلب الحصول على رسالة عدم ممانعة",
+        "en": "Request to obtain a no objection letter"
+      },
       "category": "requests",
       "type": "no_objection",
       "usageTypes": ["residential", "commercial", "industrial"],
       "content": {
         "sections": [
           {
-            "title": "بيانات الطلب",
+            "title": {
+              "ar": "بيانات الطلب",
+              "en": "Request Information"
+            },
             "clauses": [
-              "المستأجر: [اسم المستأجر]",
-              "رقم العقد: [رقم العقد]",
-              "عنوان العقار: [العنوان]",
-              "تاريخ الطلب: [التاريخ]"
+              {
+                "ar": "المستأجر: [اسم المستأجر]",
+                "en": "Tenant: [Tenant Name]"
+              },
+              {
+                "ar": "رقم العقد: [رقم العقد]",
+                "en": "Contract Number: [Contract Number]"
+              },
+              {
+                "ar": "عنوان العقار: [العنوان]",
+                "en": "Property Address: [Address]"
+              },
+              {
+                "ar": "تاريخ الطلب: [التاريخ]",
+                "en": "Request Date: [Date]"
+              }
             ]
           },
           {
-            "title": "الغرض",
+            "title": {
+              "ar": "الغرض",
+              "en": "Purpose"
+            },
             "clauses": [
-              "الغرض من الرسالة: [الغرض]",
-              "المدة المطلوبة: [المدة]",
-              "التعليقات: [التعليقات]"
+              {
+                "ar": "الغرض من الرسالة: [الغرض]",
+                "en": "Purpose of Letter: [Purpose]"
+              },
+              {
+                "ar": "المدة المطلوبة: [المدة]",
+                "en": "Required Duration: [Duration]"
+              },
+              {
+                "ar": "التعليقات: [التعليقات]",
+                "en": "Comments: [Comments]"
+              }
             ]
           },
           {
-            "title": "التوقيع",
+            "title": {
+              "ar": "التوقيع",
+              "en": "Signature"
+            },
             "clauses": [
-              "توقيع المستأجر: _______________",
-              "التاريخ: [التاريخ]"
+              {
+                "ar": "توقيع المستأجر: _______________",
+                "en": "Tenant Signature: _______________"
+              },
+              {
+                "ar": "التاريخ: [التاريخ]",
+                "en": "Date: [Date]"
+              }
             ]
           }
         ]
@@ -237,34 +486,73 @@
     },
     {
       "id": "commercial-rental",
-      "name": "عقد إيجار تجاري",
-      "description": "عقد إيجار مخصص للمحلات والمكاتب التجارية",
+      "name": {
+        "ar": "عقد إيجار تجاري",
+        "en": "Commercial Rental Agreement"
+      },
+      "description": {
+        "ar": "عقد إيجار مخصص للمحلات والمكاتب التجارية",
+        "en": "Rental agreement for shops and commercial offices"
+      },
       "category": "contracts",
       "type": "rental",
       "usageTypes": ["commercial"],
       "content": {
         "sections": [
           {
-            "title": "بيانات الأطراف",
+            "title": {
+              "ar": "بيانات الأطراف",
+              "en": "Party Information"
+            },
             "clauses": [
-              "الطرف الأول (المؤجر): [اسم المالك]",
-              "الطرف الثاني (المستأجر): [اسم المستأجر]"
+              {
+                "ar": "الطرف الأول (المؤجر): [اسم المالك]",
+                "en": "First Party (Lessor): [Owner Name]"
+              },
+              {
+                "ar": "الطرف الثاني (المستأجر): [اسم المستأجر]",
+                "en": "Second Party (Lessee): [Tenant Name]"
+              }
             ]
           },
           {
-            "title": "الغرض التجاري",
+            "title": {
+              "ar": "الغرض التجاري",
+              "en": "Commercial Purpose"
+            },
             "clauses": [
-              "الغرض من الإيجار: [النشاط التجاري]",
-              "يجب الحصول على التراخيص اللازمة قبل البدء",
-              "يمنع تغيير النشاط دون موافقة المؤجر"
+              {
+                "ar": "الغرض من الإيجار: [النشاط التجاري]",
+                "en": "Rental Purpose: [Commercial Activity]"
+              },
+              {
+                "ar": "يجب الحصول على التراخيص اللازمة قبل البدء",
+                "en": "Required licenses must be obtained before commencement"
+              },
+              {
+                "ar": "يمنع تغيير النشاط دون موافقة المؤجر",
+                "en": "Changing the activity without lessor's consent is prohibited"
+              }
             ]
           },
           {
-            "title": "الإعلانات والتجهيزات",
+            "title": {
+              "ar": "الإعلانات والتجهيزات",
+              "en": "Advertising and Installations"
+            },
             "clauses": [
-              "يسمح للمستأجر بوضع الإعلانات وفق المواصفات المحددة",
-              "التجهيزات الداخلية على حساب المستأجر",
-              "يجب استعادة الحالة الأصلية عند انتهاء العقد"
+              {
+                "ar": "يسمح للمستأجر بوضع الإعلانات وفق المواصفات المحددة",
+                "en": "Tenant is allowed to place advertisements according to specified standards"
+              },
+              {
+                "ar": "التجهيزات الداخلية على حساب المستأجر",
+                "en": "Interior installations are at tenant's expense"
+              },
+              {
+                "ar": "يجب استعادة الحالة الأصلية عند انتهاء العقد",
+                "en": "Original condition must be restored upon contract termination"
+              }
             ]
           }
         ]
@@ -278,33 +566,69 @@
     },
     {
       "id": "residential-rental",
-      "name": "عقد إيجار سكني",
-      "description": "عقد إيجار مخصص للوحدات السكنية",
+      "name": {
+        "ar": "عقد إيجار سكني",
+        "en": "Residential Rental Agreement"
+      },
+      "description": {
+        "ar": "عقد إيجار مخصص للوحدات السكنية",
+        "en": "Rental agreement for residential units"
+      },
       "category": "contracts",
       "type": "rental",
       "usageTypes": ["residential"],
       "content": {
         "sections": [
           {
-            "title": "بيانات الأطراف",
+            "title": {
+              "ar": "بيانات الأطراف",
+              "en": "Party Information"
+            },
             "clauses": [
-              "الطرف الأول (المؤجر): [اسم المالك]",
-              "الطرف الثاني (المستأجر): [اسم المستأجر]"
+              {
+                "ar": "الطرف الأول (المؤجر): [اسم المالك]",
+                "en": "First Party (Lessor): [Owner Name]"
+              },
+              {
+                "ar": "الطرف الثاني (المستأجر): [اسم المستأجر]",
+                "en": "Second Party (Lessee): [Tenant Name]"
+              }
             ]
           },
           {
-            "title": "قواعد السكن",
+            "title": {
+              "ar": "قواعد السكن",
+              "en": "Residential Rules"
+            },
             "clauses": [
-              "عدد الأفراد المسموح: [العدد]",
-              "يمنع استضافة أشخاص دون إشعار المؤجر",
-              "يجب الحفاظ على الهدوء واحترام الجيران"
+              {
+                "ar": "عدد الأفراد المسموح: [العدد]",
+                "en": "Allowed Number of Occupants: [Number]"
+              },
+              {
+                "ar": "يمنع استضافة أشخاص دون إشعار المؤجر",
+                "en": "Hosting people without notifying the lessor is prohibited"
+              },
+              {
+                "ar": "يجب الحفاظ على الهدوء واحترام الجيران",
+                "en": "Maintaining quiet and respecting neighbors is required"
+              }
             ]
           },
           {
-            "title": "المرافق",
+            "title": {
+              "ar": "المرافق",
+              "en": "Facilities"
+            },
             "clauses": [
-              "المرافق المشمولة: [قائمة المرافق]",
-              "المستأجر مسؤول عن استهلاك المياه والكهرباء"
+              {
+                "ar": "المرافق المشمولة: [قائمة المرافق]",
+                "en": "Included Facilities: [Facilities List]"
+              },
+              {
+                "ar": "المستأجر مسؤول عن استهلاك المياه والكهرباء",
+                "en": "Tenant is responsible for water and electricity consumption"
+              }
             ]
           }
         ]
@@ -318,4 +642,3 @@
     }
   ]
 }
-
