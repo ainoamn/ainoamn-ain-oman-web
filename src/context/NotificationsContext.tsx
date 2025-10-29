@@ -35,10 +35,24 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchWithTimeout = async (input: RequestInfo | URL, init?: RequestInit & { timeoutMs?: number }) => {
+    const { timeoutMs = 8000, ...rest } = init || {};
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(input, { ...rest, signal: controller.signal, headers: { 'cache-control': 'no-cache', ...(rest.headers || {}) } });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  };
 
   // جلب الإشعارات
   const refreshNotifications = async () => {
     try {
+      if (refreshing) return; // avoid overlapping
+      setRefreshing(true);
       setLoading(true);
       setError(null);
 
@@ -57,11 +71,25 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
 
       console.log('📢 Notifications: Fetching for user:', userId);
 
-      const response = await fetch(`/api/notifications?userId=${encodeURIComponent(userId)}`);
+      // retry up to 2 times on network errors
+      let response: Response | null = null;
+      let lastErr: any = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          response = await fetchWithTimeout(`/api/notifications?userId=${encodeURIComponent(userId)}`, { timeoutMs: 8000 });
+          break;
+        } catch (e) {
+          lastErr = e;
+          await new Promise(r => setTimeout(r, 300 * (attempt + 1)));
+        }
+      }
+      if (!response) throw lastErr || new Error('Failed to fetch notifications');
       
       if (!response.ok) {
-        console.error('Failed to fetch notifications');
+        const text = await response.text().catch(() => '');
+        console.error('Failed to fetch notifications', response.status, text);
         setNotifications([]);
+        setUnreadCount(0);
         return;
       }
 
@@ -76,8 +104,10 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
     } catch (err) {
       console.error('Error fetching notifications:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
+      // keep old notifications; do not clear on transient failure
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
