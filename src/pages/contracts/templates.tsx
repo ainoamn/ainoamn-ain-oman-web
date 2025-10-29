@@ -1,6 +1,7 @@
 import { NextPage } from "next";
 import Head from "next/head";
 import InstantLink from "@/components/InstantLink";
+import { useState } from "react";
 
 const ContractTemplatesPage: NextPage = () => {
   const templates = [
@@ -8,6 +9,8 @@ const ContractTemplatesPage: NextPage = () => {
     { id: "commercial", name: "عقد إيجار تجاري", description: "بنود مخصصة للمحلات والمكاتب." },
     { id: "residential", name: "عقد إيجار سكني", description: "مناسب للشقق والفلل." }
   ];
+
+  const [selectedTemplate, setSelectedTemplate] = useState<string>(templates[0]?.id || "std-rental");
 
   return (
     <>
@@ -17,17 +20,34 @@ const ContractTemplatesPage: NextPage = () => {
       <div className="min-h-screen bg-gray-50">
         <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">قوالب العقود</h1>
                 <p className="text-gray-600">اختر قالباً لبدء إنشاء عقد جديد</p>
               </div>
-              <InstantLink
-                href="/rentals/new"
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-              >
-                إنشاء عقد من قالب
-              </InstantLink>
+              <div className="flex items-center gap-2">
+                <select
+                  value={selectedTemplate}
+                  onChange={(e) => setSelectedTemplate(e.target.value)}
+                  className="border border-gray-300 rounded-md text-sm px-2 py-2 bg-white"
+                >
+                  {templates.map(t => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+                <InstantLink
+                  href={`/rentals/new?template=${encodeURIComponent(selectedTemplate)}`}
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                >
+                  ابدأ الآن
+                </InstantLink>
+                <InstantLink
+                  href="/contracts/templates/new"
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  إنشاء قالب جديد
+                </InstantLink>
+              </div>
             </div>
           </div>
         </header>
