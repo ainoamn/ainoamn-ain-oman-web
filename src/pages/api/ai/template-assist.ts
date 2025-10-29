@@ -24,18 +24,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const genAI = new GoogleGenerativeAI(apiKey);
     
-    // Use only models that are confirmed to work with v1beta API
-    // Gemini 1.5 Pro and Flash are the current stable models
+    // First, try to list available models to see what's actually available
+    let availableModels: string[] = [];
+    try {
+      // Use the REST API directly to list models
+      const listResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      if (listResponse.ok) {
+        const listData = await listResponse.json();
+        availableModels = (listData.models || []).map((m: any) => m.name?.replace('models/', '') || '').filter(Boolean);
+        console.log('Available models:', availableModels);
+      }
+    } catch (listErr) {
+      console.log('Could not list models, will try known models:', listErr);
+    }
+    
+    // Use models that might work - try different API versions
     const modelsToTry = [
+      'gemini-pro',           // Original model
+      'models/gemini-pro',    // With models/ prefix
       'gemini-1.5-flash',
+      'models/gemini-1.5-flash',
       'gemini-1.5-pro',
-      'gemini-pro-vision'  // Fallback option
+      'models/gemini-1.5-pro',
+      'gemini-pro-vision',
+      'models/gemini-pro-vision'
     ];
+    
+    // Filter to only try models that are in availableModels if we got that list
+    const modelsToAttempt = availableModels.length > 0 
+      ? modelsToTry.filter(m => availableModels.includes(m) || availableModels.includes(m.replace('models/', '')))
+      : modelsToTry;
     
     let lastError: any = null;
     
     // Try each model until one works
-    for (const modelName of modelsToTry) {
+    for (const modelName of modelsToAttempt) {
       try {
         const model = genAI.getGenerativeModel({ model: modelName });
         console.log(`Trying model: ${modelName}`);
@@ -130,11 +153,16 @@ ${text}`;
     
     // If all models failed
     const errorDetail = lastError?.message || 'All models failed';
+    const availableModelsList = availableModels.length > 0 ? `Available models: ${availableModels.join(', ')}` : 'Could not retrieve available models';
+    
     return res.status(500).json({ 
       error: 'AI service error', 
       message: errorDetail,
-      details: `Tried models: ${modelsToTry.join(', ')}`,
-      suggestion: 'Please ensure your API key has access to Gemini 1.5 models. You may need to enable billing in Google AI Studio.'
+      details: `Tried models: ${modelsToAttempt.join(', ')}`,
+      availableModels: availableModelsList,
+      suggestion: availableModels.length > 0 
+        ? `Your API key has access to: ${availableModels.join(', ')}. Please use one of these models.`
+        : 'Please ensure your API key is valid and has access to Gemini models. You may need to: 1) Enable billing in Google AI Studio, 2) Enable Generative Language API in Google Cloud Console, 3) Create a new API key with proper permissions.'
     });
   } catch (error: any) {
     console.error('AI API error:', error);
