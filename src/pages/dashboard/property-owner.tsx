@@ -181,6 +181,46 @@ export default function PropertyOwnerDashboard() {
               <span className="text-xl">⚡</span>
               {sidebarOpen && <span className="mr-3">المهام</span>}
             </button>
+            
+            <button 
+              className={`flex items-center w-full p-3 rounded-lg transition-colors ${
+                activeTab === 'services' ? 'bg-green-100 text-green-600' : 'hover:bg-gray-100'
+              }`}
+              onClick={() => setActiveTab('services')}
+            >
+              <span className="text-xl">⚡</span>
+              {sidebarOpen && <span className="mr-3">خدمات العقارات</span>}
+            </button>
+            
+            <button 
+              className={`flex items-center w-full p-3 rounded-lg transition-colors ${
+                activeTab === 'documents' ? 'bg-green-100 text-green-600' : 'hover:bg-gray-100'
+              }`}
+              onClick={() => setActiveTab('documents')}
+            >
+              <span className="text-xl">📄</span>
+              {sidebarOpen && <span className="mr-3">مستندات العقارات</span>}
+            </button>
+            
+            <button 
+              className={`flex items-center w-full p-3 rounded-lg transition-colors ${
+                activeTab === 'expenses' ? 'bg-green-100 text-green-600' : 'hover:bg-gray-100'
+              }`}
+              onClick={() => setActiveTab('expenses')}
+            >
+              <span className="text-xl">💰</span>
+              {sidebarOpen && <span className="mr-3">مصاريف العقارات</span>}
+            </button>
+            
+            <button 
+              className={`flex items-center w-full p-3 rounded-lg transition-colors ${
+                activeTab === 'overdue' ? 'bg-green-100 text-green-600' : 'hover:bg-gray-100'
+              }`}
+              onClick={() => setActiveTab('overdue')}
+            >
+              <span className="text-xl">⚠️</span>
+              {sidebarOpen && <span className="mr-3">الحسابات المتأخرة</span>}
+            </button>
           </div>
         </nav>
         
@@ -203,6 +243,10 @@ export default function PropertyOwnerDashboard() {
             {activeTab === 'customers' && 'إدارة العملاء'}
             {activeTab === 'analytics' && 'التحليلات والتقارير'}
             {activeTab === 'tasks' && 'إدارة المهام'}
+            {activeTab === 'services' && 'خدمات العقارات'}
+            {activeTab === 'documents' && 'مستندات العقارات'}
+            {activeTab === 'expenses' && 'مصاريف العقارات'}
+            {activeTab === 'overdue' && 'الحسابات المتأخرة'}
           </h2>
           <div className="flex items-center space-x-4">
             <button className="p-2 rounded-full hover:bg-gray-100">
@@ -460,6 +504,141 @@ export default function PropertyOwnerDashboard() {
               <p className="text-gray-600">
                 إدارة المهام والمتابعة اليومية
               </p>
+            </div>
+          )}
+
+          {activeTab === 'services' && (
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-semibold">خدمات العقارات</h3>
+                <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                  <span className="inline ml-1">➕</span>
+                  إضافة خدمة جديدة
+                </button>
+              </div>
+              <p className="text-gray-600 mb-4">
+                إدارة خدمات العقارات والمرافق (كهرباء، ماء، إنترنت، إلخ)
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {properties.slice(0, 6).map((property: any) => (
+                  <InstantLink 
+                    key={property.id}
+                    href={`/property-management/${property.id}`}
+                    className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium text-sm">{property.title || 'عقار'}</h4>
+                      <span className="text-xs text-gray-500">{property.reference}</span>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-2">{property.address}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-green-600">
+                        إدارة الخدمات
+                      </span>
+                      <span className="text-xs text-gray-500">→</span>
+                    </div>
+                  </InstantLink>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'documents' && (
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-semibold">مستندات العقارات</h3>
+                <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                  <span className="inline ml-1">📤</span>
+                  رفع مستند جديد
+                </button>
+              </div>
+              <p className="text-gray-600 mb-4">
+                إدارة مستندات العقارات (سندات الملكية، التصاريح، العقود، إلخ)
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {properties.slice(0, 6).map((property: any) => (
+                  <InstantLink 
+                    key={property.id}
+                    href={`/property-management/${property.id}?tab=documents`}
+                    className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium text-sm">{property.title || 'عقار'}</h4>
+                      <span className="text-xs text-gray-500">{property.reference}</span>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-2">{property.address}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-green-600">
+                        إدارة المستندات
+                      </span>
+                      <span className="text-xs text-gray-500">→</span>
+                    </div>
+                  </InstantLink>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'expenses' && (
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-semibold">مصاريف العقارات</h3>
+                <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                  <span className="inline ml-1">➕</span>
+                  إضافة مصروف جديد
+                </button>
+              </div>
+              <p className="text-gray-600 mb-4">
+                تتبع مصاريف العقارات والصيانة والمرافق
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {properties.slice(0, 6).map((property: any) => (
+                  <InstantLink 
+                    key={property.id}
+                    href={`/property-management/${property.id}?tab=expenses`}
+                    className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium text-sm">{property.title || 'عقار'}</h4>
+                      <span className="text-xs text-gray-500">{property.reference}</span>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-2">{property.address}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-green-600">
+                        إدارة المصاريف
+                      </span>
+                      <span className="text-xs text-gray-500">→</span>
+                    </div>
+                  </InstantLink>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'overdue' && (
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-semibold">الحسابات المتأخرة</h3>
+                <InstantLink
+                  href="/property-management/overdue"
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  <span className="inline ml-1">⚠️</span>
+                  عرض الحسابات المتأخرة
+                </InstantLink>
+              </div>
+              <p className="text-gray-600 mb-4">
+                متابعة الحسابات المتأخرة والفواتير المستحقة
+              </p>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <span className="text-2xl ml-3">⚠️</span>
+                  <div>
+                    <h4 className="font-medium text-red-800">لا توجد حسابات متأخرة</h4>
+                    <p className="text-sm text-red-600">جميع الحسابات محدثة ومستحقة في مواعيدها</p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </main>

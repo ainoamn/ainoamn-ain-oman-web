@@ -1,0 +1,60 @@
+{
+  "notifications": [
+    {
+      "id": "NOTIF-001",
+      "propertyId": "P-20251022100011",
+      "unitId": null,
+      "ownerId": "khalid.alabri@ainoman.om",
+      "tenantId": null,
+      "type": "service_overdue",
+      "title": "حساب الكهرباء متأخر",
+      "message": "حساب الكهرباء للعقار متأخر عن السداد لمدة 5 أيام",
+      "priority": "high",
+      "status": "unread",
+      "relatedId": "SERV-001",
+      "relatedType": "service",
+      "dueDate": "2025-10-18",
+      "overdueDays": 5,
+      "amount": 150.00,
+      "currency": "OMR",
+      "createdAt": "2025-10-23T00:00:00Z",
+      "updatedAt": "2025-10-23T00:00:00Z"
+    },
+    {
+      "id": "NOTIF-002",
+      "propertyId": "P-20251022100011",
+      "unitId": null,
+      "ownerId": "khalid.alabri@ainoman.om",
+      "tenantId": null,
+      "type": "document_expiring",
+      "title": "وثيقة التأمين تنتهي قريباً",
+      "message": "وثيقة التأمين للمبنى ستنتهي خلال 15 يوم",
+      "priority": "medium",
+      "status": "unread",
+      "relatedId": "DOC-003",
+      "relatedType": "document",
+      "dueDate": "2026-01-01",
+      "daysUntilExpiry": 15,
+      "createdAt": "2025-10-23T00:00:00Z",
+      "updatedAt": "2025-10-23T00:00:00Z"
+    },
+    {
+      "id": "NOTIF-003",
+      "propertyId": "P-20251022094422",
+      "unitId": "UNIT-001",
+      "ownerId": "khalid.alabri@ainoman.om",
+      "tenantId": "fatima.albalushi@ainoman.om",
+      "type": "expense_reimbursement",
+      "title": "مصروف قابل للاسترداد",
+      "message": "تم دفع مصروف صيانة الوحدة 101 ويمكن استرداده من المستأجر",
+      "priority": "low",
+      "status": "unread",
+      "relatedId": "EXP-004",
+      "relatedType": "expense",
+      "amount": 75.00,
+      "currency": "OMR",
+      "createdAt": "2025-10-23T00:00:00Z",
+      "updatedAt": "2025-10-23T00:00:00Z"
+    }
+  ]
+}
