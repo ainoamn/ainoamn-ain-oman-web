@@ -87,9 +87,9 @@ export function ClientOnly({ children, fallback = null }: { children: React.Reac
   const hasMounted = useHasMounted();
 
   if (!hasMounted) {
-    return <>{fallback}</>;
+    return fallback as React.ReactElement;
   }
 
-  return <>{children}</>;
+  return children as React.ReactElement;
 }
 
