@@ -4,7 +4,6 @@ import InstantLink from '@/components/InstantLink';
 import NotificationsDropdown from '@/components/NotificationsDropdown';
 import AuthModal from '@/components/auth/AuthModal';
 import { useRouter } from "next/router";
-import { useHasMounted } from '@/hooks/useHasMounted';
 import { 
   MagnifyingGlassIcon, 
   BellIcon, 
@@ -105,7 +104,7 @@ interface NotificationItem {
 // Main Component
 export default function Header() {
   const router = useRouter();
-  const hasMounted = useHasMounted();
+  const [hasMounted, setHasMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -261,6 +260,8 @@ export default function Header() {
 
   // Effects
   useEffect(() => {
+    setHasMounted(true);
+    
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -283,7 +284,7 @@ export default function Header() {
             id: userData.id,
             name: userData.name || 'مستخدم',
             email: userData.email || userData.phone || '',
-            avatar: userData.picture || userData.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.name || 'User') + '&background=6B7280&color=fff&size=200',
+            avatar: userData.picture || userData.avatar || 'https://ui-avatars.com/api/?name=User&background=6B7280&color=fff&size=200',
             role: userData.role || 'user',
             notifications: 0,
             favorites: 0,
