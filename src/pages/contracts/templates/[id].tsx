@@ -258,7 +258,7 @@ const TemplatePreviewPage: NextPage = () => {
                 <FaCalendarAlt className="text-orange-600" />
                 <span className="text-gray-500">تاريخ الإنشاء:</span>
                 <span className="font-medium">
-                  {new Date(template.createdAt).toLocaleDateString('ar-SA')}
+                  {template.createdAt ? new Date(template.createdAt).toLocaleDateString('ar-SA', { timeZone: 'UTC' }) : 'غير محدد'}
                 </span>
               </div>
             </div>

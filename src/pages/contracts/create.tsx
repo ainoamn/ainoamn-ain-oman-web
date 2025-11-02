@@ -1,6 +1,7 @@
 import { NextPage } from "next";
 import Head from "next/head";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import InstantLink from "@/components/InstantLink";
 import ContractDisplay from "@/components/contracts/ContractDisplay";
 import { FaArrowLeft, FaFileContract, FaPrint, FaDownload, FaSave } from "react-icons/fa";
@@ -35,6 +36,7 @@ interface Tenant {
 }
 
 const CreateContractPage: NextPage = () => {
+  const router = useRouter();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [properties, setProperties] = useState<Property[]>([]);
@@ -52,17 +54,16 @@ const CreateContractPage: NextPage = () => {
     loadTemplates();
     loadProperties();
     loadTenants();
-    
-    // قراءة القالب من URL
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const templateId = params.get('template');
-      if (templateId) {
-        setSelectedTemplate(templateId);
-        setStep(2);
-      }
-    }
   }, []);
+
+  // قراءة القالب من URL - منفصل عن useEffect الرئيسي
+  useEffect(() => {
+    if (router.isReady && router.query.template) {
+      const templateId = String(router.query.template);
+      setSelectedTemplate(templateId);
+      setStep(2);
+    }
+  }, [router.isReady, router.query]);
 
   useEffect(() => {
     if (selectedProperty) {
