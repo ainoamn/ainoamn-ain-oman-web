@@ -4,6 +4,7 @@ import InstantLink from '@/components/InstantLink';
 import NotificationsDropdown from '@/components/NotificationsDropdown';
 import AuthModal from '@/components/auth/AuthModal';
 import { useRouter } from "next/router";
+import { useHasMounted } from '@/hooks/useHasMounted';
 import { 
   MagnifyingGlassIcon, 
   BellIcon, 
@@ -104,6 +105,7 @@ interface NotificationItem {
 // Main Component
 export default function Header() {
   const router = useRouter();
+  const hasMounted = useHasMounted();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -120,7 +122,6 @@ export default function Header() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchSuggestions, setSearchSuggestions] = useState<SearchSuggestion[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isMounted, setIsMounted] = useState(false);
 
   // Refs
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -260,8 +261,6 @@ export default function Header() {
 
   // Effects
   useEffect(() => {
-    setIsMounted(true);
-    
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -513,8 +512,8 @@ export default function Header() {
             )}
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">{user?.name || 'مستخدم'}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{user?.role || 'زائر'}</p>
+            <h3 className="font-semibold text-gray-900 dark:text-white" suppressHydrationWarning>{user?.name || 'مستخدم'}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400" suppressHydrationWarning>{user?.role || 'زائر'}</p>
           </div>
         </div>
       </div>
@@ -541,7 +540,7 @@ export default function Header() {
           onClick={() => setIsUserMenuOpen(false)}
         >
           <HeartIcon className="w-5 h-5 text-gray-500" />
-          <span>المفضلة ({user?.favorites || 0})</span>
+          <span suppressHydrationWarning>المفضلة ({user?.favorites || 0})</span>
         </InstantLink>
         <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
         <button
@@ -691,8 +690,8 @@ export default function Header() {
                 title="المفضلة"
               >
                 <HeartIcon className="w-5 h-5" />
-                {user?.favorites && user.favorites > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                {hasMounted && user?.favorites && user.favorites > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center" suppressHydrationWarning>
                     {user.favorites}
                   </span>
                 )}
@@ -743,7 +742,7 @@ export default function Header() {
             </div>
 
             {/* User Menu */}
-            {!isMounted ? (
+            {!hasMounted ? (
               <div className="w-32 h-10 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-xl"></div>
             ) : user ? (
               <div className="relative" ref={userMenuRef}>
@@ -759,7 +758,7 @@ export default function Header() {
                     className="w-8 h-8 rounded-full object-cover"
                     loading="lazy"
                   />
-                  <span className="hidden lg:block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <span className="hidden lg:block text-sm font-medium text-gray-700 dark:text-gray-300" suppressHydrationWarning>
                     {user.name}
                   </span>
                 </button>

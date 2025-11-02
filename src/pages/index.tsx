@@ -309,11 +309,13 @@ export default function HomePage() {
   
   const formatRemainingTime = (endTime: number) => {
     // إصلاح Hydration: استخدام قيمة ثابتة أثناء SSR
-    if (!mounted) return "جاري الحساب...";
+    if (!mounted) return "---";
     
     const diff = endTime - Date.now();
-    const days = Math.max(0, Math.floor(diff / 86400000));
-    const hours = Math.max(0, Math.floor((diff % 86400000) / 3600000));
+    if (diff <= 0) return "انتهى المزاد";
+    
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
     return `${days} يوم و ${hours} ساعة`;
   };
 
@@ -779,7 +781,7 @@ function AuctionCard({ auction, formatPrice, formatRemainingTime }: {
         {auction.endTime && (
           <div className="text-sm text-gray-500 mb-3">
             <span className="font-medium">الوقت المتبقي: </span>
-            {formatRemainingTime(auction.endTime)}
+            <span suppressHydrationWarning>{formatRemainingTime(auction.endTime)}</span>
           </div>
         )}
         
