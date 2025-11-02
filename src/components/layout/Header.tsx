@@ -120,6 +120,7 @@ export default function Header() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchSuggestions, setSearchSuggestions] = useState<SearchSuggestion[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMounted, setIsMounted] = useState(false);
 
   // Refs
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -259,6 +260,8 @@ export default function Header() {
 
   // Effects
   useEffect(() => {
+    setIsMounted(true);
+    
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -496,7 +499,7 @@ export default function Header() {
         <div className="flex items-center gap-3">
           <div className="relative">
             <InstantImage 
-              src={user?.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&background=6B7280&color=fff&size=200'}
+              src={user?.avatar || 'https://ui-avatars.com/api/?name=User&background=6B7280&color=fff&size=200'}
               alt={user?.name || 'User'}
               width={48}
               height={48}
@@ -510,8 +513,8 @@ export default function Header() {
             )}
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">{user?.name}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{user?.role}</p>
+            <h3 className="font-semibold text-gray-900 dark:text-white">{user?.name || 'مستخدم'}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{user?.role || 'زائر'}</p>
           </div>
         </div>
       </div>
@@ -538,7 +541,7 @@ export default function Header() {
           onClick={() => setIsUserMenuOpen(false)}
         >
           <HeartIcon className="w-5 h-5 text-gray-500" />
-          <span>المفضلة ({user?.favorites})</span>
+          <span>المفضلة ({user?.favorites || 0})</span>
         </InstantLink>
         <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
         <button
@@ -740,15 +743,17 @@ export default function Header() {
             </div>
 
             {/* User Menu */}
-            {user ? (
+            {!isMounted ? (
+              <div className="w-32 h-10 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-xl"></div>
+            ) : user ? (
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center gap-2 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
                 >
                   <InstantImage 
-                    src={user.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name || 'User') + '&background=6B7280&color=fff&size=200'}
-                    alt={user.name}
+                    src={user.avatar || 'https://ui-avatars.com/api/?name=User&background=6B7280&color=fff&size=200'}
+                    alt={user.name || 'User'}
                     width={32}
                     height={32}
                     className="w-8 h-8 rounded-full object-cover"
