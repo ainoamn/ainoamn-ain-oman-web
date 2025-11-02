@@ -69,6 +69,7 @@ interface RentalFormData {
 export default function NewRentalContract() {
   const router = useRouter();
   const { propertyId: initialPropertyId } = router.query;
+  const [hasMounted, setHasMounted] = useState(false);
   
   const [formData, setFormData] = useState<RentalFormData>({
     propertyId: initialPropertyId as string || '',
@@ -79,7 +80,7 @@ export default function NewRentalContract() {
     tenantPhone: '',
     tenantEmail: '',
     tenantId: '',
-    startDate: new Date().toISOString().split('T')[0],
+    startDate: '', // سيتم تعيينه في useEffect
     endDate: '',
     duration: 12,
     monthlyRent: 0,
@@ -107,6 +108,15 @@ export default function NewRentalContract() {
   const [serialNumbers, setSerialNumbers] = useState<string[]>([]);
   const [propertyIds, setPropertyIds] = useState<{id: string, title: string, address: string}[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  
+  // تعيين hasMounted و startDate بعد تحميل الصفحة
+  useEffect(() => {
+    setHasMounted(true);
+    setFormData(prev => ({
+      ...prev,
+      startDate: new Date().toISOString().split('T')[0]
+    }));
+  }, []);
   
   // جلب العقارات عند تحميل الصفحة
   useEffect(() => {
@@ -919,6 +929,7 @@ export default function NewRentalContract() {
                   onChange={(e) => handleInputChange('startDate', e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   required
+                  suppressHydrationWarning
                 />
               </div>
               
@@ -948,6 +959,7 @@ export default function NewRentalContract() {
                   value={formData.endDate}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                   readOnly
+                  suppressHydrationWarning
                 />
               </div>
               
@@ -1078,8 +1090,8 @@ export default function NewRentalContract() {
                 <div>
                   <h5 className="font-medium text-gray-700 mb-2">تفاصيل العقد</h5>
                   <div className="space-y-1 text-sm">
-                    <p><span className="font-medium">تاريخ البدء:</span> {formData.startDate}</p>
-                    <p><span className="font-medium">تاريخ الانتهاء:</span> {formData.endDate}</p>
+                    <p suppressHydrationWarning><span className="font-medium">تاريخ البدء:</span> {formData.startDate}</p>
+                    <p suppressHydrationWarning><span className="font-medium">تاريخ الانتهاء:</span> {formData.endDate}</p>
                     <p><span className="font-medium">المدة:</span> {formData.duration} شهر</p>
                     <p><span className="font-medium">العملة:</span> {formData.currency}</p>
                   </div>
