@@ -6,7 +6,7 @@ import {
   FaBuilding, FaDoorOpen, FaBed, FaBath, FaRuler, FaTag, FaKey,
   FaCheck, FaTimes, FaClock, FaUser, FaHome, FaEyeSlash, FaGlobe,
   FaCopy, FaImage, FaMapMarkerAlt, FaMoneyBillWave, FaCalendar,
-  FaExpand, FaCompress, FaBoxes, FaPlus
+  FaExpand, FaCompress, FaBoxes, FaPlus, FaDatabase
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -513,7 +513,7 @@ export default function BuildingUnitsManager({
                       )}
 
                       {/* Unit Actions */}
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                      <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
                         <InstantLink
                           href={`/properties/${unit.id || property.id}`}
                           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center"
@@ -530,6 +530,15 @@ export default function BuildingUnitsManager({
                         >
                           <FaEdit className="ml-1" />
                           تعديل
+                        </InstantLink>
+                        
+                        <InstantLink
+                          href={`/properties/${property.id}/units/${unit.id}/additional`}
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center"
+                          title="البيانات الإضافية (حسابات الخدمات والمستندات)"
+                        >
+                          <FaDatabase className="ml-1" />
+                          بيانات
                         </InstantLink>
                         
                         <button

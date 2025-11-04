@@ -6,7 +6,7 @@ import Head from 'next/head';
 import InstantLink from '@/components/InstantLink';
 import BuildingUnitsManager from '@/components/property/BuildingUnitsManager';
 
-import { FaBuilding, FaHome, FaEye, FaEdit, FaTrash, FaPlus, FaSearch, FaFilter, FaSort, FaChevronDown, FaChevronUp, FaExpand, FaArchive, FaGlobe, FaEyeSlash, FaChartLine, FaRobot, FaMapMarkerAlt, FaBed, FaBath, FaRuler, FaTag, FaCalendar, FaUser, FaPhone, FaEnvelope, FaCog, FaDownload, FaPrint, FaShare, FaHeart, FaStar, FaCheck, FaTimes, FaExclamationTriangle, FaInfoCircle, FaQuestionCircle, FaLightbulb, FaArrowUp, FaArrowDown, FaEquals, FaClock, FaHistory } from 'react-icons/fa';
+import { FaBuilding, FaHome, FaEye, FaEdit, FaTrash, FaPlus, FaSearch, FaFilter, FaSort, FaChevronDown, FaChevronUp, FaExpand, FaArchive, FaGlobe, FaEyeSlash, FaChartLine, FaRobot, FaMapMarkerAlt, FaBed, FaBath, FaRuler, FaTag, FaCalendar, FaUser, FaPhone, FaEnvelope, FaCog, FaDownload, FaPrint, FaShare, FaHeart, FaStar, FaCheck, FaTimes, FaExclamationTriangle, FaInfoCircle, FaQuestionCircle, FaLightbulb, FaArrowUp, FaArrowDown, FaEquals, FaClock, FaHistory, FaDatabase } from 'react-icons/fa';
 
 interface Property {
   id: string;
@@ -1414,6 +1414,13 @@ export default function UnifiedPropertyManagement() {
                                 >
                                   <FaCog />
                                 </InstantLink>
+                                <InstantLink 
+                                  href={`/properties/${property.id}/additional`}
+                                  className="text-indigo-600 hover:text-indigo-900 p-1 rounded transition-colors"
+                                  title="البيانات الإضافية (حسابات الخدمات والمستندات)"
+                                >
+                                  <FaDatabase />
+                                </InstantLink>
                                 <button
                                   onClick={() => togglePropertyPublish(property.id, property.published || false)}
                                   className={`p-1 rounded transition-colors ${
@@ -1662,10 +1669,10 @@ export default function UnifiedPropertyManagement() {
                         )}
 
                         {/* Actions */}
-                        <div className="flex space-x-2">
+                        <div className="grid grid-cols-2 gap-2">
                           <InstantLink 
                             href={`/properties/${property.id}`}
-                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
                             title="عرض تفاصيل العقار"
                           >
                             <FaEye className="ml-1" />
@@ -1673,20 +1680,28 @@ export default function UnifiedPropertyManagement() {
                           </InstantLink>
                           <InstantLink 
                             href={`/properties/${property.id}/edit`}
-                            className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
+                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
                             title="تعديل العقار"
                           >
                             <FaEdit className="ml-1" />
                             تعديل
                           </InstantLink>
-                          <button
-                            onClick={() => deleteProperty(property.id)}
-                            className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
-                            title="حذف العقار"
+                          <InstantLink 
+                            href={`/property/${property.id}/admin`}
+                            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
+                            title="إدارة العقار"
                           >
-                            <FaTrash className="ml-1" />
-                            حذف
-                          </button>
+                            <FaCog className="ml-1" />
+                            إدارة
+                          </InstantLink>
+                          <InstantLink 
+                            href={`/properties/${property.id}/additional`}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
+                            title="البيانات الإضافية"
+                          >
+                            <FaDatabase className="ml-1" />
+                            بيانات إضافية
+                          </InstantLink>
                         </div>
                       </div>
                       
