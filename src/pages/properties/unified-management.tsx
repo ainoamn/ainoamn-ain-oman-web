@@ -105,12 +105,25 @@ export default function UnifiedPropertyManagement() {
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [expandedProperties, setExpandedProperties] = useState<Set<string>>(new Set());
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    // الحصول على الوضع المحفوظ من localStorage، أو grid كافتراضي
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('properties-view-mode') as 'grid' | 'list') || 'grid';
+    }
+    return 'grid';
+  });
   const [aiInsights, setAiInsights] = useState<any>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [bulkAction, setBulkAction] = useState('');
+
+  // حفظ viewMode في localStorage عند تغييره
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('properties-view-mode', viewMode);
+    }
+  }, [viewMode]);
 
   // Bulk Actions Handler
   const handleBulkAction = async (action: string) => {
