@@ -8,7 +8,7 @@ import {
   FaCalendar, FaMoneyBillWave, FaFileContract, FaCheck,
   FaSpinner, FaHome, FaMapMarkerAlt, FaPhone, FaEnvelope,
   FaIdCard, FaClock, FaDollarSign, FaFileAlt, FaPlus,
-  FaChevronDown, FaChevronUp, FaListAlt
+  FaChevronDown, FaChevronUp, FaListAlt, FaUsers
 } from 'react-icons/fa';
 import InstantLink from '@/components/InstantLink';
 
@@ -120,6 +120,21 @@ export default function NewRentalContract() {
   const [expandedProperties, setExpandedProperties] = useState<Set<string>>(new Set());
   const [showOccupiedWarning, setShowOccupiedWarning] = useState<string | null>(null);
   
+  // حالة المستأجرين
+  const [tenants, setTenants] = useState<any[]>([]);
+  const [filteredTenants, setFilteredTenants] = useState<any[]>([]);
+  const [selectedTenant, setSelectedTenant] = useState<any | null>(null);
+  const [tenantSearchQuery, setTenantSearchQuery] = useState('');
+  const [showTenantDropdown, setShowTenantDropdown] = useState(false);
+  const [showAddTenantModal, setShowAddTenantModal] = useState(false);
+  const [newTenant, setNewTenant] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    idNumber: '',
+    address: ''
+  });
+  
   // تعيين hasMounted و startDate بعد تحميل الصفحة
   useEffect(() => {
     setHasMounted(true);
@@ -132,6 +147,7 @@ export default function NewRentalContract() {
   // جلب العقارات عند تحميل الصفحة
   useEffect(() => {
     fetchAllProperties();
+    fetchTenants();
   }, []);
   
   // حساب تاريخ الانتهاء عند تغيير تاريخ البداية أو المدة
@@ -238,6 +254,95 @@ export default function NewRentalContract() {
     }));
     setPropertyIds(uniquePropertyIds);
     console.log('Property IDs:', uniquePropertyIds);
+  };
+  
+  const fetchTenants = async () => {
+    try {
+      const response = await fetch('/api/users');
+      if (response.ok) {
+        const data = await response.json();
+        const allUsers = Array.isArray(data) ? data : [];
+        // تصفية المستأجرين فقط
+        const tenantsOnly = allUsers.filter(user => user.role === 'tenant');
+        setTenants(tenantsOnly);
+        setFilteredTenants(tenantsOnly);
+        console.log('Fetched tenants:', tenantsOnly.length);
+      }
+    } catch (error) {
+      console.error('Error fetching tenants:', error);
+    }
+  };
+  
+  const searchTenants = (query: string) => {
+    setTenantSearchQuery(query);
+    if (!query.trim()) {
+      setFilteredTenants(tenants);
+      return;
+    }
+    
+    const lowerQuery = query.toLowerCase();
+    const filtered = tenants.filter(tenant => 
+      tenant.name.toLowerCase().includes(lowerQuery) ||
+      tenant.email.toLowerCase().includes(lowerQuery) ||
+      tenant.phone.includes(query) ||
+      (tenant.id && tenant.id.toLowerCase().includes(lowerQuery))
+    );
+    setFilteredTenants(filtered);
+  };
+  
+  const selectTenant = (tenant: any) => {
+    setSelectedTenant(tenant);
+    setTenantSearchQuery(tenant.name);
+    setFormData(prev => ({
+      ...prev,
+      tenantName: tenant.name,
+      tenantEmail: tenant.email,
+      tenantPhone: tenant.phone,
+      tenantId: tenant.id
+    }));
+    setShowTenantDropdown(false);
+  };
+  
+  const addNewTenant = async () => {
+    if (!newTenant.name || !newTenant.email || !newTenant.phone) {
+      setError('يرجى ملء جميع الحقول المطلوبة');
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      const response = await fetch('/api/users/add-tenant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newTenant.name,
+          email: newTenant.email,
+          phone: newTenant.phone,
+          idNumber: newTenant.idNumber,
+          address: newTenant.address
+        })
+      });
+      
+      if (response.ok) {
+        const createdTenant = await response.json();
+        // إضافة المستأجر الجديد للقائمة
+        setTenants(prev => [...prev, createdTenant]);
+        setFilteredTenants(prev => [...prev, createdTenant]);
+        // اختيار المستأجر الجديد
+        selectTenant(createdTenant);
+        // إعادة تعيين النموذج
+        setNewTenant({ name: '', email: '', phone: '', idNumber: '', address: '' });
+        setShowAddTenantModal(false);
+        setSuccess('تم إضافة المستأجر بنجاح');
+      } else {
+        setError('فشل في إضافة المستأجر');
+      }
+    } catch (error) {
+      console.error('Error adding tenant:', error);
+      setError('حدث خطأ أثناء إضافة المستأجر');
+    } finally {
+      setLoading(false);
+    }
   };
   
   const searchProperties = async () => {
@@ -911,101 +1016,288 @@ export default function NewRentalContract() {
         
       case 3:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="bg-white shadow-lg rounded-xl p-6"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                <FaUser className="w-6 h-6 text-purple-600" />
+          <>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white shadow-lg rounded-xl p-6"
+            >
+              <div className="flex items-center justify-between gap-3 mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <FaUser className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">معلومات المستأجر</h3>
+                    <p className="text-gray-600">اختر مستأجر من القائمة أو أضف جديد</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddTenantModal(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg font-medium"
+                >
+                  <FaPlus className="w-4 h-4" />
+                  إضافة مستأجر جديد
+                </button>
               </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">معلومات المستأجر</h3>
-                <p className="text-gray-600">أدخل تفاصيل المستأجر</p>
+              
+              {/* نظام البحث */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <FaSearch className="inline ml-2" />
+                  بحث عن مستأجر (الاسم، البريد، الهاتف، أو الرقم)
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={tenantSearchQuery}
+                    onChange={(e) => {
+                      searchTenants(e.target.value);
+                      setShowTenantDropdown(true);
+                    }}
+                    onFocus={() => setShowTenantDropdown(true)}
+                    className="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="ابحث عن مستأجر..."
+                  />
+                  <FaSearch className="absolute left-4 top-4 text-gray-400" />
+                  
+                  {/* القائمة المنسدلة */}
+                  {showTenantDropdown && filteredTenants.length > 0 && (
+                    <div className="absolute z-10 w-full mt-2 bg-white border-2 border-purple-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                      {filteredTenants.map((tenant) => (
+                        <div
+                          key={tenant.id}
+                          onClick={() => selectTenant(tenant)}
+                          className="p-3 hover:bg-purple-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                              <FaUser className="text-purple-600" />
+                            </div>
+                            <div className="flex-1">
+                              <h5 className="font-semibold text-gray-900">{tenant.name}</h5>
+                              <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                                <span className="flex items-center gap-1">
+                                  <FaEnvelope className="w-3 h-3" />
+                                  {tenant.email}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <FaPhone className="w-3 h-3" />
+                                  {tenant.phone}
+                                </span>
+                              </div>
+                            </div>
+                            {selectedTenant?.id === tenant.id && (
+                              <FaCheck className="w-5 h-5 text-purple-600" />
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* رسالة عدم وجود نتائج */}
+                  {showTenantDropdown && tenantSearchQuery && filteredTenants.length === 0 && (
+                    <div className="absolute z-10 w-full mt-2 bg-white border-2 border-purple-200 rounded-lg shadow-lg p-4 text-center">
+                      <p className="text-gray-600 mb-3">لم يتم العثور على مستأجر بهذا الاسم</p>
+                      <button
+                        type="button"
+                        onClick={() => setShowAddTenantModal(true)}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                      >
+                        <FaPlus className="w-4 h-4" />
+                        إضافة مستأجر جديد
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+              
+              {/* معلومات المستأجر المختار */}
+              {selectedTenant && (
+                <div className="mb-6 p-4 bg-purple-50 border-2 border-purple-200 rounded-lg">
+                  <h4 className="font-semibold text-purple-900 mb-3 flex items-center gap-2">
+                    <FaCheck className="w-5 h-5 text-green-600" />
+                    المستأجر المختار
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-sm text-purple-600">الاسم:</span>
+                      <p className="font-semibold text-purple-900">{selectedTenant.name}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-purple-600">البريد:</span>
+                      <p className="font-semibold text-purple-900">{selectedTenant.email}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-purple-600">الهاتف:</span>
+                      <p className="font-semibold text-purple-900">{selectedTenant.phone}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-purple-600">الرقم التعريفي:</span>
+                      <p className="font-semibold text-purple-900">{selectedTenant.id}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FaUser className="inline ml-2" />
-                  اسم المستأجر الكامل
-                </label>
-                <input
-                  type="text"
-                  value={formData.tenantName}
-                  onChange={(e) => handleInputChange('tenantName', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="اسم المستأجر"
-                  required
-                />
+              <div className="mt-6 flex justify-between">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(2)}
+                  className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  السابق
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(4)}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                  disabled={!selectedTenant}
+                >
+                  التالي
+                  <FaArrowLeft className="w-4 h-4" />
+                </button>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FaIdCard className="inline ml-2" />
-                  رقم الهوية
-                </label>
-                <input
-                  type="text"
-                  value={formData.tenantId}
-                  onChange={(e) => handleInputChange('tenantId', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="رقم الهوية"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FaPhone className="inline ml-2" />
-                  رقم الهاتف
-                </label>
-                <input
-                  type="tel"
-                  value={formData.tenantPhone}
-                  onChange={(e) => handleInputChange('tenantPhone', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="رقم الهاتف"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FaEnvelope className="inline ml-2" />
-                  البريد الإلكتروني
-                </label>
-                <input
-                  type="email"
-                  value={formData.tenantEmail}
-                  onChange={(e) => handleInputChange('tenantEmail', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="البريد الإلكتروني"
-                  required
-                />
-              </div>
-            </div>
+            </motion.div>
             
-            <div className="mt-6 flex justify-between">
-              <button
-                type="button"
-                onClick={() => setCurrentStep(2)}
-                className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                السابق
-              </button>
-              <button
-                type="button"
-                onClick={() => setCurrentStep(4)}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-                disabled={!formData.tenantName || !formData.tenantPhone || !formData.tenantEmail}
-              >
-                التالي
-                <FaArrowLeft className="w-4 h-4" />
-              </button>
-            </div>
-          </motion.div>
+            {/* Modal إضافة مستأجر جديد */}
+            {showAddTenantModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="bg-white rounded-2xl shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                      <FaPlus className="w-6 h-6 text-purple-600" />
+                      إضافة مستأجر جديد
+                    </h3>
+                    <button
+                      onClick={() => setShowAddTenantModal(false)}
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <FaUser className="inline ml-2" />
+                        الاسم الكامل <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={newTenant.name}
+                        onChange={(e) => setNewTenant(prev => ({ ...prev, name: e.target.value }))}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="أدخل الاسم الكامل"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <FaEnvelope className="inline ml-2" />
+                        البريد الإلكتروني <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        value={newTenant.email}
+                        onChange={(e) => setNewTenant(prev => ({ ...prev, email: e.target.value }))}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="example@email.com"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <FaPhone className="inline ml-2" />
+                        رقم الهاتف <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        value={newTenant.phone}
+                        onChange={(e) => setNewTenant(prev => ({ ...prev, phone: e.target.value }))}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="+968 XXXXXXXX"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <FaIdCard className="inline ml-2" />
+                        رقم الهوية
+                      </label>
+                      <input
+                        type="text"
+                        value={newTenant.idNumber}
+                        onChange={(e) => setNewTenant(prev => ({ ...prev, idNumber: e.target.value }))}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="رقم الهوية"
+                      />
+                    </div>
+                    
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <FaMapMarkerAlt className="inline ml-2" />
+                        العنوان
+                      </label>
+                      <input
+                        type="text"
+                        value={newTenant.address}
+                        onChange={(e) => setNewTenant(prev => ({ ...prev, address: e.target.value }))}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="العنوان الكامل"
+                      />
+                    </div>
+                  </div>
+                  
+                  {error && (
+                    <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-red-700 text-sm">{error}</p>
+                    </div>
+                  )}
+                  
+                  <div className="mt-6 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAddTenantModal(false);
+                        setNewTenant({ name: '', email: '', phone: '', idNumber: '', address: '' });
+                        setError(null);
+                      }}
+                      className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                    >
+                      إلغاء
+                    </button>
+                    <button
+                      type="button"
+                      onClick={addNewTenant}
+                      disabled={loading || !newTenant.name || !newTenant.email || !newTenant.phone}
+                      className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      {loading ? (
+                        <>
+                          <FaSpinner className="w-4 h-4 animate-spin" />
+                          جاري الإضافة...
+                        </>
+                      ) : (
+                        <>
+                          <FaSave className="w-4 h-4" />
+                          حفظ المستأجر
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </>
         );
         
       case 4:
