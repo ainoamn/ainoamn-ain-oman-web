@@ -309,15 +309,15 @@ export default function Footer() {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="text-center">
-          <div className="text-2xl font-bold">{liveStats.onlineUsers.toLocaleString()}</div>
+          <div className="text-2xl font-bold" suppressHydrationWarning>{liveStats.onlineUsers.toLocaleString('en-US')}</div>
           <div className="text-sm opacity-90">مستخدم نشط</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold">{liveStats.activeProperties.toLocaleString()}</div>
+          <div className="text-2xl font-bold" suppressHydrationWarning>{liveStats.activeProperties.toLocaleString('en-US')}</div>
           <div className="text-sm opacity-90">عقار متاح</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold">{liveStats.completedDeals.toLocaleString()}</div>
+          <div className="text-2xl font-bold" suppressHydrationWarning>{liveStats.completedDeals.toLocaleString('en-US')}</div>
           <div className="text-sm opacity-90">صفقة مكتملة</div>
         </div>
         <div className="text-center">
