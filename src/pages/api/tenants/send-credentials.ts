@@ -1,7 +1,8 @@
-// src/pages/api/tenants/send-credentials.ts - إرسال بيانات الدخول للمستأجر
+// src/pages/api/tenants/send-credentials.ts - إرسال بيانات الدخول للمستأجر (تلقائي)
 import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
+import { sendTenantCredentials } from '@/lib/messaging';
 
 export default async function handler(
   req: NextApiRequest,
@@ -40,36 +41,29 @@ export default async function handler(
       return res.status(400).json({ error: 'Missing credentials' });
     }
 
-    // إرسال عبر البريد الإلكتروني
-    if (method === 'email' || method === 'both') {
-      const emailContent = `
-        مرحباً ${tenant.name},
-        
-        تم اعتماد حسابك في منصة عين عُمان!
-        
-        بيانات الدخول:
-        اسم المستخدم: ${tenant.credentials.username}
-        الرقم السري: ${tenant.credentials.password}
-        
-        رابط الدخول: https://ainoman.om/login
-        
-        يرجى تغيير كلمة المرور بعد أول تسجيل دخول.
-        
-        مع تحيات،
-        فريق عين عُمان
-      `;
-      
-      // TODO: إرسال البريد الفعلي
-      console.log('📧 Email to:', tenant.email);
-      console.log(emailContent);
-      
-      tenant.credentials.sentViaEmail = true;
-      tenant.credentials.emailSentAt = new Date().toISOString();
-    }
+    // إرسال تلقائي عبر الواتساب والبريد باستخدام المكتبة
+    const sendResults = await sendTenantCredentials(
+      tenant.name,
+      tenant.email,
+      tenant.phone,
+      tenant.credentials.username,
+      tenant.credentials.password
+    );
 
-    // إرسال عبر الواتساب (الطريقة الأساسية)
-    if (method === 'whatsapp' || method === 'both') {
-      const whatsappMessage = `
+    // تحديث حالة الإرسال
+    tenant.credentials.sentViaWhatsApp = sendResults.whatsapp.success;
+    tenant.credentials.whatsappMessageId = sendResults.whatsapp.messageId;
+    tenant.credentials.whatsappSentAt = sendResults.whatsapp.success ? new Date().toISOString() : null;
+    tenant.credentials.whatsappError = sendResults.whatsapp.error;
+
+    tenant.credentials.sentViaEmail = sendResults.email.success;
+    tenant.credentials.emailMessageId = sendResults.email.messageId;
+    tenant.credentials.emailSentAt = sendResults.email.success ? new Date().toISOString() : null;
+    tenant.credentials.emailError = sendResults.email.error;
+
+    // للتوافق مع الكود الحالي - إنشاء رابط واتساب للإرسال اليدوي (احتياطي)
+    const cleanPhone = tenant.phone.replace(/\D/g, '');
+    const whatsappMessage = `
 🎉 *مرحباً ${tenant.name}*
 
 تم اعتماد حسابك في منصة *عين عُمان*! ✅
@@ -85,40 +79,9 @@ https://ainoman.om/login
 يرجى تغيير كلمة المرور بعد أول تسجيل دخول
 
 _مع تحيات فريق عين عُمان_ 🏢
-      `.trim();
-      
-      // تنظيف رقم الهاتف (إزالة المسافات والأحرف غير الرقمية)
-      const cleanPhone = tenant.phone.replace(/\D/g, '');
-      
-      // رابط واتساب (يفتح محادثة مع الرسالة جاهزة)
-      const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(whatsappMessage)}`;
-      
-      // TODO: يمكن استخدام WhatsApp Business API للإرسال التلقائي
-      console.log('📱 WhatsApp to:', tenant.phone);
-      console.log('🔗 WhatsApp URL:', whatsappUrl);
-      console.log('💬 Message:', whatsappMessage);
-      
-      tenant.credentials.sentViaWhatsApp = true;
-      tenant.credentials.whatsappSentAt = new Date().toISOString();
-      tenant.credentials.whatsappUrl = whatsappUrl; // حفظ الرابط للإرسال اليدوي
-    }
-
-    // إرسال عبر SMS (احتياطي)
-    if (method === 'sms') {
-      const smsContent = `
-عين عُمان: تم اعتماد حسابك
-اسم المستخدم: ${tenant.credentials.username}
-الرقم السري: ${tenant.credentials.password}
-رابط الدخول: ainoman.om/login
-      `.trim();
-      
-      // TODO: إرسال SMS الفعلي (Twilio/Vonage)
-      console.log('📱 SMS to:', tenant.phone);
-      console.log(smsContent);
-      
-      tenant.credentials.sentViaSMS = true;
-      tenant.credentials.smsSentAt = new Date().toISOString();
-    }
+    `.trim();
+    const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(whatsappMessage)}`;
+    tenant.credentials.whatsappUrl = whatsappUrl;
 
     // تحديث البيانات
     const tenantIndex = users.findIndex((u: any) => u.id === tenantId);
@@ -129,9 +92,27 @@ _مع تحيات فريق عين عُمان_ 🏢
 
     res.status(200).json({ 
       success: true,
-      message: 'تم إرسال بيانات الدخول بنجاح',
+      message: sendResults.whatsapp.success && sendResults.email.success
+        ? 'تم إرسال بيانات الدخول عبر الواتساب والبريد بنجاح'
+        : sendResults.whatsapp.success
+        ? 'تم إرسال بيانات الدخول عبر الواتساب فقط'
+        : sendResults.email.success
+        ? 'تم إرسال بيانات الدخول عبر البريد فقط'
+        : 'فشل إرسال بيانات الدخول',
       sentVia: method,
-      whatsappUrl: tenant.credentials.whatsappUrl, // رابط الواتساب للإرسال اليدوي
+      results: {
+        whatsapp: {
+          success: sendResults.whatsapp.success,
+          messageId: sendResults.whatsapp.messageId,
+          error: sendResults.whatsapp.error
+        },
+        email: {
+          success: sendResults.email.success,
+          messageId: sendResults.email.messageId,
+          error: sendResults.email.error
+        }
+      },
+      whatsappUrl: tenant.credentials.whatsappUrl, // رابط احتياطي للإرسال اليدوي
       credentials: {
         username: tenant.credentials.username,
         // لا نرسل الرقم السري في الاستجابة للأمان
