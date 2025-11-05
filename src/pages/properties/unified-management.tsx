@@ -708,7 +708,7 @@ export default function UnifiedPropertyManagement() {
 
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' });
+    return new Date(dateString).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn', timeZone: 'UTC' });
   };
 
   const getTitle = (title: Property['title']) => {

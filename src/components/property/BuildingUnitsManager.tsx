@@ -480,7 +480,7 @@ export default function BuildingUnitsManager({
                               <FaCalendar className="text-blue-600" />
                               <div>
                                 <span className="text-xs text-gray-500">ينتهي في:</span>
-                                <span className="font-bold text-gray-900 mr-2">{new Date(unit.leaseEndDate).toLocaleDateString('ar')}</span>
+                                <span className="font-bold text-gray-900 mr-2" suppressHydrationWarning>{new Date(unit.leaseEndDate).toLocaleDateString('ar', { timeZone: 'UTC' })}</span>
                               </div>
                             </div>
                           )}
