@@ -1127,10 +1127,26 @@ export default function NewRentalContract() {
               
               {/* نظام البحث */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FaSearch className="inline ml-2" />
-                  بحث عن مستأجر (الاسم، البريد، الهاتف، أو الرقم)
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    <FaSearch className="inline ml-2" />
+                    بحث عن مستأجر (الاسم، البريد، الهاتف، أو الرقم)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFilteredTenants(tenants);
+                      setShowTenantDropdown(!showTenantDropdown);
+                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg text-sm font-medium"
+                  >
+                    <FaUsers className="w-4 h-4" />
+                    <span suppressHydrationWarning>
+                      {showTenantDropdown ? 'إخفاء' : 'إظهار'} جميع المستأجرين ({tenants.length})
+                    </span>
+                    {showTenantDropdown ? <FaChevronUp className="w-3 h-3" /> : <FaChevronDown className="w-3 h-3" />}
+                  </button>
+                </div>
                 <div className="relative">
                   <input
                     type="text"
