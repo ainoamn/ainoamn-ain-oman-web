@@ -46,6 +46,7 @@ const OwnerDashboard: NextPage = () => {
   const [expenses, setExpenses] = useState<any[]>([]);
   const [overdueServices, setOverdueServices] = useState<any[]>([]);
   const [expiringDocuments, setExpiringDocuments] = useState<any[]>([]);
+  const [tenantsCount, setTenantsCount] = useState(0);
   
   // استخدام Context للحجوزات
   const { bookings: allBookings, loading: bookingsLoading } = useBookings();
@@ -140,9 +141,10 @@ const OwnerDashboard: NextPage = () => {
   const fetchOwnerData = async () => {
     try {
       setLoading(true);
-      const [propertiesRes, rentalsRes] = await Promise.all([
+      const [propertiesRes, rentalsRes, usersRes] = await Promise.all([
         fetch("/api/properties?mine=true"),
-        fetch("/api/rentals?mine=true")
+        fetch("/api/rentals?mine=true"),
+        fetch("/api/users")
       ]);
 
       if (propertiesRes.ok) {
@@ -157,6 +159,13 @@ const OwnerDashboard: NextPage = () => {
         // FIX: sanitize rentals too
         const items = Array.isArray(rentalsData?.items) ? sanitizeDeep<any[]>(rentalsData.items, "ar") : [];
         setRentals(items);
+      }
+      
+      if (usersRes.ok) {
+        const usersData = await usersRes.json();
+        const allUsers = Array.isArray(usersData) ? usersData : [];
+        const tenantsOnly = allUsers.filter(u => u.role === 'tenant');
+        setTenantsCount(tenantsOnly.length);
       }
     } catch (error) {
       console.error('Error fetching owner data:', error);
@@ -210,7 +219,7 @@ const OwnerDashboard: NextPage = () => {
                 { id: "properties", name: "العقارات", count: properties.length },
                 { id: "rentals", name: "عقود الإيجار", count: rentals.length },
                 { id: "unit-rentals", name: "تأجير الوحدات", count: 0 },
-                { id: "tenants", name: "المستأجرين", count: 0 },
+                { id: "tenants", name: "المستأجرين", count: tenantsCount },
                 { id: "contracts", name: "إدارة العقود", count: 0 },
                 { id: "management", name: "إدارة الخدمات والمستندات", count: 0 },
                 { id: "services", name: "الخدمات والمرافق", count: services.length },
