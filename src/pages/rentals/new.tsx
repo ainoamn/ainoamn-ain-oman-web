@@ -1,4 +1,4 @@
-// src/pages/rentals/new.tsx - صفحة إنشاء عقد إيجار جديد مع نظام بحث محسن
+﻿// src/pages/rentals/new.tsx - صفحة إنشاء عقد إيجار جديد مع نظام بحث محسن
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -8,9 +8,12 @@ import {
   FaCalendar, FaMoneyBillWave, FaFileContract, FaCheck,
   FaSpinner, FaHome, FaMapMarkerAlt, FaPhone, FaEnvelope,
   FaIdCard, FaClock, FaDollarSign, FaFileAlt, FaPlus,
-  FaChevronDown, FaChevronUp, FaListAlt, FaUsers
+  FaChevronDown, FaChevronUp, FaListAlt, FaUsers,
+  FaCloudUploadAlt, FaFileUpload, FaPassport, FaTrash,
+  FaGlobe, FaFlag
 } from 'react-icons/fa';
 import InstantLink from '@/components/InstantLink';
+import AddTenantModal from '@/components/tenants/AddTenantModal';
 
 interface Property {
   id: string;
@@ -128,11 +131,54 @@ export default function NewRentalContract() {
   const [showTenantDropdown, setShowTenantDropdown] = useState(false);
   const [showAddTenantModal, setShowAddTenantModal] = useState(false);
   const [newTenant, setNewTenant] = useState({
-    name: '',
+    // نوع المستأجر
+    type: 'individual_omani' as 'individual_omani' | 'individual_foreign' | 'company',
+    nationality: 'omani' as 'omani' | 'foreign',
+    
+    // بيانات عماني
+    fullName: '', // الاسم الثلاثي
+    tribe: '', // القبيلة
+    nationalId: '', // رقم البطاقة الشخصية
+    nationalIdExpiry: '', // تاريخ انتهاء البطاقة
+    nationalIdFile: null as File | null,
+    
+    // بيانات غير عماني
+    residenceId: '', // رقم بطاقة الإقامة
+    residenceIdExpiry: '',
+    residenceIdFile: null as File | null,
+    passportNumber: '', // رقم الجواز
+    passportExpiry: '',
+    passportFile: null as File | null,
+    
+    // بيانات مشتركة
     email: '',
-    phone: '',
-    idNumber: '',
-    address: ''
+    phone1: '',
+    phone2: '',
+    employer: '', // جهة العمل
+    employerPhone: '', // رقم جهة العمل (للوافدين)
+    address: '',
+    
+    // بيانات الشركة
+    companyName: '',
+    commercialRegister: '', // رقم السجل التجاري
+    commercialRegisterExpiry: '',
+    commercialRegisterFile: null as File | null,
+    establishmentDate: '', // تاريخ التأسيس
+    headquarters: '', // المقر الرئيسي
+    companyPhone: '',
+    emergencyContacts: [{ name: '', phone: '' }],
+    
+    // المفوضون بالتوقيع
+    authorizedSignatories: [{
+      name: '',
+      nationalId: '',
+      nationalIdExpiry: '',
+      nationalIdFile: null as File | null,
+      isOmani: true,
+      passportNumber: '',
+      passportExpiry: '',
+      passportFile: null as File | null
+    }]
   });
   
   // تعيين hasMounted و startDate بعد تحميل الصفحة
@@ -303,24 +349,61 @@ export default function NewRentalContract() {
     setShowTenantDropdown(false);
   };
   
-  const addNewTenant = async () => {
-    if (!newTenant.name || !newTenant.email || !newTenant.phone) {
-      setError('يرجى ملء جميع الحقول المطلوبة');
-      return;
-    }
-    
+  const addNewTenant = async (tenantData: any) => {
     try {
       setLoading(true);
+      setError(null);
+      
+      // إنشاء FormData لرفع الملفات
+      const formDataToSend = new FormData();
+      
+      // إضافة البيانات الأساسية
+      formDataToSend.append('type', tenantData.type);
+      
+      // حسب نوع المستأجر
+      if (tenantData.type === 'individual_omani') {
+        formDataToSend.append('fullName', tenantData.fullName || '');
+        formDataToSend.append('tribe', tenantData.tribe || '');
+        formDataToSend.append('nationalId', tenantData.nationalId || '');
+        formDataToSend.append('nationalIdExpiry', tenantData.nationalIdExpiry || '');
+        if (tenantData.nationalIdFile) {
+          formDataToSend.append('nationalIdFile', tenantData.nationalIdFile);
+        }
+      } else if (tenantData.type === 'individual_foreign') {
+        formDataToSend.append('fullName', tenantData.fullName || '');
+        formDataToSend.append('residenceId', tenantData.residenceId || '');
+        formDataToSend.append('residenceIdExpiry', tenantData.residenceIdExpiry || '');
+        if (tenantData.residenceIdFile) {
+          formDataToSend.append('residenceIdFile', tenantData.residenceIdFile);
+        }
+        formDataToSend.append('passportNumber', tenantData.passportNumber || '');
+        formDataToSend.append('passportExpiry', tenantData.passportExpiry || '');
+        if (tenantData.passportFile) {
+          formDataToSend.append('passportFile', tenantData.passportFile);
+        }
+        formDataToSend.append('employerPhone', tenantData.employerPhone || '');
+      } else if (tenantData.type === 'company') {
+        formDataToSend.append('companyName', tenantData.companyName || '');
+        formDataToSend.append('commercialRegister', tenantData.commercialRegister || '');
+        formDataToSend.append('commercialRegisterExpiry', tenantData.commercialRegisterExpiry || '');
+        formDataToSend.append('establishmentDate', tenantData.establishmentDate || '');
+        if (tenantData.commercialRegisterFile) {
+          formDataToSend.append('commercialRegisterFile', tenantData.commercialRegisterFile);
+        }
+        formDataToSend.append('headquarters', tenantData.headquarters || '');
+        formDataToSend.append('companyPhone', tenantData.companyPhone || '');
+      }
+      
+      // البيانات المشتركة
+      formDataToSend.append('email', tenantData.email || '');
+      formDataToSend.append('phone1', tenantData.phone1 || '');
+      formDataToSend.append('phone2', tenantData.phone2 || '');
+      formDataToSend.append('employer', tenantData.employer || '');
+      formDataToSend.append('address', tenantData.address || '');
+      
       const response = await fetch('/api/users/add-tenant', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: newTenant.name,
-          email: newTenant.email,
-          phone: newTenant.phone,
-          idNumber: newTenant.idNumber,
-          address: newTenant.address
-        })
+        body: formDataToSend
       });
       
       if (response.ok) {
@@ -330,12 +413,12 @@ export default function NewRentalContract() {
         setFilteredTenants(prev => [...prev, createdTenant]);
         // اختيار المستأجر الجديد
         selectTenant(createdTenant);
-        // إعادة تعيين النموذج
-        setNewTenant({ name: '', email: '', phone: '', idNumber: '', address: '' });
+        // إغلاق Modal
         setShowAddTenantModal(false);
         setSuccess('تم إضافة المستأجر بنجاح');
       } else {
-        setError('فشل في إضافة المستأجر');
+        const errorData = await response.json();
+        setError(errorData.error || 'فشل في إضافة المستأجر');
       }
     } catch (error) {
       console.error('Error adding tenant:', error);
@@ -1163,140 +1246,16 @@ export default function NewRentalContract() {
             </motion.div>
             
             {/* Modal إضافة مستأجر جديد */}
-            {showAddTenantModal && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="bg-white rounded-2xl shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
-                >
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                      <FaPlus className="w-6 h-6 text-purple-600" />
-                      إضافة مستأجر جديد
-                    </h3>
-                    <button
-                      onClick={() => setShowAddTenantModal(false)}
-                      className="text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <FaUser className="inline ml-2" />
-                        الاسم الكامل <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={newTenant.name}
-                        onChange={(e) => setNewTenant(prev => ({ ...prev, name: e.target.value }))}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="أدخل الاسم الكامل"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <FaEnvelope className="inline ml-2" />
-                        البريد الإلكتروني <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="email"
-                        value={newTenant.email}
-                        onChange={(e) => setNewTenant(prev => ({ ...prev, email: e.target.value }))}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="example@email.com"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <FaPhone className="inline ml-2" />
-                        رقم الهاتف <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="tel"
-                        value={newTenant.phone}
-                        onChange={(e) => setNewTenant(prev => ({ ...prev, phone: e.target.value }))}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="+968 XXXXXXXX"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <FaIdCard className="inline ml-2" />
-                        رقم الهوية
-                      </label>
-                      <input
-                        type="text"
-                        value={newTenant.idNumber}
-                        onChange={(e) => setNewTenant(prev => ({ ...prev, idNumber: e.target.value }))}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="رقم الهوية"
-                      />
-                    </div>
-                    
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <FaMapMarkerAlt className="inline ml-2" />
-                        العنوان
-                      </label>
-                      <input
-                        type="text"
-                        value={newTenant.address}
-                        onChange={(e) => setNewTenant(prev => ({ ...prev, address: e.target.value }))}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="العنوان الكامل"
-                      />
-                    </div>
-                  </div>
-                  
-                  {error && (
-                    <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="text-red-700 text-sm">{error}</p>
-                    </div>
-                  )}
-                  
-                  <div className="mt-6 flex justify-end gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowAddTenantModal(false);
-                        setNewTenant({ name: '', email: '', phone: '', idNumber: '', address: '' });
-                        setError(null);
-                      }}
-                      className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-                    >
-                      إلغاء
-                    </button>
-                    <button
-                      type="button"
-                      onClick={addNewTenant}
-                      disabled={loading || !newTenant.name || !newTenant.email || !newTenant.phone}
-                      className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                    >
-                      {loading ? (
-                        <>
-                          <FaSpinner className="w-4 h-4 animate-spin" />
-                          جاري الإضافة...
-                        </>
-                      ) : (
-                        <>
-                          <FaSave className="w-4 h-4" />
-                          حفظ المستأجر
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </motion.div>
-              </div>
-            )}
+            <AddTenantModal
+              isOpen={showAddTenantModal}
+              onClose={() => {
+                setShowAddTenantModal(false);
+                setError(null);
+              }}
+              onSubmit={addNewTenant}
+              loading={loading}
+              error={error}
+            />
           </>
         );
         
