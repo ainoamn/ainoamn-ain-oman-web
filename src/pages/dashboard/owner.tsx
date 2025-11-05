@@ -438,31 +438,7 @@ const OwnerDashboard: NextPage = () => {
             )}
 
             {activeTab === "tenants" && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white shadow overflow-hidden sm:rounded-md"
-              >
-                <div className="px-4 py-5 sm:px-6">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900">إدارة المستأجرين</h3>
-                  <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                    عرض وإدارة معلومات المستأجرين وعقودهم
-                  </p>
-                </div>
-                
-                <div className="border-t border-gray-200">
-                  <div className="px-4 py-5 sm:p-6">
-                    <div className="text-center py-12">
-                      <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                      </svg>
-                      <h3 className="mt-2 text-sm font-medium text-gray-900">لا يوجد مستأجرين حالياً</h3>
-                      <p className="mt-1 text-sm text-gray-500">عندما يتم تأجير وحدات، ستظهر معلومات المستأجرين هنا.</p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+              <TenantsTab />
             )}
 
             {activeTab === "contracts" && (
@@ -894,6 +870,141 @@ function getStateLabel(state: string): string {
   };
   
   return states[state] || state;
+}
+
+// Component لعرض المستأجرين
+function TenantsTab() {
+  const [tenants, setTenants] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTenants();
+  }, []);
+
+  const fetchTenants = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/users');
+      if (response.ok) {
+        const data = await response.json();
+        const allUsers = Array.isArray(data) ? data : [];
+        const tenantsOnly = allUsers.filter(user => user.role === 'tenant');
+        setTenants(tenantsOnly);
+      }
+    } catch (error) {
+      console.error('Error fetching tenants:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <FaSpinner className="w-8 h-8 text-blue-600 animate-spin" />
+        <span className="mr-3 text-gray-600">جاري التحميل...</span>
+      </div>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="bg-white shadow overflow-hidden sm:rounded-md"
+    >
+      <div className="px-4 py-5 sm:px-6 flex items-center justify-between">
+        <div>
+          <h3 className="text-lg leading-6 font-medium text-gray-900">إدارة المستأجرين</h3>
+          <p className="mt-1 max-w-2xl text-sm text-gray-500">
+            عرض وإدارة معلومات المستأجرين وعقودهم ({tenants.length} مستأجر)
+          </p>
+        </div>
+        <InstantLink
+          href="/rentals/new"
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700"
+        >
+          <FaPlus className="ml-2" />
+          إضافة عقد جديد
+        </InstantLink>
+      </div>
+      
+      <div className="border-t border-gray-200">
+        {tenants.length === 0 ? (
+          <div className="px-4 py-5 sm:p-6">
+            <div className="text-center py-12">
+              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+              </svg>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">لا يوجد مستأجرين حالياً</h3>
+              <p className="mt-1 text-sm text-gray-500">عندما يتم إضافة مستأجرين، ستظهر معلوماتهم هنا.</p>
+              <div className="mt-6">
+                <InstantLink
+                  href="/rentals/new"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700"
+                >
+                  <FaPlus className="ml-2" />
+                  إضافة عقد جديد
+                </InstantLink>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="px-4 py-5 sm:p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {tenants.map((tenant) => (
+                <div
+                  key={tenant.id}
+                  className="bg-white border-2 border-purple-200 rounded-xl p-5 hover:shadow-lg transition-all"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                      <FaUser className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900">{tenant.name}</h4>
+                      <p className="text-xs text-gray-500">{tenant.id}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <FaEnvelope className="w-4 h-4 text-purple-500" />
+                      <span>{tenant.email}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <FaPhone className="w-4 h-4 text-purple-500" />
+                      <span>{tenant.phone}</span>
+                    </div>
+                    {tenant.tenantDetails?.type && (
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                          tenant.tenantDetails.type === 'individual_omani' ? 'bg-green-100 text-green-800' :
+                          tenant.tenantDetails.type === 'individual_foreign' ? 'bg-blue-100 text-blue-800' :
+                          'bg-purple-100 text-purple-800'
+                        }`}>
+                          {tenant.tenantDetails.type === 'individual_omani' ? '🇴🇲 عماني' :
+                           tenant.tenantDetails.type === 'individual_foreign' ? '🌍 وافد' :
+                           '🏢 شركة'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="text-xs text-gray-500">
+                      تاريخ التسجيل: {new Date(tenant.createdAt).toLocaleDateString('ar', { timeZone: 'UTC' })}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
 }
 
 export default OwnerDashboard;
