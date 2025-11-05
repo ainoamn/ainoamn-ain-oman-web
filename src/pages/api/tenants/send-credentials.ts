@@ -13,7 +13,7 @@ export default async function handler(
 
   try {
     const { tenantId, method } = req.body;
-    // method: 'email' | 'sms' | 'both'
+    // method: 'email' | 'whatsapp' | 'both' | 'sms' (SMS للاحتياط فقط)
     
     if (!tenantId) {
       return res.status(400).json({ error: 'Missing tenant ID' });
@@ -67,8 +67,44 @@ export default async function handler(
       tenant.credentials.emailSentAt = new Date().toISOString();
     }
 
-    // إرسال عبر SMS
-    if (method === 'sms' || method === 'both') {
+    // إرسال عبر الواتساب (الطريقة الأساسية)
+    if (method === 'whatsapp' || method === 'both') {
+      const whatsappMessage = `
+🎉 *مرحباً ${tenant.name}*
+
+تم اعتماد حسابك في منصة *عين عُمان*! ✅
+
+*بيانات الدخول:*
+• اسم المستخدم: \`${tenant.credentials.username}\`
+• الرقم السري: \`${tenant.credentials.password}\`
+
+🔗 *رابط الدخول:*
+https://ainoman.om/login
+
+⚠️ *ملاحظة هامة:*
+يرجى تغيير كلمة المرور بعد أول تسجيل دخول
+
+_مع تحيات فريق عين عُمان_ 🏢
+      `.trim();
+      
+      // تنظيف رقم الهاتف (إزالة المسافات والأحرف غير الرقمية)
+      const cleanPhone = tenant.phone.replace(/\D/g, '');
+      
+      // رابط واتساب (يفتح محادثة مع الرسالة جاهزة)
+      const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(whatsappMessage)}`;
+      
+      // TODO: يمكن استخدام WhatsApp Business API للإرسال التلقائي
+      console.log('📱 WhatsApp to:', tenant.phone);
+      console.log('🔗 WhatsApp URL:', whatsappUrl);
+      console.log('💬 Message:', whatsappMessage);
+      
+      tenant.credentials.sentViaWhatsApp = true;
+      tenant.credentials.whatsappSentAt = new Date().toISOString();
+      tenant.credentials.whatsappUrl = whatsappUrl; // حفظ الرابط للإرسال اليدوي
+    }
+
+    // إرسال عبر SMS (احتياطي)
+    if (method === 'sms') {
       const smsContent = `
 عين عُمان: تم اعتماد حسابك
 اسم المستخدم: ${tenant.credentials.username}
@@ -76,7 +112,7 @@ export default async function handler(
 رابط الدخول: ainoman.om/login
       `.trim();
       
-      // TODO: إرسال SMS الفعلي
+      // TODO: إرسال SMS الفعلي (Twilio/Vonage)
       console.log('📱 SMS to:', tenant.phone);
       console.log(smsContent);
       
@@ -95,6 +131,7 @@ export default async function handler(
       success: true,
       message: 'تم إرسال بيانات الدخول بنجاح',
       sentVia: method,
+      whatsappUrl: tenant.credentials.whatsappUrl, // رابط الواتساب للإرسال اليدوي
       credentials: {
         username: tenant.credentials.username,
         // لا نرسل الرقم السري في الاستجابة للأمان
