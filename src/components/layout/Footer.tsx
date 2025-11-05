@@ -303,7 +303,7 @@ export default function Footer() {
           <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
           إحصائيات مباشرة
         </h3>
-        <div className="text-sm opacity-90">
+        <div className="text-sm opacity-90" suppressHydrationWarning>
           آخر تحديث: {mounted ? currentTime.toLocaleTimeString('ar-SA') : '--:--:--'}
         </div>
       </div>
