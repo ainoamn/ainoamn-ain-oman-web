@@ -314,12 +314,13 @@ export default function NewRentalContract() {
       const response = await fetch('/api/users');
       if (response.ok) {
         const data = await response.json();
-        const allUsers = Array.isArray(data) ? data : [];
+        // API يُرجع { users: [...], pagination: {}, stats: {} }
+        const allUsers = Array.isArray(data.users) ? data.users : (Array.isArray(data) ? data : []);
         // تصفية المستأجرين فقط
         const tenantsOnly = allUsers.filter(user => user.role === 'tenant');
         setTenants(tenantsOnly);
         setFilteredTenants(tenantsOnly);
-        console.log('Fetched tenants:', tenantsOnly.length);
+        console.log('✅ Fetched tenants:', tenantsOnly.length, tenantsOnly.map(t => t.name));
       }
     } catch (error) {
       console.error('Error fetching tenants:', error);

@@ -163,9 +163,11 @@ const OwnerDashboard: NextPage = () => {
       
       if (usersRes.ok) {
         const usersData = await usersRes.json();
-        const allUsers = Array.isArray(usersData) ? usersData : [];
+        // API يُرجع { users: [...], pagination: {}, stats: {} }
+        const allUsers = Array.isArray(usersData.users) ? usersData.users : (Array.isArray(usersData) ? usersData : []);
         const tenantsOnly = allUsers.filter(u => u.role === 'tenant');
         setTenantsCount(tenantsOnly.length);
+        console.log('✅ Dashboard loaded tenants count:', tenantsOnly.length);
       }
     } catch (error) {
       console.error('Error fetching owner data:', error);
@@ -896,9 +898,11 @@ function TenantsTab() {
       const response = await fetch('/api/users');
       if (response.ok) {
         const data = await response.json();
-        const allUsers = Array.isArray(data) ? data : [];
+        // API يُرجع { users: [...], pagination: {}, stats: {} }
+        const allUsers = Array.isArray(data.users) ? data.users : (Array.isArray(data) ? data : []);
         const tenantsOnly = allUsers.filter(user => user.role === 'tenant');
         setTenants(tenantsOnly);
+        console.log('✅ TenantsTab loaded:', tenantsOnly.length, 'tenants');
       }
     } catch (error) {
       console.error('Error fetching tenants:', error);
