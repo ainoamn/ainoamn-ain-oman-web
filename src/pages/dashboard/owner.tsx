@@ -5,7 +5,7 @@ import Head from "next/head";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import InstantLink from "@/components/InstantLink";
-import { FaPlus, FaCog } from "react-icons/fa";
+import { FaPlus, FaCog, FaSpinner, FaUser, FaEnvelope, FaPhone } from "react-icons/fa";
 import PropertyCard from "@/components/properties/PropertyCard";
 import RentalStatusChart from "@/components/dashboard/RentalStatusChart";
 import StatsOverview from "@/components/dashboard/StatsOverview";
