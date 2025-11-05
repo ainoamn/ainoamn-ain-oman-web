@@ -99,6 +99,10 @@ export default function HomePage() {
   // إصلاح Hydration: استخدام mounted state
   const [mounted, setMounted] = useState(false);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // --- إصلاح قوي: توحيد واجهة i18n حتى لو أعادت دالة أو كائن ---
   const _i18n = useI18n();
   const t: (k: string, vars?: Record<string, unknown>) => string =
