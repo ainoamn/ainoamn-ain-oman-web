@@ -20,8 +20,13 @@ interface Tenant {
   phone: string;
   role: string;
   status: 'active' | 'inactive' | 'suspended';
+  username?: string;
   password?: string;
   createdAt: string;
+  propertyId?: string;
+  unitId?: string;
+  buildingNo?: string;
+  unitNo?: string;
   tenantDetails?: {
     type: 'individual_omani' | 'individual_foreign' | 'company';
     fullName?: string;
@@ -32,6 +37,11 @@ interface Tenant {
     residenceIdExpiry?: string;
     passportNumber?: string;
     passportExpiry?: string;
+    [key: string]: any;
+  };
+  credentials?: {
+    username?: string;
+    password?: string;
     [key: string]: any;
   };
 }
@@ -46,7 +56,7 @@ export default function TenantsManagement() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [expiringDocuments, setExpiringDocuments] = useState<any[]>([]);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid'); // افتراضي دائماً grid
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list'); // افتراضي دائماً list
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
@@ -55,6 +65,9 @@ export default function TenantsManagement() {
     const savedViewMode = localStorage.getItem('tenants-view-mode') as 'grid' | 'list';
     if (savedViewMode) {
       setViewMode(savedViewMode);
+    } else {
+      // حفظ القيمة الافتراضية (list) في localStorage
+      localStorage.setItem('tenants-view-mode', 'list');
     }
     fetchTenants();
   }, []);
@@ -642,7 +655,13 @@ export default function TenantsManagement() {
                         )}
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-gray-600">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 text-sm text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <FaUser className="w-4 h-4 text-blue-500" />
+                          <span className="font-medium text-blue-600">
+                            {tenant.credentials?.username || tenant.username || 'لم يُنشأ بعد'}
+                          </span>
+                        </div>
                         <div className="flex items-center gap-2">
                           <FaEnvelope className="w-4 h-4 text-purple-500" />
                           <span>{tenant.email}</span>
@@ -656,6 +675,34 @@ export default function TenantsManagement() {
                           <span>{tenant.id}</span>
                         </div>
                       </div>
+                      
+                      {/* بيانات العقار المستأجر */}
+                      {(tenant.propertyId || tenant.buildingNo || tenant.unitNo) && (
+                        <div className="mt-2 flex items-center gap-4 text-sm bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg px-3 py-2">
+                          <div className="flex items-center gap-2">
+                            <FaBuilding className="w-4 h-4 text-blue-600" />
+                            <span className="font-medium text-blue-900">العقار:</span>
+                          </div>
+                          {tenant.buildingNo && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-gray-600">مبنى:</span>
+                              <span className="font-bold text-blue-700">{tenant.buildingNo}</span>
+                            </div>
+                          )}
+                          {tenant.unitNo && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-gray-600">وحدة:</span>
+                              <span className="font-bold text-purple-700">{tenant.unitNo}</span>
+                            </div>
+                          )}
+                          {tenant.propertyId && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-gray-600">رقم:</span>
+                              <span className="font-mono text-xs text-gray-500">{tenant.propertyId}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* تنبيهات */}
