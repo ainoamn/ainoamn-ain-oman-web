@@ -208,7 +208,7 @@ export default function ProfilePage() {
       { id: 'add_property', label: 'إضافة عقار', icon: FiPackage, link: '/properties/new', permission: 'add_property', color: 'green', desc: 'أضف عقار جديد' },
       { id: 'rental_contracts', label: 'إدارة العقود', icon: FiFileText, link: '/rentals/new', permission: 'view_properties', color: 'purple', desc: 'إنشاء عقود إيجار' },
       { id: 'unit_rentals', label: 'تأجير الوحدات', icon: FiHome, link: '/dashboard/owner?tab=unit-rentals', permission: 'view_properties', color: 'indigo', desc: 'إدارة تأجير الوحدات' },
-      { id: 'tenant_management', label: 'إدارة المستأجرين', icon: FiUsers, link: '/dashboard/owner?tab=tenants', permission: 'view_properties', color: 'teal', desc: 'معلومات المستأجرين' },
+      { id: 'tenant_management', label: 'إدارة المستأجرين', icon: FiUsers, link: '/tenants/management', permission: 'view_properties', color: 'teal', desc: 'معلومات المستأجرين' },
       { id: 'contract_management', label: 'إدارة العقود', icon: FiFileText, link: '/dashboard/owner?tab=contracts', permission: 'view_properties', color: 'orange', desc: 'العقود والمستندات' },
       { id: 'roles_permissions', label: 'إدارة الصلاحيات', icon: FiShield, link: '/admin/roles-permissions', permission: 'manage_users', color: 'red', desc: 'التحكم بصلاحيات الأدوار' },
       { id: 'financial', label: 'النظام المالي', icon: FiDollarSign, link: '/admin/financial', permission: 'view_financial', color: 'emerald', desc: 'المالية والحسابات' },
