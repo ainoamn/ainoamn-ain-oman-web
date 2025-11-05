@@ -435,5 +435,53 @@
     },
     "createdAt": "2025-11-05T08:21:35.017Z",
     "lastActive": "2025-11-05T08:21:35.017Z"
+  },
+  {
+    "id": "TENANT-003",
+    "name": "عبد الحميد بن حمود بن حمدان ",
+    "email": "ah@sfg..om",
+    "password": "Tenant@2025",
+    "phone": "95655200",
+    "role": "tenant",
+    "status": "active",
+    "isVerified": false,
+    "permissions": [],
+    "profile": {
+      "avatar": "https://ui-avatars.com/api/?name=%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D8%AD%D9%85%D9%8A%D8%AF%20%D8%A8%D9%86%20%D8%AD%D9%85%D9%88%D8%AF%20%D8%A8%D9%86%20%D8%AD%D9%85%D8%AF%D8%A7%D9%86%20&background=14b8a6&color=fff&size=200",
+      "company": "",
+      "location": "المعبيلة ",
+      "lastLogin": "2025-11-05T08:52:32.203Z",
+      "loginCount": 0
+    },
+    "tenantDetails": {
+      "type": "individual_omani",
+      "email": "ah@sfg..om",
+      "phone1": "95655200",
+      "phone2": "",
+      "employer": "مجموعة سيد فياض",
+      "address": "المعبيلة ",
+      "fullName": "عبد الحميد بن حمود بن حمدان ",
+      "tribe": "الرواحي",
+      "nationalId": "18286701",
+      "nationalIdExpiry": "2029-09-10",
+      "nationalIdFile": "/uploads/tenants/n36fhxs3p7xsiz5ziwxl2rgb3.pdf"
+    },
+    "subscription": {
+      "plan": "basic",
+      "planName": "الخطة المجانية",
+      "status": "active",
+      "expiresAt": "2099-12-31T23:59:59.999Z",
+      "remainingDays": 99999
+    },
+    "stats": {
+      "properties": 0,
+      "units": 0,
+      "bookings": 0,
+      "revenue": 0,
+      "tasks": 0,
+      "legalCases": 0
+    },
+    "createdAt": "2025-11-05T08:52:32.204Z",
+    "lastActive": "2025-11-05T08:52:32.204Z"
   }
 ]

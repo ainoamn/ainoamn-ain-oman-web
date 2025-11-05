@@ -196,6 +196,13 @@ export default function NewRentalContract() {
     fetchTenants();
   }, []);
   
+  // إعادة تحميل المستأجرين عند الدخول للمرحلة 3
+  useEffect(() => {
+    if (currentStep === 3) {
+      fetchTenants();
+    }
+  }, [currentStep]);
+  
   // حساب تاريخ الانتهاء عند تغيير تاريخ البداية أو المدة
   useEffect(() => {
     if (formData.startDate && formData.duration) {
@@ -408,14 +415,15 @@ export default function NewRentalContract() {
       
       if (response.ok) {
         const createdTenant = await response.json();
-        // إضافة المستأجر الجديد للقائمة
-        setTenants(prev => [...prev, createdTenant]);
-        setFilteredTenants(prev => [...prev, createdTenant]);
+        // إعادة تحميل المستأجرين من السيرفر للتأكد من التحديث
+        await fetchTenants();
         // اختيار المستأجر الجديد
         selectTenant(createdTenant);
         // إغلاق Modal
         setShowAddTenantModal(false);
         setSuccess('تم إضافة المستأجر بنجاح');
+        // إظهار القائمة مباشرة
+        setShowTenantDropdown(true);
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'فشل في إضافة المستأجر');
