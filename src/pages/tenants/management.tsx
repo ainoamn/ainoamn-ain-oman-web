@@ -8,7 +8,7 @@ import {
   FaSearch, FaFilter, FaPlus, FaSave, FaSpinner,
   FaExclamationTriangle, FaCheckCircle, FaTimesCircle,
   FaMapMarkerAlt, FaBriefcase, FaPassport, FaBuilding,
-  FaGlobe, FaFlag, FaEye, FaEyeSlash
+  FaGlobe, FaFlag, FaEye, FaEyeSlash, FaTh, FaList
 } from 'react-icons/fa';
 import InstantLink from '@/components/InstantLink';
 import Layout from '@/components/layout/Layout';
@@ -46,6 +46,12 @@ export default function TenantsManagement() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [expiringDocuments, setExpiringDocuments] = useState<any[]>([]);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('tenants-view-mode') as 'grid' | 'list') || 'grid';
+    }
+    return 'grid';
+  });
 
   useEffect(() => {
     fetchTenants();
@@ -54,6 +60,13 @@ export default function TenantsManagement() {
   useEffect(() => {
     filterTenants();
   }, [tenants, searchQuery, filterStatus]);
+
+  // حفظ viewMode في localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('tenants-view-mode', viewMode);
+    }
+  }, [viewMode]);
 
   const fetchTenants = async () => {
     try {
@@ -324,9 +337,31 @@ export default function TenantsManagement() {
             </div>
 
             <div className="mt-4 flex items-center justify-between">
-              <div className="text-sm text-gray-600">
-                عرض {filteredTenants.length} من {tenants.length} مستأجر
+              <div className="flex items-center gap-3">
+                <div className="text-sm text-gray-600">
+                  عرض {filteredTenants.length} من {tenants.length} مستأجر
+                </div>
+                
+                {/* زر التبديل بين Grid و List */}
+                <button
+                  onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+                  className="flex items-center gap-2 px-3 py-2 bg-white border-2 border-gray-300 rounded-lg hover:border-purple-500 transition-colors"
+                  title={viewMode === 'grid' ? 'التبديل للقائمة' : 'التبديل للشبكة'}
+                >
+                  {viewMode === 'grid' ? (
+                    <>
+                      <FaList className="w-4 h-4 text-gray-600" />
+                      <span className="text-sm text-gray-700">قائمة</span>
+                    </>
+                  ) : (
+                    <>
+                      <FaTh className="w-4 h-4 text-gray-600" />
+                      <span className="text-sm text-gray-700">شبكي</span>
+                    </>
+                  )}
+                </button>
               </div>
+              
               <InstantLink
                 href="/rentals/new"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all shadow-md"
@@ -360,7 +395,7 @@ export default function TenantsManagement() {
                 إضافة عقد جديد
               </InstantLink>
             </div>
-          ) : (
+          ) : viewMode === 'grid' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredTenants.map((tenant) => (
                 <motion.div
@@ -566,6 +601,141 @@ export default function TenantsManagement() {
                         title="حذف"
                       >
                         <FaTrash className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            /* List View */
+            <div className="space-y-4">
+              {filteredTenants.map((tenant) => (
+                <motion.div
+                  key={tenant.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all"
+                >
+                  <div className="flex items-center gap-4 p-4">
+                    {/* Avatar */}
+                    <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <FaUser className="w-8 h-8 text-white" />
+                    </div>
+
+                    {/* معلومات أساسية */}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="font-bold text-lg text-gray-900">{tenant.name}</h3>
+                        {getStatusBadge(tenant.status)}
+                        {tenant.tenantDetails?.type && (
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            tenant.tenantDetails.type === 'individual_omani' ? 'bg-green-100 text-green-800' :
+                            tenant.tenantDetails.type === 'individual_foreign' ? 'bg-blue-100 text-blue-800' :
+                            'bg-purple-100 text-purple-800'
+                          }`}>
+                            {getTenantTypeLabel(tenant.tenantDetails.type)}
+                          </span>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <FaEnvelope className="w-4 h-4 text-purple-500" />
+                          <span>{tenant.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <FaPhone className="w-4 h-4 text-purple-500" />
+                          <span>{tenant.phone}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <FaIdCard className="w-4 h-4 text-purple-500" />
+                          <span>{tenant.id}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* تنبيهات */}
+                    {expiringDocuments.filter(d => d.tenantId === tenant.id).length > 0 && (
+                      <div className="bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 text-sm">
+                        <FaExclamationTriangle className="w-4 h-4 text-orange-500 inline ml-1" />
+                        {expiringDocuments.filter(d => d.tenantId === tenant.id).length} تنبيه
+                      </div>
+                    )}
+
+                    {/* الأزرار */}
+                    <div className="flex items-center gap-2">
+                      {tenant.status === 'pending_approval' && (
+                        <button
+                          onClick={async () => {
+                            if (confirm('اعتماد هذا المستأجر؟')) {
+                              const response = await fetch('/api/tenants/approve', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  tenantId: tenant.id,
+                                  approvalType: 'admin',
+                                  approvedBy: 'ADMIN'
+                                })
+                              });
+                              if (response.ok) {
+                                fetchTenants();
+                              }
+                            }
+                          }}
+                          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm"
+                        >
+                          اعتماد
+                        </button>
+                      )}
+                      
+                      {tenant.status === 'active' && !tenant.credentials?.sentViaWhatsApp && (
+                        <button
+                          onClick={async () => {
+                            const response = await fetch('/api/tenants/send-credentials', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ tenantId: tenant.id, method: 'both' })
+                            });
+                            if (response.ok) {
+                              const data = await response.json();
+                              if (data.whatsappUrl) window.open(data.whatsappUrl, '_blank');
+                              fetchTenants();
+                            }
+                          }}
+                          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm"
+                        >
+                          إرسال
+                        </button>
+                      )}
+                      
+                      <button
+                        onClick={() => {
+                          setSelectedTenant(tenant);
+                          setShowEditModal(true);
+                        }}
+                        className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"
+                        title="تعديل"
+                      >
+                        <FaEdit className="w-4 h-4 mx-auto" />
+                      </button>
+                      
+                      <button
+                        onClick={() => {
+                          setSelectedTenant(tenant);
+                          setShowPasswordModal(true);
+                        }}
+                        className="w-10 h-10 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100"
+                        title="كلمة المرور"
+                      >
+                        <FaKey className="w-4 h-4 mx-auto" />
+                      </button>
+                      
+                      <button
+                        className="w-10 h-10 bg-red-50 text-red-600 rounded-lg hover:bg-red-100"
+                        title="حذف"
+                      >
+                        <FaTrash className="w-4 h-4 mx-auto" />
                       </button>
                     </div>
                   </div>
