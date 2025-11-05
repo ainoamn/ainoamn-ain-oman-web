@@ -46,14 +46,16 @@ export default function TenantsManagement() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [expiringDocuments, setExpiringDocuments] = useState<any[]>([]);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('tenants-view-mode') as 'grid' | 'list') || 'grid';
-    }
-    return 'grid';
-  });
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid'); // افتراضي دائماً grid
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
+    setHasMounted(true);
+    // استرجاع viewMode من localStorage بعد التحميل
+    const savedViewMode = localStorage.getItem('tenants-view-mode') as 'grid' | 'list';
+    if (savedViewMode) {
+      setViewMode(savedViewMode);
+    }
     fetchTenants();
   }, []);
 
@@ -63,10 +65,10 @@ export default function TenantsManagement() {
 
   // حفظ viewMode في localStorage
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (hasMounted) {
       localStorage.setItem('tenants-view-mode', viewMode);
     }
-  }, [viewMode]);
+  }, [viewMode, hasMounted]);
 
   const fetchTenants = async () => {
     try {
@@ -347,16 +349,17 @@ export default function TenantsManagement() {
                   onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
                   className="flex items-center gap-2 px-3 py-2 bg-white border-2 border-gray-300 rounded-lg hover:border-purple-500 transition-colors"
                   title={viewMode === 'grid' ? 'التبديل للقائمة' : 'التبديل للشبكة'}
+                  suppressHydrationWarning
                 >
                   {viewMode === 'grid' ? (
                     <>
                       <FaList className="w-4 h-4 text-gray-600" />
-                      <span className="text-sm text-gray-700">قائمة</span>
+                      <span className="text-sm text-gray-700" suppressHydrationWarning>قائمة</span>
                     </>
                   ) : (
                     <>
                       <FaTh className="w-4 h-4 text-gray-600" />
-                      <span className="text-sm text-gray-700">شبكي</span>
+                      <span className="text-sm text-gray-700" suppressHydrationWarning>شبكي</span>
                     </>
                   )}
                 </button>

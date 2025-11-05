@@ -105,25 +105,28 @@ export default function UnifiedPropertyManagement() {
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [expandedProperties, setExpandedProperties] = useState<Set<string>>(new Set());
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
-    // الحصول على الوضع المحفوظ من localStorage، أو grid كافتراضي
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('properties-view-mode') as 'grid' | 'list') || 'grid';
-    }
-    return 'grid';
-  });
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid'); // افتراضي دائماً grid
+  const [hasMounted, setHasMounted] = useState(false);
   const [aiInsights, setAiInsights] = useState<any>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [bulkAction, setBulkAction] = useState('');
 
-  // حفظ viewMode في localStorage عند تغييره
+  // استرجاع viewMode من localStorage بعد التحميل وحفظه عند التغيير
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    setHasMounted(true);
+    const savedViewMode = localStorage.getItem('properties-view-mode') as 'grid' | 'list';
+    if (savedViewMode) {
+      setViewMode(savedViewMode);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (hasMounted) {
       localStorage.setItem('properties-view-mode', viewMode);
     }
-  }, [viewMode]);
+  }, [viewMode, hasMounted]);
 
   // Bulk Actions Handler
   const handleBulkAction = async (action: string) => {
@@ -1089,9 +1092,12 @@ export default function UnifiedPropertyManagement() {
                   <button
                     onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
                     className="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors flex items-center"
+                    suppressHydrationWarning
                   >
                     {viewMode === 'list' ? <FaExpand className="ml-1" /> : <FaSort className="ml-1" />}
-                    {viewMode === 'list' ? 'عرض شبكي' : 'عرض قائمة'}
+                    <span suppressHydrationWarning>
+                      {viewMode === 'list' ? 'عرض شبكي' : 'عرض قائمة'}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -1281,9 +1287,12 @@ export default function UnifiedPropertyManagement() {
                           onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
                           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors flex items-center text-sm"
                           title={viewMode === 'list' ? 'التبديل إلى العرض الشبكي' : 'التبديل إلى عرض القائمة'}
+                          suppressHydrationWarning
                         >
                           {viewMode === 'list' ? <FaExpand className="ml-1" /> : <FaSort className="ml-1" />}
-                          {viewMode === 'list' ? 'عرض شبكي' : 'عرض قائمة'}
+                          <span suppressHydrationWarning>
+                            {viewMode === 'list' ? 'عرض شبكي' : 'عرض قائمة'}
+                          </span>
                         </button>
                       </div>
                     </div>
@@ -1551,9 +1560,12 @@ export default function UnifiedPropertyManagement() {
                       onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
                       className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors flex items-center text-sm"
                       title={viewMode === 'grid' ? 'التبديل إلى عرض القائمة' : 'التبديل إلى العرض الشبكي'}
+                      suppressHydrationWarning
                     >
                       {viewMode === 'grid' ? <FaSort className="ml-1" /> : <FaExpand className="ml-1" />}
-                      {viewMode === 'grid' ? 'عرض قائمة' : 'عرض شبكي'}
+                      <span suppressHydrationWarning>
+                        {viewMode === 'grid' ? 'عرض قائمة' : 'عرض شبكي'}
+                      </span>
                     </button>
                   </div>
                 </div>
