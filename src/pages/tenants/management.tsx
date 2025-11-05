@@ -451,6 +451,97 @@ export default function TenantsManagement() {
                       </div>
                     </div>
 
+                    {/* حالة الاعتماد */}
+                    {tenant.status === 'pending_approval' && (
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
+                          <div className="flex items-center gap-2 text-sm font-medium text-yellow-800">
+                            <FaExclamationTriangle className="w-4 h-4" />
+                            بانتظار الاعتماد
+                          </div>
+                          <div className="mt-2 space-y-1 text-xs">
+                            <div className="flex items-center gap-2">
+                              {tenant.credentials?.ownerApproved ? (
+                                <FaCheckCircle className="w-4 h-4 text-green-600" />
+                              ) : (
+                                <FaTimesCircle className="w-4 h-4 text-gray-400" />
+                              )}
+                              <span>اعتماد المالك</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {tenant.credentials?.tenantApproved ? (
+                                <FaCheckCircle className="w-4 h-4 text-green-600" />
+                              ) : (
+                                <FaTimesCircle className="w-4 h-4 text-gray-400" />
+                              )}
+                              <span>توقيع المستأجر</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {tenant.credentials?.adminApproved ? (
+                                <FaCheckCircle className="w-4 h-4 text-green-600" />
+                              ) : (
+                                <FaTimesCircle className="w-4 h-4 text-gray-400" />
+                              )}
+                              <span>موافقة الإدارة</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <button
+                          onClick={async () => {
+                            if (confirm('هل تريد اعتماد هذا المستأجر كمسؤول؟')) {
+                              const response = await fetch('/api/tenants/approve', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  tenantId: tenant.id,
+                                  approvalType: 'admin',
+                                  approvedBy: 'ADMIN'
+                                })
+                              });
+                              if (response.ok) {
+                                alert('تم الاعتماد بنجاح!');
+                                window.location.reload();
+                              }
+                            }
+                          }}
+                          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-medium"
+                        >
+                          <FaCheckCircle className="w-4 h-4" />
+                          اعتماد نهائي (إدارة)
+                        </button>
+                      </div>
+                    )}
+                    
+                    {/* زر إرسال بيانات الدخول */}
+                    {tenant.status === 'active' && !tenant.credentials?.sentViaEmail && (
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <button
+                          onClick={async () => {
+                            if (confirm(`إرسال بيانات الدخول إلى ${tenant.name}؟`)) {
+                              const response = await fetch('/api/tenants/send-credentials', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  tenantId: tenant.id,
+                                  method: 'both' // email + SMS
+                                })
+                              });
+                              if (response.ok) {
+                                const data = await response.json();
+                                alert(`✅ تم الإرسال!\n\nاسم المستخدم: ${data.credentials.username}`);
+                                window.location.reload();
+                              }
+                            }
+                          }}
+                          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md text-sm font-medium"
+                        >
+                          <FaBell className="w-4 h-4" />
+                          إرسال بيانات الدخول
+                        </button>
+                      </div>
+                    )}
+
                     {/* أزرار الإجراءات */}
                     <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-gray-200">
                       <button

@@ -78,7 +78,38 @@ export default async function handler(
     // إنشاء ID جديد للمستأجر
     const tenantCount = users.filter((u: any) => u.role === 'tenant').length;
     const newTenantId = `TENANT-${String(tenantCount + 1).padStart(3, '0')}`;
-
+    
+    // توليد اسم مستخدم ورقم سري تلقائياً
+    const generateUsername = (name: string, id: string): string => {
+      // استخدام أول اسمين + آخر 3 أرقام من ID
+      const names = name.trim().split(' ');
+      const firstName = names[0] || 'tenant';
+      const secondName = names[1] || '';
+      const idSuffix = id.split('-')[1] || '000';
+      return `${firstName.toLowerCase()}${secondName ? '_' + secondName.toLowerCase() : ''}_${idSuffix}`;
+    };
+    
+    const generatePassword = (): string => {
+      // توليد رقم سري قوي: حروف كبيرة + صغيرة + أرقام
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+      const numbers = '0123456789';
+      const special = '@#$!';
+      
+      let password = '';
+      password += chars[Math.floor(Math.random() * chars.length)].toUpperCase(); // حرف كبير
+      password += chars[Math.floor(Math.random() * chars.length)].toLowerCase(); // حرف صغير
+      password += numbers[Math.floor(Math.random() * numbers.length)]; // رقم
+      password += special[Math.floor(Math.random() * special.length)]; // رمز
+      
+      // إكمال ب 4 أحرف عشوائية
+      for (let i = 0; i < 4; i++) {
+        password += chars[Math.floor(Math.random() * chars.length)];
+      }
+      
+      // خلط الأحرف
+      return password.split('').sort(() => Math.random() - 0.5).join('');
+    };
+    
     // إعداد بيانات المستأجر حسب النوع
     let name = '';
     let tenantDetails: any = {
@@ -127,17 +158,36 @@ export default async function handler(
       };
     }
 
+    // توليد اسم المستخدم والرقم السري
+    const username = generateUsername(name, newTenantId);
+    const autoPassword = generatePassword();
+
     // إنشاء المستأجر الجديد
     const newTenant = {
       id: newTenantId,
       name,
       email,
-      password: `Tenant@${new Date().getFullYear()}`,
+      username, // اسم المستخدم المولد تلقائياً
+      password: autoPassword, // الرقم السري المولد تلقائياً
       phone: tenantDetails.phone1,
       role: 'tenant',
-      status: 'active',
+      status: 'pending_approval', // معلق - بانتظار الاعتماد
+      accountStatus: 'pending_contract', // بانتظار اعتماد العقد
       isVerified: false,
       permissions: [],
+      // بيانات الدخول (للإرسال لاحقاً)
+      credentials: {
+        username,
+        password: autoPassword,
+        sentViaEmail: false,
+        sentViaSMS: false,
+        approvedBy: null,
+        approvedAt: null,
+        contractApproved: false,
+        ownerApproved: false,
+        tenantApproved: false,
+        adminApproved: false
+      },
       profile: {
         avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=14b8a6&color=fff&size=200`,
         company: type === 'company' ? name : '',
