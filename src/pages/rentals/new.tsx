@@ -394,6 +394,7 @@ export default function NewRentalContract() {
     const searchValue = typeof value === 'string' ? value : value.id;
     setFormData(prev => ({ ...prev, searchQuery: searchValue }));
     setShowDropdown(false);
+    setHasSearched(true); // تأكيد أن البحث تم
     
     // البحث الفوري عند الاختيار
     setTimeout(() => {
@@ -679,7 +680,14 @@ export default function NewRentalContract() {
                     <p className="text-sm text-gray-600 mb-3">💡 يمكنك الاختيار من القائمة أو الكتابة للبحث</p>
                     <button 
                       type="button"
-                      onClick={() => setShowDropdown(!showDropdown)}
+                      onClick={() => {
+                        setShowDropdown(!showDropdown);
+                        // عرض جميع العقارات عند إظهار القائمة
+                        if (!showDropdown) {
+                          setFilteredProperties(properties);
+                          setHasSearched(true);
+                        }
+                      }}
                       className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg font-medium"
                     >
                       <FaListAlt className="w-5 h-5" />
@@ -734,8 +742,17 @@ export default function NewRentalContract() {
             </div>
             
             {/* نتائج البحث */}
-            {hasSearched && filteredProperties.length > 0 && (
+            {(hasSearched || selectedProperty) && filteredProperties.length > 0 && (
               <div className="space-y-3">
+                <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <FaBuilding className="w-5 h-5 text-blue-600" />
+                  العقارات المتاحة
+                  {selectedProperty && (
+                    <span className="text-sm font-normal text-green-600">
+                      (تم اختيار عقار ✓)
+                    </span>
+                  )}
+                </h4>
                 <div className="max-h-96 overflow-y-auto space-y-2">
                   {filteredProperties.map((property) => (
                     <div
