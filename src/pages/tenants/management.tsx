@@ -480,6 +480,26 @@ export default function TenantsManagement() {
                     <div className="space-y-2">
                       {/* البيانات الأساسية */}
                       <div className="space-y-1.5 text-xs">
+                        {/* اسم المستخدم */}
+                        <div className="flex items-center gap-2 text-blue-700 bg-blue-50 px-2 py-1 rounded-md">
+                          <FaUser className="w-3 h-3 flex-shrink-0" />
+                          <span className="font-bold truncate flex-1">
+                            {tenant.credentials?.username || tenant.username || 'لم يُنشأ بعد'}
+                          </span>
+                        </div>
+                        
+                        {/* العقار */}
+                        {(tenant.buildingNo || tenant.unitNo) && (
+                          <div className="flex items-center gap-2 text-purple-700 bg-purple-50 px-2 py-1 rounded-md">
+                            <FaBuilding className="w-3 h-3 flex-shrink-0" />
+                            <span className="truncate flex-1">
+                              {tenant.buildingNo && `مبنى ${tenant.buildingNo}`}
+                              {tenant.buildingNo && tenant.unitNo && ' - '}
+                              {tenant.unitNo && `وحدة ${tenant.unitNo}`}
+                            </span>
+                          </div>
+                        )}
+                        
                         <div className="flex items-center gap-2 text-gray-700">
                           <FaEnvelope className="w-3 h-3 text-purple-500 flex-shrink-0" />
                           <span className="truncate flex-1">{tenant.email}</span>
@@ -503,13 +523,37 @@ export default function TenantsManagement() {
                         )}
                       </div>
 
+                      {/* تنبيه البطاقة - Compact */}
+                      {tenant.tenantDetails?.nationalIdExpiry && (() => {
+                        const cardStatus = getIdCardStatus(tenant.tenantDetails.nationalIdExpiry);
+                        if (!cardStatus) return null;
+                        
+                        return (
+                          <div className="mt-2 pt-2 border-t border-gray-200">
+                            <div className={`px-2 py-1.5 rounded-lg border text-center ${cardStatus.color}`}>
+                              <div className="text-xs font-medium mb-0.5">
+                                {cardStatus.icon} البطاقة: {cardStatus.label}
+                              </div>
+                              <div className="text-xs font-bold">
+                                {cardStatus.status === 'expired' 
+                                  ? `منتهية منذ ${cardStatus.days} يوم`
+                                  : cardStatus.status === 'expiring-soon'
+                                  ? `باقي ${cardStatus.days} يوم`
+                                  : `صالحة`
+                                }
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
                       {/* تنبيهات الوثائق - Compact */}
                       {expiringDocuments.filter(d => d.tenantId === tenant.id).length > 0 && (
                         <div className="mt-2 pt-2 border-t border-gray-200">
                           <div className="flex items-center justify-center gap-1">
                             <FaExclamationTriangle className="w-3 h-3 text-orange-500" />
                             <span className="text-xs font-medium text-orange-600">
-                              {expiringDocuments.filter(d => d.tenantId === tenant.id).length} تنبيه
+                              {expiringDocuments.filter(d => d.tenantId === tenant.id).length} تنبيه آخر
                             </span>
                           </div>
                         </div>
