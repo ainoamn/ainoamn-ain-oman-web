@@ -1458,20 +1458,38 @@ export default function NewRentalContract() {
                   
                   {/* Footer */}
                   <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => setShowAdditionalDataWarning(false)}
-                        className="flex-1 px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-semibold"
-                      >
-                        إلغاء
-                      </button>
-                      <InstantLink
-                        href={`/properties/${selectedProperty.id}/additional`}
-                        className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-semibold flex items-center justify-center gap-2 shadow-lg"
-                      >
-                        <FaFileAlt className="w-5 h-5" />
-                        إكمال البيانات الإضافية الآن
-                      </InstantLink>
+                    <div className="flex flex-col gap-3">
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => setShowAdditionalDataWarning(false)}
+                          className="flex-1 px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-semibold"
+                        >
+                          إلغاء
+                        </button>
+                        <InstantLink
+                          href={`/properties/${selectedProperty.id}/additional`}
+                          className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-semibold flex items-center justify-center gap-2 shadow-lg"
+                        >
+                          <FaFileAlt className="w-5 h-5" />
+                          إكمال البيانات الإضافية الآن
+                        </InstantLink>
+                      </div>
+                      
+                      <div className="pt-3 border-t border-gray-300">
+                        <button
+                          onClick={() => {
+                            setShowAdditionalDataWarning(false);
+                            setCurrentStep(3);
+                          }}
+                          className="w-full px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-semibold flex items-center justify-center gap-2"
+                        >
+                          <FaExclamationTriangle className="w-5 h-5" />
+                          المتابعة بدون البيانات (غير موصى به)
+                        </button>
+                        <p className="text-xs text-center text-gray-500 mt-2">
+                          ⚠️ قد يؤدي هذا إلى عقد غير مكتمل
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
