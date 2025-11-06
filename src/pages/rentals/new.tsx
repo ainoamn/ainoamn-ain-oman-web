@@ -1413,7 +1413,8 @@ export default function NewRentalContract() {
               loading={loading}
               error={error}
             />
-            
+          </>
+        );
         
       case 4:
         return (
