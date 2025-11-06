@@ -1227,7 +1227,6 @@ export default function TenantsManagement() {
             </div>
           )}
         </div>
-      </div>
 
       {/* Modals */}
       {showEditModal && selectedTenant && (
