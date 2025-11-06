@@ -1414,118 +1414,6 @@ export default function NewRentalContract() {
               error={error}
             />
             
-            {/* Modal تحذير البيانات الإضافية */}
-            {showAdditionalDataWarning && selectedProperty && (
-              <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-70 p-4">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl"
-                >
-                  {/* Header */}
-                  <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 rounded-t-2xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-white bg-opacity-30 rounded-full flex items-center justify-center">
-                        <FaFileAlt className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold">⚠️ بيانات العقار الإضافية مطلوبة</h3>
-                        <p className="text-sm opacity-90 mt-1">يجب إكمال جميع البيانات قبل المتابعة</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Body */}
-                  <div className="p-6">
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
-                      <div className="flex items-start gap-3">
-                        <FaExclamationTriangle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
-                        <div className="flex-1">
-                          <p className="font-semibold text-yellow-900 mb-2">لا يمكن المتابعة لإنشاء العقد</p>
-                          <p className="text-sm text-yellow-800">
-                            يجب إكمال البيانات الإضافية للعقار أولاً لضمان إنشاء عقد صحيح وقانوني
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="mb-6">
-                      <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                        <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                          <span className="text-red-600 font-bold">{additionalDataStatus?.missing?.length || 0}</span>
-                        </div>
-                        البيانات الناقصة:
-                      </h4>
-                      <div className="space-y-2">
-                        {additionalDataStatus?.missing?.map((item: string, index: number) => (
-                          <div key={index} className="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                            <div className="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
-                              {index + 1}
-                            </div>
-                            <span className="text-red-800 font-medium">{item}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                      <div className="flex items-start gap-3">
-                        <FaInfoCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 text-sm text-blue-800">
-                          <p className="font-semibold mb-1">ملاحظة هامة:</p>
-                          <p>البيانات الإضافية ضرورية لإنشاء عقد قانوني صحيح. تشمل:</p>
-                          <ul className="list-disc list-inside mt-2 space-y-1 mr-4">
-                            <li>بيانات المالك الكاملة</li>
-                            <li>حساب الكهرباء (رقم الحساب + العداد + نوع الدفع)</li>
-                            <li>حساب المياه (رقم الحساب + العداد + نوع الدفع)</li>
-                            <li>بيانات العقار التفصيلية (اختياري)</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Footer */}
-                  <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
-                    <div className="flex flex-col gap-3">
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => setShowAdditionalDataWarning(false)}
-                          className="flex-1 px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-semibold"
-                        >
-                          إلغاء
-                        </button>
-                        <InstantLink
-                          href={`/properties/${selectedProperty.id}/additional`}
-                          className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-semibold flex items-center justify-center gap-2 shadow-lg"
-                        >
-                          <FaFileAlt className="w-5 h-5" />
-                          إكمال البيانات الإضافية الآن
-                        </InstantLink>
-                      </div>
-                      
-                      <div className="pt-3 border-t border-gray-300">
-                        <button
-                          onClick={() => {
-                            setShowAdditionalDataWarning(false);
-                            setCurrentStep(3);
-                          }}
-                          className="w-full px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-semibold flex items-center justify-center gap-2"
-                        >
-                          <FaExclamationTriangle className="w-5 h-5" />
-                          المتابعة بدون البيانات (غير موصى به)
-                        </button>
-                        <p className="text-xs text-center text-gray-500 mt-2">
-                          ⚠️ قد يؤدي هذا إلى عقد غير مكتمل
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              </div>
-            )}
-          </>
-        );
         
       case 4:
         return (
@@ -2085,6 +1973,117 @@ export default function NewRentalContract() {
           </form>
         </main>
       </div>
+      
+      {/* Modal تحذير البيانات الإضافية - خارج الـ form */}
+      {showAdditionalDataWarning && selectedProperty && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-70 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl"
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 rounded-t-2xl">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white bg-opacity-30 rounded-full flex items-center justify-center">
+                  <FaFileAlt className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold">⚠️ بيانات العقار الإضافية مطلوبة</h3>
+                  <p className="text-sm opacity-90 mt-1">يجب إكمال جميع البيانات قبل المتابعة</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Body */}
+            <div className="p-6">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <FaExclamationTriangle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-yellow-900 mb-2">لا يمكن المتابعة لإنشاء العقد</p>
+                    <p className="text-sm text-yellow-800">
+                      يجب إكمال البيانات الإضافية للعقار أولاً لضمان إنشاء عقد صحيح وقانوني
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mb-6">
+                <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                    <span className="text-red-600 font-bold">{additionalDataStatus?.missing?.length || 0}</span>
+                  </div>
+                  البيانات الناقصة:
+                </h4>
+                <div className="space-y-2">
+                  {additionalDataStatus?.missing?.map((item: string, index: number) => (
+                    <div key={index} className="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                        {index + 1}
+                      </div>
+                      <span className="text-red-800 font-medium">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <div className="flex items-start gap-3">
+                  <FaInfoCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 text-sm text-blue-800">
+                    <p className="font-semibold mb-1">ملاحظة هامة:</p>
+                    <p>البيانات الإضافية ضرورية لإنشاء عقد قانوني صحيح. تشمل:</p>
+                    <ul className="list-disc list-inside mt-2 space-y-1 mr-4">
+                      <li>بيانات المالك الكاملة</li>
+                      <li>حساب الكهرباء (رقم الحساب + العداد + نوع الدفع)</li>
+                      <li>حساب المياه (رقم الحساب + العداد + نوع الدفع)</li>
+                      <li>بيانات العقار التفصيلية (اختياري)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Footer */}
+            <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowAdditionalDataWarning(false)}
+                    className="flex-1 px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-semibold"
+                  >
+                    إلغاء
+                  </button>
+                  <InstantLink
+                    href={`/properties/${selectedProperty.id}/additional`}
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-semibold flex items-center justify-center gap-2 shadow-lg"
+                  >
+                    <FaFileAlt className="w-5 h-5" />
+                    إكمال البيانات الإضافية الآن
+                  </InstantLink>
+                </div>
+                
+                <div className="pt-3 border-t border-gray-300">
+                  <button
+                    onClick={() => {
+                      setShowAdditionalDataWarning(false);
+                      setCurrentStep(3);
+                    }}
+                    className="w-full px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-semibold flex items-center justify-center gap-2"
+                  >
+                    <FaExclamationTriangle className="w-5 h-5" />
+                    المتابعة بدون البيانات (غير موصى به)
+                  </button>
+                  <p className="text-xs text-center text-gray-500 mt-2">
+                    ⚠️ قد يؤدي هذا إلى عقد غير مكتمل
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </>
   );
 }
