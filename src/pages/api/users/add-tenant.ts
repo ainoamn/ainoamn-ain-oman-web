@@ -79,14 +79,18 @@ export default async function handler(
     const tenantCount = users.filter((u: any) => u.role === 'tenant').length;
     const newTenantId = `TENANT-${String(tenantCount + 1).padStart(3, '0')}`;
     
-    // توليد اسم مستخدم ورقم سري تلقائياً
-    const generateUsername = (name: string, id: string): string => {
-      // استخدام أول اسمين + آخر 3 أرقام من ID
+    // توليد اسم مستخدم بصيغة: T-XX12345678
+    // T- + أول حرفين من الاسم (كبتل) + الرقم المدني
+    const generateUsername = (name: string, nationalId: string): string => {
+      // استخراج أول حرفين من الاسم
       const names = name.trim().split(' ');
-      const firstName = names[0] || 'tenant';
-      const secondName = names[1] || '';
-      const idSuffix = id.split('-')[1] || '000';
-      return `${firstName.toLowerCase()}${secondName ? '_' + secondName.toLowerCase() : ''}_${idSuffix}`;
+      const firstName = names[0] || 'TN';
+      const firstTwoLetters = firstName.substring(0, 2).toUpperCase();
+      
+      // تنظيف الرقم المدني من أي فواصل
+      const cleanNationalId = nationalId.replace(/[^0-9]/g, '');
+      
+      return `T-${firstTwoLetters}${cleanNationalId}`;
     };
     
     const generatePassword = (): string => {
@@ -159,7 +163,11 @@ export default async function handler(
     }
 
     // توليد اسم المستخدم والرقم السري
-    const username = generateUsername(name, newTenantId);
+    // استخدام الرقم المدني من البيانات
+    const nationalIdForUsername = type === 'individual_omani' ? getField('nationalId') : 
+                                   type === 'individual_foreign' ? getField('residenceId') :
+                                   getField('commercialRegister');
+    const username = generateUsername(name, nationalIdForUsername);
     const autoPassword = generatePassword();
 
     // إنشاء المستأجر الجديد

@@ -8,7 +8,8 @@ import {
   FaSearch, FaFilter, FaPlus, FaSave, FaSpinner,
   FaExclamationTriangle, FaCheckCircle, FaTimesCircle,
   FaMapMarkerAlt, FaBriefcase, FaPassport, FaBuilding,
-  FaGlobe, FaFlag, FaEye, FaEyeSlash, FaTh, FaList
+  FaGlobe, FaFlag, FaEye, FaEyeSlash, FaTh, FaList,
+  FaFileContract
 } from 'react-icons/fa';
 import InstantLink from '@/components/InstantLink';
 import Layout from '@/components/layout/Layout';
@@ -226,6 +227,42 @@ export default function TenantsManagement() {
       return {
         status: 'active',
         label: 'نشطة',
+        color: 'bg-green-100 text-green-800 border-green-300',
+        icon: '✅',
+        days: diffDays
+      };
+    }
+  };
+
+  // دالة لحساب حالة عقد الإيجار
+  const getContractStatus = (endDate: string) => {
+    if (!endDate) return null;
+    
+    const today = new Date();
+    const end = new Date(endDate);
+    const diffTime = end.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) {
+      return {
+        status: 'expired',
+        label: 'عقد منتهي',
+        color: 'bg-red-100 text-red-800 border-red-300',
+        icon: '❌',
+        days: Math.abs(diffDays)
+      };
+    } else if (diffDays <= 90) {
+      return {
+        status: 'expiring-soon',
+        label: 'قريب الانتهاء',
+        color: 'bg-orange-100 text-orange-800 border-orange-300',
+        icon: '⚠️',
+        days: diffDays
+      };
+    } else {
+      return {
+        status: 'active',
+        label: 'عقد صالح',
         color: 'bg-green-100 text-green-800 border-green-300',
         icon: '✅',
         days: diffDays
@@ -489,7 +526,7 @@ export default function TenantsManagement() {
                         </div>
                         
                         {/* العقار */}
-                        {(tenant.buildingNo || tenant.unitNo) && (
+                        {tenant.propertyId ? (
                           <div className="flex items-center gap-2 text-purple-700 bg-purple-50 px-2 py-1 rounded-md">
                             <FaBuilding className="w-3 h-3 flex-shrink-0" />
                             <span className="truncate flex-1">
@@ -497,6 +534,11 @@ export default function TenantsManagement() {
                               {tenant.buildingNo && tenant.unitNo && ' - '}
                               {tenant.unitNo && `وحدة ${tenant.unitNo}`}
                             </span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 text-gray-600 bg-gray-100 px-2 py-1 rounded-md">
+                            <FaExclamationTriangle className="w-3 h-3 flex-shrink-0" />
+                            <span className="text-xs truncate flex-1">لا يوجد عقد</span>
                           </div>
                         )}
                         
@@ -522,6 +564,30 @@ export default function TenantsManagement() {
                           </div>
                         )}
                       </div>
+
+                      {/* تنبيه العقد - Compact */}
+                      {tenant.contractEndDate && (() => {
+                        const contractStatus = getContractStatus(tenant.contractEndDate);
+                        if (!contractStatus) return null;
+                        
+                        return (
+                          <div className="mt-2 pt-2 border-t border-gray-200">
+                            <div className={`px-2 py-1.5 rounded-lg border text-center ${contractStatus.color}`}>
+                              <div className="text-xs font-medium mb-0.5">
+                                {contractStatus.icon} العقد: {contractStatus.label}
+                              </div>
+                              <div className="text-xs font-bold">
+                                {contractStatus.status === 'expired' 
+                                  ? `منتهي منذ ${contractStatus.days} يوم`
+                                  : contractStatus.status === 'expiring-soon'
+                                  ? `ينتهي خلال ${contractStatus.days} يوم`
+                                  : `صالح`
+                                }
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       {/* تنبيه البطاقة - Compact */}
                       {tenant.tenantDetails?.nationalIdExpiry && (() => {
@@ -760,30 +826,62 @@ export default function TenantsManagement() {
                       </div>
                       
                       {/* بيانات العقار المستأجر */}
-                      {(tenant.propertyId || tenant.buildingNo || tenant.unitNo) && (
-                        <div className="mt-2 flex items-center gap-4 text-sm bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg px-3 py-2">
-                          <div className="flex items-center gap-2">
-                            <FaBuilding className="w-4 h-4 text-blue-600" />
-                            <span className="font-medium text-blue-900">العقار:</span>
+                      {tenant.propertyId ? (
+                        <div className="mt-2 space-y-2">
+                          <div className="flex items-center gap-4 text-sm bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg px-3 py-2">
+                            <div className="flex items-center gap-2">
+                              <FaBuilding className="w-4 h-4 text-blue-600" />
+                              <span className="font-medium text-blue-900">العقار:</span>
+                            </div>
+                            {tenant.buildingNo && (
+                              <div className="flex items-center gap-1">
+                                <span className="text-gray-600">مبنى:</span>
+                                <span className="font-bold text-blue-700">{tenant.buildingNo}</span>
+                              </div>
+                            )}
+                            {tenant.unitNo && (
+                              <div className="flex items-center gap-1">
+                                <span className="text-gray-600">وحدة:</span>
+                                <span className="font-bold text-purple-700">{tenant.unitNo}</span>
+                              </div>
+                            )}
+                            {tenant.propertyId && (
+                              <div className="flex items-center gap-1">
+                                <span className="text-gray-600">رقم:</span>
+                                <span className="font-mono text-xs text-gray-500">{tenant.propertyId}</span>
+                              </div>
+                            )}
                           </div>
-                          {tenant.buildingNo && (
-                            <div className="flex items-center gap-1">
-                              <span className="text-gray-600">مبنى:</span>
-                              <span className="font-bold text-blue-700">{tenant.buildingNo}</span>
-                            </div>
-                          )}
-                          {tenant.unitNo && (
-                            <div className="flex items-center gap-1">
-                              <span className="text-gray-600">وحدة:</span>
-                              <span className="font-bold text-purple-700">{tenant.unitNo}</span>
-                            </div>
-                          )}
-                          {tenant.propertyId && (
-                            <div className="flex items-center gap-1">
-                              <span className="text-gray-600">رقم:</span>
-                              <span className="font-mono text-xs text-gray-500">{tenant.propertyId}</span>
-                            </div>
-                          )}
+                          
+                          {/* حالة العقد */}
+                          {tenant.contractEndDate && (() => {
+                            const contractStatus = getContractStatus(tenant.contractEndDate);
+                            if (!contractStatus) return null;
+                            
+                            return (
+                              <div className={`flex items-center justify-between text-sm border rounded-lg px-3 py-2 ${contractStatus.color}`}>
+                                <div className="flex items-center gap-2">
+                                  <FaFileContract className="w-4 h-4" />
+                                  <span className="font-medium">
+                                    {contractStatus.icon} {contractStatus.label}
+                                  </span>
+                                </div>
+                                <div className="text-xs font-bold">
+                                  {contractStatus.status === 'expired' 
+                                    ? `منتهي منذ ${contractStatus.days} يوم`
+                                    : contractStatus.status === 'expiring-soon'
+                                    ? `ينتهي خلال ${contractStatus.days} يوم`
+                                    : `باقي ${contractStatus.days} يوم`
+                                  }
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      ) : (
+                        <div className="mt-2 flex items-center gap-2 text-sm bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-gray-600">
+                          <FaExclamationTriangle className="w-4 h-4 text-gray-500" />
+                          <span>لا يوجد عقد موثق</span>
                         </div>
                       )}
                       

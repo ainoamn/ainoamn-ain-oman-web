@@ -288,7 +288,7 @@
     "name": "أحمد بن عبدالله المحمودي",
     "email": "ahmed.almahmoudi@gmail.com",
     "password": "Tenant@2025",
-    "username": "ahmed_almahmoudi_008",
+    "username": "T-AH12345678",
     "phone": "+968 92890123",
     "role": "tenant",
     "status": "active",
@@ -298,6 +298,8 @@
     "buildingNo": "123",
     "unitNo": "C-302",
     "unitId": "UNIT-C302-003",
+    "contractStartDate": "2025-01-01",
+    "contractEndDate": "2026-01-01",
     "profile": {
       "avatar": "https://ui-avatars.com/api/?name=أحمد+المحمودي&background=14b8a6&color=fff&size=200",
       "company": "",
@@ -306,7 +308,7 @@
       "loginCount": 56
     },
     "credentials": {
-      "username": "ahmed_almahmoudi_008",
+      "username": "T-AH12345678",
       "password": "AhmM@8k2",
       "sentViaEmail": true,
       "sentViaSMS": false,
@@ -428,16 +430,12 @@
     "name": "عبد الحميد حمود حمدان ",
     "email": "ah@sfg.om",
     "password": "Tenant@2025",
-    "username": "عبد_حمود_002",
+    "username": "T-AB18286701",
     "phone": "95655200",
     "role": "tenant",
     "status": "active",
     "isVerified": false,
     "permissions": [],
-    "propertyId": "P-20251022101222",
-    "buildingNo": "123",
-    "unitNo": "A-201",
-    "unitId": "UNIT-A201-001",
     "profile": {
       "avatar": "https://ui-avatars.com/api/?name=%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D8%AD%D9%85%D9%8A%D8%AF%20%D8%AD%D9%85%D9%88%D8%AF%20%D8%AD%D9%85%D8%AF%D8%A7%D9%86%20&background=14b8a6&color=fff&size=200",
       "company": "",
@@ -446,7 +444,7 @@
       "loginCount": 0
     },
     "credentials": {
-      "username": "عبد_حمود_002",
+      "username": "T-AB18286701",
       "password": "AbdH@2m5",
       "sentViaEmail": false,
       "sentViaSMS": false,
@@ -494,7 +492,7 @@
     "name": "عبد الحميد بن حمود بن حمدان ",
     "email": "ah@sfg..om",
     "password": "Tenant@2025",
-    "username": "عبد_بن_حمود_003",
+    "username": "T-AB18286701",
     "phone": "95655200",
     "role": "tenant",
     "status": "active",
@@ -504,6 +502,8 @@
     "buildingNo": "123",
     "unitNo": "B-105",
     "unitId": "UNIT-B105-002",
+    "contractStartDate": "2025-06-01",
+    "contractEndDate": "2026-06-01",
     "profile": {
       "avatar": "https://ui-avatars.com/api/?name=%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D8%AD%D9%85%D9%8A%D8%AF%20%D8%A8%D9%86%20%D8%AD%D9%85%D9%88%D8%AF%20%D8%A8%D9%86%20%D8%AD%D9%85%D8%AF%D8%A7%D9%86%20&background=14b8a6&color=fff&size=200",
       "company": "",
@@ -512,7 +512,7 @@
       "loginCount": 0
     },
     "credentials": {
-      "username": "عبد_بن_حمود_003",
+      "username": "T-AB18286701",
       "password": "AbdB@3h7",
       "sentViaEmail": true,
       "sentViaSMS": false,
