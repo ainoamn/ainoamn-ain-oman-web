@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { motion } from 'framer-motion';
+import jsPDF from 'jspdf';
 import {
   FaUser, FaUsers, FaEnvelope, FaPhone, FaIdCard,
   FaEdit, FaTrash, FaKey, FaCalendar, FaBell,
@@ -396,7 +397,81 @@ export default function TenantsManagement() {
   };
 
   const exportToPDF = () => {
-    alert('سيتم إضافة التصدير إلى PDF قريباً');
+    try {
+      const doc = new jsPDF();
+      
+      // عنوان
+      doc.setFontSize(20);
+      doc.text('Ain Oman - Tenants Report', 105, 15, { align: 'center' });
+      
+      doc.setFontSize(10);
+      doc.text(`Date: ${new Date().toLocaleDateString('en')}`, 105, 25, { align: 'center' });
+      doc.text(`Total Tenants: ${filteredTenants.length}`, 105, 30, { align: 'center' });
+      
+      // الجدول
+      let y = 45;
+      doc.setFontSize(9);
+      
+      // رأس الجدول
+      doc.setFillColor(147, 51, 234); // purple
+      doc.rect(10, y - 5, 190, 8, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.text('Name', 12, y);
+      doc.text('Username', 70, y);
+      doc.text('Email', 110, y);
+      doc.text('Phone', 155, y);
+      
+      y += 10;
+      doc.setTextColor(0, 0, 0);
+      
+      // البيانات
+      filteredTenants.forEach((tenant, index) => {
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+        
+        const contracts = getTenantContracts(tenant);
+        const username = tenant.credentials?.username || tenant.username || '-';
+        
+        // رسم خلفية متناوبة
+        if (index % 2 === 0) {
+          doc.setFillColor(249, 250, 251);
+          doc.rect(10, y - 5, 190, 8, 'F');
+        }
+        
+        // النصوص
+        doc.text(tenant.name.substring(0, 25), 12, y);
+        doc.text(username, 70, y);
+        doc.text(tenant.email.substring(0, 20), 110, y);
+        doc.text(tenant.phone.substring(0, 15), 155, y);
+        
+        y += 8;
+        
+        // العقود
+        if (contracts.length > 0) {
+          doc.setFontSize(8);
+          doc.setTextColor(100, 100, 100);
+          contracts.forEach((c, i) => {
+            if (y > 270) {
+              doc.addPage();
+              y = 20;
+            }
+            doc.text(`  Contract ${i + 1}: Building ${c.buildingNo} - Unit ${c.unitNo}`, 12, y);
+            y += 6;
+          });
+          doc.setFontSize(9);
+          doc.setTextColor(0, 0, 0);
+          y += 2;
+        }
+      });
+      
+      // حفظ الملف
+      doc.save(`tenants-report-${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('حدث خطأ أثناء إنشاء ملف PDF');
+    }
   };
 
   const exportToText = () => {

@@ -69,10 +69,40 @@ export default async function handler(
     const usersData = fs.readFileSync(usersPath, 'utf-8');
     const users = JSON.parse(usersData);
 
-    // التحقق من عدم وجود المستخدم بنفس البريد الإلكتروني
-    const existingUser = users.find((u: any) => u.email === email);
-    if (existingUser) {
-      return res.status(400).json({ error: 'Email already exists' });
+    // التحقق من عدم تكرار رقم البطاقة المدنية/الإقامة/السجل التجاري
+    let documentId = '';
+    let documentType = '';
+    
+    if (type === 'individual_omani') {
+      documentId = getField('nationalId');
+      documentType = 'الرقم المدني';
+    } else if (type === 'individual_foreign') {
+      documentId = getField('residenceId');
+      documentType = 'رقم بطاقة الإقامة';
+    } else if (type === 'company') {
+      documentId = getField('commercialRegister');
+      documentType = 'رقم السجل التجاري';
+    }
+
+    if (documentId) {
+      const existingTenant = users.find((u: any) => {
+        if (u.role !== 'tenant' || !u.tenantDetails) return false;
+        
+        return u.tenantDetails.nationalId === documentId ||
+               u.tenantDetails.residenceId === documentId ||
+               u.tenantDetails.commercialRegister === documentId;
+      });
+      
+      if (existingTenant) {
+        return res.status(400).json({ 
+          error: `مستأجر موجود مسبقاً بنفس ${documentType}: ${documentId}`,
+          existingTenant: {
+            id: existingTenant.id,
+            name: existingTenant.name,
+            email: existingTenant.email
+          }
+        });
+      }
     }
 
     // إنشاء ID جديد للمستأجر
