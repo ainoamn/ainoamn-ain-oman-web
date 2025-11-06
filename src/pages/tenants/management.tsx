@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { motion } from 'framer-motion';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import {
   FaUser, FaUsers, FaEnvelope, FaPhone, FaIdCard,
   FaEdit, FaTrash, FaKey, FaCalendar, FaBell,
@@ -398,72 +399,66 @@ export default function TenantsManagement() {
 
   const exportToPDF = () => {
     try {
-      const doc = new jsPDF();
+      const doc = new jsPDF('l', 'mm', 'a4'); // Landscape orientation for more columns
       
-      // عنوان
-      doc.setFontSize(20);
-      doc.text('Ain Oman - Tenants Report', 105, 15, { align: 'center' });
+      // العنوان
+      doc.setFontSize(16);
+      doc.text('Ain Oman - Tenants Report', doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
       
       doc.setFontSize(10);
-      doc.text(`Date: ${new Date().toLocaleDateString('en')}`, 105, 25, { align: 'center' });
-      doc.text(`Total Tenants: ${filteredTenants.length}`, 105, 30, { align: 'center' });
+      doc.text(`Date: ${new Date().toLocaleDateString('en-US')}`, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
+      doc.text(`Total Tenants: ${filteredTenants.length}`, doc.internal.pageSize.getWidth() / 2, 28, { align: 'center' });
       
-      // الجدول
-      let y = 45;
-      doc.setFontSize(9);
+      // إعداد البيانات (نفس بيانات Excel)
+      const tableData = filteredTenants.map(t => {
+        const contracts = getTenantContracts(t);
+        return [
+          t.name,
+          t.email,
+          t.phone,
+          t.credentials?.username || t.username || '-',
+          t.tenantDetails?.nationalId || t.tenantDetails?.residenceId || '-',
+          contracts.length.toString(),
+          contracts.map(c => c.buildingNo).join(', ') || '-',
+          contracts.map(c => c.unitNo).join(', ') || '-',
+          t.status
+        ];
+      });
       
-      // رأس الجدول
-      doc.setFillColor(147, 51, 234); // purple
-      doc.rect(10, y - 5, 190, 8, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.text('Name', 12, y);
-      doc.text('Username', 70, y);
-      doc.text('Email', 110, y);
-      doc.text('Phone', 155, y);
-      
-      y += 10;
-      doc.setTextColor(0, 0, 0);
-      
-      // البيانات
-      filteredTenants.forEach((tenant, index) => {
-        if (y > 270) {
-          doc.addPage();
-          y = 20;
-        }
-        
-        const contracts = getTenantContracts(tenant);
-        const username = tenant.credentials?.username || tenant.username || '-';
-        
-        // رسم خلفية متناوبة
-        if (index % 2 === 0) {
-          doc.setFillColor(249, 250, 251);
-          doc.rect(10, y - 5, 190, 8, 'F');
-        }
-        
-        // النصوص
-        doc.text(tenant.name.substring(0, 25), 12, y);
-        doc.text(username, 70, y);
-        doc.text(tenant.email.substring(0, 20), 110, y);
-        doc.text(tenant.phone.substring(0, 15), 155, y);
-        
-        y += 8;
-        
-        // العقود
-        if (contracts.length > 0) {
-          doc.setFontSize(8);
-          doc.setTextColor(100, 100, 100);
-          contracts.forEach((c, i) => {
-            if (y > 270) {
-              doc.addPage();
-              y = 20;
-            }
-            doc.text(`  Contract ${i + 1}: Building ${c.buildingNo} - Unit ${c.unitNo}`, 12, y);
-            y += 6;
-          });
-          doc.setFontSize(9);
-          doc.setTextColor(0, 0, 0);
-          y += 2;
-        }
+      // إنشاء الجدول باستخدام autoTable
+      autoTable(doc, {
+        head: [['Name', 'Email', 'Phone', 'Username', 'ID Number', 'Contracts', 'Buildings', 'Units', 'Status']],
+        body: tableData,
+        startY: 35,
+        styles: {
+          font: 'helvetica',
+          fontSize: 8,
+          cellPadding: 2,
+          overflow: 'linebreak',
+          halign: 'left'
+        },
+        headStyles: {
+          fillColor: [147, 51, 234], // purple
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          halign: 'center'
+        },
+        alternateRowStyles: {
+          fillColor: [249, 250, 251]
+        },
+        columnStyles: {
+          0: { cellWidth: 35 }, // Name
+          1: { cellWidth: 35 }, // Email
+          2: { cellWidth: 25 }, // Phone
+          3: { cellWidth: 25 }, // Username
+          4: { cellWidth: 25 }, // ID
+          5: { cellWidth: 15 }, // Contracts
+          6: { cellWidth: 25 }, // Buildings
+          7: { cellWidth: 25 }, // Units
+          8: { cellWidth: 20 }  // Status
+        },
+        margin: { top: 35, left: 10, right: 10 },
+        tableWidth: 'auto'
       });
       
       // حفظ الملف

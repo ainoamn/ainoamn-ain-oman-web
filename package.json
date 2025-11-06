@@ -21,6 +21,7 @@
     "formidable": "3.5.4",
     "framer-motion": "^12.23.16",
     "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2",
     "leaflet": "^1.9.4",
     "lucide-react": "0.542.0",
     "next": "15.4.6",
