@@ -9,7 +9,7 @@ import {
   FaExclamationTriangle, FaCheckCircle, FaTimesCircle,
   FaMapMarkerAlt, FaBriefcase, FaPassport, FaBuilding,
   FaGlobe, FaFlag, FaEye, FaEyeSlash, FaTh, FaList,
-  FaFileContract, FaTimes
+  FaFileContract, FaTimes, FaFilePdf, FaFileExcel, FaFileAlt, FaPrint, FaDownload
 } from 'react-icons/fa';
 import InstantLink from '@/components/InstantLink';
 import Layout from '@/components/layout/Layout';
@@ -366,6 +366,69 @@ export default function TenantsManagement() {
     }
   };
 
+  // دوال التصدير والطباعة
+  const exportToExcel = () => {
+    const data = filteredTenants.map(t => {
+      const contracts = getTenantContracts(t);
+      return {
+        'الاسم': t.name,
+        'البريد': t.email,
+        'الهاتف': t.phone,
+        'اسم المستخدم': t.credentials?.username || t.username || '-',
+        'الرقم المدني': t.tenantDetails?.nationalId || t.tenantDetails?.residenceId || '-',
+        'عدد العقود': contracts.length,
+        'المبنى': contracts.map(c => c.buildingNo).join(', ') || '-',
+        'الوحدة': contracts.map(c => c.unitNo).join(', ') || '-',
+        'الحالة': t.status
+      };
+    });
+    
+    const csv = [
+      Object.keys(data[0]).join(','),
+      ...data.map(row => Object.values(row).join(','))
+    ].join('\n');
+    
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `tenants-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
+  const exportToPDF = () => {
+    alert('سيتم إضافة التصدير إلى PDF قريباً');
+  };
+
+  const exportToText = () => {
+    let text = '=== بيانات المستأجرين ===\n\n';
+    text += `التاريخ: ${new Date().toLocaleDateString('ar')}\n`;
+    text += `إجمالي المستأجرين: ${filteredTenants.length}\n\n`;
+    text += '='.repeat(60) + '\n\n';
+    
+    filteredTenants.forEach((tenant, index) => {
+      const contracts = getTenantContracts(tenant);
+      text += `${index + 1}. ${tenant.name}\n`;
+      text += `   اسم المستخدم: ${tenant.credentials?.username || tenant.username || '-'}\n`;
+      text += `   البريد: ${tenant.email}\n`;
+      text += `   الهاتف: ${tenant.phone}\n`;
+      text += `   الرقم المدني: ${tenant.tenantDetails?.nationalId || tenant.tenantDetails?.residenceId || '-'}\n`;
+      text += `   عدد العقود: ${contracts.length}\n`;
+      if (contracts.length > 0) {
+        contracts.forEach((c, i) => {
+          text += `   العقد ${i + 1}: مبنى ${c.buildingNo} - وحدة ${c.unitNo}\n`;
+        });
+      }
+      text += `   الحالة: ${tenant.status}\n`;
+      text += '\n' + '-'.repeat(60) + '\n\n';
+    });
+    
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `tenants-${new Date().toISOString().split('T')[0]}.txt`;
+    link.click();
+  };
+
   return (
     <Layout>
       <Head>
@@ -386,37 +449,37 @@ export default function TenantsManagement() {
             </svg>
           </div>
           
-          <div className="relative max-w-7xl mx-auto px-4 py-12">
+          <div className="relative max-w-7xl mx-auto px-4 py-6">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center"
             >
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <FaUsers className="w-12 h-12" />
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <FaUsers className="w-8 h-8" />
               </div>
-              <h1 className="text-4xl font-bold mb-4">إدارة المستأجرين</h1>
-              <p className="text-xl opacity-90 mb-6">
+              <h1 className="text-2xl font-bold mb-2">إدارة المستأجرين</h1>
+              <p className="text-sm opacity-90 mb-4">
                 إدارة شاملة لجميع المستأجرين والوثائق والتنبيهات
               </p>
               
               {/* إحصائيات سريعة */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-                <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-4">
-                  <div className="text-3xl font-bold">{tenants.length}</div>
-                  <div className="text-sm opacity-90">إجمالي المستأجرين</div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-3">
+                  <div className="text-2xl font-bold">{tenants.length}</div>
+                  <div className="text-xs opacity-90">إجمالي المستأجرين</div>
                 </div>
-                <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-4">
-                  <div className="text-3xl font-bold">{tenants.filter(t => t.status === 'active').length}</div>
-                  <div className="text-sm opacity-90">نشط</div>
+                <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-3">
+                  <div className="text-2xl font-bold">{tenants.filter(t => t.status === 'active').length}</div>
+                  <div className="text-xs opacity-90">نشط</div>
                 </div>
-                <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-4">
-                  <div className="text-3xl font-bold">{expiringDocuments.filter(d => !d.isExpired).length}</div>
-                  <div className="text-sm opacity-90">وثائق قريبة الانتهاء</div>
+                <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-3">
+                  <div className="text-2xl font-bold">{expiringDocuments.filter(d => !d.isExpired).length}</div>
+                  <div className="text-xs opacity-90">قرب الانتهاء</div>
                 </div>
-                <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-4">
-                  <div className="text-3xl font-bold text-red-200">{expiringDocuments.filter(d => d.isExpired).length}</div>
-                  <div className="text-sm opacity-90">وثائق منتهية</div>
+                <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-3">
+                  <div className="text-2xl font-bold text-red-200">{expiringDocuments.filter(d => d.isExpired).length}</div>
+                  <div className="text-xs opacity-90">منتهية</div>
                 </div>
               </div>
             </motion.div>
@@ -424,44 +487,44 @@ export default function TenantsManagement() {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           {/* تنبيهات الوثائق المنتهية */}
           {expiringDocuments.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6"
+              className="mb-4"
             >
-              <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-xl p-6 shadow-lg">
-                <div className="flex items-center gap-3 mb-4">
-                  <FaBell className="w-6 h-6" />
-                  <h3 className="text-xl font-bold">تنبيهات هامة</h3>
-                  <span className="bg-white bg-opacity-30 px-3 py-1 rounded-full text-sm">
-                    {expiringDocuments.length} تنبيه
+              <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-lg p-4 shadow-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <FaBell className="w-4 h-4" />
+                  <h3 className="text-lg font-bold">تنبيهات هامة</h3>
+                  <span className="bg-white bg-opacity-30 px-2 py-0.5 rounded-full text-xs">
+                    {expiringDocuments.length}
                   </span>
                 </div>
                 
-                <div className="space-y-2 max-h-48 overflow-y-auto">
+                <div className="space-y-1.5 max-h-32 overflow-y-auto">
                   {expiringDocuments.map((doc, index) => (
                     <div
                       key={index}
-                      className={`bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-3 ${
-                        doc.isExpired ? 'border-2 border-red-300' : 'border border-white border-opacity-30'
+                      className={`bg-white bg-opacity-20 backdrop-blur-sm rounded-md p-2 ${
+                        doc.isExpired ? 'border border-red-300' : 'border border-white border-opacity-20'
                       }`}
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between text-sm">
                         <div className="flex-1">
                           <div className="font-semibold">{doc.tenantName}</div>
-                          <div className="text-sm opacity-90">{doc.documentType}</div>
+                          <div className="text-xs opacity-90">{doc.documentType}</div>
                         </div>
                         <div className="text-left">
                           {doc.isExpired ? (
-                            <span className="bg-red-600 px-3 py-1 rounded-full text-xs font-bold">
-                              منتهي ❌
+                            <span className="bg-red-600 px-2 py-0.5 rounded-full text-xs font-bold">
+                              منتهي
                             </span>
                           ) : (
-                            <span className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-bold">
-                              ينتهي خلال {doc.daysRemaining} يوم
+                            <span className="bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded-full text-xs font-bold">
+                              {doc.daysRemaining} يوم
                             </span>
                           )}
                         </div>
@@ -474,22 +537,22 @@ export default function TenantsManagement() {
           )}
 
           {/* البحث والفلترة المتقدمة */}
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <FaSearch className="w-5 h-5 text-purple-600" />
+          <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+            <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+              <FaSearch className="w-4 h-4 text-purple-600" />
               البحث والفلترة المتقدمة
             </h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               {/* نوع البحث */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1">
                   البحث في
                 </label>
                 <select
                   value={searchField}
                   onChange={(e) => setSearchField(e.target.value as any)}
-                  className="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-purple-50"
+                  className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-purple-50 text-sm"
                 >
                   <option value="all">🔍 جميع الحقول</option>
                   <option value="name">👤 الاسم</option>
@@ -503,7 +566,7 @@ export default function TenantsManagement() {
 
               {/* حقل البحث */}
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1">
                   كلمة البحث
                 </label>
                 <div className="relative">
@@ -511,7 +574,7 @@ export default function TenantsManagement() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full px-4 py-3 pl-10 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-3 py-2 pl-9 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
                     placeholder={
                       searchField === 'all' ? 'ابحث في جميع الحقول...' :
                       searchField === 'name' ? 'مثال: محمد' :
@@ -528,14 +591,14 @@ export default function TenantsManagement() {
               
               {/* الحالة */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FaFilter className="inline ml-2" />
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <FaFilter className="inline ml-1 w-3 h-3" />
                   الحالة
                 </label>
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value as any)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
                 >
                   <option value="all">الكل</option>
                   <option value="active">نشط</option>
@@ -547,32 +610,31 @@ export default function TenantsManagement() {
             
             {/* عرض نتائج البحث */}
             {searchQuery && (
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-600 flex items-center gap-2">
-                    <FaCheckCircle className="text-green-500" />
-                    <span>نتيجة البحث:</span>
-                    <span className="font-bold text-purple-600 text-lg">{filteredTenants.length}</span>
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <div className="flex items-center justify-between text-sm">
+                  <div className="text-gray-600 flex items-center gap-2">
+                    <FaCheckCircle className="text-green-500 w-4 h-4" />
+                    <span>نتيجة:</span>
+                    <span className="font-bold text-purple-600">{filteredTenants.length}</span>
                     <span>من</span>
                     <span className="font-bold text-gray-900">{tenants.length}</span>
-                    <span>مستأجر</span>
                   </div>
                   <button
                     onClick={() => {
                       setSearchQuery('');
                       setSearchField('all');
                     }}
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2 text-sm"
+                    className="px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-1.5 text-xs"
                   >
-                    <FaTimes className="w-4 h-4" />
-                    مسح البحث
+                    <FaTimes className="w-3 h-3" />
+                    مسح
                   </button>
                 </div>
               </div>
             )}
           </div>
 
-            <div className="mt-4 flex items-center justify-between">
+            <div className="mt-4 flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-3">
                 <div className="text-sm text-gray-600">
                   عرض {filteredTenants.length} من {tenants.length} مستأجر
@@ -599,6 +661,35 @@ export default function TenantsManagement() {
                 </button>
               </div>
               
+              <div className="flex items-center gap-2">
+                {/* أزرار التصدير */}
+                <button
+                  onClick={exportToExcel}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm text-sm"
+                  title="تصدير إلى Excel"
+                >
+                  <FaFileExcel className="w-4 h-4" />
+                  <span className="hidden md:inline">Excel</span>
+                </button>
+                
+                <button
+                  onClick={exportToText}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm text-sm"
+                  title="تصدير كملف نصي"
+                >
+                  <FaFileAlt className="w-4 h-4" />
+                  <span className="hidden md:inline">Text</span>
+                </button>
+                
+                <button
+                  onClick={exportToPDF}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-sm text-sm"
+                  title="تصدير إلى PDF"
+                >
+                  <FaFilePdf className="w-4 h-4" />
+                  <span className="hidden md:inline">PDF</span>
+                </button>
+                
               <InstantLink
                 href="/rentals/new"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all shadow-md"
@@ -1316,16 +1407,26 @@ function TenantDetailsModal({ tenant, onClose }: any) {
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="flex-1">
               <h3 className="text-2xl font-bold">{tenant.name}</h3>
               <p className="text-sm opacity-90 mt-1">{tenant.id}</p>
             </div>
-            <button
-              onClick={onClose}
-              className="w-10 h-10 bg-white/20 rounded-full hover:bg-white/30 transition-colors flex items-center justify-center"
-            >
-              <FaTimesCircle className="w-6 h-6" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => window.print()}
+                className="flex items-center gap-2 px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
+                title="طباعة"
+              >
+                <FaPrint className="w-4 h-4" />
+                <span className="text-sm">طباعة</span>
+              </button>
+              <button
+                onClick={onClose}
+                className="w-10 h-10 bg-white/20 rounded-full hover:bg-white/30 transition-colors flex items-center justify-center"
+              >
+                <FaTimesCircle className="w-6 h-6" />
+              </button>
+            </div>
           </div>
         </div>
 
