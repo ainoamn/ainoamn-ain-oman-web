@@ -197,6 +197,42 @@ export default function TenantsManagement() {
     }
   };
 
+  // دالة لحساب حالة البطاقة
+  const getIdCardStatus = (expiryDate: string) => {
+    if (!expiryDate) return null;
+    
+    const today = new Date();
+    const expiry = new Date(expiryDate);
+    const diffTime = expiry.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) {
+      return {
+        status: 'expired',
+        label: 'منتهية الصلاحية',
+        color: 'bg-red-100 text-red-800 border-red-300',
+        icon: '❌',
+        days: Math.abs(diffDays)
+      };
+    } else if (diffDays <= 90) {
+      return {
+        status: 'expiring-soon',
+        label: 'قاربت على الانتهاء',
+        color: 'bg-orange-100 text-orange-800 border-orange-300',
+        icon: '⚠️',
+        days: diffDays
+      };
+    } else {
+      return {
+        status: 'active',
+        label: 'نشطة',
+        color: 'bg-green-100 text-green-800 border-green-300',
+        icon: '✅',
+        days: diffDays
+      };
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
@@ -205,6 +241,8 @@ export default function TenantsManagement() {
         return <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">غير نشط</span>;
       case 'suspended':
         return <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">موقوف</span>;
+      case 'pending_approval':
+        return <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">بانتظار الاعتماد</span>;
       default:
         return <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">{status}</span>;
     }
@@ -704,6 +742,31 @@ export default function TenantsManagement() {
                           )}
                         </div>
                       )}
+                      
+                      {/* تنبيه حالة البطاقة */}
+                      {tenant.tenantDetails?.nationalIdExpiry && (() => {
+                        const cardStatus = getIdCardStatus(tenant.tenantDetails.nationalIdExpiry);
+                        if (!cardStatus) return null;
+                        
+                        return (
+                          <div className={`mt-2 flex items-center justify-between text-sm border rounded-lg px-3 py-2 ${cardStatus.color}`}>
+                            <div className="flex items-center gap-2">
+                              <FaIdCard className="w-4 h-4" />
+                              <span className="font-medium">
+                                {cardStatus.icon} البطاقة: {cardStatus.label}
+                              </span>
+                            </div>
+                            <div className="text-xs font-bold">
+                              {cardStatus.status === 'expired' 
+                                ? `منتهية منذ ${cardStatus.days} يوم`
+                                : cardStatus.status === 'expiring-soon'
+                                ? `باقي ${cardStatus.days} يوم`
+                                : `صالحة لـ ${cardStatus.days} يوم`
+                              }
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* تنبيهات */}
