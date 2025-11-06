@@ -1080,38 +1080,6 @@ export default function TenantsManagement() {
                           </div>
                         );
                       })()}
-                          
-                          {/* حالة العقد */}
-                          {tenant.contractEndDate && (() => {
-                            const contractStatus = getContractStatus(tenant.contractEndDate);
-                            if (!contractStatus) return null;
-                            
-                            return (
-                              <div className={`flex items-center justify-between text-sm border rounded-lg px-3 py-2 ${contractStatus.color}`}>
-                                <div className="flex items-center gap-2">
-                                  <FaFileContract className="w-4 h-4" />
-                                  <span className="font-medium">
-                                    {contractStatus.icon} {contractStatus.label}
-                                  </span>
-                                </div>
-                                <div className="text-xs font-bold">
-                                  {contractStatus.status === 'expired' 
-                                    ? `منتهي منذ ${contractStatus.days} يوم`
-                                    : contractStatus.status === 'expiring-soon'
-                                    ? `ينتهي خلال ${contractStatus.days} يوم`
-                                    : `باقي ${contractStatus.days} يوم`
-                                  }
-                                </div>
-                              </div>
-                            );
-                          })()}
-                        </div>
-                      ) : (
-                        <div className="mt-2 flex items-center gap-2 text-sm bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-gray-600">
-                          <FaExclamationTriangle className="w-4 h-4 text-gray-500" />
-                          <span>لا يوجد عقد موثق</span>
-                        </div>
-                      )}
                       
                       {/* تنبيه حالة البطاقة */}
                       {tenant.tenantDetails?.nationalIdExpiry && (() => {
