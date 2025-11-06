@@ -15,6 +15,17 @@ import InstantLink from '@/components/InstantLink';
 import Layout from '@/components/layout/Layout';
 import EditTenantModal from '@/components/tenants/EditTenantModal';
 
+interface Contract {
+  id: string;
+  propertyId: string;
+  buildingNo: string;
+  unitNo: string;
+  unitId?: string;
+  contractStartDate: string;
+  contractEndDate: string;
+  status: 'active' | 'expired' | 'expiring-soon';
+}
+
 interface Tenant {
   id: string;
   name: string;
@@ -25,12 +36,15 @@ interface Tenant {
   username?: string;
   password?: string;
   createdAt: string;
+  // Legacy support (backward compatibility)
   propertyId?: string;
   unitId?: string;
   buildingNo?: string;
   unitNo?: string;
   contractStartDate?: string;
   contractEndDate?: string;
+  // New: Multiple contracts support
+  contracts?: Contract[];
   tenantDetails?: {
     type: 'individual_omani' | 'individual_foreign' | 'company';
     fullName?: string;
@@ -55,6 +69,7 @@ export default function TenantsManagement() {
   const [filteredTenants, setFilteredTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchField, setSearchField] = useState<'all' | 'name' | 'email' | 'nationalId' | 'id' | 'building' | 'phone'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive' | 'suspended'>('all');
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -79,7 +94,7 @@ export default function TenantsManagement() {
 
   useEffect(() => {
     filterTenants();
-  }, [tenants, searchQuery, filterStatus]);
+  }, [tenants, searchQuery, searchField, filterStatus]);
 
   // حفظ viewMode في localStorage
   useEffect(() => {
@@ -170,6 +185,29 @@ export default function TenantsManagement() {
     setExpiringDocuments(expiring);
   };
 
+  // دالة للحصول على جميع عقود المستأجر (backward compatible)
+  const getTenantContracts = (tenant: Tenant): Contract[] => {
+    if (tenant.contracts && tenant.contracts.length > 0) {
+      return tenant.contracts;
+    }
+    
+    // للتوافق مع البيانات القديمة
+    if (tenant.propertyId) {
+      return [{
+        id: `contract-${tenant.id}-1`,
+        propertyId: tenant.propertyId,
+        buildingNo: tenant.buildingNo || '',
+        unitNo: tenant.unitNo || '',
+        unitId: tenant.unitId,
+        contractStartDate: tenant.contractStartDate || '',
+        contractEndDate: tenant.contractEndDate || '',
+        status: 'active'
+      }];
+    }
+    
+    return [];
+  };
+
   const filterTenants = () => {
     let filtered = [...tenants];
 
@@ -178,15 +216,55 @@ export default function TenantsManagement() {
       filtered = filtered.filter(t => t.status === filterStatus);
     }
 
-    // فلترة حسب البحث
+    // فلترة حسب البحث المتقدم
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(t =>
-        t.name.toLowerCase().includes(query) ||
-        t.email.toLowerCase().includes(query) ||
-        t.phone.includes(query) ||
-        t.id.toLowerCase().includes(query)
-      );
+      
+      filtered = filtered.filter(t => {
+        // البحث حسب الحقل المحدد
+        switch (searchField) {
+          case 'name':
+            return t.name.toLowerCase().includes(query);
+          case 'email':
+            return t.email.toLowerCase().includes(query);
+          case 'nationalId':
+            return (t.tenantDetails?.nationalId || '').toLowerCase().includes(query) ||
+                   (t.tenantDetails?.residenceId || '').toLowerCase().includes(query);
+          case 'id':
+            return t.id.toLowerCase().includes(query) ||
+                   (t.username || '').toLowerCase().includes(query) ||
+                   (t.credentials?.username || '').toLowerCase().includes(query);
+          case 'building':
+            const contracts = getTenantContracts(t);
+            return contracts.some(c => 
+              (c.buildingNo || '').toLowerCase().includes(query) ||
+              (c.unitNo || '').toLowerCase().includes(query) ||
+              (c.propertyId || '').toLowerCase().includes(query)
+            );
+          case 'phone':
+            return t.phone.includes(query) ||
+                   (t.tenantDetails?.phone1 || '').includes(query) ||
+                   (t.tenantDetails?.phone2 || '').includes(query);
+          case 'all':
+          default:
+            // البحث في جميع الحقول
+            const contractsSearch = getTenantContracts(t).some(c =>
+              (c.buildingNo || '').toLowerCase().includes(query) ||
+              (c.unitNo || '').toLowerCase().includes(query) ||
+              (c.propertyId || '').toLowerCase().includes(query)
+            );
+            
+            return t.name.toLowerCase().includes(query) ||
+                   t.email.toLowerCase().includes(query) ||
+                   t.phone.includes(query) ||
+                   t.id.toLowerCase().includes(query) ||
+                   (t.username || '').toLowerCase().includes(query) ||
+                   (t.credentials?.username || '').toLowerCase().includes(query) ||
+                   (t.tenantDetails?.nationalId || '').toLowerCase().includes(query) ||
+                   (t.tenantDetails?.residenceId || '').toLowerCase().includes(query) ||
+                   contractsSearch;
+        }
+      });
     }
 
     setFilteredTenants(filtered);
@@ -395,40 +473,104 @@ export default function TenantsManagement() {
             </motion.div>
           )}
 
-          {/* البحث والفلترة */}
+          {/* البحث والفلترة المتقدمة */}
           <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <FaSearch className="w-5 h-5 text-purple-600" />
+              البحث والفلترة المتقدمة
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* نوع البحث */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  البحث في
+                </label>
+                <select
+                  value={searchField}
+                  onChange={(e) => setSearchField(e.target.value as any)}
+                  className="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-purple-50"
+                >
+                  <option value="all">🔍 جميع الحقول</option>
+                  <option value="name">👤 الاسم</option>
+                  <option value="email">📧 البريد الإلكتروني</option>
+                  <option value="phone">📞 رقم الهاتف</option>
+                  <option value="nationalId">🆔 الرقم المدني</option>
+                  <option value="id">🔢 رقم المعرف</option>
+                  <option value="building">🏢 رقم المبنى/الوحدة</option>
+                </select>
+              </div>
+
+              {/* حقل البحث */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FaSearch className="inline ml-2" />
-                  بحث عن مستأجر
+                  كلمة البحث
                 </label>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="ابحث بالاسم، البريد، الهاتف، أو الرقم..."
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-4 py-3 pl-10 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    placeholder={
+                      searchField === 'all' ? 'ابحث في جميع الحقول...' :
+                      searchField === 'name' ? 'مثال: محمد' :
+                      searchField === 'email' ? 'مثال: ahmed@example.com' :
+                      searchField === 'phone' ? 'مثال: 92890123' :
+                      searchField === 'nationalId' ? 'مثال: 12345678' :
+                      searchField === 'id' ? 'مثال: TENANT-002 أو T-AH12...' :
+                      'مثال: 123 أو A-201'
+                    }
+                  />
+                  <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                </div>
               </div>
               
+              {/* الحالة */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <FaFilter className="inline ml-2" />
-                  تصفية حسب الحالة
+                  الحالة
                 </label>
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value as any)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 >
-                  <option value="all">جميع الحالات</option>
+                  <option value="all">الكل</option>
                   <option value="active">نشط</option>
                   <option value="inactive">غير نشط</option>
                   <option value="suspended">موقوف</option>
                 </select>
               </div>
             </div>
+            
+            {/* عرض نتائج البحث */}
+            {searchQuery && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-600 flex items-center gap-2">
+                    <FaCheckCircle className="text-green-500" />
+                    <span>نتيجة البحث:</span>
+                    <span className="font-bold text-purple-600 text-lg">{filteredTenants.length}</span>
+                    <span>من</span>
+                    <span className="font-bold text-gray-900">{tenants.length}</span>
+                    <span>مستأجر</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSearchField('all');
+                    }}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2 text-sm"
+                  >
+                    <FaTimes className="w-4 h-4" />
+                    مسح البحث
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
             <div className="mt-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -877,36 +1019,67 @@ export default function TenantsManagement() {
                       </div>
                       
                       {/* بيانات العقار المستأجر */}
-                      {tenant.propertyId ? (
-                        <div className="mt-2 space-y-2">
-                          <InstantLink
-                            href={`/tenant/my-contract?tenantId=${tenant.id}`}
-                            className="flex items-center gap-4 text-sm bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg px-3 py-2 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer"
-                          >
-                            <div className="flex items-center gap-2">
-                              <FaBuilding className="w-4 h-4 text-blue-600" />
-                              <span className="font-medium text-blue-900">العقار:</span>
+                      {(() => {
+                        const tenantContracts = getTenantContracts(tenant);
+                        
+                        if (tenantContracts.length === 0) {
+                          return (
+                            <div className="mt-2 flex items-center gap-2 text-sm bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-gray-600">
+                              <FaExclamationTriangle className="w-4 h-4 text-gray-500" />
+                              <span>لا يوجد عقد موثق</span>
                             </div>
-                            {tenant.buildingNo && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-gray-600">مبنى:</span>
-                                <span className="font-bold text-blue-700">{tenant.buildingNo}</span>
-                              </div>
-                            )}
-                            {tenant.unitNo && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-gray-600">وحدة:</span>
-                                <span className="font-bold text-purple-700">{tenant.unitNo}</span>
-                              </div>
-                            )}
-                            {tenant.propertyId && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-gray-600">رقم:</span>
-                                <span className="font-mono text-xs text-gray-500">{tenant.propertyId}</span>
-                              </div>
-                            )}
-                            <FaEye className="w-4 h-4 text-blue-500 ml-auto" />
-                          </InstantLink>
+                          );
+                        }
+                        
+                        if (tenantContracts.length === 1) {
+                          const contract = tenantContracts[0];
+                          return (
+                            <div className="mt-2 space-y-2">
+                              <InstantLink
+                                href={`/tenant/my-contract?tenantId=${tenant.id}&contractId=${contract.id}`}
+                                className="flex items-center gap-4 text-sm bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg px-3 py-2 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <FaBuilding className="w-4 h-4 text-blue-600" />
+                                  <span className="font-medium text-blue-900">العقار:</span>
+                                </div>
+                                {contract.buildingNo && (
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-gray-600">مبنى:</span>
+                                    <span className="font-bold text-blue-700">{contract.buildingNo}</span>
+                                  </div>
+                                )}
+                                {contract.unitNo && (
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-gray-600">وحدة:</span>
+                                    <span className="font-bold text-purple-700">{contract.unitNo}</span>
+                                  </div>
+                                )}
+                                <FaEye className="w-4 h-4 text-blue-500 ml-auto" />
+                              </InstantLink>
+                            </div>
+                          );
+                        }
+                        
+                        // عقود متعددة
+                        return (
+                          <div className="mt-2 flex items-center gap-3 text-sm bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg px-3 py-2">
+                            <FaBuilding className="w-4 h-4 text-blue-600" />
+                            <span className="font-medium text-blue-900">
+                              {tenantContracts.length} عقود إيجار
+                            </span>
+                            <button
+                              onClick={() => {
+                                setSelectedTenant(tenant);
+                                setShowDetailsModal(true);
+                              }}
+                              className="mr-auto px-3 py-1 bg-blue-600 text-white rounded-full text-xs hover:bg-blue-700 transition-colors"
+                            >
+                              عرض الكل
+                            </button>
+                          </div>
+                        );
+                      })()}
                           
                           {/* حالة العقد */}
                           {tenant.contractEndDate && (() => {
@@ -1129,6 +1302,8 @@ export default function TenantsManagement() {
 
 // Component لعرض تفاصيل المستأجر الكاملة
 function TenantDetailsModal({ tenant, onClose }: any) {
+  const [expandedContracts, setExpandedContracts] = useState(new Set<string>());
+
   const getTenantTypeLabel = (type: string) => {
     switch (type) {
       case 'individual_omani': return '🇴🇲 عماني';
@@ -1136,6 +1311,32 @@ function TenantDetailsModal({ tenant, onClose }: any) {
       case 'company': return '🏢 شركة';
       default: return 'غير محدد';
     }
+  };
+
+  // الحصول على جميع عقود المستأجر
+  const contracts: Contract[] = tenant.contracts && tenant.contracts.length > 0
+    ? tenant.contracts
+    : tenant.propertyId
+    ? [{
+        id: `contract-${tenant.id}-1`,
+        propertyId: tenant.propertyId,
+        buildingNo: tenant.buildingNo || '',
+        unitNo: tenant.unitNo || '',
+        unitId: tenant.unitId,
+        contractStartDate: tenant.contractStartDate || '',
+        contractEndDate: tenant.contractEndDate || '',
+        status: 'active'
+      }]
+    : [];
+
+  const toggleContract = (contractId: string) => {
+    const newExpanded = new Set(expandedContracts);
+    if (newExpanded.has(contractId)) {
+      newExpanded.delete(contractId);
+    } else {
+      newExpanded.add(contractId);
+    }
+    setExpandedContracts(newExpanded);
   };
 
   return (
@@ -1192,43 +1393,88 @@ function TenantDetailsModal({ tenant, onClose }: any) {
               </div>
             </div>
 
-            {/* بيانات العقار */}
-            {tenant.propertyId ? (
+            {/* عقود الإيجار */}
+            {contracts.length > 0 ? (
               <div>
                 <h4 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                   <FaBuilding className="w-5 h-5 text-blue-600" />
-                  بيانات العقار
+                  عقود الإيجار
+                  <span className="px-3 py-1 bg-blue-600 text-white rounded-full text-sm">
+                    {contracts.length}
+                  </span>
                 </h4>
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border border-blue-200">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                    <div>
-                      <p className="text-gray-600 mb-1">رقم المبنى</p>
-                      <p className="font-bold text-blue-700">{tenant.buildingNo || '-'}</p>
+                
+                {/* قائمة العقود القابلة للتوسع */}
+                <div className="space-y-3">
+                  {contracts.map((contract, index) => (
+                    <div key={contract.id} className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200 overflow-hidden">
+                      {/* رأس العقد */}
+                      <button
+                        onClick={() => toggleContract(contract.id)}
+                        className="w-full p-4 flex items-center justify-between hover:bg-blue-100 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">
+                            {index + 1}
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-gray-900">
+                              مبنى {contract.buildingNo} - وحدة {contract.unitNo}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {contract.propertyId}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            contract.status === 'active' ? 'bg-green-100 text-green-800' :
+                            contract.status === 'expiring-soon' ? 'bg-orange-100 text-orange-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {contract.status === 'active' ? 'نشط' : contract.status === 'expiring-soon' ? 'قريب الانتهاء' : 'منتهي'}
+                          </span>
+                          {expandedContracts.has(contract.id) ? 
+                            <FaChevronUp className="w-4 h-4 text-gray-400" /> : 
+                            <FaChevronDown className="w-4 h-4 text-gray-400" />
+                          }
+                        </div>
+                      </button>
+
+                      {/* تفاصيل العقد (قابلة للتوسع) */}
+                      {expandedContracts.has(contract.id) && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="border-t border-blue-300 bg-white p-4"
+                        >
+                          <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                              <p className="text-sm text-gray-600 mb-1">تاريخ البداية</p>
+                              <p className="font-bold text-gray-900">
+                                {contract.contractStartDate ? new Date(contract.contractStartDate).toLocaleDateString('ar-SA', { timeZone: 'UTC' }) : '-'}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-600 mb-1">تاريخ الانتهاء</p>
+                              <p className="font-bold text-gray-900">
+                                {contract.contractEndDate ? new Date(contract.contractEndDate).toLocaleDateString('ar-SA', { timeZone: 'UTC' }) : '-'}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <InstantLink
+                            href={`/tenant/my-contract?tenantId=${tenant.id}&contractId=${contract.id}`}
+                            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-colors text-sm font-medium"
+                          >
+                            <FaEye className="w-4 h-4" />
+                            عرض تفاصيل العقد الكاملة
+                          </InstantLink>
+                        </motion.div>
+                      )}
                     </div>
-                    <div>
-                      <p className="text-gray-600 mb-1">رقم الوحدة</p>
-                      <p className="font-bold text-purple-700">{tenant.unitNo || '-'}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600 mb-1">رقم العقار</p>
-                      <p className="font-mono text-xs text-gray-500">{tenant.propertyId}</p>
-                    </div>
-                  </div>
-                  {tenant.contractEndDate && (
-                    <div className="mt-3 pt-3 border-t border-blue-200">
-                      <p className="text-gray-600 text-sm mb-1">تاريخ انتهاء العقد</p>
-                      <p className="font-bold text-gray-900">{new Date(tenant.contractEndDate).toLocaleDateString('ar-SA', { timeZone: 'UTC' })}</p>
-                    </div>
-                  )}
-                  <div className="mt-3">
-                    <InstantLink
-                      href={`/tenant/my-contract?tenantId=${tenant.id}`}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                    >
-                      <FaEye className="w-4 h-4" />
-                      عرض تفاصيل العقد
-                    </InstantLink>
-                  </div>
+                  ))}
                 </div>
               </div>
             ) : (

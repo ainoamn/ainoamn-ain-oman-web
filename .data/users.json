@@ -294,12 +294,28 @@
     "status": "active",
     "isVerified": true,
     "permissions": [],
-    "propertyId": "P-20251022101222",
-    "buildingNo": "123",
-    "unitNo": "C-302",
-    "unitId": "UNIT-C302-003",
-    "contractStartDate": "2025-01-01",
-    "contractEndDate": "2026-01-01",
+    "contracts": [
+      {
+        "id": "CONTRACT-001",
+        "propertyId": "P-20251022101222",
+        "buildingNo": "123",
+        "unitNo": "C-302",
+        "unitId": "UNIT-C302-003",
+        "contractStartDate": "2025-01-01",
+        "contractEndDate": "2026-01-01",
+        "status": "active"
+      },
+      {
+        "id": "CONTRACT-002",
+        "propertyId": "P-20251023145630",
+        "buildingNo": "456",
+        "unitNo": "A-105",
+        "unitId": "UNIT-A105-008",
+        "contractStartDate": "2024-12-01",
+        "contractEndDate": "2025-12-01",
+        "status": "active"
+      }
+    ],
     "profile": {
       "avatar": "https://ui-avatars.com/api/?name=أحمد+المحمودي&background=14b8a6&color=fff&size=200",
       "company": "",
