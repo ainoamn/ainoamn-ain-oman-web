@@ -13,7 +13,7 @@ import {
   FaCheckCircle, FaTimesCircle, FaUpload, FaDownload, FaEye,
   FaFileContract, FaFilePdf, FaFileImage, FaFileWord, FaFileExcel,
   FaClock, FaCalendar, FaInfoCircle, FaChevronDown, FaChevronUp,
-  FaUser
+  FaUser, FaUsers
 } from 'react-icons/fa';
 
 interface ServiceAccount {
@@ -24,6 +24,10 @@ interface ServiceAccount {
   provider?: string;
   notes?: string;
   active: boolean;
+  // خاص بالكهرباء والمياه
+  meterNumber?: string;
+  meterImage?: string;
+  paymentType?: 'prepaid' | 'postpaid';
 }
 
 interface Document {
@@ -56,6 +60,9 @@ interface OwnerData {
   nationalIdExpiry: string;
   phone: string;
   email: string;
+}
+
+interface StaffData {
   buildingGuardName?: string;
   buildingGuardPhone?: string;
   maintenanceOfficerName?: string;
@@ -74,13 +81,6 @@ interface PropertyData {
   buildingNumber?: string;
   roadNumber?: string;
   landUseType?: string;
-  electricityAccountNumber?: string;
-  electricityMeterNumber?: string;
-  electricityMeterImage?: string;
-  waterAccountNumber?: string;
-  waterMeterNumber?: string;
-  waterMeterImage?: string;
-  accountType?: 'prepaid' | 'postpaid';
   floor?: string;
   unitType?: string;
 }
@@ -125,10 +125,13 @@ export default function PropertyAdditionalData() {
     email: ''
   });
   
+  // Staff Data
+  const [staffData, setStaffData] = useState<StaffData>({});
+  
   // Property Data
   const [propertyData, setPropertyData] = useState<PropertyData>({});
   
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['owner', 'propertyData', 'services', 'documents', 'banks']));
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['owner', 'staff', 'propertyData', 'services', 'documents', 'banks']));
 
   useEffect(() => {
     if (id) {
@@ -159,6 +162,7 @@ export default function PropertyAdditionalData() {
           phone: '',
           email: ''
         });
+        setStaffData(data.staffData || {});
         setPropertyData(data.propertyData || {});
       }
     } catch (error) {
@@ -173,6 +177,7 @@ export default function PropertyAdditionalData() {
     try {
       const data = {
         ownerData,
+        staffData,
         propertyData,
         serviceAccounts,
         documents,
@@ -216,7 +221,11 @@ export default function PropertyAdditionalData() {
       accountName: newService.accountName,
       provider: newService.provider,
       notes: newService.notes,
-      active: newService.active || true
+      active: newService.active || true,
+      // حقول إضافية للكهرباء والمياه
+      meterNumber: newService.meterNumber,
+      meterImage: newService.meterImage,
+      paymentType: newService.paymentType
     };
     
     setServiceAccounts([...serviceAccounts, service]);
@@ -502,7 +511,37 @@ export default function PropertyAdditionalData() {
                       placeholder="owner@example.com"
                     />
                   </div>
+                </div>
+              </div>
+            )}
+          </motion.div>
 
+          {/* Staff Data Section - قسم جديد منفصل */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12 }}
+            className="bg-white rounded-2xl shadow-lg mb-6 overflow-hidden"
+          >
+            <button
+              onClick={() => toggleSection('staff')}
+              className="w-full p-6 flex items-center justify-between bg-gradient-to-r from-indigo-50 to-blue-50 hover:from-indigo-100 hover:to-blue-100 transition-all"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-blue-600 rounded-xl flex items-center justify-center">
+                  <FaUsers className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-right">
+                  <h2 className="text-xl font-bold text-gray-900">بيانات الموظفين والإدارة</h2>
+                  <p className="text-sm text-gray-600">الحارس، الصيانة، الإدارة</p>
+                </div>
+              </div>
+              {expandedSections.has('staff') ? <FaChevronUp className="w-5 h-5 text-gray-400" /> : <FaChevronDown className="w-5 h-5 text-gray-400" />}
+            </button>
+
+            {expandedSections.has('staff') && (
+              <div className="p-6 bg-gray-50">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* حارس المبنى */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -510,9 +549,9 @@ export default function PropertyAdditionalData() {
                     </label>
                     <input
                       type="text"
-                      value={ownerData.buildingGuardName || ''}
-                      onChange={(e) => setOwnerData({ ...ownerData, buildingGuardName: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      value={staffData.buildingGuardName || ''}
+                      onChange={(e) => setStaffData({ ...staffData, buildingGuardName: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                       placeholder="اسم الحارس"
                     />
                   </div>
@@ -524,9 +563,9 @@ export default function PropertyAdditionalData() {
                     </label>
                     <input
                       type="tel"
-                      value={ownerData.buildingGuardPhone || ''}
-                      onChange={(e) => setOwnerData({ ...ownerData, buildingGuardPhone: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      value={staffData.buildingGuardPhone || ''}
+                      onChange={(e) => setStaffData({ ...staffData, buildingGuardPhone: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                       placeholder="+968 XXXXXXXX"
                     />
                   </div>
@@ -538,9 +577,9 @@ export default function PropertyAdditionalData() {
                     </label>
                     <input
                       type="text"
-                      value={ownerData.maintenanceOfficerName || ''}
-                      onChange={(e) => setOwnerData({ ...ownerData, maintenanceOfficerName: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      value={staffData.maintenanceOfficerName || ''}
+                      onChange={(e) => setStaffData({ ...staffData, maintenanceOfficerName: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                       placeholder="اسم مسؤول الصيانة"
                     />
                   </div>
@@ -552,9 +591,9 @@ export default function PropertyAdditionalData() {
                     </label>
                     <input
                       type="tel"
-                      value={ownerData.maintenanceOfficerPhone || ''}
-                      onChange={(e) => setOwnerData({ ...ownerData, maintenanceOfficerPhone: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      value={staffData.maintenanceOfficerPhone || ''}
+                      onChange={(e) => setStaffData({ ...staffData, maintenanceOfficerPhone: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                       placeholder="+968 XXXXXXXX"
                     />
                   </div>
@@ -566,9 +605,9 @@ export default function PropertyAdditionalData() {
                     </label>
                     <input
                       type="text"
-                      value={ownerData.administrativeOfficerName || ''}
-                      onChange={(e) => setOwnerData({ ...ownerData, administrativeOfficerName: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      value={staffData.administrativeOfficerName || ''}
+                      onChange={(e) => setStaffData({ ...staffData, administrativeOfficerName: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                       placeholder="اسم المسؤول الإداري"
                     />
                   </div>
@@ -580,9 +619,9 @@ export default function PropertyAdditionalData() {
                     </label>
                     <input
                       type="tel"
-                      value={ownerData.administrativeOfficerPhone || ''}
-                      onChange={(e) => setOwnerData({ ...ownerData, administrativeOfficerPhone: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      value={staffData.administrativeOfficerPhone || ''}
+                      onChange={(e) => setStaffData({ ...staffData, administrativeOfficerPhone: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                       placeholder="+968 XXXXXXXX"
                     />
                   </div>
@@ -762,138 +801,6 @@ export default function PropertyAdditionalData() {
                     />
                   </div>
                 </div>
-
-                {/* قسم الكهرباء */}
-                <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <h3 className="text-lg font-bold text-yellow-900 mb-4 flex items-center gap-2">
-                    <FaBolt className="w-5 h-5" />
-                    بيانات الكهرباء
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        رقم حساب الكهرباء
-                      </label>
-                      <input
-                        type="text"
-                        value={propertyData.electricityAccountNumber || ''}
-                        onChange={(e) => setPropertyData({ ...propertyData, electricityAccountNumber: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        رقم عداد الكهرباء
-                      </label>
-                      <input
-                        type="text"
-                        value={propertyData.electricityMeterNumber || ''}
-                        onChange={(e) => setPropertyData({ ...propertyData, electricityMeterNumber: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        صورة عداد الكهرباء
-                      </label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            // Handle file upload (future implementation)
-                            setPropertyData({ ...propertyData, electricityMeterImage: file.name });
-                          }
-                        }}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
-                      />
-                      {propertyData.electricityMeterImage && (
-                        <p className="mt-2 text-sm text-green-600">✓ {propertyData.electricityMeterImage}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* قسم المياه */}
-                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
-                    <FaTint className="w-5 h-5" />
-                    بيانات المياه
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        رقم حساب المياه
-                      </label>
-                      <input
-                        type="text"
-                        value={propertyData.waterAccountNumber || ''}
-                        onChange={(e) => setPropertyData({ ...propertyData, waterAccountNumber: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        رقم عداد المياه
-                      </label>
-                      <input
-                        type="text"
-                        value={propertyData.waterMeterNumber || ''}
-                        onChange={(e) => setPropertyData({ ...propertyData, waterMeterNumber: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        صورة عداد المياه
-                      </label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            setPropertyData({ ...propertyData, waterMeterImage: file.name });
-                          }
-                        }}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      />
-                      {propertyData.waterMeterImage && (
-                        <p className="mt-2 text-sm text-green-600">✓ {propertyData.waterMeterImage}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* نوع الحساب */}
-                <div className="mt-4 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
-                  <h3 className="text-lg font-bold text-indigo-900 mb-4">نوع الحساب</h3>
-                  <div className="flex gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="accountType"
-                        value="prepaid"
-                        checked={propertyData.accountType === 'prepaid'}
-                        onChange={(e) => setPropertyData({ ...propertyData, accountType: e.target.value as 'prepaid' | 'postpaid' })}
-                        className="w-4 h-4 text-indigo-600"
-                      />
-                      <span className="text-gray-700">مسبق الدفع</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="accountType"
-                        value="postpaid"
-                        checked={propertyData.accountType === 'postpaid'}
-                        onChange={(e) => setPropertyData({ ...propertyData, accountType: e.target.value as 'prepaid' | 'postpaid' })}
-                        className="w-4 h-4 text-indigo-600"
-                      />
-                      <span className="text-gray-700">آجل الدفع</span>
-                    </label>
-                  </div>
-                </div>
               </div>
             )}
           </motion.div>
@@ -952,6 +859,31 @@ export default function PropertyAdditionalData() {
                                 <p><span className="font-medium">رقم الحساب:</span> {service.accountNumber}</p>
                                 {service.accountName && <p><span className="font-medium">اسم الحساب:</span> {service.accountName}</p>}
                                 {service.provider && <p><span className="font-medium">المزود:</span> {service.provider}</p>}
+                                {/* خيارات إضافية للكهرباء والمياه */}
+                                {(service.type === 'electricity' || service.type === 'water') && (
+                                  <>
+                                    {service.meterNumber && <p><span className="font-medium">رقم العداد:</span> {service.meterNumber}</p>}
+                                    {service.paymentType && (
+                                      <p>
+                                        <span className="font-medium">نوع الدفع:</span> 
+                                        <span className={`mr-2 px-2 py-0.5 rounded-full text-xs ${
+                                          service.paymentType === 'prepaid' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                                        }`}>
+                                          {service.paymentType === 'prepaid' ? 'مسبق الدفع' : 'آجل الدفع'}
+                                        </span>
+                                      </p>
+                                    )}
+                                    {service.meterImage && (
+                                      <p className="flex items-center gap-2">
+                                        <span className="font-medium">صورة العداد:</span>
+                                        <a href={`/uploads/${service.meterImage}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center gap-1">
+                                          <FaEye className="w-3 h-3" />
+                                          عرض
+                                        </a>
+                                      </p>
+                                    )}
+                                  </>
+                                )}
                                 {service.notes && <p className="text-gray-600"><span className="font-medium">ملاحظات:</span> {service.notes}</p>}
                               </div>
                             </div>
@@ -1033,6 +965,52 @@ export default function PropertyAdditionalData() {
                           placeholder="ملاحظات إضافية..."
                         />
                       </div>
+                      
+                      {/* خيارات إضافية للكهرباء والمياه */}
+                      {(newService.type === 'electricity' || newService.type === 'water') && (
+                        <>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">رقم العداد</label>
+                            <input
+                              type="text"
+                              value={newService.meterNumber || ''}
+                              onChange={(e) => setNewService({...newService, meterNumber: e.target.value})}
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                              placeholder="رقم العداد"
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">نوع الدفع</label>
+                            <select
+                              value={newService.paymentType || 'postpaid'}
+                              onChange={(e) => setNewService({...newService, paymentType: e.target.value as 'prepaid' | 'postpaid'})}
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            >
+                              <option value="prepaid">مسبق الدفع</option>
+                              <option value="postpaid">آجل الدفع</option>
+                            </select>
+                          </div>
+                          
+                          <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">صورة العداد</label>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setNewService({...newService, meterImage: file.name});
+                                }
+                              }}
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            />
+                            {newService.meterImage && (
+                              <p className="mt-2 text-sm text-green-600">✓ {newService.meterImage}</p>
+                            )}
+                          </div>
+                        </>
+                      )}
                     </div>
                     <div className="flex justify-end gap-3 mt-4">
                       <button
