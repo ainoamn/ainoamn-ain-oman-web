@@ -659,9 +659,18 @@ export default function NewRentalContract() {
   // التحقق من البيانات الإضافية للعقار
   const checkAdditionalData = async (propertyId: string) => {
     try {
+      console.log('📋 Checking additional data for property:', propertyId);
+      
+      if (typeof window === 'undefined') {
+        console.log('⚠️ Window not available (SSR)');
+        return { complete: false, missing: ['جميع البيانات الإضافية مفقودة'] };
+      }
+      
       const storedData = localStorage.getItem(`property-${propertyId}-additional`);
+      console.log('📦 Stored data:', storedData ? 'Found' : 'Not found');
       
       if (!storedData) {
+        console.log('❌ No stored data found');
         return {
           complete: false,
           missing: ['جميع البيانات الإضافية مفقودة']
@@ -669,6 +678,7 @@ export default function NewRentalContract() {
       }
       
       const data = JSON.parse(storedData);
+      console.log('📊 Parsed data:', data);
       const missing: string[] = [];
       
       // التحقق من بيانات المالك
@@ -700,13 +710,15 @@ export default function NewRentalContract() {
         }
       }
       
+      console.log(`📊 Missing items: ${missing.length}`, missing);
+      
       return {
         complete: missing.length === 0,
         missing,
         data
       };
     } catch (error) {
-      console.error('Error checking additional data:', error);
+      console.error('❌ Error checking additional data:', error);
       return {
         complete: false,
         missing: ['حدث خطأ في قراءة البيانات']
@@ -716,18 +728,27 @@ export default function NewRentalContract() {
   
   // محاولة الانتقال للخطوة التالية مع التحقق
   const attemptNextStep = async (fromStep: number) => {
+    console.log('🔍 Attempting next step from:', fromStep);
+    console.log('Selected property:', selectedProperty?.id);
+    
     if (fromStep === 2 && selectedProperty) {
       // التحقق من البيانات الإضافية
+      console.log('Checking additional data for property:', selectedProperty.id);
       const status = await checkAdditionalData(selectedProperty.id);
+      console.log('Additional data status:', status);
       setAdditionalDataStatus(status);
       
       if (!status.complete) {
+        console.log('⚠️ Additional data incomplete, showing warning');
         setShowAdditionalDataWarning(true);
         return;
       }
+      
+      console.log('✅ Additional data complete, proceeding to step 3');
     }
     
     // الانتقال للخطوة التالية
+    console.log('Moving to step:', fromStep + 1);
     setCurrentStep(fromStep + 1);
   };
   
@@ -1198,8 +1219,16 @@ export default function NewRentalContract() {
               </button>
               <button
                 type="button"
-                onClick={() => attemptNextStep(2)}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                onClick={async () => {
+                  console.log('🔘 Next button clicked from step 2');
+                  console.log('Selected unit:', selectedUnit);
+                  if (selectedUnit) {
+                    await attemptNextStep(2);
+                  } else {
+                    console.log('❌ No unit selected');
+                  }
+                }}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!selectedUnit}
               >
                 التالي
