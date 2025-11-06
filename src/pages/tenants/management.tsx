@@ -409,15 +409,25 @@ export default function TenantsManagement() {
       doc.text(`Date: ${new Date().toLocaleDateString('en-US')}`, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
       doc.text(`Total Tenants: ${filteredTenants.length}`, doc.internal.pageSize.getWidth() / 2, 28, { align: 'center' });
       
-      // إعداد البيانات (نفس بيانات Excel)
-      const tableData = filteredTenants.map(t => {
+      // ملاحظة حول الأسماء
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Note: Arabic names displayed as ID/Username due to PDF font limitations', doc.internal.pageSize.getWidth() / 2, 32, { align: 'center' });
+      doc.setTextColor(0, 0, 0);
+      
+      // إعداد البيانات - استخدام ID بدلاً من الاسم العربي
+      const tableData = filteredTenants.map((t, index) => {
         const contracts = getTenantContracts(t);
+        const tenantId = t.id || `TENANT-${index + 1}`;
+        const username = t.credentials?.username || t.username || '-';
+        const nationalId = t.tenantDetails?.nationalId || t.tenantDetails?.residenceId || t.tenantDetails?.commercialRegister || '-';
+        
         return [
-          t.name,
+          tenantId, // استخدام ID بدلاً من الاسم
+          username, // اسم المستخدم (إنجليزي)
           t.email,
           t.phone,
-          t.credentials?.username || t.username || '-',
-          t.tenantDetails?.nationalId || t.tenantDetails?.residenceId || '-',
+          nationalId,
           contracts.length.toString(),
           contracts.map(c => c.buildingNo).join(', ') || '-',
           contracts.map(c => c.unitNo).join(', ') || '-',
@@ -427,9 +437,9 @@ export default function TenantsManagement() {
       
       // إنشاء الجدول باستخدام autoTable
       autoTable(doc, {
-        head: [['Name', 'Email', 'Phone', 'Username', 'ID Number', 'Contracts', 'Buildings', 'Units', 'Status']],
+        head: [['Tenant ID', 'Username', 'Email', 'Phone', 'ID Number', 'Contracts', 'Buildings', 'Units', 'Status']],
         body: tableData,
-        startY: 35,
+        startY: 38,
         styles: {
           font: 'helvetica',
           fontSize: 8,
@@ -447,17 +457,17 @@ export default function TenantsManagement() {
           fillColor: [249, 250, 251]
         },
         columnStyles: {
-          0: { cellWidth: 35 }, // Name
-          1: { cellWidth: 35 }, // Email
-          2: { cellWidth: 25 }, // Phone
-          3: { cellWidth: 25 }, // Username
-          4: { cellWidth: 25 }, // ID
-          5: { cellWidth: 15 }, // Contracts
+          0: { cellWidth: 28 }, // Tenant ID
+          1: { cellWidth: 32 }, // Username
+          2: { cellWidth: 40 }, // Email
+          3: { cellWidth: 28 }, // Phone
+          4: { cellWidth: 25 }, // ID Number
+          5: { cellWidth: 18 }, // Contracts
           6: { cellWidth: 25 }, // Buildings
           7: { cellWidth: 25 }, // Units
           8: { cellWidth: 20 }  // Status
         },
-        margin: { top: 35, left: 10, right: 10 },
+        margin: { top: 38, left: 10, right: 10 },
         tableWidth: 'auto'
       });
       
