@@ -10,7 +10,7 @@ import {
   FaIdCard, FaClock, FaDollarSign, FaFileAlt, FaPlus,
   FaChevronDown, FaChevronUp, FaListAlt, FaUsers,
   FaCloudUploadAlt, FaFileUpload, FaPassport, FaTrash,
-  FaGlobe, FaFlag
+  FaGlobe, FaFlag, FaExclamationTriangle, FaInfoCircle
 } from 'react-icons/fa';
 import InstantLink from '@/components/InstantLink';
 import AddTenantModal from '@/components/tenants/AddTenantModal';
@@ -130,6 +130,10 @@ export default function NewRentalContract() {
   const [tenantSearchQuery, setTenantSearchQuery] = useState('');
   const [showTenantDropdown, setShowTenantDropdown] = useState(false);
   const [showAddTenantModal, setShowAddTenantModal] = useState(false);
+  
+  // التحقق من البيانات الإضافية
+  const [showAdditionalDataWarning, setShowAdditionalDataWarning] = useState(false);
+  const [additionalDataStatus, setAdditionalDataStatus] = useState<any>(null);
   const [newTenant, setNewTenant] = useState({
     // نوع المستأجر
     type: 'individual_omani' as 'individual_omani' | 'individual_foreign' | 'company',
@@ -652,6 +656,81 @@ export default function NewRentalContract() {
     }
   };
   
+  // التحقق من البيانات الإضافية للعقار
+  const checkAdditionalData = async (propertyId: string) => {
+    try {
+      const storedData = localStorage.getItem(`property-${propertyId}-additional`);
+      
+      if (!storedData) {
+        return {
+          complete: false,
+          missing: ['جميع البيانات الإضافية مفقودة']
+        };
+      }
+      
+      const data = JSON.parse(storedData);
+      const missing: string[] = [];
+      
+      // التحقق من بيانات المالك
+      if (!data.ownerData || !data.ownerData.fullName) {
+        missing.push('بيانات المالك (الاسم الكامل)');
+      }
+      if (!data.ownerData || !data.ownerData.nationalId) {
+        missing.push('بيانات المالك (رقم البطاقة المدنية)');
+      }
+      if (!data.ownerData || !data.ownerData.phone) {
+        missing.push('بيانات المالك (رقم الهاتف)');
+      }
+      if (!data.ownerData || !data.ownerData.email) {
+        missing.push('بيانات المالك (البريد الإلكتروني)');
+      }
+      
+      // التحقق من حسابات الخدمات (كهرباء ومياه على الأقل)
+      if (!data.serviceAccounts || data.serviceAccounts.length === 0) {
+        missing.push('حسابات الخدمات (كهرباء، مياه)');
+      } else {
+        const hasElectricity = data.serviceAccounts.some((s: any) => s.type === 'electricity');
+        const hasWater = data.serviceAccounts.some((s: any) => s.type === 'water');
+        
+        if (!hasElectricity) {
+          missing.push('حساب الكهرباء');
+        }
+        if (!hasWater) {
+          missing.push('حساب المياه');
+        }
+      }
+      
+      return {
+        complete: missing.length === 0,
+        missing,
+        data
+      };
+    } catch (error) {
+      console.error('Error checking additional data:', error);
+      return {
+        complete: false,
+        missing: ['حدث خطأ في قراءة البيانات']
+      };
+    }
+  };
+  
+  // محاولة الانتقال للخطوة التالية مع التحقق
+  const attemptNextStep = async (fromStep: number) => {
+    if (fromStep === 2 && selectedProperty) {
+      // التحقق من البيانات الإضافية
+      const status = await checkAdditionalData(selectedProperty.id);
+      setAdditionalDataStatus(status);
+      
+      if (!status.complete) {
+        setShowAdditionalDataWarning(true);
+        return;
+      }
+    }
+    
+    // الانتقال للخطوة التالية
+    setCurrentStep(fromStep + 1);
+  };
+  
   // توليد القالب المملوء تلقائياً
   const generateFilledTemplate = async () => {
     if (!selectedProperty || !formData.startDate || !formData.monthlyRent) {
@@ -1119,7 +1198,7 @@ export default function NewRentalContract() {
               </button>
               <button
                 type="button"
-                onClick={() => setCurrentStep(3)}
+                onClick={() => attemptNextStep(2)}
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
                 disabled={!selectedUnit}
               >
@@ -1305,6 +1384,99 @@ export default function NewRentalContract() {
               loading={loading}
               error={error}
             />
+            
+            {/* Modal تحذير البيانات الإضافية */}
+            {showAdditionalDataWarning && selectedProperty && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-70 p-4">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl"
+                >
+                  {/* Header */}
+                  <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 rounded-t-2xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-white bg-opacity-30 rounded-full flex items-center justify-center">
+                        <FaFileAlt className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold">⚠️ بيانات العقار الإضافية مطلوبة</h3>
+                        <p className="text-sm opacity-90 mt-1">يجب إكمال جميع البيانات قبل المتابعة</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Body */}
+                  <div className="p-6">
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+                      <div className="flex items-start gap-3">
+                        <FaExclamationTriangle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
+                        <div className="flex-1">
+                          <p className="font-semibold text-yellow-900 mb-2">لا يمكن المتابعة لإنشاء العقد</p>
+                          <p className="text-sm text-yellow-800">
+                            يجب إكمال البيانات الإضافية للعقار أولاً لضمان إنشاء عقد صحيح وقانوني
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-6">
+                      <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                        <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                          <span className="text-red-600 font-bold">{additionalDataStatus?.missing?.length || 0}</span>
+                        </div>
+                        البيانات الناقصة:
+                      </h4>
+                      <div className="space-y-2">
+                        {additionalDataStatus?.missing?.map((item: string, index: number) => (
+                          <div key={index} className="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <div className="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                              {index + 1}
+                            </div>
+                            <span className="text-red-800 font-medium">{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                      <div className="flex items-start gap-3">
+                        <FaInfoCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1 text-sm text-blue-800">
+                          <p className="font-semibold mb-1">ملاحظة هامة:</p>
+                          <p>البيانات الإضافية ضرورية لإنشاء عقد قانوني صحيح. تشمل:</p>
+                          <ul className="list-disc list-inside mt-2 space-y-1 mr-4">
+                            <li>بيانات المالك الكاملة</li>
+                            <li>حساب الكهرباء (رقم الحساب + العداد + نوع الدفع)</li>
+                            <li>حساب المياه (رقم الحساب + العداد + نوع الدفع)</li>
+                            <li>بيانات العقار التفصيلية (اختياري)</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Footer */}
+                  <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setShowAdditionalDataWarning(false)}
+                        className="flex-1 px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-semibold"
+                      >
+                        إلغاء
+                      </button>
+                      <InstantLink
+                        href={`/properties/${selectedProperty.id}/additional`}
+                        className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-semibold flex items-center justify-center gap-2 shadow-lg"
+                      >
+                        <FaFileAlt className="w-5 h-5" />
+                        إكمال البيانات الإضافية الآن
+                      </InstantLink>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
           </>
         );
         
