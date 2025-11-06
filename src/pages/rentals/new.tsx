@@ -230,15 +230,28 @@ export default function NewRentalContract() {
       if (response.ok) {
         const data = await response.json();
         const allProperties = Array.isArray(data?.items) ? data.items : [];
-        setProperties(allProperties);
-        setFilteredProperties(allProperties);
+        
+        // فلترة العقارات: فقط التي لديها بيانات كافية
+        const validProperties = allProperties.filter((p: Property) => {
+          return p.titleAr && 
+                 p.titleAr.trim() !== '' &&
+                 p.titleAr !== 'عقار جديد' &&
+                 (p.buildingNumber || p.id);
+        });
+        
+        console.log('✅ Total properties:', allProperties.length);
+        console.log('✅ Valid properties:', validProperties.length);
+        console.log('❌ Filtered out:', allProperties.length - validProperties.length);
+        
+        setProperties(validProperties);
+        setFilteredProperties(validProperties);
         
         // تحضير بيانات القوائم المنسدلة الذكية
-        prepareDropdownData(allProperties);
+        prepareDropdownData(validProperties);
         
         // إذا كان هناك propertyId في URL، ابحث عنه مباشرة
         if (initialPropertyId) {
-          const prop = allProperties.find((p: Property) => p.id === initialPropertyId);
+          const prop = validProperties.find((p: Property) => p.id === initialPropertyId);
           if (prop) {
             setSelectedProperty(prop);
             setFormData(prev => ({ ...prev, propertyId: prop.id }));
@@ -270,40 +283,38 @@ export default function NewRentalContract() {
   const prepareDropdownData = (allProperties: Property[]) => {
     console.log('Preparing dropdown data for properties:', allProperties.length);
     
-    // إضافة بيانات تجريبية للاختبار
-    const testBuildingNumbers = ['BLD-001', 'BLD-002', 'BLD-003', 'P-20251022085429', 'P-20251022094422'];
-    const testOwnerIds = ['OWNER-001', 'OWNER-002', 'khalid.alabri@ainoman.om', 'P-20251022085429'];
-    const testSerialNumbers = ['SER-001', 'SER-002', 'SER-003', 'P-20251022085429'];
-    
-    // استخراج أرقام المباني الفريدة (استخدام ID كرقم مبنى + بيانات تجريبية)
-    const uniqueBuildingNumbers = [...new Set([
-      ...allProperties.map(p => p.id),
-      ...testBuildingNumbers
-    ])].filter(Boolean).sort();
+    // استخراج أرقام المباني الفريدة من البيانات الحقيقية فقط
+    const uniqueBuildingNumbers = [...new Set(
+      allProperties
+        .map(p => p.buildingNumber || p.id)
+        .filter(Boolean)
+    )].sort();
     setBuildingNumbers(uniqueBuildingNumbers);
-    console.log('Building numbers:', uniqueBuildingNumbers);
+    console.log('✅ Building numbers:', uniqueBuildingNumbers.length);
     
-    // استخراج معرفات الملاك الفريدة (استخدام ID كمثال + بيانات تجريبية)
-    const uniqueOwnerIds = [...new Set([
-      ...allProperties.map(p => p.id),
-      ...testOwnerIds
-    ])].filter(Boolean).sort();
+    // استخراج معرفات الملاك الفريدة
+    const uniqueOwnerIds = [...new Set(
+      allProperties
+        .map(p => p.ownerId)
+        .filter(Boolean)
+    )].sort();
     setOwnerIds(uniqueOwnerIds);
-    console.log('Owner IDs:', uniqueOwnerIds);
+    console.log('✅ Owner IDs:', uniqueOwnerIds.length);
     
-    // استخراج الأرقام المتسلسلة الفريدة (استخدام ID كرقم متسلسل + بيانات تجريبية)
-    const uniqueSerialNumbers = [...new Set([
-      ...allProperties.map(p => p.id),
-      ...testSerialNumbers
-    ])].filter(Boolean).sort();
+    // استخراج الأرقام المتسلسلة الفريدة
+    const uniqueSerialNumbers = [...new Set(
+      allProperties
+        .map(p => p.serialNumber || p.id)
+        .filter(Boolean)
+    )].sort();
     setSerialNumbers(uniqueSerialNumbers);
-    console.log('Serial numbers:', uniqueSerialNumbers);
+    console.log('✅ Serial numbers:', uniqueSerialNumbers.length);
     
     // استخراج معرفات العقارات مع العناوين
     const uniquePropertyIds = allProperties.map(p => ({
       id: p.id,
-      title: p.titleAr,
-      address: p.address
+      title: p.titleAr || 'عقار بدون عنوان',
+      address: p.address || 'عنوان غير محدد'
     }));
     setPropertyIds(uniquePropertyIds);
     console.log('Property IDs:', uniquePropertyIds);
@@ -593,10 +604,23 @@ export default function NewRentalContract() {
     setShowDropdown(false);
     setHasSearched(true); // تأكيد أن البحث تم
     
-    // البحث الفوري عند الاختيار
-    setTimeout(() => {
-      searchProperties();
-    }, 100);
+    // اختيار العقار مباشرة إذا كان في القائمة
+    const foundProperty = properties.find(p => 
+      p.id === searchValue || 
+      p.buildingNumber === searchValue ||
+      p.ownerId === searchValue ||
+      p.serialNumber === searchValue
+    );
+    
+    if (foundProperty) {
+      console.log('✅ Property found and selected:', foundProperty.titleAr);
+      selectProperty(foundProperty);
+    } else {
+      // البحث الفوري عند الاختيار
+      setTimeout(() => {
+        searchProperties();
+      }, 100);
+    }
   };
   
   const handleInputChange = (field: keyof RentalFormData, value: any) => {
