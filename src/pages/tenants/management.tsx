@@ -12,6 +12,7 @@ import {
 } from 'react-icons/fa';
 import InstantLink from '@/components/InstantLink';
 import Layout from '@/components/layout/Layout';
+import EditTenantModal from '@/components/tenants/EditTenantModal';
 
 interface Tenant {
   id: string;
@@ -825,106 +826,6 @@ export default function TenantsManagement() {
   );
 }
 
-// Component لتعديل بيانات المستأجر
-function EditTenantModal({ tenant, onClose, onSave }: any) {
-  const [formData, setFormData] = useState(tenant);
-  const [loading, setLoading] = useState(false);
-
-  const handleSave = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/users?id=${tenant.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      
-      if (response.ok) {
-        onSave();
-      }
-    } catch (error) {
-      console.error('Error updating tenant:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-      >
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-2xl font-bold text-gray-900">تعديل بيانات المستأجر</h3>
-        </div>
-        
-        <div className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">الاسم</label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">البريد الإلكتروني</label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">رقم الهاتف</label>
-            <input
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">الحالة</label>
-            <select
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-            >
-              <option value="active">نشط</option>
-              <option value="inactive">غير نشط</option>
-              <option value="suspended">موقوف</option>
-            </select>
-          </div>
-        </div>
-        
-        <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
-          >
-            إلغاء
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={loading}
-            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 flex items-center gap-2"
-          >
-            {loading ? <FaSpinner className="animate-spin" /> : <FaSave />}
-            حفظ التعديلات
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
 
 // Component لتغيير كلمة المرور
 function PasswordModal({ tenant, onClose }: any) {
