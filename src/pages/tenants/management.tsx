@@ -9,7 +9,7 @@ import {
   FaExclamationTriangle, FaCheckCircle, FaTimesCircle,
   FaMapMarkerAlt, FaBriefcase, FaPassport, FaBuilding,
   FaGlobe, FaFlag, FaEye, FaEyeSlash, FaTh, FaList,
-  FaFileContract
+  FaFileContract, FaTimes
 } from 'react-icons/fa';
 import InstantLink from '@/components/InstantLink';
 import Layout from '@/components/layout/Layout';
@@ -29,6 +29,8 @@ interface Tenant {
   unitId?: string;
   buildingNo?: string;
   unitNo?: string;
+  contractStartDate?: string;
+  contractEndDate?: string;
   tenantDetails?: {
     type: 'individual_omani' | 'individual_foreign' | 'company';
     fullName?: string;
@@ -57,6 +59,7 @@ export default function TenantsManagement() {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [expiringDocuments, setExpiringDocuments] = useState<any[]>([]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list'); // افتراضي دائماً list
   const [hasMounted, setHasMounted] = useState(false);
@@ -503,7 +506,15 @@ export default function TenantsManagement() {
                         <FaUser className="w-8 h-8" />
                       </div>
                       <div className="w-full">
-                        <h3 className="font-bold text-base truncate">{tenant.name}</h3>
+                        <button
+                          onClick={() => {
+                            setSelectedTenant(tenant);
+                            setShowDetailsModal(true);
+                          }}
+                          className="font-bold text-base truncate w-full hover:bg-white/10 rounded px-2 py-1 transition-colors"
+                        >
+                          {tenant.name}
+                        </button>
                         <p className="text-xs opacity-90">{tenant.id}</p>
                         <div className="mt-2">
                           {getStatusBadge(tenant.status)}
@@ -527,14 +538,18 @@ export default function TenantsManagement() {
                         
                         {/* العقار */}
                         {tenant.propertyId ? (
-                          <div className="flex items-center gap-2 text-purple-700 bg-purple-50 px-2 py-1 rounded-md">
+                          <InstantLink
+                            href={`/tenant/my-contract?tenantId=${tenant.id}`}
+                            className="flex items-center gap-2 text-purple-700 bg-purple-50 px-2 py-1 rounded-md hover:bg-purple-100 hover:shadow-sm transition-all"
+                          >
                             <FaBuilding className="w-3 h-3 flex-shrink-0" />
                             <span className="truncate flex-1">
                               {tenant.buildingNo && `مبنى ${tenant.buildingNo}`}
                               {tenant.buildingNo && tenant.unitNo && ' - '}
                               {tenant.unitNo && `وحدة ${tenant.unitNo}`}
                             </span>
-                          </div>
+                            <FaEye className="w-3 h-3 flex-shrink-0" />
+                          </InstantLink>
                         ) : (
                           <div className="flex items-center gap-2 text-gray-600 bg-gray-100 px-2 py-1 rounded-md">
                             <FaExclamationTriangle className="w-3 h-3 flex-shrink-0" />
@@ -594,23 +609,51 @@ export default function TenantsManagement() {
                         const cardStatus = getIdCardStatus(tenant.tenantDetails.nationalIdExpiry);
                         if (!cardStatus) return null;
                         
-                        return (
-                          <div className="mt-2 pt-2 border-t border-gray-200">
-                            <div className={`px-2 py-1.5 rounded-lg border text-center ${cardStatus.color}`}>
-                              <div className="text-xs font-medium mb-0.5">
-                                {cardStatus.icon} البطاقة: {cardStatus.label}
-                              </div>
-                              <div className="text-xs font-bold">
-                                {cardStatus.status === 'expired' 
-                                  ? `منتهية منذ ${cardStatus.days} يوم`
-                                  : cardStatus.status === 'expiring-soon'
-                                  ? `باقي ${cardStatus.days} يوم`
-                                  : `صالحة`
-                                }
+                        const cardFile = tenant.tenantDetails?.nationalIdFile || tenant.tenantDetails?.residenceIdAttachment;
+                        
+                        if (cardFile) {
+                          return (
+                            <div className="mt-2 pt-2 border-t border-gray-200">
+                              <a
+                                href={cardFile}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`block px-2 py-1.5 rounded-lg border text-center ${cardStatus.color} hover:shadow-md transition-all cursor-pointer`}
+                              >
+                                <div className="text-xs font-medium mb-0.5">
+                                  {cardStatus.icon} البطاقة: {cardStatus.label}
+                                </div>
+                                <div className="text-xs font-bold flex items-center justify-center gap-1">
+                                  {cardStatus.status === 'expired' 
+                                    ? `منتهية منذ ${cardStatus.days} يوم`
+                                    : cardStatus.status === 'expiring-soon'
+                                    ? `باقي ${cardStatus.days} يوم`
+                                    : `صالحة`
+                                  }
+                                  <FaEye className="w-3 h-3" />
+                                </div>
+                              </a>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div className="mt-2 pt-2 border-t border-gray-200">
+                              <div className={`px-2 py-1.5 rounded-lg border text-center ${cardStatus.color}`}>
+                                <div className="text-xs font-medium mb-0.5">
+                                  {cardStatus.icon} البطاقة: {cardStatus.label}
+                                </div>
+                                <div className="text-xs font-bold">
+                                  {cardStatus.status === 'expired' 
+                                    ? `منتهية منذ ${cardStatus.days} يوم`
+                                    : cardStatus.status === 'expiring-soon'
+                                    ? `باقي ${cardStatus.days} يوم`
+                                    : `صالحة`
+                                  }
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        );
+                          );
+                        }
                       })()}
 
                       {/* تنبيهات الوثائق - Compact */}
@@ -791,7 +834,15 @@ export default function TenantsManagement() {
                     {/* معلومات أساسية */}
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-bold text-lg text-gray-900">{tenant.name}</h3>
+                        <button
+                          onClick={() => {
+                            setSelectedTenant(tenant);
+                            setShowDetailsModal(true);
+                          }}
+                          className="font-bold text-lg text-gray-900 hover:text-purple-600 transition-colors underline decoration-transparent hover:decoration-purple-600"
+                        >
+                          {tenant.name}
+                        </button>
                         {getStatusBadge(tenant.status)}
                         {tenant.tenantDetails?.type && (
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -828,7 +879,10 @@ export default function TenantsManagement() {
                       {/* بيانات العقار المستأجر */}
                       {tenant.propertyId ? (
                         <div className="mt-2 space-y-2">
-                          <div className="flex items-center gap-4 text-sm bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg px-3 py-2">
+                          <InstantLink
+                            href={`/tenant/my-contract?tenantId=${tenant.id}`}
+                            className="flex items-center gap-4 text-sm bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg px-3 py-2 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer"
+                          >
                             <div className="flex items-center gap-2">
                               <FaBuilding className="w-4 h-4 text-blue-600" />
                               <span className="font-medium text-blue-900">العقار:</span>
@@ -851,7 +905,8 @@ export default function TenantsManagement() {
                                 <span className="font-mono text-xs text-gray-500">{tenant.propertyId}</span>
                               </div>
                             )}
-                          </div>
+                            <FaEye className="w-4 h-4 text-blue-500 ml-auto" />
+                          </InstantLink>
                           
                           {/* حالة العقد */}
                           {tenant.contractEndDate && (() => {
@@ -890,24 +945,55 @@ export default function TenantsManagement() {
                         const cardStatus = getIdCardStatus(tenant.tenantDetails.nationalIdExpiry);
                         if (!cardStatus) return null;
                         
-                        return (
-                          <div className={`mt-2 flex items-center justify-between text-sm border rounded-lg px-3 py-2 ${cardStatus.color}`}>
-                            <div className="flex items-center gap-2">
-                              <FaIdCard className="w-4 h-4" />
-                              <span className="font-medium">
-                                {cardStatus.icon} البطاقة: {cardStatus.label}
-                              </span>
+                        const cardFile = tenant.tenantDetails?.nationalIdFile || tenant.tenantDetails?.residenceIdAttachment;
+                        
+                        if (cardFile) {
+                          return (
+                            <a
+                              href={cardFile}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`mt-2 flex items-center justify-between text-sm border rounded-lg px-3 py-2 ${cardStatus.color} hover:shadow-md transition-all cursor-pointer`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <FaIdCard className="w-4 h-4" />
+                                <span className="font-medium">
+                                  {cardStatus.icon} البطاقة: {cardStatus.label}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold">
+                                  {cardStatus.status === 'expired' 
+                                    ? `منتهية منذ ${cardStatus.days} يوم`
+                                    : cardStatus.status === 'expiring-soon'
+                                    ? `باقي ${cardStatus.days} يوم`
+                                    : `صالحة لـ ${cardStatus.days} يوم`
+                                  }
+                                </span>
+                                <FaEye className="w-4 h-4" />
+                              </div>
+                            </a>
+                          );
+                        } else {
+                          return (
+                            <div className={`mt-2 flex items-center justify-between text-sm border rounded-lg px-3 py-2 ${cardStatus.color}`}>
+                              <div className="flex items-center gap-2">
+                                <FaIdCard className="w-4 h-4" />
+                                <span className="font-medium">
+                                  {cardStatus.icon} البطاقة: {cardStatus.label}
+                                </span>
+                              </div>
+                              <div className="text-xs font-bold">
+                                {cardStatus.status === 'expired' 
+                                  ? `منتهية منذ ${cardStatus.days} يوم`
+                                  : cardStatus.status === 'expiring-soon'
+                                  ? `باقي ${cardStatus.days} يوم`
+                                  : `صالحة لـ ${cardStatus.days} يوم`
+                                }
+                              </div>
                             </div>
-                            <div className="text-xs font-bold">
-                              {cardStatus.status === 'expired' 
-                                ? `منتهية منذ ${cardStatus.days} يوم`
-                                : cardStatus.status === 'expiring-soon'
-                                ? `باقي ${cardStatus.days} يوم`
-                                : `صالحة لـ ${cardStatus.days} يوم`
-                              }
-                            </div>
-                          </div>
-                        );
+                          );
+                        }
                       })()}
                     </div>
 
@@ -1027,10 +1113,200 @@ export default function TenantsManagement() {
           }}
         />
       )}
+
+      {showDetailsModal && selectedTenant && (
+        <TenantDetailsModal
+          tenant={selectedTenant}
+          onClose={() => {
+            setShowDetailsModal(false);
+            setSelectedTenant(null);
+          }}
+        />
+      )}
     </Layout>
   );
 }
 
+// Component لعرض تفاصيل المستأجر الكاملة
+function TenantDetailsModal({ tenant, onClose }: any) {
+  const getTenantTypeLabel = (type: string) => {
+    switch (type) {
+      case 'individual_omani': return '🇴🇲 عماني';
+      case 'individual_foreign': return '🌐 وافد';
+      case 'company': return '🏢 شركة';
+      default: return 'غير محدد';
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col"
+      >
+        {/* Header */}
+        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-2xl font-bold">{tenant.name}</h3>
+              <p className="text-sm opacity-90 mt-1">{tenant.id}</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="w-10 h-10 bg-white/20 rounded-full hover:bg-white/30 transition-colors flex items-center justify-center"
+            >
+              <FaTimesCircle className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="space-y-6">
+            {/* البيانات الأساسية */}
+            <div>
+              <h4 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <FaUser className="w-5 h-5 text-purple-600" />
+                البيانات الأساسية
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">اسم المستخدم</p>
+                  <p className="font-bold text-blue-600">{tenant.credentials?.username || tenant.username || 'لم يُنشأ'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">البريد الإلكتروني</p>
+                  <p className="font-medium text-gray-900">{tenant.email}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">رقم الهاتف</p>
+                  <p className="font-medium text-gray-900">{tenant.phone}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">نوع المستأجر</p>
+                  <p className="font-medium text-gray-900">
+                    {tenant.tenantDetails?.type ? getTenantTypeLabel(tenant.tenantDetails.type) : 'غير محدد'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* بيانات العقار */}
+            {tenant.propertyId ? (
+              <div>
+                <h4 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <FaBuilding className="w-5 h-5 text-blue-600" />
+                  بيانات العقار
+                </h4>
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border border-blue-200">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                    <div>
+                      <p className="text-gray-600 mb-1">رقم المبنى</p>
+                      <p className="font-bold text-blue-700">{tenant.buildingNo || '-'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600 mb-1">رقم الوحدة</p>
+                      <p className="font-bold text-purple-700">{tenant.unitNo || '-'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600 mb-1">رقم العقار</p>
+                      <p className="font-mono text-xs text-gray-500">{tenant.propertyId}</p>
+                    </div>
+                  </div>
+                  {tenant.contractEndDate && (
+                    <div className="mt-3 pt-3 border-t border-blue-200">
+                      <p className="text-gray-600 text-sm mb-1">تاريخ انتهاء العقد</p>
+                      <p className="font-bold text-gray-900">{new Date(tenant.contractEndDate).toLocaleDateString('ar-SA', { timeZone: 'UTC' })}</p>
+                    </div>
+                  )}
+                  <div className="mt-3">
+                    <InstantLink
+                      href={`/tenant/my-contract?tenantId=${tenant.id}`}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                    >
+                      <FaEye className="w-4 h-4" />
+                      عرض تفاصيل العقد
+                    </InstantLink>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-gray-100 border border-gray-300 rounded-xl p-6 text-center">
+                <FaExclamationTriangle className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-600 font-medium">لا يوجد عقد موثق لهذا المستأجر بعد</p>
+              </div>
+            )}
+
+            {/* بيانات البطاقة */}
+            {tenant.tenantDetails && (
+              <div>
+                <h4 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <FaIdCard className="w-5 h-5 text-green-600" />
+                  بيانات الهوية
+                </h4>
+                <div className="bg-green-50 p-4 rounded-xl border border-green-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    {tenant.tenantDetails.nationalId && (
+                      <div>
+                        <p className="text-gray-600 mb-1">رقم البطاقة/الإقامة</p>
+                        <p className="font-bold text-gray-900">{tenant.tenantDetails.nationalId || tenant.tenantDetails.residenceId}</p>
+                      </div>
+                    )}
+                    {tenant.tenantDetails.nationalIdExpiry && (
+                      <div>
+                        <p className="text-gray-600 mb-1">تاريخ الانتهاء</p>
+                        <p className="font-bold text-gray-900">
+                          {new Date(tenant.tenantDetails.nationalIdExpiry).toLocaleDateString('ar-SA', { timeZone: 'UTC' })}
+                        </p>
+                      </div>
+                    )}
+                    {tenant.tenantDetails.tribe && (
+                      <div>
+                        <p className="text-gray-600 mb-1">القبيلة</p>
+                        <p className="font-medium text-gray-900">{tenant.tenantDetails.tribe}</p>
+                      </div>
+                    )}
+                    {tenant.tenantDetails.employer && (
+                      <div>
+                        <p className="text-gray-600 mb-1">جهة العمل</p>
+                        <p className="font-medium text-gray-900">{tenant.tenantDetails.employer}</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {(tenant.tenantDetails.nationalIdFile || tenant.tenantDetails.residenceIdAttachment) && (
+                    <div className="mt-4 pt-4 border-t border-green-200">
+                      <a
+                        href={tenant.tenantDetails.nationalIdFile || tenant.tenantDetails.residenceIdAttachment}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                      >
+                        <FaEye className="w-4 h-4" />
+                        عرض صورة البطاقة
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-6 border-t border-gray-200 bg-gray-50">
+          <button
+            onClick={onClose}
+            className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold"
+          >
+            إغلاق
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
 
 // Component لتغيير كلمة المرور
 function PasswordModal({ tenant, onClose }: any) {
