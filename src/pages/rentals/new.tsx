@@ -2576,36 +2576,3 @@ export default function NewRentalContract() {
     </>
   );
 }
-
-                    إلغاء
-                  </button>
-                  <InstantLink
-                    href={`/properties/${selectedProperty.id}/additional?returnUrl=${encodeURIComponent('/rentals/new')}&step=2`}
-                    className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium flex items-center justify-center gap-2 shadow-lg text-sm"
-                  >
-                    <FaFileAlt className="w-4 h-4" />
-                    إكمال البيانات
-                  </InstantLink>
-                </div>
-                
-                <button
-                  onClick={() => {
-                    setShowAdditionalDataWarning(false);
-                    setCurrentStep(3);
-                  }}
-                  className="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium flex items-center justify-center gap-2 text-sm"
-                >
-                  <FaExclamationTriangle className="w-4 h-4" />
-                  المتابعة بدون البيانات
-                </button>
-                <p className="text-xs text-center text-gray-500">
-                  ⚠️ غير موصى به
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
-    </>
-  );
-}
