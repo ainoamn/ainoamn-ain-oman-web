@@ -1,7 +1,7 @@
 // src/pages/properties/[id]/additional.tsx
 // صفحة البيانات الإضافية للعقار - أرقام الحسابات والخدمات والمستندات
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { motion } from 'framer-motion';
@@ -109,13 +109,6 @@ export default function PropertyAdditionalData() {
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  
-  // Refs for file inputs
-  const nationalIdFileRef = useRef<HTMLInputElement>(null);
-  const meterImageRef = useRef<HTMLInputElement>(null);
-  const documentFileRef = useRef<HTMLInputElement>(null);
-  const oldMeterImageRef = useRef<HTMLInputElement>(null);
-  const newMeterImageRef = useRef<HTMLInputElement>(null);
   
   // Service Accounts
   const [serviceAccounts, setServiceAccounts] = useState<ServiceAccount[]>([]);
@@ -702,7 +695,7 @@ export default function PropertyAdditionalData() {
                     <RequiredLabel>نسخة من البطاقة الشخصية</RequiredLabel>
                     <div className="space-y-2">
                       <input
-                        ref={nationalIdFileRef}
+                        id="nationalIdFileInput"
                         type="file"
                         accept="image/*,.pdf"
                         onChange={(e) => {
@@ -712,11 +705,17 @@ export default function PropertyAdditionalData() {
                             setOwnerData({ ...ownerData, nationalIdFile: file.name });
                           }
                         }}
-                        className="hidden"
+                        style={{ display: 'none' }}
                       />
                       <button
                         type="button"
-                        onClick={() => nationalIdFileRef.current?.click()}
+                        onClick={() => {
+                          console.log('🖱️ CLICK: nationalIdFileInput');
+                          const input = document.getElementById('nationalIdFileInput') as HTMLInputElement;
+                          if (input) {
+                            input.click();
+                          }
+                        }}
                         className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-red-300 rounded-lg bg-red-50 bg-opacity-30 hover:bg-red-100 cursor-pointer transition-all"
                       >
                         <FaUpload className="w-5 h-5 text-red-600" />
@@ -1264,7 +1263,7 @@ export default function PropertyAdditionalData() {
                             <RequiredLabel>صورة العداد</RequiredLabel>
                             <div className="space-y-2">
                               <input
-                                ref={meterImageRef}
+                                id="meterImageInput"
                                 type="file"
                                 accept="image/*"
                                 onChange={(e) => {
@@ -1274,13 +1273,16 @@ export default function PropertyAdditionalData() {
                                     setNewService({...newService, meterImage: file.name});
                                   }
                                 }}
-                                className="hidden"
+                                style={{ display: 'none' }}
                               />
                               <button
                                 type="button"
                                 onClick={() => {
-                                  console.log('🖱️ تم الضغط على زر رفع صورة العداد');
-                                  meterImageRef.current?.click();
+                                  console.log('🖱️ CLICK: meterImageInput');
+                                  const input = document.getElementById('meterImageInput') as HTMLInputElement;
+                                  if (input) {
+                                    input.click();
+                                  }
                                 }}
                                 className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-red-300 rounded-lg bg-red-50 bg-opacity-30 hover:bg-red-100 cursor-pointer transition-all"
                               >
@@ -1461,7 +1463,7 @@ export default function PropertyAdditionalData() {
                         <RequiredLabel>رفع الملف</RequiredLabel>
                         <div className="space-y-2">
                           <input
-                            ref={documentFileRef}
+                            id="documentFileInput"
                             type="file"
                             accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                             onChange={(e) => {
@@ -1476,13 +1478,16 @@ export default function PropertyAdditionalData() {
                                 });
                               }
                             }}
-                            className="hidden"
+                            style={{ display: 'none' }}
                           />
                           <button
                             type="button"
                             onClick={() => {
-                              console.log('🖱️ تم الضغط على زر رفع المستند');
-                              documentFileRef.current?.click();
+                              console.log('🖱️ CLICK: documentFileInput');
+                              const input = document.getElementById('documentFileInput') as HTMLInputElement;
+                              if (input) {
+                                input.click();
+                              }
                             }}
                             className="flex items-center justify-center gap-3 w-full px-6 py-4 border-2 border-red-300 rounded-lg bg-red-50 bg-opacity-30 hover:bg-red-100 cursor-pointer transition-all"
                           >
@@ -1820,7 +1825,7 @@ export default function PropertyAdditionalData() {
                       <RequiredLabel>صورة العداد القديم</RequiredLabel>
                       <div className="space-y-2">
                         <input
-                          ref={oldMeterImageRef}
+                          id="oldMeterImageInput"
                           type="file"
                           accept="image/*"
                           onChange={(e) => {
@@ -1830,13 +1835,16 @@ export default function PropertyAdditionalData() {
                               setMeterReplacementData({...meterReplacementData, oldMeterImage: file});
                             }
                           }}
-                          className="hidden"
+                          style={{ display: 'none' }}
                         />
                         <button
                           type="button"
                           onClick={() => {
-                            console.log('🖱️ تم الضغط على زر رفع صورة العداد القديم');
-                            oldMeterImageRef.current?.click();
+                            console.log('🖱️ CLICK: oldMeterImageInput');
+                            const input = document.getElementById('oldMeterImageInput') as HTMLInputElement;
+                            if (input) {
+                              input.click();
+                            }
                           }}
                           className="flex items-center justify-center gap-3 w-full px-6 py-4 border-2 border-red-300 rounded-lg bg-red-50 bg-opacity-30 hover:bg-red-100 cursor-pointer transition-all"
                         >
@@ -1891,7 +1899,7 @@ export default function PropertyAdditionalData() {
                       <RequiredLabel>صورة العداد الجديد</RequiredLabel>
                       <div className="space-y-2">
                         <input
-                          ref={newMeterImageRef}
+                          id="newMeterImageInput"
                           type="file"
                           accept="image/*"
                           onChange={(e) => {
@@ -1901,13 +1909,16 @@ export default function PropertyAdditionalData() {
                               setMeterReplacementData({...meterReplacementData, newMeterImage: file});
                             }
                           }}
-                          className="hidden"
+                          style={{ display: 'none' }}
                         />
                         <button
                           type="button"
                           onClick={() => {
-                            console.log('🖱️ تم الضغط على زر رفع صورة العداد الجديد');
-                            newMeterImageRef.current?.click();
+                            console.log('🖱️ CLICK: newMeterImageInput');
+                            const input = document.getElementById('newMeterImageInput') as HTMLInputElement;
+                            if (input) {
+                              input.click();
+                            }
                           }}
                           className="flex items-center justify-center gap-3 w-full px-6 py-4 border-2 border-red-300 rounded-lg bg-red-50 bg-opacity-30 hover:bg-red-100 cursor-pointer transition-all"
                         >
