@@ -694,22 +694,31 @@ export default function PropertyAdditionalData() {
                   <div>
                     <RequiredLabel>نسخة من البطاقة الشخصية</RequiredLabel>
                     <div className="space-y-2">
-                      <input
-                        type="file"
-                        accept="image/*,.pdf"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            console.log('📎 تم رفع ملف البطاقة:', file.name, `${(file.size / 1024).toFixed(2)} KB`);
-                            setOwnerData({ ...ownerData, nationalIdFile: file.name });
-                          }
-                        }}
-                        className={REQUIRED_INPUT_CLASSES}
-                        required
-                      />
+                      <div className="relative">
+                        <input
+                          id="nationalIdFile"
+                          type="file"
+                          accept="image/*,.pdf"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              console.log('📎 تم رفع ملف البطاقة:', file.name, `${(file.size / 1024).toFixed(2)} KB`);
+                              setOwnerData({ ...ownerData, nationalIdFile: file.name });
+                            }
+                          }}
+                          className="hidden"
+                        />
+                        <label
+                          htmlFor="nationalIdFile"
+                          className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-red-300 rounded-lg bg-red-50 bg-opacity-30 hover:bg-red-100 cursor-pointer transition-all"
+                        >
+                          <FaUpload className="w-5 h-5 text-red-600" />
+                          <span className="font-medium text-red-900">اضغط لاختيار ملف البطاقة</span>
+                        </label>
+                      </div>
                       {ownerData.nationalIdFile && (
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-2 flex items-center gap-2">
-                          <FaCheckCircle className="w-4 h-4 text-green-600" />
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
+                          <FaCheckCircle className="w-5 h-5 text-green-600" />
                           <span className="text-sm text-green-700 font-medium">{ownerData.nationalIdFile}</span>
                         </div>
                       )}
@@ -1248,22 +1257,31 @@ export default function PropertyAdditionalData() {
                           <div className="md:col-span-2">
                             <RequiredLabel>صورة العداد</RequiredLabel>
                             <div className="space-y-2">
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) {
-                                    console.log('📸 تم اختيار ملف:', file.name, file.size);
-                                    setNewService({...newService, meterImage: file.name});
-                                  }
-                                }}
-                                className={REQUIRED_INPUT_CLASSES}
-                                required
-                              />
+                              <div className="relative">
+                                <input
+                                  id="meterImageInput"
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      console.log('📸 تم اختيار ملف:', file.name, file.size);
+                                      setNewService({...newService, meterImage: file.name});
+                                    }
+                                  }}
+                                  className="hidden"
+                                />
+                                <label
+                                  htmlFor="meterImageInput"
+                                  className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-red-300 rounded-lg bg-red-50 bg-opacity-30 hover:bg-red-100 cursor-pointer transition-all"
+                                >
+                                  <FaUpload className="w-5 h-5 text-red-600" />
+                                  <span className="font-medium text-red-900">اضغط لاختيار صورة العداد</span>
+                                </label>
+                              </div>
                               {newService.meterImage && (
-                                <div className="bg-green-50 border border-green-200 rounded-lg p-2 flex items-center gap-2">
-                                  <FaCheckCircle className="w-4 h-4 text-green-600" />
+                                <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
+                                  <FaCheckCircle className="w-5 h-5 text-green-600" />
                                   <span className="text-sm text-green-700 font-medium">{newService.meterImage}</span>
                                 </div>
                               )}
@@ -1433,30 +1451,47 @@ export default function PropertyAdditionalData() {
                       </div>
                       <div className="md:col-span-2">
                         <RequiredLabel>رفع الملف</RequiredLabel>
-                        <input
-                          type="file"
-                          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              // حفظ اسم الملف كـ URL مؤقت
-                              setNewDocument({
-                                ...newDocument, 
-                                fileUrl: file.name,
-                                fileName: file.name,
-                                fileSize: `${(file.size / 1024).toFixed(2)} KB`
-                              });
-                            }
-                          }}
-                          className={REQUIRED_INPUT_CLASSES}
-                          required
-                        />
-                        {newDocument.fileUrl && (
-                          <p className="mt-2 text-sm text-green-600 flex items-center gap-2">
-                            <FaCheckCircle className="w-4 h-4" />
-                            {newDocument.fileName} ({newDocument.fileSize})
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <input
+                              id="documentFileInput"
+                              type="file"
+                              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  console.log('📄 تم رفع مستند:', file.name, `${(file.size / 1024).toFixed(2)} KB`);
+                                  setNewDocument({
+                                    ...newDocument, 
+                                    fileUrl: file.name,
+                                    fileName: file.name,
+                                    fileSize: `${(file.size / 1024).toFixed(2)} KB`
+                                  });
+                                }
+                              }}
+                              className="hidden"
+                            />
+                            <label
+                              htmlFor="documentFileInput"
+                              className="flex items-center justify-center gap-3 w-full px-6 py-4 border-2 border-red-300 rounded-lg bg-red-50 bg-opacity-30 hover:bg-red-100 cursor-pointer transition-all"
+                            >
+                              <FaUpload className="w-6 h-6 text-red-600" />
+                              <span className="font-bold text-red-900">اضغط لاختيار الملف</span>
+                            </label>
+                          </div>
+                          {newDocument.fileUrl && (
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
+                              <FaCheckCircle className="w-5 h-5 text-green-600" />
+                              <div className="flex-1">
+                                <p className="text-sm text-green-700 font-medium">{newDocument.fileName}</p>
+                                <p className="text-xs text-green-600">{newDocument.fileSize}</p>
+                              </div>
+                            </div>
+                          )}
+                          <p className="text-xs text-gray-500">
+                            📌 يقبل: PDF, JPG, PNG, DOC, DOCX
                           </p>
-                        )}
+                        </div>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1774,22 +1809,31 @@ export default function PropertyAdditionalData() {
                     <div className="md:col-span-2">
                       <RequiredLabel>صورة العداد القديم</RequiredLabel>
                       <div className="space-y-2">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              console.log('📸 تم رفع صورة العداد القديم:', file.name, `${(file.size / 1024).toFixed(2)} KB`);
-                              setMeterReplacementData({...meterReplacementData, oldMeterImage: file});
-                            }
-                          }}
-                          className={REQUIRED_INPUT_CLASSES}
-                          required
-                        />
+                        <div className="relative">
+                          <input
+                            id="oldMeterImageInput"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                console.log('📸 تم رفع صورة العداد القديم:', file.name, `${(file.size / 1024).toFixed(2)} KB`);
+                                setMeterReplacementData({...meterReplacementData, oldMeterImage: file});
+                              }
+                            }}
+                            className="hidden"
+                          />
+                          <label
+                            htmlFor="oldMeterImageInput"
+                            className="flex items-center justify-center gap-3 w-full px-6 py-4 border-2 border-red-300 rounded-lg bg-red-50 bg-opacity-30 hover:bg-red-100 cursor-pointer transition-all"
+                          >
+                            <FaUpload className="w-6 h-6 text-red-600" />
+                            <span className="font-bold text-red-900">اضغط لاختيار صورة العداد القديم</span>
+                          </label>
+                        </div>
                         {meterReplacementData.oldMeterImage && (
-                          <div className="bg-green-50 border border-green-200 rounded-lg p-2 flex items-center gap-2">
-                            <FaCheckCircle className="w-4 h-4 text-green-600" />
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
+                            <FaCheckCircle className="w-5 h-5 text-green-600" />
                             <span className="text-sm text-green-700 font-medium">
                               {meterReplacementData.oldMeterImage.name} ({(meterReplacementData.oldMeterImage.size / 1024).toFixed(2)} KB)
                             </span>
@@ -1834,22 +1878,31 @@ export default function PropertyAdditionalData() {
                     <div className="md:col-span-2">
                       <RequiredLabel>صورة العداد الجديد</RequiredLabel>
                       <div className="space-y-2">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              console.log('📸 تم رفع صورة العداد الجديد:', file.name, `${(file.size / 1024).toFixed(2)} KB`);
-                              setMeterReplacementData({...meterReplacementData, newMeterImage: file});
-                            }
-                          }}
-                          className={REQUIRED_INPUT_CLASSES}
-                          required
-                        />
+                        <div className="relative">
+                          <input
+                            id="newMeterImageInput"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                console.log('📸 تم رفع صورة العداد الجديد:', file.name, `${(file.size / 1024).toFixed(2)} KB`);
+                                setMeterReplacementData({...meterReplacementData, newMeterImage: file});
+                              }
+                            }}
+                            className="hidden"
+                          />
+                          <label
+                            htmlFor="newMeterImageInput"
+                            className="flex items-center justify-center gap-3 w-full px-6 py-4 border-2 border-red-300 rounded-lg bg-red-50 bg-opacity-30 hover:bg-red-100 cursor-pointer transition-all"
+                          >
+                            <FaUpload className="w-6 h-6 text-red-600" />
+                            <span className="font-bold text-red-900">اضغط لاختيار صورة العداد الجديد</span>
+                          </label>
+                        </div>
                         {meterReplacementData.newMeterImage && (
-                          <div className="bg-green-50 border border-green-200 rounded-lg p-2 flex items-center gap-2">
-                            <FaCheckCircle className="w-4 h-4 text-green-600" />
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
+                            <FaCheckCircle className="w-5 h-5 text-green-600" />
                             <span className="text-sm text-green-700 font-medium">
                               {meterReplacementData.newMeterImage.name} ({(meterReplacementData.newMeterImage.size / 1024).toFixed(2)} KB)
                             </span>
