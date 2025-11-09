@@ -94,6 +94,13 @@ interface RentalFormData {
   
   // الضريبة المضافة
   includesVAT: boolean;
+  vatRate: number; // نسبة الضريبة (5% = 0.05)
+  monthlyVATAmount: number; // قيمة الضريبة الشهرية
+  totalVATAmount: number; // إجمالي الضريبة
+  
+  // إيجارات شهرية مخصصة (للسماح بتعديل كل شهر)
+  useCustomMonthlyRents: boolean;
+  customMonthlyRents: number[]; // مصفوفة بطول duration
   
   // شروط إضافية
   terms: string[];
@@ -140,6 +147,11 @@ export default function NewRentalContract() {
     otherFeesDescription: '',
     otherFeesAmount: 0,
     includesVAT: false,
+    vatRate: 0.05, // 5% افتراضياً
+    monthlyVATAmount: 0,
+    totalVATAmount: 0,
+    useCustomMonthlyRents: false,
+    customMonthlyRents: [],
     terms: [],
     customTerms: '',
     status: 'draft'
@@ -294,6 +306,43 @@ export default function NewRentalContract() {
       }));
     }
   }, [formData.monthlyRent, formData.gracePeriodDays]);
+  
+  // حساب الضريبة المضافة تلقائياً
+  useEffect(() => {
+    if (formData.includesVAT && formData.monthlyRent) {
+      const monthlyVAT = formData.monthlyRent * formData.vatRate;
+      const totalVAT = monthlyVAT * formData.duration;
+      setFormData(prev => ({
+        ...prev,
+        monthlyVATAmount: Math.round(monthlyVAT * 1000) / 1000,
+        totalVATAmount: Math.round(totalVAT * 1000) / 1000
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        monthlyVATAmount: 0,
+        totalVATAmount: 0
+      }));
+    }
+  }, [formData.includesVAT, formData.monthlyRent, formData.duration, formData.vatRate]);
+  
+  // تحديث مصفوفة الإيجارات المخصصة عند تغيير المدة
+  useEffect(() => {
+    if (formData.duration > 0) {
+      const currentLength = formData.customMonthlyRents.length;
+      if (currentLength !== formData.duration) {
+        const newRents = Array(formData.duration).fill(formData.monthlyRent);
+        // إذا كانت هناك قيم مخصصة سابقة، احتفظ بها
+        for (let i = 0; i < Math.min(currentLength, formData.duration); i++) {
+          newRents[i] = formData.customMonthlyRents[i] || formData.monthlyRent;
+        }
+        setFormData(prev => ({
+          ...prev,
+          customMonthlyRents: newRents
+        }));
+      }
+    }
+  }, [formData.duration]);
   
   // توليد القالب المملوء تلقائياً عند الانتقال للخطوة 5
   useEffect(() => {
@@ -1657,7 +1706,7 @@ export default function NewRentalContract() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FaMoneyBillWave className="inline ml-2" />
-                    مبلغ الضمان
+                    مبلغ الضمان *
                   </label>
                   <input
                     type="number"
@@ -1666,6 +1715,7 @@ export default function NewRentalContract() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     min="0"
                     step="0.01"
+                    required
                   />
                 </div>
                 
@@ -1697,12 +1747,13 @@ export default function NewRentalContract() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    طريقة دفع الإيجار
+                    طريقة دفع الإيجار *
                   </label>
                   <select
                     value={formData.rentPaymentMethod}
                     onChange={(e) => handleInputChange('rentPaymentMethod', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    required
                   >
                     <option value="cash">نقداً</option>
                     <option value="check">شيك</option>
@@ -1713,12 +1764,13 @@ export default function NewRentalContract() {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    طريقة دفع الضمان
+                    طريقة دفع الضمان *
                   </label>
                   <select
                     value={formData.depositPaymentMethod}
                     onChange={(e) => handleInputChange('depositPaymentMethod', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    required
                   >
                     <option value="cash">نقداً</option>
                     <option value="check">شيك</option>
@@ -1730,7 +1782,7 @@ export default function NewRentalContract() {
                 {formData.depositPaymentMethod === 'cash' && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      رقم الإيصال لمبلغ الضمان النقدي
+                      رقم الإيصال لمبلغ الضمان النقدي *
                     </label>
                     <input
                       type="text"
@@ -1738,6 +1790,7 @@ export default function NewRentalContract() {
                       onChange={(e) => handleInputChange('cashReceiptNumber', e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       placeholder="أدخل رقم الإيصال"
+                      required
                     />
                   </div>
                 )}
@@ -1745,7 +1798,7 @@ export default function NewRentalContract() {
                 {formData.depositPaymentMethod === 'check' && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      رقم الشيك للضمان
+                      رقم الشيك للضمان *
                     </label>
                     <input
                       type="text"
@@ -1753,6 +1806,7 @@ export default function NewRentalContract() {
                       onChange={(e) => handleInputChange('depositCheckNumber', e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       placeholder="أدخل رقم الشيك"
+                      required
                     />
                   </div>
                 )}
@@ -1768,7 +1822,7 @@ export default function NewRentalContract() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    رقم استمارة عقد الإيجار للبلدية
+                    رقم استمارة عقد الإيجار للبلدية *
                   </label>
                   <input
                     type="text"
@@ -1776,19 +1830,20 @@ export default function NewRentalContract() {
                     onChange={(e) => handleInputChange('municipalityFormNumber', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     placeholder="أدخل رقم الاستمارة"
+                    required
                   />
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    رقم عقد الإيجار المعتمد من البلدية
+                    رقم عقد الإيجار المعتمد من البلدية (اختياري)
                   </label>
                   <input
                     type="text"
                     value={formData.municipalityContractNumber}
                     onChange={(e) => handleInputChange('municipalityContractNumber', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="أدخل رقم العقد المعتمد"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-gray-50"
+                    placeholder="أدخل رقم العقد المعتمد (إن وُجد)"
                   />
                 </div>
               </div>
@@ -1846,7 +1901,7 @@ export default function NewRentalContract() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    قراءة عداد الكهرباء
+                    قراءة عداد الكهرباء *
                   </label>
                   <input
                     type="text"
@@ -1854,12 +1909,13 @@ export default function NewRentalContract() {
                     onChange={(e) => handleInputChange('electricityMeterReading', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     placeholder="أدخل القراءة الحالية للكهرباء"
+                    required
                   />
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    قراءة عداد الماء
+                    قراءة عداد الماء *
                   </label>
                   <input
                     type="text"
@@ -1867,6 +1923,7 @@ export default function NewRentalContract() {
                     onChange={(e) => handleInputChange('waterMeterReading', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     placeholder="أدخل القراءة الحالية للماء"
+                    required
                   />
                 </div>
               </div>
@@ -1902,7 +1959,7 @@ export default function NewRentalContract() {
                 {formData.internetIncluded && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      مقدار رسوم الإنترنت ({formData.currency})
+                      مقدار رسوم الإنترنت ({formData.currency}) *
                     </label>
                     <input
                       type="number"
@@ -1912,6 +1969,7 @@ export default function NewRentalContract() {
                       min="0"
                       step="0.01"
                       placeholder="0.00"
+                      required
                     />
                   </div>
                 )}
@@ -1950,7 +2008,7 @@ export default function NewRentalContract() {
                   <>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        وصف الرسوم الأخرى
+                        وصف الرسوم الأخرى *
                       </label>
                       <input
                         type="text"
@@ -1958,12 +2016,13 @@ export default function NewRentalContract() {
                         onChange={(e) => handleInputChange('otherFeesDescription', e.target.value)}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                         placeholder="مثال: رسوم الصيانة، رسوم التأمين، إلخ"
+                        required
                       />
                     </div>
                     
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        مقدار الرسوم الأخرى ({formData.currency})
+                        مقدار الرسوم الأخرى ({formData.currency}) *
                       </label>
                       <input
                         type="number"
@@ -1973,6 +2032,7 @@ export default function NewRentalContract() {
                         min="0"
                         step="0.01"
                         placeholder="0.00"
+                        required
                       />
                     </div>
                   </>
@@ -1989,12 +2049,13 @@ export default function NewRentalContract() {
               <div className="grid grid-cols-1 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    هل الإيجار مشمول بالضريبة المضافة؟
+                    هل الإيجار مشمول بالضريبة المضافة؟ *
                   </label>
                   <select
                     value={formData.includesVAT ? 'yes' : 'no'}
                     onChange={(e) => handleInputChange('includesVAT', e.target.value === 'yes')}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    required
                   >
                     <option value="no">لا</option>
                     <option value="yes">نعم</option>
@@ -2002,18 +2063,261 @@ export default function NewRentalContract() {
                 </div>
                 
                 {formData.includesVAT && (
-                  <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
-                    <div className="flex items-start gap-3">
-                      <FaExclamationTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="font-semibold text-yellow-900 mb-1">ملاحظة مهمة</p>
-                        <p className="text-sm text-yellow-800">
-                          سيتم إضافة الضريبة المضافة (5%) على إجمالي المبلغ في الفاتورة النهائية.
-                        </p>
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          نسبة الضريبة (%) *
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.vatRate * 100}
+                          onChange={(e) => handleInputChange('vatRate', parseFloat(e.target.value) / 100 || 0.05)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          required
+                        />
+                      </div>
+                      
+                      <div className="relative">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          الضريبة الشهرية ({formData.currency})
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.monthlyVATAmount}
+                          className="w-full px-4 py-3 border-2 border-green-300 rounded-lg bg-green-50 cursor-not-allowed font-bold text-green-700"
+                          readOnly
+                          suppressHydrationWarning
+                        />
+                        <div className="absolute top-11 left-3 text-xs text-green-600 font-semibold bg-green-50 px-2 py-1 rounded">
+                          محسوب تلقائياً ✓
+                        </div>
+                      </div>
+                      
+                      <div className="relative">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          إجمالي الضريبة ({formData.currency})
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.totalVATAmount}
+                          className="w-full px-4 py-3 border-2 border-green-300 rounded-lg bg-green-50 cursor-not-allowed font-bold text-green-700"
+                          readOnly
+                          suppressHydrationWarning
+                        />
+                        <div className="absolute top-11 left-3 text-xs text-green-600 font-semibold bg-green-50 px-2 py-1 rounded">
+                          محسوب تلقائياً ✓
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200 rounded-lg p-4">
+                      <div className="flex items-start gap-3">
+                        <FaCheck className="w-5 h-5 text-green-600 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="font-semibold text-green-900 mb-1">حسابات الضريبة</p>
+                          <div className="text-sm text-green-800 space-y-1">
+                            <p suppressHydrationWarning>• الإيجار الشهري: {formData.monthlyRent} {formData.currency}</p>
+                            <p suppressHydrationWarning>• الضريبة الشهرية: {formData.monthlyVATAmount} {formData.currency} ({formData.vatRate * 100}%)</p>
+                            <p suppressHydrationWarning>• الإيجار الشهري شامل الضريبة: {(formData.monthlyRent + formData.monthlyVATAmount).toFixed(3)} {formData.currency}</p>
+                            <p suppressHydrationWarning>• إجمالي الضريبة للعقد: {formData.totalVATAmount} {formData.currency}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+            
+            {/* القسم 10: الإيجارات الشهرية المخصصة */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaMoneyBillWave className="text-purple-600" />
+                الإيجارات الشهرية المخصصة
+              </h4>
+              <div className="grid grid-cols-1 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    هل تريد تخصيص الإيجار لكل شهر؟
+                  </label>
+                  <select
+                    value={formData.useCustomMonthlyRents ? 'yes' : 'no'}
+                    onChange={(e) => {
+                      const useCustom = e.target.value === 'yes';
+                      handleInputChange('useCustomMonthlyRents', useCustom);
+                      if (useCustom && formData.customMonthlyRents.length === 0) {
+                        // تهيئة المصفوفة بالقيمة الافتراضية
+                        const rents = Array(formData.duration).fill(formData.monthlyRent);
+                        handleInputChange('customMonthlyRents', rents);
+                      }
+                    }}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  >
+                    <option value="no">لا (نفس المبلغ لكل الأشهر)</option>
+                    <option value="yes">نعم (أريد تخصيص المبلغ لكل شهر)</option>
+                  </select>
+                </div>
+                
+                {formData.useCustomMonthlyRents && (
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg p-6">
+                    <div className="mb-4">
+                      <p className="font-semibold text-purple-900 mb-2">جدول الإيجارات الشهرية</p>
+                      <p className="text-sm text-purple-700">يمكنك تعديل قيمة الإيجار لكل شهر على حدة</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
+                      {formData.customMonthlyRents.map((rent, index) => (
+                        <div key={index} className="bg-white rounded-lg p-3 border border-purple-200">
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            الشهر {index + 1}
+                          </label>
+                          <input
+                            type="number"
+                            value={rent}
+                            onChange={(e) => {
+                              const newRents = [...formData.customMonthlyRents];
+                              newRents[index] = parseFloat(e.target.value) || 0;
+                              handleInputChange('customMonthlyRents', newRents);
+                            }}
+                            className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            min="0"
+                            step="0.01"
+                            placeholder="0.00"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="mt-4 bg-white rounded-lg p-4 border-2 border-purple-300">
+                      <p className="font-semibold text-purple-900 mb-2">ملخص الإيجارات المخصصة</p>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-600">إجمالي الإيجارات:</span>
+                          <p className="font-bold text-purple-900" suppressHydrationWarning>
+                            {formData.customMonthlyRents.reduce((sum, rent) => sum + rent, 0).toFixed(3)} {formData.currency}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">متوسط الإيجار الشهري:</span>
+                          <p className="font-bold text-purple-900" suppressHydrationWarning>
+                            {(formData.customMonthlyRents.reduce((sum, rent) => sum + rent, 0) / formData.duration).toFixed(3)} {formData.currency}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+            
+            {/* القسم 11: ملخص الحسابات النهائية */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaMoneyBillWave className="text-green-600" />
+                ملخص الحسابات النهائية
+              </h4>
+              <div className="bg-gradient-to-r from-green-50 via-blue-50 to-purple-50 border-2 border-green-300 rounded-lg p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* الإيجارات */}
+                  <div className="bg-white rounded-lg p-4 border border-green-200">
+                    <h5 className="font-bold text-green-900 mb-3">💰 الإيجارات</h5>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">الإيجار الأساسي:</span>
+                        <span className="font-bold" suppressHydrationWarning>
+                          {formData.useCustomMonthlyRents 
+                            ? formData.customMonthlyRents.reduce((sum, rent) => sum + rent, 0).toFixed(3)
+                            : (formData.monthlyRent * formData.duration).toFixed(3)
+                          } {formData.currency}
+                        </span>
+                      </div>
+                      {formData.includesVAT && (
+                        <div className="flex justify-between text-orange-600">
+                          <span>ضريبة القيمة المضافة ({formData.vatRate * 100}%):</span>
+                          <span className="font-bold" suppressHydrationWarning>
+                            +{formData.totalVATAmount} {formData.currency}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between pt-2 border-t border-green-200">
+                        <span className="font-bold text-green-900">إجمالي الإيجار:</span>
+                        <span className="font-bold text-green-900 text-lg" suppressHydrationWarning>
+                          {(
+                            (formData.useCustomMonthlyRents 
+                              ? formData.customMonthlyRents.reduce((sum, rent) => sum + rent, 0)
+                              : formData.monthlyRent * formData.duration
+                            ) + formData.totalVATAmount
+                          ).toFixed(3)} {formData.currency}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* الرسوم الإضافية */}
+                  <div className="bg-white rounded-lg p-4 border border-blue-200">
+                    <h5 className="font-bold text-blue-900 mb-3">📋 الرسوم الإضافية</h5>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">رسوم البلدية (3%):</span>
+                        <span className="font-bold" suppressHydrationWarning>
+                          {formData.municipalityFees} {formData.currency}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">مبلغ الضمان:</span>
+                        <span className="font-bold" suppressHydrationWarning>
+                          {formData.deposit} {formData.currency}
+                        </span>
+                      </div>
+                      {formData.internetIncluded && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">رسوم الإنترنت:</span>
+                          <span className="font-bold" suppressHydrationWarning>
+                            {formData.internetFees} {formData.currency}
+                          </span>
+                        </div>
+                      )}
+                      {formData.hasOtherFees && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">{formData.otherFeesDescription}:</span>
+                          <span className="font-bold" suppressHydrationWarning>
+                            {formData.otherFeesAmount} {formData.currency}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* الإجمالي الكلي */}
+                  <div className="md:col-span-2 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm opacity-90 mb-1">💎 الإجمالي الكلي للعقد</p>
+                        <p className="text-xs opacity-75">(شامل جميع الرسوم والضرائب)</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-3xl font-bold" suppressHydrationWarning>
+                          {(
+                            (formData.useCustomMonthlyRents 
+                              ? formData.customMonthlyRents.reduce((sum, rent) => sum + rent, 0)
+                              : formData.monthlyRent * formData.duration
+                            ) +
+                            formData.totalVATAmount +
+                            formData.municipalityFees +
+                            formData.deposit +
+                            (formData.internetIncluded ? formData.internetFees : 0) +
+                            (formData.hasOtherFees ? formData.otherFeesAmount : 0)
+                          ).toFixed(3)}
+                        </p>
+                        <p className="text-sm opacity-90">{formData.currency}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             
