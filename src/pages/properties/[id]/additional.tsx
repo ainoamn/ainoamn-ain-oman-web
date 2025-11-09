@@ -117,6 +117,8 @@ export default function PropertyAdditionalData() {
     type: 'electricity',
     active: true
   });
+  const [editingService, setEditingService] = useState<ServiceAccount | null>(null);
+  const [showEditService, setShowEditService] = useState(false);
   
   // Documents
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -312,10 +314,22 @@ export default function PropertyAdditionalData() {
     const missingData = validateRequiredData();
     console.log('⚠️ البيانات الناقصة:', missingData);
     
+    // إذا كانت هناك بيانات ناقصة، عرض تحذير لكن السماح بالحفظ
     if (missingData.length > 0) {
       const missingList = missingData.map((item, i) => `${i + 1}. ${item}`).join('\n');
-      alert(`❌ لا يمكن الحفظ! البيانات التالية مطلوبة:\n\n${missingList}\n\n(عدد الحقول الناقصة: ${missingData.length})`);
-      return;
+      const confirmSave = confirm(
+        `⚠️ تنبيه: هناك ${missingData.length} حقل ناقص!\n\n` +
+        `البيانات الناقصة:\n${missingList}\n\n` +
+        `هل تريد حفظ البيانات الحالية على أي حال؟\n\n` +
+        `ملاحظة: لن يمكنك إنشاء عقود إيجار حتى تكتمل جميع البيانات المطلوبة.`
+      );
+      
+      if (!confirmSave) {
+        console.log('❌ المستخدم ألغى الحفظ');
+        return;
+      }
+      
+      console.log('✅ المستخدم اختار الحفظ رغم البيانات الناقصة');
     }
     
     setSaving(true);
@@ -349,17 +363,32 @@ export default function PropertyAdditionalData() {
       const result = await response.json();
       console.log('✅ تم حفظ البيانات بنجاح:', result);
       
-      alert('✅ تم حفظ جميع البيانات بنجاح في قاعدة البيانات!');
-      
       // Optional: Also save to localStorage as backup
       localStorage.setItem(`property-${id}-additional`, JSON.stringify(data));
       
-      // العودة للصفحة السابقة إذا كان هناك returnUrl
-      if (returnUrl && typeof returnUrl === 'string') {
-        console.log('🔙 العودة إلى:', returnUrl);
-        setTimeout(() => {
-          router.push(returnUrl);
-        }, 1000); // انتظار ثانية واحدة ليرى المستخدم رسالة النجاح
+      // التحقق من اكتمال البيانات للعودة للصفحة السابقة
+      const missingDataAfterSave = validateRequiredData();
+      
+      if (missingDataAfterSave.length > 0) {
+        // بيانات محفوظة لكن ناقصة - لا ننتقل
+        alert(
+          `✅ تم حفظ البيانات المُدخلة بنجاح!\n\n` +
+          `⚠️ ملاحظة: هناك ${missingDataAfterSave.length} حقل ناقص.\n` +
+          `لن يتم الانتقال حتى تكتمل جميع البيانات المطلوبة.\n\n` +
+          `يمكنك إكمالها في أي وقت والضغط على حفظ مرة أخرى.`
+        );
+        console.log('💾 تم الحفظ لكن البيانات ناقصة - لا ننتقل');
+      } else {
+        // بيانات كاملة - نجاح كامل
+        alert('✅✅✅ تم حفظ جميع البيانات بنجاح! البيانات مكتملة 100%');
+        
+        // العودة للصفحة السابقة إذا كان هناك returnUrl
+        if (returnUrl && typeof returnUrl === 'string') {
+          console.log('🔙 البيانات مكتملة - العودة إلى:', returnUrl);
+          setTimeout(() => {
+            router.push(returnUrl);
+          }, 1500);
+        }
       }
     } catch (error) {
       console.error('❌ خطأ في حفظ البيانات:', error);
@@ -1130,6 +1159,19 @@ export default function PropertyAdditionalData() {
                             </div>
                           </div>
                           <div className="flex gap-2">
+                            {/* زر التعديل */}
+                            <button
+                              onClick={() => {
+                                setEditingService(service);
+                                setShowEditService(true);
+                              }}
+                              className="text-blue-600 hover:text-blue-700 p-2 hover:bg-blue-50 rounded-lg transition-all flex items-center gap-2"
+                              title="تعديل الحساب"
+                            >
+                              <FaEdit className="w-4 h-4" />
+                              <span className="text-xs">تعديل</span>
+                            </button>
+                            
                             {/* زر استبدال العداد - للكهرباء والمياه فقط */}
                             {(service.type === 'electricity' || service.type === 'water') && (
                               <button
@@ -1724,6 +1766,208 @@ export default function PropertyAdditionalData() {
           </motion.div>
         </main>
       </div>
+
+      {/* نافذة تعديل حساب الخدمة */}
+      {showEditService && editingService && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          >
+            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <FaEdit className="w-6 h-6" />
+                  <h3 className="text-xl font-bold">تعديل حساب الخدمة</h3>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowEditService(false);
+                    setEditingService(null);
+                  }}
+                  className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition-all"
+                >
+                  <FaTimesCircle className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">نوع الخدمة</label>
+                  <select
+                    value={editingService.type}
+                    onChange={(e) => setEditingService({...editingService, type: e.target.value as any})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    {Object.entries(serviceTypeLabels).map(([key, info]) => (
+                      <option key={key} value={key}>{info.label}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <RequiredLabel>رقم الحساب</RequiredLabel>
+                  <input
+                    type="text"
+                    value={editingService.accountNumber || ''}
+                    onChange={(e) => setEditingService({...editingService, accountNumber: e.target.value})}
+                    className={REQUIRED_INPUT_CLASSES}
+                    placeholder="أدخل رقم الحساب"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">اسم الحساب</label>
+                  <input
+                    type="text"
+                    value={editingService.accountName || ''}
+                    onChange={(e) => setEditingService({...editingService, accountName: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="اسم صاحب الحساب"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">المزود</label>
+                  <input
+                    type="text"
+                    value={editingService.provider || ''}
+                    onChange={(e) => setEditingService({...editingService, provider: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="اسم الشركة المزودة"
+                  />
+                </div>
+                
+                {/* خيارات إضافية للكهرباء والمياه */}
+                {(editingService.type === 'electricity' || editingService.type === 'water') && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        رقم العداد <span className="text-gray-400 text-xs">(اختياري)</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={editingService.meterNumber || ''}
+                        onChange={(e) => setEditingService({...editingService, meterNumber: e.target.value})}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="رقم العداد"
+                      />
+                    </div>
+                    
+                    <div>
+                      <RequiredLabel>نوع الدفع</RequiredLabel>
+                      <select
+                        value={editingService.paymentType || ''}
+                        onChange={(e) => setEditingService({...editingService, paymentType: e.target.value as 'prepaid' | 'postpaid'})}
+                        className={REQUIRED_SELECT_CLASSES}
+                        required
+                      >
+                        <option value="">-- اختر نوع الدفع --</option>
+                        <option value="prepaid">مسبق الدفع</option>
+                        <option value="postpaid">آجل الدفع</option>
+                      </select>
+                    </div>
+                    
+                    <div className="md:col-span-2">
+                      <RequiredLabel>صورة العداد</RequiredLabel>
+                      <div className="space-y-2">
+                        {editingService.meterImage && (
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center gap-2">
+                            <FaCheckCircle className="w-5 h-5 text-blue-600" />
+                            <span className="text-sm text-blue-700 font-medium">الصورة الحالية: {editingService.meterImage}</span>
+                          </div>
+                        )}
+                        <div className="w-full px-4 py-3 border-2 border-red-300 rounded-lg bg-red-50 bg-opacity-30">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                console.log('📸 تم اختيار ملف جديد:', file.name, file.size);
+                                setEditingService({...editingService, meterImage: file.name});
+                              }
+                            }}
+                            className="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700 cursor-pointer"
+                          />
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          📌 يقبل: JPG, PNG, JPEG (اختر ملف جديد لتحديث الصورة)
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                )}
+                
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">ملاحظات</label>
+                  <textarea
+                    value={editingService.notes || ''}
+                    onChange={(e) => setEditingService({...editingService, notes: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    rows={2}
+                    placeholder="ملاحظات إضافية..."
+                  />
+                </div>
+                
+                <div className="md:col-span-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editingService.active}
+                      onChange={(e) => setEditingService({...editingService, active: e.target.checked})}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">حساب نشط</span>
+                  </label>
+                </div>
+              </div>
+              
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowEditService(false);
+                    setEditingService(null);
+                  }}
+                  className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  إلغاء
+                </button>
+                <button
+                  onClick={() => {
+                    if (!editingService.accountNumber) {
+                      alert('⚠️ يرجى إدخال رقم الحساب');
+                      return;
+                    }
+                    
+                    if ((editingService.type === 'electricity' || editingService.type === 'water') && !editingService.paymentType) {
+                      alert('⚠️ يرجى اختيار نوع الدفع (مسبق أو آجل)');
+                      return;
+                    }
+                    
+                    // تحديث الحساب في القائمة
+                    const updatedAccounts = serviceAccounts.map(s => 
+                      s.id === editingService.id ? editingService : s
+                    );
+                    setServiceAccounts(updatedAccounts);
+                    setShowEditService(false);
+                    setEditingService(null);
+                    alert('✅ تم تحديث بيانات الحساب بنجاح!');
+                  }}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                >
+                  <FaSave className="w-4 h-4" />
+                  حفظ التعديلات
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* نافذة استبدال العداد */}
       {showMeterReplacement && selectedServiceForMeterChange && (
