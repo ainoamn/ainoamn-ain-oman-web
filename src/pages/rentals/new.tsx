@@ -62,6 +62,39 @@ interface RentalFormData {
   deposit: number;
   currency: string;
   
+  // رسوم البلدية (محسوبة تلقائياً)
+  municipalityFees: number;
+  
+  // طرق الدفع
+  rentPaymentMethod: 'cash' | 'check' | 'bank_transfer' | 'electronic_payment';
+  depositPaymentMethod: 'cash' | 'check' | 'bank_transfer' | 'electronic_payment';
+  
+  // أرقام الإيصالات والشيكات
+  cashReceiptNumber: string; // رقم إيصال الضمان النقدي
+  depositCheckNumber: string; // رقم شيك الضمان
+  municipalityFormNumber: string; // رقم استمارة عقد الإيجار للبلدية
+  municipalityContractNumber: string; // رقم عقد الإيجار المعتمد من البلدية
+  
+  // فترة السماح
+  gracePeriodDays: number;
+  gracePeriodAmount: number; // محسوب تلقائياً
+  
+  // قراءات العدادات
+  electricityMeterReading: string;
+  waterMeterReading: string;
+  
+  // رسوم الإنترنت
+  internetIncluded: boolean;
+  internetFees: number;
+  
+  // رسوم أخرى
+  hasOtherFees: boolean;
+  otherFeesDescription: string;
+  otherFeesAmount: number;
+  
+  // الضريبة المضافة
+  includesVAT: boolean;
+  
   // شروط إضافية
   terms: string[];
   customTerms: string;
@@ -90,6 +123,23 @@ export default function NewRentalContract() {
     monthlyRent: 0,
     deposit: 0,
     currency: 'OMR',
+    municipalityFees: 0,
+    rentPaymentMethod: 'cash',
+    depositPaymentMethod: 'cash',
+    cashReceiptNumber: '',
+    depositCheckNumber: '',
+    municipalityFormNumber: '',
+    municipalityContractNumber: '',
+    gracePeriodDays: 0,
+    gracePeriodAmount: 0,
+    electricityMeterReading: '',
+    waterMeterReading: '',
+    internetIncluded: false,
+    internetFees: 0,
+    hasOtherFees: false,
+    otherFeesDescription: '',
+    otherFeesAmount: 0,
+    includesVAT: false,
     terms: [],
     customTerms: '',
     status: 'draft'
@@ -219,6 +269,31 @@ export default function NewRentalContract() {
       }));
     }
   }, [formData.startDate, formData.duration]);
+  
+  // حساب رسوم البلدية تلقائياً: (الإيجار الشهري × المدة) × 3%
+  useEffect(() => {
+    if (formData.monthlyRent && formData.duration) {
+      const totalRent = formData.monthlyRent * formData.duration;
+      const municipalityFees = totalRent * 0.03; // 3%
+      setFormData(prev => ({
+        ...prev,
+        municipalityFees: Math.round(municipalityFees * 1000) / 1000 // تقريب لـ 3 منازل عشرية
+      }));
+    }
+  }, [formData.monthlyRent, formData.duration]);
+  
+  // حساب مبلغ السماح تلقائياً
+  useEffect(() => {
+    if (formData.monthlyRent && formData.gracePeriodDays) {
+      // حساب: (الإيجار الشهري / 30) × عدد أيام السماح
+      const dailyRent = formData.monthlyRent / 30;
+      const gracePeriodAmount = dailyRent * formData.gracePeriodDays;
+      setFormData(prev => ({
+        ...prev,
+        gracePeriodAmount: Math.round(gracePeriodAmount * 1000) / 1000 // تقريب لـ 3 منازل عشرية
+      }));
+    }
+  }, [formData.monthlyRent, formData.gracePeriodDays]);
   
   // توليد القالب المملوء تلقائياً عند الانتقال للخطوة 5
   useEffect(() => {
@@ -1487,104 +1562,467 @@ export default function NewRentalContract() {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FaCalendar className="inline ml-2" />
-                  تاريخ بدء العقد
-                </label>
-                <input
-                  type="date"
-                  value={formData.startDate}
-                  onChange={(e) => handleInputChange('startDate', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  required
-                  suppressHydrationWarning
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FaClock className="inline ml-2" />
-                  مدة الإيجار (بالأشهر)
-                </label>
-                <input
-                  type="number"
-                  value={formData.duration}
-                  onChange={(e) => handleInputChange('duration', parseInt(e.target.value))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  min="1"
-                  max="60"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FaCalendar className="inline ml-2" />
-                  تاريخ انتهاء العقد
-                </label>
-                <input
-                  type="date"
-                  value={formData.endDate}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
-                  readOnly
-                  suppressHydrationWarning
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FaDollarSign className="inline ml-2" />
-                  العملة
-                </label>
-                <select
-                  value={formData.currency}
-                  onChange={(e) => handleInputChange('currency', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                >
-                  <option value="OMR">ريال عماني (OMR)</option>
-                  <option value="USD">دولار أمريكي (USD)</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FaMoneyBillWave className="inline ml-2" />
-                  الإيجار الشهري
-                </label>
-                <input
-                  type="number"
-                  value={formData.monthlyRent}
-                  onChange={(e) => handleInputChange('monthlyRent', parseFloat(e.target.value))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  min="0"
-                  step="0.01"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FaMoneyBillWave className="inline ml-2" />
-                  مبلغ الضمان
-                </label>
-                <input
-                  type="number"
-                  value={formData.deposit}
-                  onChange={(e) => handleInputChange('deposit', parseFloat(e.target.value))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  min="0"
-                  step="0.01"
-                />
+            {/* القسم 1: التواريخ والمدة */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaCalendar className="text-orange-600" />
+                التواريخ والمدة
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FaCalendar className="inline ml-2" />
+                    تاريخ بدء العقد
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.startDate}
+                    onChange={(e) => handleInputChange('startDate', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    required
+                    suppressHydrationWarning
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FaClock className="inline ml-2" />
+                    مدة الإيجار (بالأشهر)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.duration}
+                    onChange={(e) => handleInputChange('duration', parseInt(e.target.value))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    min="1"
+                    max="60"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FaCalendar className="inline ml-2" />
+                    تاريخ انتهاء العقد
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.endDate}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                    readOnly
+                    suppressHydrationWarning
+                  />
+                </div>
               </div>
             </div>
             
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <FaFileAlt className="inline ml-2" />
+            {/* القسم 2: المبالغ المالية */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaMoneyBillWave className="text-green-600" />
+                المبالغ المالية
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FaDollarSign className="inline ml-2" />
+                    العملة
+                  </label>
+                  <select
+                    value={formData.currency}
+                    onChange={(e) => handleInputChange('currency', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  >
+                    <option value="OMR">ريال عماني (OMR)</option>
+                    <option value="USD">دولار أمريكي (USD)</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FaMoneyBillWave className="inline ml-2" />
+                    الإيجار الشهري
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.monthlyRent}
+                    onChange={(e) => handleInputChange('monthlyRent', parseFloat(e.target.value))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    min="0"
+                    step="0.01"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FaMoneyBillWave className="inline ml-2" />
+                    مبلغ الضمان
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.deposit}
+                    onChange={(e) => handleInputChange('deposit', parseFloat(e.target.value))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+                
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FaMoneyBillWave className="inline ml-2" />
+                    رسوم البلدية (3% من إجمالي العقد)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.municipalityFees}
+                    className="w-full px-4 py-3 border-2 border-green-300 rounded-lg bg-green-50 cursor-not-allowed font-bold text-green-700"
+                    readOnly
+                    suppressHydrationWarning
+                  />
+                  <div className="absolute top-11 left-3 text-xs text-green-600 font-semibold bg-green-50 px-2 py-1 rounded">
+                    محسوب تلقائياً ✓
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* القسم 3: طرق الدفع */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaMoneyBillWave className="text-blue-600" />
+                طرق الدفع
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    طريقة دفع الإيجار
+                  </label>
+                  <select
+                    value={formData.rentPaymentMethod}
+                    onChange={(e) => handleInputChange('rentPaymentMethod', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  >
+                    <option value="cash">نقداً</option>
+                    <option value="check">شيك</option>
+                    <option value="bank_transfer">تحويل في الحساب</option>
+                    <option value="electronic_payment">دفع إلكتروني</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    طريقة دفع الضمان
+                  </label>
+                  <select
+                    value={formData.depositPaymentMethod}
+                    onChange={(e) => handleInputChange('depositPaymentMethod', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  >
+                    <option value="cash">نقداً</option>
+                    <option value="check">شيك</option>
+                    <option value="bank_transfer">تحويل في الحساب</option>
+                    <option value="electronic_payment">دفع إلكتروني</option>
+                  </select>
+                </div>
+                
+                {formData.depositPaymentMethod === 'cash' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      رقم الإيصال لمبلغ الضمان النقدي
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.cashReceiptNumber}
+                      onChange={(e) => handleInputChange('cashReceiptNumber', e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="أدخل رقم الإيصال"
+                    />
+                  </div>
+                )}
+                
+                {formData.depositPaymentMethod === 'check' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      رقم الشيك للضمان
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.depositCheckNumber}
+                      onChange={(e) => handleInputChange('depositCheckNumber', e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="أدخل رقم الشيك"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* القسم 4: أرقام المستندات */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaFileAlt className="text-purple-600" />
+                أرقام المستندات الرسمية
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    رقم استمارة عقد الإيجار للبلدية
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.municipalityFormNumber}
+                    onChange={(e) => handleInputChange('municipalityFormNumber', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="أدخل رقم الاستمارة"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    رقم عقد الإيجار المعتمد من البلدية
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.municipalityContractNumber}
+                    onChange={(e) => handleInputChange('municipalityContractNumber', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="أدخل رقم العقد المعتمد"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* القسم 5: فترة السماح */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaClock className="text-indigo-600" />
+                فترة السماح
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    عدد أيام السماح
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.gracePeriodDays}
+                    onChange={(e) => handleInputChange('gracePeriodDays', parseInt(e.target.value) || 0)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    min="0"
+                    max="30"
+                    placeholder="0"
+                  />
+                </div>
+                
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    مبلغ السماح ({formData.currency})
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.gracePeriodAmount}
+                    className="w-full px-4 py-3 border-2 border-green-300 rounded-lg bg-green-50 cursor-not-allowed font-bold text-green-700"
+                    readOnly
+                    suppressHydrationWarning
+                  />
+                  <div className="absolute top-11 left-3 text-xs text-green-600 font-semibold bg-green-50 px-2 py-1 rounded">
+                    محسوب تلقائياً ✓
+                  </div>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-500 bg-blue-50 p-3 rounded-lg">
+                💡 <strong>ملاحظة:</strong> يتم حساب مبلغ السماح بناءً على: (الإيجار الشهري ÷ 30) × عدد أيام السماح
+              </div>
+            </div>
+            
+            {/* القسم 6: قراءات العدادات */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaMoneyBillWave className="text-yellow-600" />
+                قراءات العدادات أثناء الاستئجار
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    قراءة عداد الكهرباء
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.electricityMeterReading}
+                    onChange={(e) => handleInputChange('electricityMeterReading', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="أدخل القراءة الحالية للكهرباء"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    قراءة عداد الماء
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.waterMeterReading}
+                    onChange={(e) => handleInputChange('waterMeterReading', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="أدخل القراءة الحالية للماء"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* القسم 7: رسوم الإنترنت */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaGlobe className="text-cyan-600" />
+                رسوم الإنترنت
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    هل الإنترنت مشمول في الإيجار؟
+                  </label>
+                  <select
+                    value={formData.internetIncluded ? 'yes' : 'no'}
+                    onChange={(e) => {
+                      const included = e.target.value === 'yes';
+                      handleInputChange('internetIncluded', included);
+                      if (!included) {
+                        handleInputChange('internetFees', 0);
+                      }
+                    }}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  >
+                    <option value="no">لا (مجاني أو على المستأجر)</option>
+                    <option value="yes">نعم (مشمول في الإيجار)</option>
+                  </select>
+                </div>
+                
+                {formData.internetIncluded && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      مقدار رسوم الإنترنت ({formData.currency})
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.internetFees}
+                      onChange={(e) => handleInputChange('internetFees', parseFloat(e.target.value) || 0)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* القسم 8: رسوم أخرى */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaMoneyBillWave className="text-red-600" />
+                رسوم أخرى
+              </h4>
+              <div className="grid grid-cols-1 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    هل هناك رسوم أخرى؟
+                  </label>
+                  <select
+                    value={formData.hasOtherFees ? 'yes' : 'no'}
+                    onChange={(e) => {
+                      const hasFees = e.target.value === 'yes';
+                      handleInputChange('hasOtherFees', hasFees);
+                      if (!hasFees) {
+                        handleInputChange('otherFeesDescription', '');
+                        handleInputChange('otherFeesAmount', 0);
+                      }
+                    }}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  >
+                    <option value="no">لا</option>
+                    <option value="yes">نعم</option>
+                  </select>
+                </div>
+                
+                {formData.hasOtherFees && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        وصف الرسوم الأخرى
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.otherFeesDescription}
+                        onChange={(e) => handleInputChange('otherFeesDescription', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        placeholder="مثال: رسوم الصيانة، رسوم التأمين، إلخ"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        مقدار الرسوم الأخرى ({formData.currency})
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.otherFeesAmount}
+                        onChange={(e) => handleInputChange('otherFeesAmount', parseFloat(e.target.value) || 0)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+            
+            {/* القسم 9: الضريبة المضافة */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaDollarSign className="text-orange-600" />
+                الضريبة المضافة (VAT)
+              </h4>
+              <div className="grid grid-cols-1 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    هل الإيجار مشمول بالضريبة المضافة؟
+                  </label>
+                  <select
+                    value={formData.includesVAT ? 'yes' : 'no'}
+                    onChange={(e) => handleInputChange('includesVAT', e.target.value === 'yes')}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  >
+                    <option value="no">لا</option>
+                    <option value="yes">نعم</option>
+                  </select>
+                </div>
+                
+                {formData.includesVAT && (
+                  <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <FaExclamationTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-semibold text-yellow-900 mb-1">ملاحظة مهمة</p>
+                        <p className="text-sm text-yellow-800">
+                          سيتم إضافة الضريبة المضافة (5%) على إجمالي المبلغ في الفاتورة النهائية.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* القسم 10: الشروط والأحكام الإضافية */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaFileAlt className="text-gray-600" />
                 الشروط والأحكام الإضافية
-              </label>
+              </h4>
               <textarea
                 value={formData.customTerms}
                 onChange={(e) => handleInputChange('customTerms', e.target.value)}
@@ -2106,6 +2544,39 @@ export default function NewRentalContract() {
                     onClick={() => setShowAdditionalDataWarning(false)}
                     className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium text-sm"
                   >
+                    إلغاء
+                  </button>
+                  <InstantLink
+                    href={`/properties/${selectedProperty.id}/additional?returnUrl=${encodeURIComponent('/rentals/new')}&step=2`}
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium flex items-center justify-center gap-2 shadow-lg text-sm"
+                  >
+                    <FaFileAlt className="w-4 h-4" />
+                    إكمال البيانات
+                  </InstantLink>
+                </div>
+                
+                <button
+                  onClick={() => {
+                    setShowAdditionalDataWarning(false);
+                    setCurrentStep(3);
+                  }}
+                  className="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium flex items-center justify-center gap-2 text-sm"
+                >
+                  <FaExclamationTriangle className="w-4 h-4" />
+                  المتابعة بدون البيانات
+                </button>
+                <p className="text-xs text-center text-gray-500">
+                  ⚠️ غير موصى به
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </>
+  );
+}
+
                     إلغاء
                   </button>
                   <InstantLink
