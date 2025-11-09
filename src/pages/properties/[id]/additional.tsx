@@ -302,11 +302,19 @@ export default function PropertyAdditionalData() {
 
   const saveData = async () => {
     // التحقق من البيانات المطلوبة قبل الحفظ
+    console.log('🔍 بدء التحقق من البيانات...');
+    console.log('📋 ownerData:', ownerData);
+    console.log('📋 staffData:', staffData);
+    console.log('📋 propertyData:', propertyData);
+    console.log('📋 serviceAccounts:', serviceAccounts);
+    console.log('📋 documents:', documents);
+    
     const missingData = validateRequiredData();
+    console.log('⚠️ البيانات الناقصة:', missingData);
     
     if (missingData.length > 0) {
       const missingList = missingData.map((item, i) => `${i + 1}. ${item}`).join('\n');
-      alert(`❌ لا يمكن الحفظ! البيانات التالية مطلوبة:\n\n${missingList}\n\nالرجاء إكمال جميع البيانات المطلوبة.`);
+      alert(`❌ لا يمكن الحفظ! البيانات التالية مطلوبة:\n\n${missingList}\n\n(عدد الحقول الناقصة: ${missingData.length})`);
       return;
     }
     
