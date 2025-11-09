@@ -661,24 +661,19 @@ export default function NewRentalContract() {
     try {
       console.log('📋 Checking additional data for property:', propertyId);
       
-      if (typeof window === 'undefined') {
-        console.log('⚠️ Window not available (SSR)');
-        return { complete: false, missing: ['جميع البيانات الإضافية مفقودة'] };
-      }
+      // جلب البيانات من API بدلاً من localStorage
+      const response = await fetch(`/api/properties/${propertyId}/additional`);
       
-      const storedData = localStorage.getItem(`property-${propertyId}-additional`);
-      console.log('📦 Stored data:', storedData ? 'Found' : 'Not found');
-      
-      if (!storedData) {
-        console.log('❌ No stored data found');
+      if (!response.ok) {
+        console.log('❌ No additional data found in API');
         return {
           complete: false,
           missing: ['جميع البيانات الإضافية مفقودة']
         };
       }
       
-      const data = JSON.parse(storedData);
-      console.log('📊 Parsed data:', data);
+      const data = await response.json();
+      console.log('📊 Additional data from API:', data);
       const missing: string[] = [];
       
       // التحقق من بيانات المالك
@@ -688,6 +683,12 @@ export default function NewRentalContract() {
       if (!data.ownerData || !data.ownerData.nationalId) {
         missing.push('بيانات المالك (رقم البطاقة المدنية)');
       }
+      if (!data.ownerData || !data.ownerData.nationalIdExpiry) {
+        missing.push('بيانات المالك (تاريخ انتهاء البطاقة)');
+      }
+      if (!data.ownerData || !data.ownerData.nationalIdFile) {
+        missing.push('بيانات المالك (نسخة من البطاقة الشخصية)');
+      }
       if (!data.ownerData || !data.ownerData.phone) {
         missing.push('بيانات المالك (رقم الهاتف)');
       }
@@ -695,19 +696,72 @@ export default function NewRentalContract() {
         missing.push('بيانات المالك (البريد الإلكتروني)');
       }
       
-      // التحقق من حسابات الخدمات (كهرباء ومياه على الأقل)
-      if (!data.serviceAccounts || data.serviceAccounts.length === 0) {
-        missing.push('حسابات الخدمات (كهرباء، مياه)');
+      // التحقق من حسابات الخدمات (كهرباء ومياه - بالتفصيل)
+      const electricityAccount = data.serviceAccounts?.find((s: any) => s.type === 'electricity');
+      const waterAccount = data.serviceAccounts?.find((s: any) => s.type === 'water');
+      
+      if (!electricityAccount) {
+        missing.push('حساب الكهرباء');
       } else {
-        const hasElectricity = data.serviceAccounts.some((s: any) => s.type === 'electricity');
-        const hasWater = data.serviceAccounts.some((s: any) => s.type === 'water');
-        
-        if (!hasElectricity) {
-          missing.push('حساب الكهرباء');
+        if (!electricityAccount.accountNumber?.trim()) {
+          missing.push('رقم حساب الكهرباء');
         }
-        if (!hasWater) {
-          missing.push('حساب المياه');
+        if (!electricityAccount.meterImage?.trim()) {
+          missing.push('صورة عداد الكهرباء');
         }
+        if (!electricityAccount.paymentType?.trim()) {
+          missing.push('نوع الدفع للكهرباء');
+        }
+      }
+      
+      if (!waterAccount) {
+        missing.push('حساب المياه');
+      } else {
+        if (!waterAccount.accountNumber?.trim()) {
+          missing.push('رقم حساب المياه');
+        }
+        if (!waterAccount.meterImage?.trim()) {
+          missing.push('صورة عداد المياه');
+        }
+        if (!waterAccount.paymentType?.trim()) {
+          missing.push('نوع الدفع للمياه');
+        }
+      }
+      
+      // التحقق من بيانات الموظفين
+      if (!data.staffData?.maintenanceOfficerName?.trim()) {
+        missing.push('اسم مسؤول الصيانة');
+      }
+      if (!data.staffData?.maintenanceOfficerPhone?.trim()) {
+        missing.push('رقم هاتف مسؤول الصيانة');
+      }
+      
+      // التحقق من بيانات العقار
+      if (!data.propertyData?.buildingNumber?.trim()) {
+        missing.push('رقم المبنى');
+      }
+      if (!data.propertyData?.landUseType?.trim()) {
+        missing.push('نوع استعمال الأرض');
+      }
+      if (!data.propertyData?.area?.trim()) {
+        missing.push('المنطقة');
+      }
+      if (!data.propertyData?.surveyNumber?.trim()) {
+        missing.push('رقم الرسم المساحي');
+      }
+      if (!data.propertyData?.plotNumber?.trim()) {
+        missing.push('رقم القطعة');
+      }
+      
+      // التحقق من المستندات
+      const hasOwnershipDeed = data.documents?.some((d: any) => d.type === 'ownership_deed' && d.fileUrl?.trim());
+      const hasSurveyDrawing = data.documents?.some((d: any) => d.type === 'survey_drawing' && d.fileUrl?.trim());
+      
+      if (!hasOwnershipDeed) {
+        missing.push('ملكية العقار (مستند)');
+      }
+      if (!hasSurveyDrawing) {
+        missing.push('الرسم المساحي (مستند)');
       }
       
       console.log(`📊 Missing items: ${missing.length}`, missing);
@@ -2055,7 +2109,7 @@ export default function NewRentalContract() {
                     إلغاء
                   </button>
                   <InstantLink
-                    href={`/properties/${selectedProperty.id}/additional`}
+                    href={`/properties/${selectedProperty.id}/additional?returnUrl=${encodeURIComponent('/rentals/new')}&step=2`}
                     className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium flex items-center justify-center gap-2 shadow-lg text-sm"
                   >
                     <FaFileAlt className="w-4 h-4" />

@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { motion } from 'framer-motion';
 import InstantLink from '@/components/InstantLink';
+import RequiredLabel, { REQUIRED_INPUT_CLASSES, REQUIRED_SELECT_CLASSES, OPTIONAL_INPUT_CLASSES } from '@/components/RequiredLabel';
 import {
   FaArrowLeft, FaSave, FaPlus, FaTrash, FaEdit, FaFileAlt,
   FaBolt, FaTint, FaWifi, FaPhone, FaGasPump, FaReceipt,
@@ -15,6 +16,19 @@ import {
   FaClock, FaCalendar, FaInfoCircle, FaChevronDown, FaChevronUp,
   FaUser, FaUsers
 } from 'react-icons/fa';
+
+interface MeterHistory {
+  id: string;
+  oldMeterNumber: string;
+  oldMeterImage: string;
+  oldMeterReading: string;
+  newMeterNumber: string;
+  newMeterImage: string;
+  replacementDate: string;
+  replacementReason?: string;
+  replacementNotes?: string;
+  createdAt: string;
+}
 
 interface ServiceAccount {
   id: string;
@@ -28,12 +42,14 @@ interface ServiceAccount {
   meterNumber?: string;
   meterImage?: string;
   paymentType?: 'prepaid' | 'postpaid';
+  // تاريخ العدادات (لا يمكن حذفه)
+  meterHistory?: MeterHistory[];
 }
 
 interface Document {
   id: string;
   name: string;
-  type: 'contract' | 'deed' | 'permit' | 'certificate' | 'invoice' | 'photo' | 'other';
+  type: 'ownership_deed' | 'survey_drawing' | 'contract' | 'deed' | 'permit' | 'certificate' | 'invoice' | 'photo' | 'other';
   fileUrl?: string;
   fileName?: string;
   fileSize?: string;
@@ -58,6 +74,7 @@ interface OwnerData {
   fullName: string;
   nationalId: string;
   nationalIdExpiry: string;
+  nationalIdFile?: string;
   phone: string;
   email: string;
 }
@@ -87,7 +104,7 @@ interface PropertyData {
 
 export default function PropertyAdditionalData() {
   const router = useRouter();
-  const { id } = router.query;
+  const { id, returnUrl } = router.query;
   
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -105,7 +122,7 @@ export default function PropertyAdditionalData() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [showAddDocument, setShowAddDocument] = useState(false);
   const [newDocument, setNewDocument] = useState<Partial<Document>>({
-    type: 'contract'
+    type: 'ownership_deed'
   });
   
   // Bank Accounts
@@ -131,6 +148,19 @@ export default function PropertyAdditionalData() {
   // Property Data
   const [propertyData, setPropertyData] = useState<PropertyData>({});
   
+  // Meter Replacement States
+  const [showMeterReplacement, setShowMeterReplacement] = useState(false);
+  const [selectedServiceForMeterChange, setSelectedServiceForMeterChange] = useState<ServiceAccount | null>(null);
+  const [meterReplacementData, setMeterReplacementData] = useState({
+    oldMeterReading: '',
+    oldMeterImage: null as File | null,
+    newMeterNumber: '',
+    newMeterImage: null as File | null,
+    replacementDate: new Date().toISOString().split('T')[0],
+    replacementReason: '',
+    replacementNotes: ''
+  });
+  
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['owner', 'staff', 'propertyData', 'services', 'documents', 'banks']));
 
   useEffect(() => {
@@ -141,17 +171,19 @@ export default function PropertyAdditionalData() {
 
   const loadPropertyData = async () => {
     try {
-      // Load property
+      // Load property basic data
       const propRes = await fetch(`/api/properties/${id}`);
       if (propRes.ok) {
         const propData = await propRes.json();
         setProperty(propData.property || propData);
       }
       
-      // Load additional data from localStorage or API
-      const storedData = localStorage.getItem(`property-${id}-additional`);
-      if (storedData) {
-        const data = JSON.parse(storedData);
+      // Load additional data from API
+      const additionalRes = await fetch(`/api/properties/${id}/additional`);
+      if (additionalRes.ok) {
+        const data = await additionalRes.json();
+        console.log('📥 تم تحميل البيانات الإضافية:', data);
+        
         setServiceAccounts(data.serviceAccounts || []);
         setDocuments(data.documents || []);
         setBankAccounts(data.bankAccounts || []);
@@ -164,6 +196,8 @@ export default function PropertyAdditionalData() {
         });
         setStaffData(data.staffData || {});
         setPropertyData(data.propertyData || {});
+      } else {
+        console.log('⚠️ لا توجد بيانات إضافية محفوظة');
       }
     } catch (error) {
       console.error('Error loading property data:', error);
@@ -172,7 +206,110 @@ export default function PropertyAdditionalData() {
     }
   };
 
+  const validateRequiredData = () => {
+    const missing: string[] = [];
+    
+    // التحقق من بيانات المالك الإجبارية
+    if (!ownerData.fullName || ownerData.fullName.trim() === '') {
+      missing.push('الاسم الكامل للمالك');
+    }
+    if (!ownerData.nationalId || ownerData.nationalId.trim() === '') {
+      missing.push('رقم البطاقة المدنية للمالك');
+    }
+    if (!ownerData.nationalIdExpiry || ownerData.nationalIdExpiry.trim() === '') {
+      missing.push('تاريخ انتهاء البطاقة المدنية');
+    }
+    if (!ownerData.nationalIdFile || ownerData.nationalIdFile.trim() === '') {
+      missing.push('نسخة من البطاقة الشخصية (ملف)');
+    }
+    if (!ownerData.phone || ownerData.phone.trim() === '') {
+      missing.push('رقم هاتف المالك');
+    }
+    if (!ownerData.email || ownerData.email.trim() === '') {
+      missing.push('البريد الإلكتروني للمالك');
+    }
+    
+    // التحقق من بيانات الموظفين الإجبارية
+    if (!staffData.maintenanceOfficerName || staffData.maintenanceOfficerName.trim() === '') {
+      missing.push('اسم مسؤول الصيانة');
+    }
+    if (!staffData.maintenanceOfficerPhone || staffData.maintenanceOfficerPhone.trim() === '') {
+      missing.push('رقم هاتف مسؤول الصيانة');
+    }
+    
+    // التحقق من بيانات العقار الإجبارية
+    if (!propertyData.buildingNumber || propertyData.buildingNumber.trim() === '') {
+      missing.push('رقم المبنى (بيانات العقار)');
+    }
+    if (!propertyData.landUseType || propertyData.landUseType.trim() === '') {
+      missing.push('نوع استعمال الأرض');
+    }
+    if (!propertyData.area || propertyData.area.trim() === '') {
+      missing.push('المنطقة (بيانات العقار)');
+    }
+    if (!propertyData.surveyNumber || propertyData.surveyNumber.trim() === '') {
+      missing.push('رقم الرسم المساحي');
+    }
+    if (!propertyData.plotNumber || propertyData.plotNumber.trim() === '') {
+      missing.push('رقم القطعة');
+    }
+    
+    // التحقق من حسابات الخدمات الضرورية (كهرباء ومياه)
+    const electricityAccount = serviceAccounts.find(s => s.type === 'electricity');
+    const waterAccount = serviceAccounts.find(s => s.type === 'water');
+    
+    if (!electricityAccount) {
+      missing.push('حساب الكهرباء');
+    } else {
+      if (!electricityAccount.accountNumber || electricityAccount.accountNumber.trim() === '') {
+        missing.push('رقم حساب الكهرباء');
+      }
+      if (!electricityAccount.meterImage || electricityAccount.meterImage.trim() === '') {
+        missing.push('صورة عداد الكهرباء');
+      }
+      if (!electricityAccount.paymentType || electricityAccount.paymentType.trim() === '') {
+        missing.push('نوع الدفع (كهرباء) - يجب اختيار مسبق أو آجل');
+      }
+    }
+    
+    if (!waterAccount) {
+      missing.push('حساب المياه');
+    } else {
+      if (!waterAccount.accountNumber || waterAccount.accountNumber.trim() === '') {
+        missing.push('رقم حساب المياه');
+      }
+      if (!waterAccount.meterImage || waterAccount.meterImage.trim() === '') {
+        missing.push('صورة عداد المياه');
+      }
+      if (!waterAccount.paymentType || waterAccount.paymentType.trim() === '') {
+        missing.push('نوع الدفع (مياه) - يجب اختيار مسبق أو آجل');
+      }
+    }
+    
+    // التحقق من المستندات الإجبارية
+    const hasOwnershipDeed = documents.some(d => d.type === 'ownership_deed' && d.fileUrl?.trim());
+    const hasSurveyDrawing = documents.some(d => d.type === 'survey_drawing' && d.fileUrl?.trim());
+    
+    if (!hasOwnershipDeed) {
+      missing.push('ملكية العقار (مستند إجباري)');
+    }
+    if (!hasSurveyDrawing) {
+      missing.push('الرسم المساحي (مستند إجباري)');
+    }
+    
+    return missing;
+  };
+
   const saveData = async () => {
+    // التحقق من البيانات المطلوبة قبل الحفظ
+    const missingData = validateRequiredData();
+    
+    if (missingData.length > 0) {
+      const missingList = missingData.map((item, i) => `${i + 1}. ${item}`).join('\n');
+      alert(`❌ لا يمكن الحفظ! البيانات التالية مطلوبة:\n\n${missingList}\n\nالرجاء إكمال جميع البيانات المطلوبة.`);
+      return;
+    }
+    
     setSaving(true);
     try {
       const data = {
@@ -185,13 +322,40 @@ export default function PropertyAdditionalData() {
         updatedAt: new Date().toISOString()
       };
       
-      // Save to localStorage (or API in the future)
+      console.log('💾 جاري حفظ البيانات الإضافية للعقار:', id, data);
+      
+      // Save to API (which saves to properties.json)
+      const response = await fetch(`/api/properties/${id}/additional`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'فشل الحفظ');
+      }
+
+      const result = await response.json();
+      console.log('✅ تم حفظ البيانات بنجاح:', result);
+      
+      alert('✅ تم حفظ جميع البيانات بنجاح في قاعدة البيانات!');
+      
+      // Optional: Also save to localStorage as backup
       localStorage.setItem(`property-${id}-additional`, JSON.stringify(data));
       
-      alert('✅ تم حفظ جميع البيانات بنجاح!');
+      // العودة للصفحة السابقة إذا كان هناك returnUrl
+      if (returnUrl && typeof returnUrl === 'string') {
+        console.log('🔙 العودة إلى:', returnUrl);
+        setTimeout(() => {
+          router.push(returnUrl);
+        }, 1000); // انتظار ثانية واحدة ليرى المستخدم رسالة النجاح
+      }
     } catch (error) {
-      console.error('Error saving data:', error);
-      alert('❌ حدث خطأ أثناء الحفظ');
+      console.error('❌ خطأ في حفظ البيانات:', error);
+      alert(`❌ حدث خطأ أثناء الحفظ: ${(error as Error).message}`);
     } finally {
       setSaving(false);
     }
@@ -310,11 +474,13 @@ export default function PropertyAdditionalData() {
   };
 
   const documentTypeLabels: Record<string, { label: string; icon: any; color: string }> = {
+    'ownership_deed': { label: '🔴 ملكية العقار (إجباري)', icon: FaFileContract, color: 'text-red-600' },
+    'survey_drawing': { label: '🔴 الرسم المساحي (إجباري)', icon: FaFileImage, color: 'text-red-600' },
     'contract': { label: 'عقد', icon: FaFileContract, color: 'text-blue-600' },
     'deed': { label: 'صك ملكية', icon: FaFileAlt, color: 'text-green-600' },
     'permit': { label: 'ترخيص', icon: FaFileAlt, color: 'text-purple-600' },
     'certificate': { label: 'شهادة', icon: FaFileAlt, color: 'text-orange-600' },
-    'invoice': { label: 'فاتورة', icon: FaReceipt, color: 'text-red-600' },
+    'invoice': { label: 'فاتورة', icon: FaReceipt, color: 'text-cyan-600' },
     'photo': { label: 'صورة', icon: FaFileImage, color: 'text-pink-600' },
     'other': { label: 'أخرى', icon: FaFileAlt, color: 'text-gray-600' }
   };
@@ -363,51 +529,44 @@ export default function PropertyAdditionalData() {
             }}></div>
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 relative">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <div className="mb-6 flex items-center gap-3">
-                <InstantLink
-                  href="/properties/unified-management"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all"
-                >
-                  <FaArrowLeft />
-                  <span>العودة للعقارات</span>
-                </InstantLink>
-                <InstantLink
-                  href={`/properties/${id}`}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all"
-                >
-                  <FaBuilding />
-                  <span>صفحة العقار</span>
-                </InstantLink>
-              </div>
-
-              <div className="flex items-start gap-6">
-                <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center flex-shrink-0">
-                  <FaFileAlt className="w-10 h-10 text-white" />
-                </div>
-                <div className="flex-1">
-                  <h1 className="text-3xl md:text-4xl font-bold mb-2">البيانات الإضافية</h1>
-                  <p className="text-xl text-white/90 mb-2">{property.titleAr || property.title}</p>
-                  <p className="text-white/80">{property.address}</p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <InstantLink
+                    href="/properties/unified-management"
+                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all text-sm"
+                  >
+                    <FaArrowLeft className="w-3 h-3" />
+                    <span>العودة</span>
+                  </InstantLink>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                      <FaFileAlt className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h1 className="text-xl font-bold">البيانات الإضافية</h1>
+                      <p className="text-sm text-white/80">{property.titleAr || property.title}</p>
+                    </div>
+                  </div>
                 </div>
                 <button
                   onClick={saveData}
                   disabled={saving}
-                  className="px-6 py-3 bg-white text-indigo-600 rounded-xl hover:bg-blue-50 transition-all font-semibold shadow-lg flex items-center gap-2"
+                  className="px-4 py-2 bg-white text-indigo-600 rounded-lg hover:bg-blue-50 transition-all font-semibold shadow-lg flex items-center gap-2 text-sm"
                 >
                   {saving ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                       جاري الحفظ...
                     </>
                   ) : (
                     <>
-                      <FaSave className="w-5 h-5" />
-                      حفظ جميع التغييرات
+                      <FaSave className="w-4 h-4" />
+                      حفظ
                     </>
                   )}
                 </button>
@@ -417,6 +576,30 @@ export default function PropertyAdditionalData() {
         </div>
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* ملاحظة هامة - الحقول الإجبارية */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-red-50 via-orange-50 to-yellow-50 border-2 border-red-300 rounded-xl p-3 mb-4 shadow"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <FaInfoCircle className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-red-600 font-bold text-lg">*</span>
+                  <h3 className="text-base font-bold text-red-900">تنبيه: البيانات الإجبارية</h3>
+                </div>
+                <p className="text-xs text-red-800">
+                  الحقول ذات النجمة الحمراء <span className="text-red-600 font-bold">*</span> والخلفية الحمراء 
+                  <span className="inline-block w-12 h-3 bg-red-50 border border-red-300 rounded mx-1"></span>
+                  <strong>إجبارية</strong> (22 حقل) - لن يتم الحفظ بدونها
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
           {/* Owner Data Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -445,71 +628,95 @@ export default function PropertyAdditionalData() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* الاسم الكامل */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      الاسم الكامل *
-                    </label>
+                    <RequiredLabel>الاسم الكامل</RequiredLabel>
                     <input
                       type="text"
                       value={ownerData.fullName}
                       onChange={(e) => setOwnerData({ ...ownerData, fullName: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      className={REQUIRED_INPUT_CLASSES}
                       placeholder="الاسم الثلاثي واللقب"
+                      required
                     />
                   </div>
 
                   {/* رقم البطاقة */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      رقم البطاقة الشخصية *
-                    </label>
+                    <RequiredLabel>رقم البطاقة الشخصية</RequiredLabel>
                     <input
                       type="text"
                       value={ownerData.nationalId}
                       onChange={(e) => setOwnerData({ ...ownerData, nationalId: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      className={REQUIRED_INPUT_CLASSES}
                       placeholder="XX-XXXXXXXX"
+                      required
                     />
                   </div>
 
                   {/* تاريخ انتهاء البطاقة */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      تاريخ انتهاء البطاقة *
-                    </label>
+                    <RequiredLabel>تاريخ انتهاء البطاقة</RequiredLabel>
                     <input
                       type="date"
                       value={ownerData.nationalIdExpiry}
                       onChange={(e) => setOwnerData({ ...ownerData, nationalIdExpiry: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      className={REQUIRED_INPUT_CLASSES}
+                      required
                     />
                   </div>
 
                   {/* رقم الهاتف */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      رقم الهاتف *
-                    </label>
+                    <RequiredLabel>رقم الهاتف</RequiredLabel>
                     <input
                       type="tel"
                       value={ownerData.phone}
                       onChange={(e) => setOwnerData({ ...ownerData, phone: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      className={REQUIRED_INPUT_CLASSES}
                       placeholder="+968 XXXXXXXX"
+                      required
                     />
                   </div>
 
                   {/* البريد الإلكتروني */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      البريد الإلكتروني *
-                    </label>
+                    <RequiredLabel>البريد الإلكتروني</RequiredLabel>
                     <input
                       type="email"
                       value={ownerData.email}
                       onChange={(e) => setOwnerData({ ...ownerData, email: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      className={REQUIRED_INPUT_CLASSES}
                       placeholder="owner@example.com"
+                      required
                     />
+                  </div>
+
+                  {/* نسخة من البطاقة الشخصية */}
+                  <div>
+                    <RequiredLabel>نسخة من البطاقة الشخصية</RequiredLabel>
+                    <div className="space-y-2">
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            console.log('📎 تم رفع ملف البطاقة:', file.name, `${(file.size / 1024).toFixed(2)} KB`);
+                            setOwnerData({ ...ownerData, nationalIdFile: file.name });
+                          }
+                        }}
+                        className={REQUIRED_INPUT_CLASSES}
+                        required
+                      />
+                      {ownerData.nationalIdFile && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-2 flex items-center gap-2">
+                          <FaCheckCircle className="w-4 h-4 text-green-600" />
+                          <span className="text-sm text-green-700 font-medium">{ownerData.nationalIdFile}</span>
+                        </div>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        📌 يقبل: صور (JPG, PNG) أو PDF
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -572,29 +779,27 @@ export default function PropertyAdditionalData() {
 
                   {/* مسؤول الصيانة */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      اسم مسؤول الصيانة
-                    </label>
+                    <RequiredLabel>اسم مسؤول الصيانة</RequiredLabel>
                     <input
                       type="text"
                       value={staffData.maintenanceOfficerName || ''}
                       onChange={(e) => setStaffData({ ...staffData, maintenanceOfficerName: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                      className={REQUIRED_INPUT_CLASSES}
                       placeholder="اسم مسؤول الصيانة"
+                      required
                     />
                   </div>
 
                   {/* رقم هاتف مسؤول الصيانة */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      رقم هاتف مسؤول الصيانة
-                    </label>
+                    <RequiredLabel>رقم هاتف مسؤول الصيانة</RequiredLabel>
                     <input
                       type="tel"
                       value={staffData.maintenanceOfficerPhone || ''}
                       onChange={(e) => setStaffData({ ...staffData, maintenanceOfficerPhone: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                      className={REQUIRED_INPUT_CLASSES}
                       placeholder="+968 XXXXXXXX"
+                      required
                     />
                   </div>
 
@@ -671,14 +876,14 @@ export default function PropertyAdditionalData() {
 
                   {/* رقم القطعة */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      رقم القطعة
-                    </label>
+                    <RequiredLabel>رقم القطعة</RequiredLabel>
                     <input
                       type="text"
                       value={propertyData.plotNumber || ''}
                       onChange={(e) => setPropertyData({ ...propertyData, plotNumber: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      className={REQUIRED_INPUT_CLASSES}
+                      placeholder="رقم القطعة"
+                      required
                     />
                   </div>
 
@@ -697,14 +902,14 @@ export default function PropertyAdditionalData() {
 
                   {/* المنطقة */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      المنطقة
-                    </label>
+                    <RequiredLabel>المنطقة</RequiredLabel>
                     <input
                       type="text"
                       value={propertyData.area || ''}
                       onChange={(e) => setPropertyData({ ...propertyData, area: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      className={REQUIRED_INPUT_CLASSES}
+                      placeholder="المنطقة"
+                      required
                     />
                   </div>
 
@@ -723,27 +928,27 @@ export default function PropertyAdditionalData() {
 
                   {/* رقم الرسم المساحي */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      رقم الرسم المساحي
-                    </label>
+                    <RequiredLabel>رقم الرسم المساحي</RequiredLabel>
                     <input
                       type="text"
                       value={propertyData.surveyNumber || ''}
                       onChange={(e) => setPropertyData({ ...propertyData, surveyNumber: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      className={REQUIRED_INPUT_CLASSES}
+                      placeholder="رقم الرسم المساحي"
+                      required
                     />
                   </div>
 
                   {/* رقم المبنى */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      رقم المبنى
-                    </label>
+                    <RequiredLabel>رقم المبنى</RequiredLabel>
                     <input
                       type="text"
                       value={propertyData.buildingNumber || ''}
                       onChange={(e) => setPropertyData({ ...propertyData, buildingNumber: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      className={REQUIRED_INPUT_CLASSES}
+                      placeholder="رقم المبنى"
+                      required
                     />
                   </div>
 
@@ -762,16 +967,21 @@ export default function PropertyAdditionalData() {
 
                   {/* نوع استعمال الأرض */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      نوع استعمال الأرض
-                    </label>
-                    <input
-                      type="text"
+                    <RequiredLabel>نوع استعمال الأرض</RequiredLabel>
+                    <select
                       value={propertyData.landUseType || ''}
                       onChange={(e) => setPropertyData({ ...propertyData, landUseType: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                      placeholder="سكني، تجاري، صناعي..."
-                    />
+                      className={REQUIRED_SELECT_CLASSES}
+                      required
+                    >
+                      <option value="">-- اختر نوع الاستعمال --</option>
+                      <option value="residential">سكني</option>
+                      <option value="commercial">تجاري</option>
+                      <option value="residential_commercial">سكني تجاري</option>
+                      <option value="industrial">صناعي</option>
+                      <option value="tourism">سياحي</option>
+                      <option value="agricultural">زراعي</option>
+                    </select>
                   </div>
 
                   {/* الطابق */}
@@ -885,15 +1095,53 @@ export default function PropertyAdditionalData() {
                                   </>
                                 )}
                                 {service.notes && <p className="text-gray-600"><span className="font-medium">ملاحظات:</span> {service.notes}</p>}
+                                
+                                {/* عرض تاريخ العدادات */}
+                                {(service.type === 'electricity' || service.type === 'water') && service.meterHistory && service.meterHistory.length > 0 && (
+                                  <div className="mt-3 pt-3 border-t border-gray-200">
+                                    <p className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+                                      <FaClock className="w-4 h-4 text-orange-600" />
+                                      تاريخ العدادات ({service.meterHistory.length})
+                                    </p>
+                                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                                      {service.meterHistory.map((history, index) => (
+                                        <div key={history.id} className="text-xs bg-gray-100 p-2 rounded">
+                                          <p className="font-medium text-gray-700">
+                                            استبدال #{service.meterHistory!.length - index} - {new Date(history.replacementDate).toLocaleDateString('ar-EG')}
+                                          </p>
+                                          <p className="text-gray-600">
+                                            من: {history.oldMeterNumber} (قراءة: {history.oldMeterReading}) → إلى: {history.newMeterNumber}
+                                          </p>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
-                          <button
-                            onClick={() => removeServiceAccount(service.id)}
-                            className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-all"
-                          >
-                            <FaTrash className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-2">
+                            {/* زر استبدال العداد - للكهرباء والمياه فقط */}
+                            {(service.type === 'electricity' || service.type === 'water') && (
+                              <button
+                                onClick={() => {
+                                  setSelectedServiceForMeterChange(service);
+                                  setShowMeterReplacement(true);
+                                }}
+                                className="text-orange-600 hover:text-orange-700 p-2 hover:bg-orange-50 rounded-lg transition-all flex items-center gap-2"
+                                title="استبدال العداد"
+                              >
+                                <FaEdit className="w-4 h-4" />
+                                <span className="text-xs">استبدال العداد</span>
+                              </button>
+                            )}
+                            <button
+                              onClick={() => removeServiceAccount(service.id)}
+                              className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-all"
+                            >
+                              <FaTrash className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     );
@@ -926,13 +1174,14 @@ export default function PropertyAdditionalData() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">رقم الحساب *</label>
+                        <RequiredLabel>رقم الحساب</RequiredLabel>
                         <input
                           type="text"
                           value={newService.accountNumber || ''}
                           onChange={(e) => setNewService({...newService, accountNumber: e.target.value})}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className={REQUIRED_INPUT_CLASSES}
                           placeholder="أدخل رقم الحساب"
+                          required
                         />
                       </div>
                       <div>
@@ -970,7 +1219,9 @@ export default function PropertyAdditionalData() {
                       {(newService.type === 'electricity' || newService.type === 'water') && (
                         <>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">رقم العداد</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              رقم العداد <span className="text-gray-400 text-xs">(اختياري)</span>
+                            </label>
                             <input
                               type="text"
                               value={newService.meterNumber || ''}
@@ -981,33 +1232,45 @@ export default function PropertyAdditionalData() {
                           </div>
                           
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">نوع الدفع</label>
+                            <RequiredLabel>نوع الدفع</RequiredLabel>
                             <select
-                              value={newService.paymentType || 'postpaid'}
+                              value={newService.paymentType || ''}
                               onChange={(e) => setNewService({...newService, paymentType: e.target.value as 'prepaid' | 'postpaid'})}
-                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                              className={REQUIRED_SELECT_CLASSES}
+                              required
                             >
+                              <option value="">-- اختر نوع الدفع --</option>
                               <option value="prepaid">مسبق الدفع</option>
                               <option value="postpaid">آجل الدفع</option>
                             </select>
                           </div>
                           
                           <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">صورة العداد</label>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  setNewService({...newService, meterImage: file.name});
-                                }
-                              }}
-                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            />
-                            {newService.meterImage && (
-                              <p className="mt-2 text-sm text-green-600">✓ {newService.meterImage}</p>
-                            )}
+                            <RequiredLabel>صورة العداد</RequiredLabel>
+                            <div className="space-y-2">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    console.log('📸 تم اختيار ملف:', file.name, file.size);
+                                    setNewService({...newService, meterImage: file.name});
+                                  }
+                                }}
+                                className={REQUIRED_INPUT_CLASSES}
+                                required
+                              />
+                              {newService.meterImage && (
+                                <div className="bg-green-50 border border-green-200 rounded-lg p-2 flex items-center gap-2">
+                                  <FaCheckCircle className="w-4 h-4 text-green-600" />
+                                  <span className="text-sm text-green-700 font-medium">{newService.meterImage}</span>
+                                </div>
+                              )}
+                              <p className="text-xs text-gray-500">
+                                📌 يقبل: JPG, PNG, JPEG
+                              </p>
+                            </div>
                           </div>
                         </>
                       )}
@@ -1052,8 +1315,13 @@ export default function PropertyAdditionalData() {
                   <FaFileContract className="w-6 h-6 text-white" />
                 </div>
                 <div className="text-right">
-                  <h2 className="text-xl font-bold text-gray-900">المستندات المرفقة</h2>
-                  <p className="text-sm text-gray-600">عقود، صكوك، تراخيص، وثائق</p>
+                  <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    المستندات المرفقة
+                    <span className="text-red-600 text-2xl">*</span>
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    إجباري: ملكية العقار + الرسم المساحي | اختياري: عقود، تراخيص، وثائق
+                  </p>
                 </div>
                 <span className="px-3 py-1 bg-purple-600 text-white rounded-full text-sm font-bold">
                   {documents.length}
@@ -1163,31 +1431,52 @@ export default function PropertyAdditionalData() {
                           placeholder="أدخل اسم المستند"
                         />
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">رابط الملف</label>
+                      <div className="md:col-span-2">
+                        <RequiredLabel>رفع الملف</RequiredLabel>
                         <input
-                          type="text"
-                          value={newDocument.fileUrl || ''}
-                          onChange={(e) => setNewDocument({...newDocument, fileUrl: e.target.value})}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                          placeholder="https://..."
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              // حفظ اسم الملف كـ URL مؤقت
+                              setNewDocument({
+                                ...newDocument, 
+                                fileUrl: file.name,
+                                fileName: file.name,
+                                fileSize: `${(file.size / 1024).toFixed(2)} KB`
+                              });
+                            }
+                          }}
+                          className={REQUIRED_INPUT_CLASSES}
+                          required
                         />
+                        {newDocument.fileUrl && (
+                          <p className="mt-2 text-sm text-green-600 flex items-center gap-2">
+                            <FaCheckCircle className="w-4 h-4" />
+                            {newDocument.fileName} ({newDocument.fileSize})
+                          </p>
+                        )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">تاريخ الانتهاء</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          تاريخ الانتهاء <span className="text-gray-400 text-xs">(اختياري)</span>
+                        </label>
                         <input
                           type="date"
                           value={newDocument.expiryDate || ''}
                           onChange={(e) => setNewDocument({...newDocument, expiryDate: e.target.value})}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                          className={OPTIONAL_INPUT_CLASSES}
                         />
                       </div>
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">ملاحظات</label>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          ملاحظات <span className="text-gray-400 text-xs">(اختياري)</span>
+                        </label>
                         <textarea
                           value={newDocument.notes || ''}
                           onChange={(e) => setNewDocument({...newDocument, notes: e.target.value})}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                          className={OPTIONAL_INPUT_CLASSES}
                           rows={2}
                           placeholder="ملاحظات إضافية..."
                         />
@@ -1197,7 +1486,7 @@ export default function PropertyAdditionalData() {
                       <button
                         onClick={() => {
                           setShowAddDocument(false);
-                          setNewDocument({ type: 'contract' });
+                          setNewDocument({ type: 'ownership_deed' });
                         }}
                         className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
                       >
@@ -1416,6 +1705,271 @@ export default function PropertyAdditionalData() {
           </motion.div>
         </main>
       </div>
+
+      {/* نافذة استبدال العداد */}
+      {showMeterReplacement && selectedServiceForMeterChange && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-70 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col"
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 flex-shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 bg-white bg-opacity-30 rounded-full flex items-center justify-center">
+                  <FaEdit className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold">استبدال العداد</h3>
+                  <p className="text-white text-opacity-90">
+                    {selectedServiceForMeterChange.type === 'electricity' ? 'عداد الكهرباء' : 'عداد المياه'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <FaInfoCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
+                  <div className="text-sm text-yellow-900">
+                    <p className="font-bold mb-1">⚠️ ملاحظة هامة:</p>
+                    <p>سيتم الاحتفاظ بجميع بيانات العداد القديم ولا يمكن حذفها. هذا لحماية حقوقك من أي تلاعب في القراءات.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* بيانات العداد القديم */}
+                <div className="md:col-span-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <FaClock className="w-5 h-5 text-gray-600" />
+                    بيانات العداد القديم (للأرشفة)
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        رقم العداد القديم (حالي)
+                      </label>
+                      <input
+                        type="text"
+                        value={selectedServiceForMeterChange.meterNumber || ''}
+                        disabled
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600"
+                      />
+                    </div>
+                    <div>
+                      <RequiredLabel>القراءة الأخيرة للعداد القديم</RequiredLabel>
+                      <input
+                        type="text"
+                        value={meterReplacementData.oldMeterReading}
+                        onChange={(e) => setMeterReplacementData({...meterReplacementData, oldMeterReading: e.target.value})}
+                        className={REQUIRED_INPUT_CLASSES}
+                        placeholder="مثال: 12345 kWh"
+                        required
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <RequiredLabel>صورة العداد القديم</RequiredLabel>
+                      <div className="space-y-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              console.log('📸 تم رفع صورة العداد القديم:', file.name, `${(file.size / 1024).toFixed(2)} KB`);
+                              setMeterReplacementData({...meterReplacementData, oldMeterImage: file});
+                            }
+                          }}
+                          className={REQUIRED_INPUT_CLASSES}
+                          required
+                        />
+                        {meterReplacementData.oldMeterImage && (
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-2 flex items-center gap-2">
+                            <FaCheckCircle className="w-4 h-4 text-green-600" />
+                            <span className="text-sm text-green-700 font-medium">
+                              {meterReplacementData.oldMeterImage.name} ({(meterReplacementData.oldMeterImage.size / 1024).toFixed(2)} KB)
+                            </span>
+                          </div>
+                        )}
+                        <p className="text-xs text-gray-500">
+                          📌 صورة واضحة للعداد + القراءة
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* بيانات العداد الجديد */}
+                <div className="md:col-span-2 bg-green-50 p-4 rounded-lg border border-green-200">
+                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <FaBolt className="w-5 h-5 text-green-600" />
+                    بيانات العداد الجديد
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <RequiredLabel>رقم العداد الجديد</RequiredLabel>
+                      <input
+                        type="text"
+                        value={meterReplacementData.newMeterNumber}
+                        onChange={(e) => setMeterReplacementData({...meterReplacementData, newMeterNumber: e.target.value})}
+                        className={REQUIRED_INPUT_CLASSES}
+                        placeholder="رقم العداد الجديد"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <RequiredLabel>تاريخ الاستبدال</RequiredLabel>
+                      <input
+                        type="date"
+                        value={meterReplacementData.replacementDate}
+                        onChange={(e) => setMeterReplacementData({...meterReplacementData, replacementDate: e.target.value})}
+                        className={REQUIRED_INPUT_CLASSES}
+                        required
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <RequiredLabel>صورة العداد الجديد</RequiredLabel>
+                      <div className="space-y-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              console.log('📸 تم رفع صورة العداد الجديد:', file.name, `${(file.size / 1024).toFixed(2)} KB`);
+                              setMeterReplacementData({...meterReplacementData, newMeterImage: file});
+                            }
+                          }}
+                          className={REQUIRED_INPUT_CLASSES}
+                          required
+                        />
+                        {meterReplacementData.newMeterImage && (
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-2 flex items-center gap-2">
+                            <FaCheckCircle className="w-4 h-4 text-green-600" />
+                            <span className="text-sm text-green-700 font-medium">
+                              {meterReplacementData.newMeterImage.name} ({(meterReplacementData.newMeterImage.size / 1024).toFixed(2)} KB)
+                            </span>
+                          </div>
+                        )}
+                        <p className="text-xs text-gray-500">
+                          📌 صورة واضحة للعداد الجديد
+                        </p>
+                      </div>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        سبب الاستبدال <span className="text-gray-400 text-xs">(اختياري)</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={meterReplacementData.replacementReason}
+                        onChange={(e) => setMeterReplacementData({...meterReplacementData, replacementReason: e.target.value})}
+                        className={OPTIONAL_INPUT_CLASSES}
+                        placeholder="مثال: عطل، انتهاء صلاحية، طلب الشركة..."
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        ملاحظات إضافية <span className="text-gray-400 text-xs">(اختياري)</span>
+                      </label>
+                      <textarea
+                        value={meterReplacementData.replacementNotes}
+                        onChange={(e) => setMeterReplacementData({...meterReplacementData, replacementNotes: e.target.value})}
+                        className={OPTIONAL_INPUT_CLASSES}
+                        rows={3}
+                        placeholder="أي ملاحظات إضافية..."
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowMeterReplacement(false);
+                    setSelectedServiceForMeterChange(null);
+                    setMeterReplacementData({
+                      oldMeterReading: '',
+                      oldMeterImage: null,
+                      newMeterNumber: '',
+                      newMeterImage: null,
+                      replacementDate: new Date().toISOString().split('T')[0],
+                      replacementReason: '',
+                      replacementNotes: ''
+                    });
+                  }}
+                  className="flex-1 px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                >
+                  إلغاء
+                </button>
+                <button
+                  onClick={() => {
+                    // التحقق من البيانات المطلوبة
+                    if (!meterReplacementData.oldMeterReading || !meterReplacementData.oldMeterImage || !meterReplacementData.newMeterNumber || !meterReplacementData.newMeterImage) {
+                      alert('❌ الرجاء إكمال جميع البيانات الإجبارية لاستبدال العداد');
+                      return;
+                    }
+                    
+                    // إنشاء سجل تاريخ جديد
+                    const historyEntry: MeterHistory = {
+                      id: `METER-${Date.now()}`,
+                      oldMeterNumber: selectedServiceForMeterChange.meterNumber || '',
+                      oldMeterImage: meterReplacementData.oldMeterImage.name,
+                      oldMeterReading: meterReplacementData.oldMeterReading,
+                      newMeterNumber: meterReplacementData.newMeterNumber,
+                      newMeterImage: meterReplacementData.newMeterImage.name,
+                      replacementDate: meterReplacementData.replacementDate,
+                      replacementReason: meterReplacementData.replacementReason,
+                      replacementNotes: meterReplacementData.replacementNotes,
+                      createdAt: new Date().toISOString()
+                    };
+                    
+                    // تحديث الخدمة
+                    const updatedAccounts = serviceAccounts.map(s => {
+                      if (s.id === selectedServiceForMeterChange.id) {
+                        return {
+                          ...s,
+                          meterNumber: meterReplacementData.newMeterNumber,
+                          meterImage: meterReplacementData.newMeterImage.name,
+                          meterHistory: [...(s.meterHistory || []), historyEntry]
+                        };
+                      }
+                      return s;
+                    });
+                    
+                    setServiceAccounts(updatedAccounts);
+                    setShowMeterReplacement(false);
+                    setSelectedServiceForMeterChange(null);
+                    setMeterReplacementData({
+                      oldMeterReading: '',
+                      oldMeterImage: null,
+                      newMeterNumber: '',
+                      newMeterImage: null,
+                      replacementDate: new Date().toISOString().split('T')[0],
+                      replacementReason: '',
+                      replacementNotes: ''
+                    });
+                    
+                    alert('✅ تم تسجيل استبدال العداد بنجاح! البيانات القديمة محفوظة في الأرشيف.');
+                  }}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg hover:from-orange-700 hover:to-red-700 transition-all font-medium flex items-center justify-center gap-2 shadow-lg"
+                >
+                  <FaSave className="w-5 h-5" />
+                  حفظ الاستبدال
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </>
   );
 }
