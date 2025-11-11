@@ -15,6 +15,7 @@ interface RequestBody {
   propertyId: string;
   unitId?: string;
   tenantId?: string;
+  contractType?: 'residential' | 'commercial'; // نوع العقد
   tenantData?: {
     name: string;
     phone: string;
@@ -171,27 +172,86 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     };
 
-    // 9. اختيار القالب
+    // 9. اختيار القالب الذكي
     let selectedTemplate = null;
     
-    if (body.templateId) {
-      // إذا تم تحديد قالب معين
-      selectedTemplate = templates.find((t: any) => t.id === body.templateId);
+    console.log('🔍 اختيار القالب الذكي...');
+    console.log('📋 نوع العقد:', body.contractType);
+    console.log('🏢 نوع الاستخدام:', property.usageType || property.category);
+    
+    // 1. أولوية عالية: قالب مخصص مرتبط بالعقار أو الوحدة
+    if (body.unitId) {
+      selectedTemplate = templates.find((t: any) => 
+        t.linkedUnits?.includes(body.unitId)
+      );
+      if (selectedTemplate) {
+        console.log('✅ تم اختيار قالب مخصص مرتبط بالوحدة:', selectedTemplate.name);
+      }
     }
     
+    if (!selectedTemplate && body.propertyId) {
+      selectedTemplate = templates.find((t: any) => 
+        t.linkedProperties?.includes(body.propertyId)
+      );
+      if (selectedTemplate) {
+        console.log('✅ تم اختيار قالب مخصص مرتبط بالعقار:', selectedTemplate.name);
+      }
+    }
+    
+    // 2. إذا تم تحديد templateId صراحة
+    if (!selectedTemplate && body.templateId) {
+      selectedTemplate = templates.find((t: any) => t.id === body.templateId);
+      if (selectedTemplate) {
+        console.log('✅ تم اختيار القالب المحدد:', selectedTemplate.name);
+      }
+    }
+    
+    // 3. اختيار حسب نوع العقد (سكني/تجاري)
+    if (!selectedTemplate && body.contractType) {
+      const usageType = body.contractType === 'residential' ? 'residential' : 'commercial';
+      selectedTemplate = templates.find((t: any) => 
+        t.type === 'rental' && 
+        t.usageTypes?.includes(usageType)
+      );
+      if (selectedTemplate) {
+        console.log('✅ تم اختيار قالب حسب نوع العقد:', body.contractType);
+      }
+    }
+    
+    // 4. اختيار حسب usageType من العقار
+    if (!selectedTemplate && (property.usageType || property.category)) {
+      const usageType = property.usageType || property.category;
+      selectedTemplate = templates.find((t: any) => 
+        t.type === 'rental' && 
+        t.usageTypes?.includes(usageType)
+      );
+      if (selectedTemplate) {
+        console.log('✅ تم اختيار قالب حسب نوع استخدام العقار:', usageType);
+      }
+    }
+    
+    // 5. استخدام دالة الاختيار الذكي
     if (!selectedTemplate) {
-      // اختيار القالب تلقائياً
       selectedTemplate = selectBestTemplate(templates, templateData);
+      if (selectedTemplate) {
+        console.log('✅ تم اختيار قالب عبر الاختيار الذكي');
+      }
     }
-
+    
+    // 6. استخدام القالب الافتراضي
     if (!selectedTemplate) {
-      // استخدام القالب الافتراضي
       selectedTemplate = templates.find((t: any) => t.isDefault) || templates[0];
+      if (selectedTemplate) {
+        console.log('⚠️ استخدام القالب الافتراضي');
+      }
     }
 
     if (!selectedTemplate) {
+      console.error('❌ لم يتم العثور على أي قالب مناسب');
       return res.status(404).json({ error: 'No suitable template found' });
     }
+    
+    console.log('🎉 القالب المختار:', selectedTemplate.id, '-', selectedTemplate.name);
 
     // 10. ملء القالب
     const filledTemplate = fillTemplate(selectedTemplate, templateData);

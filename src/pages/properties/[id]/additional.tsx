@@ -89,6 +89,7 @@ interface StaffData {
 }
 
 interface PropertyData {
+  complexName?: string;
   complexNumber?: string;
   plotNumber?: string;
   streetName?: string;
@@ -97,6 +98,7 @@ interface PropertyData {
   surveyNumber?: string;
   buildingNumber?: string;
   roadNumber?: string;
+  blockNumber?: string;
   landUseType?: string;
   floor?: string;
   unitType?: string;
@@ -899,6 +901,20 @@ export default function PropertyAdditionalData() {
             {expandedSections.has('propertyData') && (
               <div className="p-6 bg-gray-50">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* اسم المجمع */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      اسم المجمع
+                    </label>
+                    <input
+                      type="text"
+                      value={propertyData.complexName || ''}
+                      onChange={(e) => setPropertyData({ ...propertyData, complexName: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      placeholder="مثال: مجمع الخوير"
+                    />
+                  </div>
+                  
                   {/* رقم المجمع */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -909,6 +925,7 @@ export default function PropertyAdditionalData() {
                       value={propertyData.complexNumber || ''}
                       onChange={(e) => setPropertyData({ ...propertyData, complexNumber: e.target.value })}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      placeholder="مثال: 123"
                     />
                   </div>
 
@@ -961,6 +978,21 @@ export default function PropertyAdditionalData() {
                       value={propertyData.squareNumber || ''}
                       onChange={(e) => setPropertyData({ ...propertyData, squareNumber: e.target.value })}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      placeholder="مثال: 202"
+                    />
+                  </div>
+                  
+                  {/* رقم البلوك */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      رقم البلوك
+                    </label>
+                    <input
+                      type="text"
+                      value={propertyData.blockNumber || ''}
+                      onChange={(e) => setPropertyData({ ...propertyData, blockNumber: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      placeholder="مثال: 303"
                     />
                   </div>
 
@@ -1484,81 +1516,96 @@ export default function PropertyAdditionalData() {
                         />
                       </div>
                       <div className="md:col-span-2">
-                        <RequiredLabel>رفع الملف</RequiredLabel>
-                        <div className="space-y-2">
+                        <RequiredLabel>رفع الملفات (يمكن اختيار عدة ملفات)</RequiredLabel>
+                        <div className="space-y-3">
                           <div className="w-full px-4 py-3 border-2 border-red-300 rounded-lg bg-red-50 bg-opacity-30">
                             <input
                               type="file"
+                              multiple
                               accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                               onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  console.log('📄 تم رفع مستند:', file.name, `${(file.size / 1024).toFixed(2)} KB`);
-                                  setNewDocument({
-                                    ...newDocument, 
-                                    fileUrl: file.name,
-                                    fileName: file.name,
-                                    fileSize: `${(file.size / 1024).toFixed(2)} KB`
+                                const files = Array.from(e.target.files || []);
+                                if (files.length > 0) {
+                                  console.log(`📄 تم رفع ${files.length} ملف`);
+                                  
+                                  // إضافة كل ملف كمستند منفصل
+                                  files.forEach((file, index) => {
+                                    const docId = `doc-${Date.now()}-${index}`;
+                                    const newDoc: Document = {
+                                      id: docId,
+                                      type: newDocument.type || 'ownership_deed',
+                                      name: newDocument.name || file.name,
+                                      fileUrl: file.name,
+                                      fileName: file.name,
+                                      fileSize: `${(file.size / 1024).toFixed(2)} KB`,
+                                      uploadedAt: new Date().toISOString(),
+                                      expiryDate: newDocument.expiryDate,
+                                      notes: newDocument.notes
+                                    };
+                                    
+                                    console.log(`  ✅ ملف ${index + 1}: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+                                    setDocuments(prev => [...prev, newDoc]);
                                   });
+                                  
+                                  // إعادة تعيين النموذج
+                                  setNewDocument({
+                                    type: 'ownership_deed',
+                                    name: '',
+                                    fileUrl: '',
+                                    fileName: '',
+                                    fileSize: '',
+                                    expiryDate: '',
+                                    notes: ''
+                                  });
+                                  setShowAddDocument(false);
+                                  
+                                  alert(`✅ تم إضافة ${files.length} مستند بنجاح!`);
                                 }
                               }}
                               className="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700 cursor-pointer"
                             />
                           </div>
-                          {newDocument.fileUrl && (
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
-                              <FaCheckCircle className="w-5 h-5 text-green-600" />
+                          
+                          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg p-4">
+                            <div className="flex items-start gap-3">
+                              <FaUpload className="w-5 h-5 text-blue-600 mt-1" />
                               <div className="flex-1">
-                                <p className="text-sm text-green-700 font-medium">{newDocument.fileName}</p>
-                                <p className="text-xs text-green-600">{newDocument.fileSize}</p>
+                                <p className="text-sm text-blue-900 font-bold mb-2">💡 نصيحة: رفع ملفات متعددة</p>
+                                <ul className="text-xs text-blue-700 space-y-1">
+                                  <li>• اضغط زر "اختر ملف" وحدد عدة ملفات باستخدام:</li>
+                                  <li>  - <strong>Ctrl + Click</strong> لتحديد ملفات متفرقة</li>
+                                  <li>  - <strong>Shift + Click</strong> لتحديد مجموعة متتالية</li>
+                                  <li>  - <strong>Ctrl + A</strong> لتحديد كل الملفات</li>
+                                  <li>• يمكن رفع حتى <strong>20 ملف</strong> دفعة واحدة!</li>
+                                  <li>• كل الملفات ستُضاف تلقائياً بنفس النوع والملاحظات</li>
+                                </ul>
                               </div>
                             </div>
-                          )}
+                          </div>
+                          
                           <p className="text-xs text-gray-500">
-                            📌 يقبل: PDF, JPG, PNG, DOC, DOCX
+                            📌 أنواع الملفات المقبولة: PDF, JPG, PNG, DOC, DOCX
                           </p>
                         </div>
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          تاريخ الانتهاء <span className="text-gray-400 text-xs">(اختياري)</span>
-                        </label>
-                        <input
-                          type="date"
-                          value={newDocument.expiryDate || ''}
-                          onChange={(e) => setNewDocument({...newDocument, expiryDate: e.target.value})}
-                          className={OPTIONAL_INPUT_CLASSES}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          ملاحظات <span className="text-gray-400 text-xs">(اختياري)</span>
-                        </label>
-                        <textarea
-                          value={newDocument.notes || ''}
-                          onChange={(e) => setNewDocument({...newDocument, notes: e.target.value})}
-                          className={OPTIONAL_INPUT_CLASSES}
-                          rows={2}
-                          placeholder="ملاحظات إضافية..."
-                        />
-                      </div>
                     </div>
+                    
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
+                      <p className="text-sm text-yellow-800">
+                        ⚠️ <strong>ملاحظة:</strong> عند اختيار الملفات، سيتم إضافتها تلقائياً بالنوع المحدد أعلاه ({documentTypeLabels[newDocument.type || 'ownership_deed'].label}).
+                        إذا كنت تريد أنواع مختلفة، قم برفع كل نوع على حدة.
+                      </p>
+                    </div>
+                    
                     <div className="flex justify-end gap-3 mt-4">
                       <button
                         onClick={() => {
                           setShowAddDocument(false);
                           setNewDocument({ type: 'ownership_deed' });
                         }}
-                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                        className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
                       >
-                        إلغاء
-                      </button>
-                      <button
-                        onClick={addDocument}
-                        className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
-                      >
-                        <FaPlus className="w-4 h-4" />
-                        إضافة
+                        إغلاق
                       </button>
                     </div>
                   </div>

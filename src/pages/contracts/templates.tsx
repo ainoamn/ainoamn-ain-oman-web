@@ -7,7 +7,7 @@ import {
   FaFileContract, FaFileAlt, FaEnvelope, FaLink, FaUnlink, 
   FaSearch, FaPlus, FaFilter, FaStar, FaClock, FaCheckCircle,
   FaBuilding, FaHome, FaIndustry, FaLayerGroup, FaEye, FaDownload,
-  FaPrint, FaEdit, FaArrowRight, FaChartLine, FaFire, FaRocket
+  FaPrint, FaEdit, FaArrowRight, FaChartLine, FaFire, FaRocket, FaTrash
 } from "react-icons/fa";
 
 interface Template {
@@ -60,6 +60,38 @@ const ContractTemplatesPage: NextPage = () => {
       console.error('Error loading templates:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (templateId: string, templateName: string) => {
+    // تأكيد الحذف
+    const confirmed = confirm(`⚠️ هل أنت متأكد من حذف القالب "${templateName}"؟\n\nهذا الإجراء لا يمكن التراجع عنه.`);
+    
+    if (!confirmed) return;
+    
+    try {
+      const res = await fetch(`/api/contract-templates/${templateId}`, {
+        method: 'DELETE'
+      });
+      
+      if (res.ok) {
+        // إزالة القالب من القائمة
+        setTemplates(prev => prev.filter(t => t.id !== templateId));
+        
+        // تحديث القالب المحدد إذا كان المحذوف
+        if (selectedTemplate === templateId) {
+          const remaining = templates.filter(t => t.id !== templateId);
+          setSelectedTemplate(remaining.length > 0 ? remaining[0].id : '');
+        }
+        
+        alert('✅ تم حذف القالب بنجاح');
+      } else {
+        const error = await res.json();
+        alert(`❌ فشل حذف القالب: ${error.message || 'خطأ غير معروف'}`);
+      }
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      alert('❌ حدث خطأ أثناء حذف القالب');
     }
   };
 
@@ -190,33 +222,33 @@ const ContractTemplatesPage: NextPage = () => {
             }}></div>
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 relative">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="text-center"
             >
-              <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="flex items-center justify-center gap-3 mb-3">
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: "spring" }}
-                  className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center"
+                  className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center"
                 >
-                  <FaFileContract className="w-8 h-8 text-white" />
+                  <FaFileContract className="w-6 h-6 text-white" />
                 </motion.div>
               </div>
               
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              <h1 className="text-3xl md:text-4xl font-bold mb-3">
                 مكتبة القوالب الاحترافية
               </h1>
-              <p className="text-xl text-blue-100 mb-6 max-w-2xl mx-auto">
+              <p className="text-lg text-blue-100 mb-4 max-w-2xl mx-auto">
                 قوالب جاهزة للعقود والطلبات والرسائل - يتم ملؤها تلقائياً بالبيانات
               </p>
 
               {/* Quick Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto mt-4">
                 {[
                   { label: 'إجمالي القوالب', value: stats.total, icon: FaLayerGroup, color: 'from-blue-400 to-blue-500' },
                   { label: 'العقود', value: stats.contracts, icon: FaFileContract, color: 'from-purple-400 to-purple-500' },
@@ -228,13 +260,13 @@ const ContractTemplatesPage: NextPage = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 + idx * 0.1 }}
-                    className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20"
+                    className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20"
                   >
-                    <div className={`w-10 h-10 bg-gradient-to-r ${stat.color} rounded-lg flex items-center justify-center mx-auto mb-2`}>
-                      <stat.icon className="w-5 h-5 text-white" />
+                    <div className={`w-8 h-8 bg-gradient-to-r ${stat.color} rounded-lg flex items-center justify-center mx-auto mb-1.5`}>
+                      <stat.icon className="w-4 h-4 text-white" />
                     </div>
-                    <div className="text-3xl font-bold mb-1">{stat.value}</div>
-                    <div className="text-sm text-blue-100">{stat.label}</div>
+                    <div className="text-2xl font-bold mb-0.5">{stat.value}</div>
+                    <div className="text-xs text-blue-100">{stat.label}</div>
                   </motion.div>
                 ))}
               </div>
@@ -582,7 +614,7 @@ const ContractTemplatesPage: NextPage = () => {
                             </InstantLink>
                           </div>
                           
-                          <div className="grid grid-cols-3 gap-2">
+                          <div className="grid grid-cols-2 gap-2">
                             <InstantLink
                               href={`/contracts/templates/${template.id}`}
                               className="flex items-center justify-center gap-1 px-2 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-xs"
@@ -605,6 +637,14 @@ const ContractTemplatesPage: NextPage = () => {
                             >
                               <FaEdit className="w-3.5 h-3.5" />
                               <span>تعديل</span>
+                            </button>
+                            <button
+                              onClick={() => handleDelete(template.id, getText(template.name))}
+                              className="flex items-center justify-center gap-1 px-2 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs"
+                              title="حذف"
+                            >
+                              <FaTrash className="w-3.5 h-3.5" />
+                              <span>حذف</span>
                             </button>
                           </div>
                         </div>

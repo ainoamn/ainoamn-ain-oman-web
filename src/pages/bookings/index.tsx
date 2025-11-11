@@ -385,7 +385,7 @@ export default function BookingsPage() {
                           {booking.customerInfo?.name || booking.tenant?.name || 'غير محدد'}
                         </div>
                       </div>
-                    </div>
+        </div>
 
                     <div className="flex items-center gap-3 text-gray-700">
                       <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
@@ -398,7 +398,7 @@ export default function BookingsPage() {
                         </div>
                       </div>
                     </div>
-                  </div>
+              </div>
 
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                     <div className="flex gap-3">
@@ -409,7 +409,7 @@ export default function BookingsPage() {
                         <FaHome />
                         <span>عرض العقار</span>
                       </InstantLink>
-                    </div>
+              </div>
 
                     <InstantLink
                       href={`/admin/bookings/${booking.id}`}
@@ -419,8 +419,8 @@ export default function BookingsPage() {
                       <span>التفاصيل الكاملة</span>
                       <FaChevronRight />
                     </InstantLink>
-                  </div>
-                </div>
+              </div>
+            </div>
               </div>
             ))}
           </div>
@@ -443,6 +443,6 @@ export default function BookingsPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
   );
 }

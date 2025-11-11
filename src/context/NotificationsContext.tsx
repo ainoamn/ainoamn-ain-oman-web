@@ -79,6 +79,13 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
           response = await fetchWithTimeout(`/api/notifications?userId=${encodeURIComponent(userId)}`, { timeoutMs: 8000 });
           break;
         } catch (e) {
+          // تجاهل AbortError - يحدث عند timeout أو unmount
+          if (e instanceof Error && e.name === 'AbortError') {
+            console.log('📢 Notifications: Request aborted (timeout or unmount)');
+            setNotifications([]);
+            setUnreadCount(0);
+            return;
+          }
           lastErr = e;
           await new Promise(r => setTimeout(r, 300 * (attempt + 1)));
         }
@@ -102,6 +109,11 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
       setUnreadCount(data.unreadCount || 0);
 
     } catch (err) {
+      // تجاهل AbortError - ليس خطأ حقيقي
+      if (err instanceof Error && err.name === 'AbortError') {
+        console.log('📢 Notifications: Request aborted');
+        return;
+      }
       console.error('Error fetching notifications:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
       // keep old notifications; do not clear on transient failure
@@ -228,12 +240,23 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({ child
 
   // جلب الإشعارات عند التحميل
   useEffect(() => {
-    refreshNotifications();
+    let mounted = true;
+
+    const fetchIfMounted = async () => {
+      if (mounted) {
+        await refreshNotifications();
+      }
+    };
+
+    fetchIfMounted();
 
     // تحديث كل 30 ثانية
-    const interval = setInterval(refreshNotifications, 30000);
+    const interval = setInterval(fetchIfMounted, 30000);
 
-    return () => clearInterval(interval);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   // الاستماع للتزامن عبر BroadcastChannel

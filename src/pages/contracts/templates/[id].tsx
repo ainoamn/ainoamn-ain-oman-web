@@ -8,7 +8,7 @@ import {
   FaLink, FaPrint, FaFileContract, FaBuilding, FaUser, FaCalendarAlt, 
   FaArrowLeft, FaDownload, FaCopy, FaStar, FaCheckCircle, FaInfoCircle,
   FaFileAlt, FaEnvelope, FaLayerGroup, FaEdit, FaEye, FaRocket,
-  FaChevronDown, FaChevronUp, FaListAlt, FaExpandAlt, FaCompressAlt
+  FaChevronDown, FaChevronUp, FaListAlt, FaExpandAlt, FaCompressAlt, FaTrash
 } from "react-icons/fa";
 
 const TemplatePreviewPage: NextPage = () => {
@@ -70,6 +70,32 @@ const TemplatePreviewPage: NextPage = () => {
       navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id || !template) return;
+    
+    const templateName = getText(template.name);
+    const confirmed = confirm(`⚠️ هل أنت متأكد من حذف القالب "${templateName}"؟\n\nهذا الإجراء لا يمكن التراجع عنه.`);
+    
+    if (!confirmed) return;
+    
+    try {
+      const res = await fetch(`/api/contract-templates/${id}`, {
+        method: 'DELETE'
+      });
+      
+      if (res.ok) {
+        alert('✅ تم حذف القالب بنجاح');
+        router.push('/contracts/templates');
+      } else {
+        const error = await res.json();
+        alert(`❌ فشل حذف القالب: ${error.message || 'خطأ غير معروف'}`);
+      }
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      alert('❌ حدث خطأ أثناء حذف القالب');
     }
   };
 
@@ -313,6 +339,13 @@ const TemplatePreviewPage: NextPage = () => {
                 >
                   <FaCopy className="w-4 h-4" />
                   {copied ? 'تم النسخ!' : 'نسخ'}
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-red-500/90 backdrop-blur-sm text-white rounded-xl hover:bg-red-600 transition-all font-semibold border-2 border-red-400"
+                >
+                  <FaTrash className="w-4 h-4" />
+                  حذف القالب
                 </button>
               </div>
             </motion.div>

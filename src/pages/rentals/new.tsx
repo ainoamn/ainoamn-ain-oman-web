@@ -10,7 +10,7 @@ import {
   FaIdCard, FaClock, FaDollarSign, FaFileAlt, FaPlus,
   FaChevronDown, FaChevronUp, FaListAlt, FaUsers,
   FaCloudUploadAlt, FaFileUpload, FaPassport, FaTrash,
-  FaGlobe, FaFlag, FaExclamationTriangle, FaInfoCircle
+  FaGlobe, FaFlag, FaExclamationTriangle, FaInfoCircle, FaKey
 } from 'react-icons/fa';
 import InstantLink from '@/components/InstantLink';
 import AddTenantModal from '@/components/tenants/AddTenantModal';
@@ -27,6 +27,19 @@ interface Property {
   area?: string;
   rentalPrice?: string;
   priceOMR?: string;
+  // معلومات المالك
+  ownerName?: string;
+  ownerPhone?: string;
+  ownerEmail?: string;
+  // البيانات الإضافية للعقار
+  complexName?: string;
+  complexNumber?: string;
+  streetName?: string;
+  roadNumber?: string;
+  surveyNumber?: string;
+  plotNumber?: string;
+  squareNumber?: string;
+  blockNumber?: string;
 }
 
 interface Unit {
@@ -55,10 +68,19 @@ interface RentalFormData {
   tenantId: string;
   
   // تفاصيل العقد
-  startDate: string;
+  contractType: 'residential' | 'commercial'; // نوع العقد
+  actualRentalDate: string; // تاريخ الاستئجار الفعلي
+  unitHandoverDate: string; // تاريخ استلام الوحدة
+  startDate: string; // تاريخ بدء العقد
   endDate: string;
   duration: number; // بالأشهر
-  monthlyRent: number;
+  
+  // حساب الإيجار
+  calculateByArea: boolean; // حساب الإيجار بالمتر أو مباشرة
+  rentArea: number; // المساحة (متر مربع)
+  pricePerMeter: number; // السعر للمتر
+  monthlyRent: number; // محسوب تلقائياً إذا calculateByArea = true
+  
   deposit: number;
   currency: string;
   
@@ -67,11 +89,16 @@ interface RentalFormData {
   
   // طرق الدفع
   rentPaymentMethod: 'cash' | 'check' | 'bank_transfer' | 'electronic_payment';
-  depositPaymentMethod: 'cash' | 'check' | 'bank_transfer' | 'electronic_payment';
+  depositPaymentMethod: 'cash' | 'check' | 'bank_transfer' | 'electronic_payment' | 'cash_and_check';
   
   // أرقام الإيصالات
   rentReceiptNumber: string; // رقم إيصال الإيجار
   depositReceiptNumber: string; // رقم إيصال الضمان
+  
+  // المبلغ النقدي للضمان (في حالة نقدي + شيك)
+  depositCashAmount: number;
+  depositCashDate: string;
+  depositCashReceiptNumber: string;
   
   // شيكات الإيجار (متعددة)
   rentChecks: Array<{
@@ -80,16 +107,73 @@ interface RentalFormData {
     date: string;
   }>;
   
-  // شيكات الضمان (متعددة)
+  // معلومات مالك شيكات الإيجار (مرة واحدة لجميع الشيكات)
+  rentChecksOwnerType: 'tenant' | 'other_individual' | 'company';
+  rentChecksOwnerName: string;
+  // معلومات البنك
+  rentChecksBankName: string;
+  rentChecksBankBranch: string;
+  rentChecksBankAccount: string;
+  // للأفراد
+  rentChecksNationalId: string;
+  rentChecksNationalIdExpiry: string;
+  rentChecksNationalIdFile: string;
+  rentChecksIsOmani: boolean;
+  rentChecksPassportNumber: string;
+  rentChecksPassportExpiry: string;
+  rentChecksPassportFile: string;
+  // للشركات
+  rentChecksCommercialRegister: string;
+  rentChecksCommercialRegisterFile: string;
+  rentChecksAuthorizedPersonName: string;
+  rentChecksAuthorizedPersonId: string;
+  rentChecksAuthorizedPersonIdExpiry: string;
+  rentChecksAuthorizedPersonIdFile: string;
+  rentChecksAuthorizedPersonIsOmani: boolean;
+  rentChecksAuthorizedPersonPassport: string;
+  rentChecksAuthorizedPersonPassportExpiry: string;
+  rentChecksAuthorizedPersonPassportFile: string;
+  
+  // شيكات الضمان (متعددة - قد تكون بدون تاريخ)
   depositChecks: Array<{
     checkNumber: string;
     amount: number;
     date: string;
+    hasDate: boolean;
   }>;
+  
+  // معلومات مالك شيكات الضمان (مرة واحدة لجميع الشيكات)
+  depositChecksOwnerType: 'tenant' | 'other_individual' | 'company';
+  depositChecksOwnerName: string;
+  // معلومات البنك
+  depositChecksBankName: string;
+  depositChecksBankBranch: string;
+  depositChecksBankAccount: string;
+  // للأفراد
+  depositChecksNationalId: string;
+  depositChecksNationalIdExpiry: string;
+  depositChecksNationalIdFile: string;
+  depositChecksIsOmani: boolean;
+  depositChecksPassportNumber: string;
+  depositChecksPassportExpiry: string;
+  depositChecksPassportFile: string;
+  // للشركات
+  depositChecksCommercialRegister: string;
+  depositChecksCommercialRegisterFile: string;
+  depositChecksAuthorizedPersonName: string;
+  depositChecksAuthorizedPersonId: string;
+  depositChecksAuthorizedPersonIdExpiry: string;
+  depositChecksAuthorizedPersonIdFile: string;
+  depositChecksAuthorizedPersonIsOmani: boolean;
+  depositChecksAuthorizedPersonPassport: string;
+  depositChecksAuthorizedPersonPassportExpiry: string;
+  depositChecksAuthorizedPersonPassportFile: string;
   
   // أرقام المستندات
   municipalityFormNumber: string; // رقم استمارة عقد الإيجار للبلدية
+  municipalityFormFile: string; // نسخة ورقية من الاستمارة
   municipalityContractNumber: string; // رقم عقد الإيجار المعتمد من البلدية
+  municipalityContractFile: string; // نسخة ورقية من العقد المعتمد
   municipalityRegistrationFee: number; // رسوم تسجيل العقد (1 ريال عادة)
   
   // فترة السماح
@@ -98,7 +182,13 @@ interface RentalFormData {
   
   // قراءات العدادات
   electricityMeterReading: string;
+  electricityBillAmount: number; // مبلغ فاتورة الكهرباء
+  electricityMeterImage: string; // صورة عداد الكهرباء
+  electricityBillImage: string; // صورة فاتورة الكهرباء
   waterMeterReading: string;
+  waterBillAmount: number; // مبلغ فاتورة الماء
+  waterMeterImage: string; // صورة عداد الماء
+  waterBillImage: string; // صورة فاتورة الماء
   
   // رسوم الإنترنت
   internetIncluded: boolean; // true = يدفعها المستأجر للمالك، false = على مسؤولية المستأجر
@@ -118,6 +208,13 @@ interface RentalFormData {
   vatRate: number; // نسبة الضريبة (5% = 0.05)
   monthlyVATAmount: number; // قيمة الضريبة الشهرية
   totalVATAmount: number; // إجمالي الضريبة
+  
+  // ضرائب أخرى
+  hasOtherTaxes: boolean;
+  otherTaxName: string; // مسمى الضريبة
+  otherTaxRate: number; // نسبة الضريبة
+  monthlyOtherTaxAmount: number; // قيمة الضريبة الشهرية
+  totalOtherTaxAmount: number; // إجمالي الضريبة
   
   // إيجارات شهرية مخصصة (للسماح بتعديل كل شهر)
   useCustomMonthlyRents: boolean;
@@ -145,9 +242,15 @@ export default function NewRentalContract() {
     tenantPhone: '',
     tenantEmail: '',
     tenantId: '',
+    contractType: 'residential',
+    actualRentalDate: '',
+    unitHandoverDate: '',
     startDate: '', // سيتم تعيينه في useEffect
     endDate: '',
     duration: 12,
+    calculateByArea: false,
+    rentArea: 0,
+    pricePerMeter: 0,
     monthlyRent: 0,
     deposit: 0,
     currency: 'OMR',
@@ -156,15 +259,70 @@ export default function NewRentalContract() {
     depositPaymentMethod: 'cash',
     rentReceiptNumber: '',
     depositReceiptNumber: '',
+    depositCashAmount: 0,
+    depositCashDate: '',
+    depositCashReceiptNumber: '',
     rentChecks: [],
+    rentChecksOwnerType: 'tenant',
+    rentChecksOwnerName: '',
+    rentChecksBankName: '',
+    rentChecksBankBranch: '',
+    rentChecksBankAccount: '',
+    rentChecksNationalId: '',
+    rentChecksNationalIdExpiry: '',
+    rentChecksNationalIdFile: '',
+    rentChecksIsOmani: true,
+    rentChecksPassportNumber: '',
+    rentChecksPassportExpiry: '',
+    rentChecksPassportFile: '',
+    rentChecksCommercialRegister: '',
+    rentChecksCommercialRegisterFile: '',
+    rentChecksAuthorizedPersonName: '',
+    rentChecksAuthorizedPersonId: '',
+    rentChecksAuthorizedPersonIdExpiry: '',
+    rentChecksAuthorizedPersonIdFile: '',
+    rentChecksAuthorizedPersonIsOmani: true,
+    rentChecksAuthorizedPersonPassport: '',
+    rentChecksAuthorizedPersonPassportExpiry: '',
+    rentChecksAuthorizedPersonPassportFile: '',
     depositChecks: [],
+    depositChecksOwnerType: 'tenant',
+    depositChecksOwnerName: '',
+    depositChecksBankName: '',
+    depositChecksBankBranch: '',
+    depositChecksBankAccount: '',
+    depositChecksNationalId: '',
+    depositChecksNationalIdExpiry: '',
+    depositChecksNationalIdFile: '',
+    depositChecksIsOmani: true,
+    depositChecksPassportNumber: '',
+    depositChecksPassportExpiry: '',
+    depositChecksPassportFile: '',
+    depositChecksCommercialRegister: '',
+    depositChecksCommercialRegisterFile: '',
+    depositChecksAuthorizedPersonName: '',
+    depositChecksAuthorizedPersonId: '',
+    depositChecksAuthorizedPersonIdExpiry: '',
+    depositChecksAuthorizedPersonIdFile: '',
+    depositChecksAuthorizedPersonIsOmani: true,
+    depositChecksAuthorizedPersonPassport: '',
+    depositChecksAuthorizedPersonPassportExpiry: '',
+    depositChecksAuthorizedPersonPassportFile: '',
     municipalityFormNumber: '',
+    municipalityFormFile: '',
     municipalityContractNumber: '',
+    municipalityContractFile: '',
     municipalityRegistrationFee: 1, // رسوم التسجيل 1 ريال
     gracePeriodDays: 0,
     gracePeriodAmount: 0,
     electricityMeterReading: '',
+    electricityBillAmount: 0,
+    electricityMeterImage: '',
+    electricityBillImage: '',
     waterMeterReading: '',
+    waterBillAmount: 0,
+    waterMeterImage: '',
+    waterBillImage: '',
     internetIncluded: false,
     internetPaymentType: 'monthly',
     internetFees: 0,
@@ -176,6 +334,11 @@ export default function NewRentalContract() {
     vatRate: 0.05, // 5% افتراضياً
     monthlyVATAmount: 0,
     totalVATAmount: 0,
+    hasOtherTaxes: false,
+    otherTaxName: '',
+    otherTaxRate: 0,
+    monthlyOtherTaxAmount: 0,
+    totalOtherTaxAmount: 0,
     useCustomMonthlyRents: false,
     customMonthlyRents: [],
     terms: [],
@@ -273,14 +436,43 @@ export default function NewRentalContract() {
     }]
   });
   
-  // تعيين hasMounted و startDate بعد تحميل الصفحة
+  // تعيين hasMounted و startDate بعد تحميل الصفحة + استرجاع المسودة
   useEffect(() => {
     setHasMounted(true);
-    setFormData(prev => ({
-      ...prev,
-      startDate: new Date().toISOString().split('T')[0]
-    }));
+    
+    // محاولة استرجاع المسودة من localStorage
+    try {
+      const savedDraft = localStorage.getItem('rentalContractDraft');
+      if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        console.log('📄 تم استرجاع المسودة المحفوظة');
+        setFormData(prev => ({ ...prev, ...draft }));
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          startDate: new Date().toISOString().split('T')[0]
+        }));
+      }
+    } catch (error) {
+      console.error('خطأ في استرجاع المسودة:', error);
+      setFormData(prev => ({
+        ...prev,
+        startDate: new Date().toISOString().split('T')[0]
+      }));
+    }
   }, []);
+  
+  // حفظ تلقائي للمسودة عند أي تغيير
+  useEffect(() => {
+    if (hasMounted) {
+      try {
+        localStorage.setItem('rentalContractDraft', JSON.stringify(formData));
+        console.log('💾 تم حفظ المسودة تلقائياً');
+      } catch (error) {
+        console.error('خطأ في حفظ المسودة:', error);
+      }
+    }
+  }, [formData, hasMounted]);
   
   // جلب العقارات عند تحميل الصفحة
   useEffect(() => {
@@ -301,12 +493,26 @@ export default function NewRentalContract() {
       const startDate = new Date(formData.startDate);
       const endDate = new Date(startDate);
       endDate.setMonth(endDate.getMonth() + formData.duration);
+      // طرح يوم واحد لأن العقد ينتهي قبل يوم من إكمال المدة
+      // مثال: بداية 01/12/2025 + 12 شهر = 30/11/2026 (وليس 01/12/2026)
+      endDate.setDate(endDate.getDate() - 1);
       setFormData(prev => ({
         ...prev,
         endDate: endDate.toISOString().split('T')[0]
       }));
     }
   }, [formData.startDate, formData.duration]);
+  
+  // حساب الإيجار الشهري تلقائياً إذا كان الحساب بالمتر
+  useEffect(() => {
+    if (formData.calculateByArea && formData.rentArea && formData.pricePerMeter) {
+      const calculatedRent = formData.rentArea * formData.pricePerMeter;
+      setFormData(prev => ({
+        ...prev,
+        monthlyRent: Math.round(calculatedRent * 1000) / 1000
+      }));
+    }
+  }, [formData.calculateByArea, formData.rentArea, formData.pricePerMeter]);
   
   // حساب رسوم البلدية تلقائياً: (الإيجار الشهري × المدة) × 3%
   useEffect(() => {
@@ -351,6 +557,25 @@ export default function NewRentalContract() {
       }));
     }
   }, [formData.includesVAT, formData.monthlyRent, formData.duration, formData.vatRate]);
+  
+  // حساب الضرائب الأخرى تلقائياً
+  useEffect(() => {
+    if (formData.hasOtherTaxes && formData.monthlyRent && formData.otherTaxRate) {
+      const monthlyTax = formData.monthlyRent * formData.otherTaxRate;
+      const totalTax = monthlyTax * formData.duration;
+      setFormData(prev => ({
+        ...prev,
+        monthlyOtherTaxAmount: Math.round(monthlyTax * 1000) / 1000,
+        totalOtherTaxAmount: Math.round(totalTax * 1000) / 1000
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        monthlyOtherTaxAmount: 0,
+        totalOtherTaxAmount: 0
+      }));
+    }
+  }, [formData.hasOtherTaxes, formData.monthlyRent, formData.duration, formData.otherTaxRate]);
   
   // تحديث مصفوفة الإيجارات المخصصة عند تغيير المدة أو الإيجار الشهري
   useEffect(() => {
@@ -670,10 +895,58 @@ export default function NewRentalContract() {
     }
   };
   
-  const selectProperty = (property: Property) => {
+  const selectProperty = async (property: Property) => {
     setSelectedProperty(property);
     setFormData(prev => ({ ...prev, propertyId: property.id }));
     setError(null);
+    
+    // جلب البيانات الإضافية للعقار
+    try {
+      console.log('🔍 جلب البيانات الإضافية للعقار:', property.id);
+      const additionalResponse = await fetch(`/api/properties/${property.id}/additional`);
+      
+      if (additionalResponse.ok) {
+        const additionalData = await additionalResponse.json();
+        console.log('✅ تم جلب البيانات الإضافية:', additionalData);
+        
+        // استخراج البيانات من البنية المتداخلة
+        const ownerData = additionalData.ownerData || {};
+        const propertyData = additionalData.propertyData || {};
+        
+        console.log('📦 بيانات المالك:', ownerData);
+        console.log('📦 بيانات العقار:', propertyData);
+        
+        // دمج البيانات الإضافية مع بيانات العقار
+        // ملاحظة: الأسماء في additional.tsx هي: fullName, nationalId, phone, email
+        const enhancedProperty = {
+          ...property,
+          // بيانات المالك (من OwnerData في additional.tsx)
+          ownerName: ownerData.fullName || property.ownerName,
+          ownerPhone: ownerData.phone || property.ownerPhone,
+          ownerEmail: ownerData.email || property.ownerEmail,
+          ownerId: ownerData.nationalId || property.ownerId,
+          // البيانات الإضافية للعقار (من PropertyData في additional.tsx)
+          complexName: propertyData.complexName, // قد لا يكون موجوداً
+          complexNumber: propertyData.complexNumber,
+          streetName: propertyData.streetName,
+          roadNumber: propertyData.roadNumber,
+          surveyNumber: propertyData.surveyNumber,
+          plotNumber: propertyData.plotNumber,
+          squareNumber: propertyData.squareNumber,
+          blockNumber: propertyData.blockNumber, // قد لا يكون موجوداً
+          buildingNumber: propertyData.buildingNumber,
+          serialNumber: property.serialNumber || propertyData.buildingNumber, // من البيانات الأساسية
+        };
+        
+        setSelectedProperty(enhancedProperty);
+        console.log('🎉 تم تحديث بيانات العقار بالبيانات الإضافية:', enhancedProperty);
+      } else {
+        console.log('⚠️ لم يتم العثور على بيانات إضافية للعقار');
+      }
+    } catch (err) {
+      console.error('❌ خطأ في جلب البيانات الإضافية:', err);
+      // نواصل حتى لو فشل جلب البيانات الإضافية
+    }
     
     if (property.buildingType === 'multi' && property.units && property.units.length > 0) {
       setUnits(property.units);
@@ -777,6 +1050,123 @@ export default function NewRentalContract() {
         searchProperties();
       }, 100);
     }
+  };
+  
+  // دالة مساعدة لتحديد ألوان الحقول الإلزامية
+  const getRequiredFieldClasses = (value: any, baseClasses: string = '') => {
+    // التحقق من القيم الفارغة بدقة
+    let isEmpty = false;
+    
+    if (value === null || value === undefined) {
+      isEmpty = true;
+    } else if (typeof value === 'string') {
+      isEmpty = value.trim() === '';
+    } else if (typeof value === 'number') {
+      // نسمح بجميع الأرقام بما فيها الصفر والكسور (0، 0.2، 0.5، 500.800، إلخ)
+      // فقط نرفض NaN
+      isEmpty = isNaN(value);
+    } else if (Array.isArray(value)) {
+      isEmpty = value.length === 0;
+    }
+    
+    if (isEmpty) {
+      // أحمر شفاف مع إطار أحمر للحقول الفارغة
+      return `${baseClasses} bg-red-50 border-2 border-red-300 focus:border-red-500 focus:ring-red-500`;
+    } else {
+      // أخضر شفاف مع إطار أخضر للحقول المملوءة
+      return `${baseClasses} bg-green-50 border-2 border-green-300 focus:border-green-500 focus:ring-green-500`;
+    }
+  };
+  
+  // دالة للتحقق من جميع الحقول المطلوبة في Step 4
+  const validateStep4 = () => {
+    const missingFields: Array<{ field: string; element?: string }> = [];
+    
+    // التحقق من الحقول الأساسية
+    if (!formData.actualRentalDate) missingFields.push({ field: 'تاريخ الاستئجار الفعلي', element: 'actualRentalDate' });
+    if (!formData.unitHandoverDate) missingFields.push({ field: 'تاريخ استلام الوحدة', element: 'unitHandoverDate' });
+    if (!formData.startDate) missingFields.push({ field: 'تاريخ بدء العقد', element: 'startDate' });
+    if (!formData.duration || formData.duration <= 0) missingFields.push({ field: 'مدة الإيجار', element: 'duration' });
+    
+    // التحقق من الإيجار (حسب طريقة الحساب)
+    if (formData.calculateByArea) {
+      if (!formData.rentArea || formData.rentArea <= 0) missingFields.push({ field: 'المساحة (متر مربع)', element: 'rentArea' });
+      if (!formData.pricePerMeter || formData.pricePerMeter <= 0) missingFields.push({ field: 'السعر للمتر', element: 'pricePerMeter' });
+    } else {
+      if (formData.monthlyRent === null || formData.monthlyRent === undefined || formData.monthlyRent <= 0) {
+        missingFields.push({ field: 'الإيجار الشهري', element: 'monthlyRent' });
+      }
+    }
+    
+    if (formData.deposit === null || formData.deposit === undefined || formData.deposit < 0) {
+      missingFields.push({ field: 'مبلغ الضمان', element: 'deposit' });
+    }
+    if (!formData.rentDueDay || formData.rentDueDay <= 0) missingFields.push({ field: 'تاريخ استحقاق الإيجار', element: 'rentDueDay' });
+    if (!formData.gracePeriodDays || formData.gracePeriodDays <= 0) missingFields.push({ field: 'فترة السماح (بالأيام)', element: 'gracePeriodDays' });
+    
+    // التحقق من طريقة دفع الإيجار
+    if (!formData.rentPaymentMethod) missingFields.push({ field: 'طريقة دفع الإيجار', element: 'rentPaymentMethod' });
+    if (formData.rentPaymentMethod === 'check') {
+      if (formData.rentChecks.length === 0) missingFields.push({ field: 'شيكات الإيجار', element: 'rentChecks' });
+      if (!formData.rentChecksBankName) missingFields.push({ field: 'اسم البنك (شيكات الإيجار)', element: 'rentChecksBankName' });
+      if (!formData.rentChecksBankBranch) missingFields.push({ field: 'فرع البنك (شيكات الإيجار)', element: 'rentChecksBankBranch' });
+      if (!formData.rentChecksBankAccount) missingFields.push({ field: 'رقم حساب البنك (شيكات الإيجار)', element: 'rentChecksBankAccount' });
+      
+      // التحقق من معلومات مالك الشيك
+      if (formData.rentChecksOwnerType !== 'tenant') {
+        if (!formData.rentChecksOwnerName) missingFields.push({ field: 'اسم مالك شيكات الإيجار', element: 'rentChecksOwnerName' });
+        if (formData.rentChecksOwnerType === 'other_individual') {
+          if (!formData.rentChecksNationalId) missingFields.push({ field: 'رقم البطاقة المدنية (شيكات الإيجار)', element: 'rentChecksNationalId' });
+          if (!formData.rentChecksNationalIdFile) missingFields.push({ field: 'نسخة من البطاقة المدنية (شيكات الإيجار)' });
+        } else if (formData.rentChecksOwnerType === 'company') {
+          if (!formData.rentChecksCommercialRegister) missingFields.push({ field: 'رقم السجل التجاري (شيكات الإيجار)', element: 'rentChecksCommercialRegister' });
+          if (!formData.rentChecksCommercialRegisterFile) missingFields.push({ field: 'نسخة من السجل التجاري (شيكات الإيجار)' });
+        }
+      }
+    } else if (formData.rentPaymentMethod !== 'check') {
+      if (!formData.rentReceiptNumber) missingFields.push({ field: 'رقم إيصال دفع الإيجار', element: 'rentReceiptNumber' });
+    }
+    
+    // التحقق من طريقة دفع الضمان
+    if (!formData.depositPaymentMethod) missingFields.push({ field: 'طريقة دفع الضمان', element: 'depositPaymentMethod' });
+    if (formData.depositPaymentMethod === 'check' || formData.depositPaymentMethod === 'cash_and_check') {
+      if (formData.depositChecks.length === 0) missingFields.push({ field: 'شيكات الضمان', element: 'depositChecks' });
+      if (!formData.depositChecksBankName) missingFields.push({ field: 'اسم البنك (شيكات الضمان)', element: 'depositChecksBankName' });
+      if (!formData.depositChecksBankBranch) missingFields.push({ field: 'فرع البنك (شيكات الضمان)', element: 'depositChecksBankBranch' });
+      if (!formData.depositChecksBankAccount) missingFields.push({ field: 'رقم حساب البنك (شيكات الضمان)', element: 'depositChecksBankAccount' });
+      
+      // التحقق من معلومات مالك شيكات الضمان
+      if (formData.depositChecksOwnerType !== 'tenant') {
+        if (!formData.depositChecksOwnerName) missingFields.push({ field: 'اسم مالك شيكات الضمان', element: 'depositChecksOwnerName' });
+        if (formData.depositChecksOwnerType === 'other_individual') {
+          if (!formData.depositChecksNationalId) missingFields.push({ field: 'رقم البطاقة المدنية (شيكات الضمان)', element: 'depositChecksNationalId' });
+          if (!formData.depositChecksNationalIdFile) missingFields.push({ field: 'نسخة من البطاقة المدنية (شيكات الضمان)' });
+        } else if (formData.depositChecksOwnerType === 'company') {
+          if (!formData.depositChecksCommercialRegister) missingFields.push({ field: 'رقم السجل التجاري (شيكات الضمان)', element: 'depositChecksCommercialRegister' });
+          if (!formData.depositChecksCommercialRegisterFile) missingFields.push({ field: 'نسخة من السجل التجاري (شيكات الضمان)' });
+        }
+      }
+    }
+    if (formData.depositPaymentMethod === 'cash_and_check') {
+      if (!formData.depositCashAmount || formData.depositCashAmount === 0) missingFields.push({ field: 'المبلغ النقدي للضمان', element: 'depositCashAmount' });
+      if (!formData.depositCashReceiptNumber) missingFields.push({ field: 'رقم الإيصال النقدي للضمان', element: 'depositCashReceiptNumber' });
+    }
+    if (formData.depositPaymentMethod !== 'check' && formData.depositPaymentMethod !== 'cash_and_check') {
+      if (!formData.depositReceiptNumber) missingFields.push({ field: 'رقم إيصال دفع الضمان', element: 'depositReceiptNumber' });
+    }
+    
+    // التحقق من أرقام المستندات والمرفقات الإلزامية
+    if (!formData.municipalityFormNumber) missingFields.push({ field: 'رقم استمارة عقد الإيجار للبلدية', element: 'municipalityFormNumber' });
+    if (!formData.municipalityFormFile) missingFields.push({ field: '📎 نسخة ورقية من استمارة البلدية (مرفق إلزامي)' });
+    if (!formData.municipalityRegistrationFee || formData.municipalityRegistrationFee === 0) {
+      missingFields.push({ field: 'رسوم تسجيل العقد في البلدية', element: 'municipalityRegistrationFee' });
+    }
+    
+    // التحقق من قراءات العدادات
+    if (!formData.electricityMeterReading) missingFields.push({ field: 'قراءة عداد الكهرباء', element: 'electricityMeterReading' });
+    if (!formData.waterMeterReading) missingFields.push({ field: 'قراءة عداد الماء', element: 'waterMeterReading' });
+    
+    return missingFields;
   };
   
   const handleInputChange = (field: keyof RentalFormData, value: any) => {
@@ -975,6 +1365,7 @@ export default function NewRentalContract() {
         body: JSON.stringify({
           propertyId: formData.propertyId,
           unitId: formData.unitId || undefined,
+          contractType: formData.contractType, // سكني أو تجاري
           tenantData: {
             name: formData.tenantName,
             phone: formData.tenantPhone,
@@ -1639,27 +2030,131 @@ export default function NewRentalContract() {
               </div>
             </div>
             
+            {/* القسم 0: نوع العقد */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaFileContract className="text-purple-600" />
+                نوع العقد
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('contractType', 'residential')}
+                  className={`p-6 rounded-lg border-2 transition-all ${
+                    formData.contractType === 'residential'
+                      ? 'bg-blue-50 border-blue-500 shadow-lg'
+                      : 'bg-white border-gray-300 hover:border-blue-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                      formData.contractType === 'residential' ? 'bg-blue-500' : 'bg-gray-200'
+                    }`}>
+                      <FaHome className={`w-8 h-8 ${formData.contractType === 'residential' ? 'text-white' : 'text-gray-500'}`} />
+                    </div>
+                    <div className="text-right flex-1">
+                      <h5 className="font-bold text-gray-900 mb-1">🏠 عقد سكني</h5>
+                      <p className="text-sm text-gray-600">شقق، فيلات، منازل</p>
+                    </div>
+                    {formData.contractType === 'residential' && (
+                      <FaCheck className="w-6 h-6 text-blue-500" />
+                    )}
+                  </div>
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('contractType', 'commercial')}
+                  className={`p-6 rounded-lg border-2 transition-all ${
+                    formData.contractType === 'commercial'
+                      ? 'bg-green-50 border-green-500 shadow-lg'
+                      : 'bg-white border-gray-300 hover:border-green-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                      formData.contractType === 'commercial' ? 'bg-green-500' : 'bg-gray-200'
+                    }`}>
+                      <FaBuilding className={`w-8 h-8 ${formData.contractType === 'commercial' ? 'text-white' : 'text-gray-500'}`} />
+                    </div>
+                    <div className="text-right flex-1">
+                      <h5 className="font-bold text-gray-900 mb-1">🏢 عقد تجاري</h5>
+                      <p className="text-sm text-gray-600">مكاتب، محلات، معارض</p>
+                    </div>
+                    {formData.contractType === 'commercial' && (
+                      <FaCheck className="w-6 h-6 text-green-500" />
+                    )}
+                  </div>
+                </button>
+              </div>
+            </div>
+            
             {/* القسم 1: التواريخ والمدة */}
             <div className="mb-8">
               <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaCalendar className="text-orange-600" />
                 التواريخ والمدة
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FaCalendar className="inline ml-2" />
-                    تاريخ بدء العقد
+                    تاريخ الاستئجار الفعلي *
                   </label>
                   <input
                     type="date"
-                    value={formData.startDate}
-                    onChange={(e) => handleInputChange('startDate', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    name="actualRentalDate"
+                    value={formData.actualRentalDate}
+                    onChange={(e) => handleInputChange('actualRentalDate', e.target.value)}
+                    className={getRequiredFieldClasses(formData.actualRentalDate, "w-full px-4 py-3 rounded-lg")}
                     required
                     suppressHydrationWarning
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    💡 تاريخ بداية الاستئجار الفعلي
+                  </p>
                 </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FaKey className="inline ml-2" />
+                    تاريخ استلام الوحدة *
+                  </label>
+                  <input
+                    type="date"
+                    name="unitHandoverDate"
+                    value={formData.unitHandoverDate}
+                    onChange={(e) => handleInputChange('unitHandoverDate', e.target.value)}
+                    className={getRequiredFieldClasses(formData.unitHandoverDate, "w-full px-4 py-3 rounded-lg")}
+                    required
+                    suppressHydrationWarning
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    💡 تاريخ تسليم مفاتيح الوحدة للمستأجر
+                  </p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FaCalendar className="inline ml-2" />
+                    تاريخ بدء العقد الرسمي *
+                  </label>
+                  <input
+                    type="date"
+                    name="startDate"
+                    value={formData.startDate}
+                    onChange={(e) => handleInputChange('startDate', e.target.value)}
+                    className={getRequiredFieldClasses(formData.startDate, "w-full px-4 py-3 rounded-lg")}
+                    required
+                    suppressHydrationWarning
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    💡 قد يكون بعد فترة السماح
+                  </p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1668,9 +2163,10 @@ export default function NewRentalContract() {
                   </label>
                   <input
                     type="number"
+                    name="duration"
                     value={formData.duration}
                     onChange={(e) => handleInputChange('duration', parseInt(e.target.value))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className={getRequiredFieldClasses(formData.duration, "w-full px-4 py-3 rounded-lg")}
                     min="1"
                     max="60"
                     required
@@ -1714,22 +2210,147 @@ export default function NewRentalContract() {
                     <option value="USD">دولار أمريكي (USD)</option>
                   </select>
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <FaMoneyBillWave className="inline ml-2" />
-                    الإيجار الشهري
-                  </label>
+              </div>
+              
+              {/* خيار الحساب بالمتر */}
+              <div className="mb-6">
+                <label className="flex items-center gap-3 cursor-pointer bg-indigo-50 p-4 rounded-lg border-2 border-indigo-200 hover:bg-indigo-100 transition-colors">
                   <input
-                    type="number"
-                    value={formData.monthlyRent}
-                    onChange={(e) => handleInputChange('monthlyRent', parseFloat(e.target.value))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    min="0"
-                    step="0.01"
-                    required
+                    type="checkbox"
+                    checked={formData.calculateByArea}
+                    onChange={(e) => {
+                      handleInputChange('calculateByArea', e.target.checked);
+                      if (!e.target.checked) {
+                        // إذا تم إلغاء الحساب بالمتر، نحتفظ بقيمة الإيجار الحالية
+                      }
+                    }}
+                    className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
                   />
+                  <div className="flex-1">
+                    <span className="font-semibold text-gray-900">📐 حساب الإيجار بالمتر المربع</span>
+                    <p className="text-xs text-gray-600 mt-1">
+                      مناسب للمكاتب والمحلات التجارية - يُحسب الإيجار تلقائياً: المساحة × السعر للمتر
+                    </p>
+                  </div>
+                </label>
+              </div>
+              
+              {formData.calculateByArea ? (
+                // حساب بالمتر
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-indigo-50 p-6 rounded-lg border-2 border-indigo-300">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      📏 المساحة (متر مربع) *
+                    </label>
+                    <input
+                      type="number"
+                      name="rentArea"
+                      value={formData.rentArea || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        handleInputChange('rentArea', val === '' ? 0 : Number(val));
+                      }}
+                      onBlur={(e) => {
+                        const val = parseFloat(e.target.value);
+                        handleInputChange('rentArea', isNaN(val) ? 0 : val);
+                      }}
+                      className={getRequiredFieldClasses(formData.rentArea, "w-full px-4 py-3 rounded-lg")}
+                      min="0"
+                      step="any"
+                      lang="en"
+                      inputMode="decimal"
+                      placeholder="مثال: 30"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      💰 السعر للمتر ({formData.currency}) *
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.pricePerMeter || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        handleInputChange('pricePerMeter', val === '' ? 0 : Number(val));
+                      }}
+                      onBlur={(e) => {
+                        const val = parseFloat(e.target.value);
+                        handleInputChange('pricePerMeter', isNaN(val) ? 0 : val);
+                      }}
+                      className={getRequiredFieldClasses(formData.pricePerMeter, "w-full px-4 py-3 rounded-lg")}
+                      min="0"
+                      step="any"
+                      lang="en"
+                      inputMode="decimal"
+                      placeholder="مثال: 10.500"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="relative">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <FaMoneyBillWave className="inline ml-2" />
+                      الإيجار الشهري ({formData.currency})
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.monthlyRent}
+                      className="w-full px-4 py-3 border-2 border-green-300 rounded-lg bg-green-50 cursor-not-allowed font-bold text-green-700"
+                      readOnly
+                      suppressHydrationWarning
+                    />
+                    <div className="absolute top-11 left-3 text-xs text-green-600 font-semibold bg-green-50 px-2 py-1 rounded">
+                      محسوب تلقائياً ✓
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1" suppressHydrationWarning>
+                      {formData.rentArea} م² × {formData.pricePerMeter} {formData.currency} = {formData.monthlyRent.toFixed(3)} {formData.currency}
+                    </p>
+                  </div>
                 </div>
+              ) : (
+                // إدخال مباشر
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <FaMoneyBillWave className="inline ml-2" />
+                      الإيجار الشهري
+                    </label>
+                    <input
+                      type="number"
+                      name="monthlyRent"
+                      value={formData.monthlyRent || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        // نحفظ القيمة كما هي بدون parseFloat للسماح بكتابة النقطة
+                        if (val === '') {
+                          handleInputChange('monthlyRent', 0);
+                        } else {
+                          handleInputChange('monthlyRent', Number(val));
+                        }
+                      }}
+                      onBlur={(e) => {
+                        // عند الخروج من الحقل نتأكد من صحة القيمة
+                        const val = parseFloat(e.target.value);
+                        handleInputChange('monthlyRent', isNaN(val) ? 0 : val);
+                      }}
+                      className={getRequiredFieldClasses(formData.monthlyRent, "w-full px-4 py-3 rounded-lg")}
+                      min="0"
+                      step="any"
+                      lang="en"
+                      inputMode="decimal"
+                      placeholder="مثال: 500.800"
+                      required
+                    />
+                    <p className="text-xs text-blue-600 mt-1">
+                      💡 استخدم النقطة (.) للكسور العشرية - مثال: 500.800 أو 1.250 أو 0.200
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1738,11 +2359,26 @@ export default function NewRentalContract() {
                   </label>
                   <input
                     type="number"
-                    value={formData.deposit}
-                    onChange={(e) => handleInputChange('deposit', parseFloat(e.target.value))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    name="deposit"
+                    value={formData.deposit || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '') {
+                        handleInputChange('deposit', 0);
+                      } else {
+                        handleInputChange('deposit', Number(val));
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const val = parseFloat(e.target.value);
+                      handleInputChange('deposit', isNaN(val) ? 0 : val);
+                    }}
+                    className={getRequiredFieldClasses(formData.deposit, "w-full px-4 py-3 rounded-lg")}
                     min="0"
-                    step="0.01"
+                    step="any"
+                    lang="en"
+                    inputMode="decimal"
+                    placeholder="مثال: 1.200 أو 0.500"
                     required
                   />
                 </div>
@@ -1766,414 +2402,7 @@ export default function NewRentalContract() {
               </div>
             </div>
             
-            {/* القسم 3: طرق الدفع */}
-            <div className="mb-8">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <FaMoneyBillWave className="text-blue-600" />
-                طرق الدفع
-              </h4>
-              
-              {/* دفع الإيجار */}
-              <div className="bg-blue-50 rounded-lg p-6 mb-6">
-                <h5 className="font-semibold text-blue-900 mb-4">💰 دفع الإيجار</h5>
-                <div className="grid grid-cols-1 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      طريقة دفع الإيجار *
-                    </label>
-                    <select
-                      value={formData.rentPaymentMethod}
-                      onChange={(e) => {
-                        const method = e.target.value;
-                        handleInputChange('rentPaymentMethod', method);
-                        // إعادة تعيين البيانات عند تغيير الطريقة
-                        if (method === 'check') {
-                          handleInputChange('rentReceiptNumber', '');
-                          if (formData.rentChecks.length === 0) {
-                            // تهيئة شيك واحد افتراضي
-                            handleInputChange('rentChecks', [{
-                              checkNumber: '',
-                              amount: formData.monthlyRent,
-                              date: formData.startDate
-                            }]);
-                          }
-                        } else {
-                          handleInputChange('rentChecks', []);
-                        }
-                      }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    >
-                      <option value="cash">نقداً</option>
-                      <option value="check">شيك</option>
-                      <option value="bank_transfer">تحويل في الحساب</option>
-                      <option value="electronic_payment">دفع إلكتروني</option>
-                    </select>
-                  </div>
-                  
-                  {/* رقم الإيصال لغير الشيكات */}
-                  {formData.rentPaymentMethod !== 'check' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        رقم الإيصال *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.rentReceiptNumber}
-                        onChange={(e) => handleInputChange('rentReceiptNumber', e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="أدخل رقم الإيصال"
-                        required
-                      />
-                    </div>
-                  )}
-                  
-                  {/* شيكات الإيجار */}
-                  {formData.rentPaymentMethod === 'check' && (
-                    <div className="bg-white rounded-lg p-6 border-2 border-blue-200">
-                      <div className="flex items-center justify-between mb-4">
-                        <h6 className="font-semibold text-gray-900">📝 شيكات الإيجار</h6>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newCheck = {
-                              checkNumber: '',
-                              amount: formData.monthlyRent,
-                              date: formData.startDate
-                            };
-                            handleInputChange('rentChecks', [...formData.rentChecks, newCheck]);
-                          }}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm"
-                        >
-                          <FaPlus className="w-3 h-3" />
-                          إضافة شيك
-                        </button>
-                      </div>
-                      
-                      <div className="space-y-4 max-h-96 overflow-y-auto">
-                        {formData.rentChecks.map((check, index) => (
-                          <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                            <div className="flex items-center justify-between mb-3">
-                              <span className="font-semibold text-gray-900">الشيك #{index + 1}</span>
-                              {formData.rentChecks.length > 1 && (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const newChecks = formData.rentChecks.filter((_, i) => i !== index);
-                                    handleInputChange('rentChecks', newChecks);
-                                  }}
-                                  className="text-red-600 hover:text-red-800 text-sm"
-                                >
-                                  <FaTrash className="w-4 h-4" />
-                                </button>
-                              )}
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">
-                                  رقم الشيك *
-                                </label>
-                                <input
-                                  type="text"
-                                  value={check.checkNumber}
-                                  onChange={(e) => {
-                                    const newChecks = [...formData.rentChecks];
-                                    newChecks[index].checkNumber = e.target.value;
-                                    handleInputChange('rentChecks', newChecks);
-                                  }}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
-                                  placeholder="رقم الشيك"
-                                  required
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">
-                                  المبلغ ({formData.currency}) *
-                                </label>
-                                <input
-                                  type="number"
-                                  value={check.amount}
-                                  onChange={(e) => {
-                                    const newChecks = [...formData.rentChecks];
-                                    newChecks[index].amount = parseFloat(e.target.value) || 0;
-                                    handleInputChange('rentChecks', newChecks);
-                                  }}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
-                                  min="0"
-                                  step="0.01"
-                                  required
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">
-                                  تاريخ الشيك *
-                                </label>
-                                <input
-                                  type="date"
-                                  value={check.date}
-                                  onChange={(e) => {
-                                    const newChecks = [...formData.rentChecks];
-                                    newChecks[index].date = e.target.value;
-                                    handleInputChange('rentChecks', newChecks);
-                                  }}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
-                                  required
-                                  suppressHydrationWarning
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <div className="mt-4 bg-blue-100 rounded-lg p-3">
-                        <p className="text-sm text-blue-900" suppressHydrationWarning>
-                          <strong>إجمالي شيكات الإيجار:</strong> {formData.rentChecks.reduce((sum, check) => sum + check.amount, 0).toFixed(3)} {formData.currency}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              {/* دفع الضمان */}
-              <div className="bg-green-50 rounded-lg p-6">
-                <h5 className="font-semibold text-green-900 mb-4">🛡️ دفع الضمان</h5>
-                <div className="grid grid-cols-1 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      طريقة دفع الضمان *
-                    </label>
-                    <select
-                      value={formData.depositPaymentMethod}
-                      onChange={(e) => {
-                        const method = e.target.value;
-                        handleInputChange('depositPaymentMethod', method);
-                        // إعادة تعيين البيانات عند تغيير الطريقة
-                        if (method === 'check') {
-                          handleInputChange('depositReceiptNumber', '');
-                          if (formData.depositChecks.length === 0) {
-                            // تهيئة شيك واحد افتراضي
-                            handleInputChange('depositChecks', [{
-                              checkNumber: '',
-                              amount: formData.deposit,
-                              date: formData.startDate
-                            }]);
-                          }
-                        } else {
-                          handleInputChange('depositChecks', []);
-                        }
-                      }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      required
-                    >
-                      <option value="cash">نقداً</option>
-                      <option value="check">شيك</option>
-                      <option value="bank_transfer">تحويل في الحساب</option>
-                      <option value="electronic_payment">دفع إلكتروني</option>
-                    </select>
-                  </div>
-                  
-                  {/* رقم الإيصال لغير الشيكات */}
-                  {formData.depositPaymentMethod !== 'check' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        رقم الإيصال *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.depositReceiptNumber}
-                        onChange={(e) => handleInputChange('depositReceiptNumber', e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="أدخل رقم الإيصال"
-                        required
-                      />
-                    </div>
-                  )}
-                  
-                  {/* شيكات الضمان */}
-                  {formData.depositPaymentMethod === 'check' && (
-                    <div className="bg-white rounded-lg p-6 border-2 border-green-200">
-                      <div className="flex items-center justify-between mb-4">
-                        <h6 className="font-semibold text-gray-900">📝 شيكات الضمان</h6>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newCheck = {
-                              checkNumber: '',
-                              amount: formData.deposit,
-                              date: formData.startDate
-                            };
-                            handleInputChange('depositChecks', [...formData.depositChecks, newCheck]);
-                          }}
-                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 text-sm"
-                        >
-                          <FaPlus className="w-3 h-3" />
-                          إضافة شيك
-                        </button>
-                      </div>
-                      
-                      <div className="space-y-4 max-h-96 overflow-y-auto">
-                        {formData.depositChecks.map((check, index) => (
-                          <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                            <div className="flex items-center justify-between mb-3">
-                              <span className="font-semibold text-gray-900">الشيك #{index + 1}</span>
-                              {formData.depositChecks.length > 1 && (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const newChecks = formData.depositChecks.filter((_, i) => i !== index);
-                                    handleInputChange('depositChecks', newChecks);
-                                  }}
-                                  className="text-red-600 hover:text-red-800 text-sm"
-                                >
-                                  <FaTrash className="w-4 h-4" />
-                                </button>
-                              )}
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">
-                                  رقم الشيك *
-                                </label>
-                                <input
-                                  type="text"
-                                  value={check.checkNumber}
-                                  onChange={(e) => {
-                                    const newChecks = [...formData.depositChecks];
-                                    newChecks[index].checkNumber = e.target.value;
-                                    handleInputChange('depositChecks', newChecks);
-                                  }}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500"
-                                  placeholder="رقم الشيك"
-                                  required
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">
-                                  المبلغ ({formData.currency}) *
-                                </label>
-                                <input
-                                  type="number"
-                                  value={check.amount}
-                                  onChange={(e) => {
-                                    const newChecks = [...formData.depositChecks];
-                                    newChecks[index].amount = parseFloat(e.target.value) || 0;
-                                    handleInputChange('depositChecks', newChecks);
-                                  }}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500"
-                                  min="0"
-                                  step="0.01"
-                                  required
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">
-                                  تاريخ الشيك *
-                                </label>
-                                <input
-                                  type="date"
-                                  value={check.date}
-                                  onChange={(e) => {
-                                    const newChecks = [...formData.depositChecks];
-                                    newChecks[index].date = e.target.value;
-                                    handleInputChange('depositChecks', newChecks);
-                                  }}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500"
-                                  required
-                                  suppressHydrationWarning
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <div className="mt-4 bg-green-100 rounded-lg p-3">
-                        <p className="text-sm text-green-900" suppressHydrationWarning>
-                          <strong>إجمالي شيكات الضمان:</strong> {formData.depositChecks.reduce((sum, check) => sum + check.amount, 0).toFixed(3)} {formData.currency}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-            
-            {/* القسم 4: أرقام المستندات ورسوم البلدية */}
-            <div className="mb-8">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <FaFileAlt className="text-purple-600" />
-                أرقام المستندات الرسمية ورسوم البلدية
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    رقم استمارة عقد الإيجار للبلدية *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.municipalityFormNumber}
-                    onChange={(e) => handleInputChange('municipalityFormNumber', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="أدخل رقم الاستمارة"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    رقم عقد الإيجار المعتمد من البلدية (اختياري)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.municipalityContractNumber}
-                    onChange={(e) => handleInputChange('municipalityContractNumber', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-gray-50"
-                    placeholder="أدخل رقم العقد المعتمد (إن وُجد)"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    رسوم تسجيل العقد في البلدية ({formData.currency}) *
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.municipalityRegistrationFee}
-                    onChange={(e) => handleInputChange('municipalityRegistrationFee', parseFloat(e.target.value) || 1)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    min="0"
-                    step="0.01"
-                    required
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    💡 عادةً 1 ريال - يدفعها المالك
-                  </p>
-                </div>
-              </div>
-              
-              {/* توضيح رسوم البلدية */}
-              <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <FaExclamationTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="font-semibold text-yellow-900 mb-1">ملاحظة مهمة - رسوم البلدية</p>
-                    <p className="text-sm text-yellow-800">
-                      • رسوم البلدية (3% من إجمالي العقد) + رسوم التسجيل <strong>يدفعها المالك</strong>
-                    </p>
-                    <p className="text-sm text-yellow-800">
-                      • تظهر في البيانات للمعلومية فقط ولن تُحسب على المستأجر
-                    </p>
-                    <p className="text-sm text-yellow-800" suppressHydrationWarning>
-                      • إجمالي رسوم المالك للبلدية: {(formData.municipalityFees + formData.municipalityRegistrationFee).toFixed(3)} {formData.currency}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* القسم 5: تاريخ الاستحقاق وفترة السماح */}
+            {/* القسم 3: تاريخ الاستحقاق وفترة السماح */}
             <div className="mb-8">
               <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaClock className="text-indigo-600" />
@@ -2188,13 +2417,13 @@ export default function NewRentalContract() {
                     type="number"
                     value={formData.rentDueDay}
                     onChange={(e) => handleInputChange('rentDueDay', parseInt(e.target.value) || 1)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className={getRequiredFieldClasses(formData.rentDueDay, "w-full px-4 py-3 rounded-lg")}
                     min="1"
                     max="31"
                     required
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    💡 اليوم الذي يجب دفع الإيجار فيه كل شهر
+                    💡 اليوم الذي يجب دفع الإيجار فيه كل شهر (يُستخدم في تواريخ الشيكات)
                   </p>
                 </div>
                 
@@ -2234,44 +2463,1402 @@ export default function NewRentalContract() {
               </div>
             </div>
             
-            {/* القسم 6: قراءات العدادات */}
+            {/* القسم 4: طرق الدفع */}
             <div className="mb-8">
               <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <FaMoneyBillWave className="text-yellow-600" />
-                قراءات العدادات أثناء الاستئجار
+                <FaMoneyBillWave className="text-blue-600" />
+                طرق الدفع
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+              
+              {/* دفع الإيجار */}
+              <div className="bg-blue-50 rounded-lg p-6 mb-6">
+                <h5 className="font-semibold text-blue-900 mb-4">💰 دفع الإيجار</h5>
+                <div className="grid grid-cols-1 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      طريقة دفع الإيجار *
+                    </label>
+                    <select
+                      value={formData.rentPaymentMethod}
+                      onChange={(e) => {
+                        const method = e.target.value;
+                        handleInputChange('rentPaymentMethod', method);
+                        // إعادة تعيين البيانات عند تغيير الطريقة
+                        if (method === 'check') {
+                          handleInputChange('rentReceiptNumber', '');
+                          // لا ننشئ شيكات تلقائياً - المستخدم سيضغط الزر
+                        } else {
+                          handleInputChange('rentChecks', []);
+                        }
+                      }}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    >
+                      <option value="cash">نقداً</option>
+                      <option value="check">شيك</option>
+                      <option value="bank_transfer">تحويل في الحساب</option>
+                      <option value="electronic_payment">دفع إلكتروني</option>
+                    </select>
+                  </div>
+                  
+                  {/* رقم الإيصال لغير الشيكات */}
+                  {formData.rentPaymentMethod !== 'check' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        رقم الإيصال *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.rentReceiptNumber}
+                        onChange={(e) => handleInputChange('rentReceiptNumber', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="أدخل رقم الإيصال"
+                        required
+                      />
+                    </div>
+                  )}
+                  
+                  {/* شيكات الإيجار */}
+                  {formData.rentPaymentMethod === 'check' && (
+                    <>
+                      {/* معلومات مالك شيكات الإيجار - مرة واحدة */}
+                      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-6 border-2 border-indigo-200 mb-6">
+                        <h6 className="font-semibold text-indigo-900 mb-4 flex items-center gap-2">
+                          <FaUser className="w-5 h-5" />
+                          👤 معلومات مالك الشيكات (تُطبق على جميع شيكات الإيجار)
+                        </h6>
+                        
+                        <div className="grid grid-cols-1 gap-6">
+                          {/* نوع المالك */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              الشيكات باسم *
+                            </label>
+                            <select
+                              value={formData.rentChecksOwnerType}
+                              onChange={(e) => handleInputChange('rentChecksOwnerType', e.target.value)}
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                              required
+                            >
+                              <option value="tenant">المستأجر</option>
+                              <option value="other_individual">شخص آخر</option>
+                              <option value="company">شركة</option>
+                            </select>
+                          </div>
+                          
+                          {/* معلومات البنك - دائماً تظهر */}
+                          <div className="bg-white rounded-lg p-4 border border-indigo-200">
+                            <p className="font-semibold text-gray-900 mb-3 text-sm">🏦 معلومات البنك</p>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                  اسم البنك *
+                                </label>
+                                <input
+                                  type="text"
+                                  value={formData.rentChecksBankName}
+                                  onChange={(e) => handleInputChange('rentChecksBankName', e.target.value)}
+                                  className={getRequiredFieldClasses(formData.rentChecksBankName, "w-full px-3 py-2 rounded text-sm")}
+                                  placeholder="مثال: بنك مسقط"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                  الفرع *
+                                </label>
+                                <input
+                                  type="text"
+                                  value={formData.rentChecksBankBranch}
+                                  onChange={(e) => handleInputChange('rentChecksBankBranch', e.target.value)}
+                                  className={getRequiredFieldClasses(formData.rentChecksBankBranch, "w-full px-3 py-2 rounded text-sm")}
+                                  placeholder="مثال: الخوير"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                  رقم الحساب *
+                                </label>
+                                <input
+                                  type="text"
+                                  value={formData.rentChecksBankAccount}
+                                  onChange={(e) => handleInputChange('rentChecksBankAccount', e.target.value)}
+                                  className={getRequiredFieldClasses(formData.rentChecksBankAccount, "w-full px-3 py-2 rounded text-sm")}
+                                  placeholder="رقم الحساب البنكي"
+                                  required
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* إذا كان شخص آخر */}
+                          {formData.rentChecksOwnerType === 'other_individual' && (
+                            <div className="bg-white rounded-lg p-4 border border-indigo-200">
+                              <p className="font-semibold text-gray-900 mb-3 text-sm">📋 بيانات مالك الشيك</p>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">اسم المالك *</label>
+                                  <input
+                                    type="text"
+                                    value={formData.rentChecksOwnerName}
+                                    onChange={(e) => handleInputChange('rentChecksOwnerName', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                    required
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">الجنسية *</label>
+                                  <select
+                                    value={formData.rentChecksIsOmani ? 'omani' : 'foreign'}
+                                    onChange={(e) => handleInputChange('rentChecksIsOmani', e.target.value === 'omani')}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                    required
+                                  >
+                                    <option value="omani">عماني</option>
+                                    <option value="foreign">وافد</option>
+                                  </select>
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">رقم البطاقة المدنية *</label>
+                                  <input
+                                    type="text"
+                                    value={formData.rentChecksNationalId}
+                                    onChange={(e) => handleInputChange('rentChecksNationalId', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                    required
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">تاريخ انتهاء البطاقة *</label>
+                                  <input
+                                    type="date"
+                                    value={formData.rentChecksNationalIdExpiry}
+                                    onChange={(e) => handleInputChange('rentChecksNationalIdExpiry', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                    required
+                                    suppressHydrationWarning
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">نسخة من البطاقة *</label>
+                                  <input
+                                    type="file"
+                                    accept="image/*,.pdf"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) handleInputChange('rentChecksNationalIdFile', file.name);
+                                    }}
+                                    className="w-full text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-indigo-600 file:text-white"
+                                    required
+                                  />
+                                </div>
+                                {!formData.rentChecksIsOmani && (
+                                  <>
+                                    <div>
+                                      <label className="block text-xs font-medium text-gray-700 mb-1">رقم الجواز *</label>
+                                      <input
+                                        type="text"
+                                        value={formData.rentChecksPassportNumber}
+                                        onChange={(e) => handleInputChange('rentChecksPassportNumber', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                        required
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-xs font-medium text-gray-700 mb-1">تاريخ انتهاء الجواز *</label>
+                                      <input
+                                        type="date"
+                                        value={formData.rentChecksPassportExpiry}
+                                        onChange={(e) => handleInputChange('rentChecksPassportExpiry', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                        required
+                                        suppressHydrationWarning
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-xs font-medium text-gray-700 mb-1">نسخة من الجواز *</label>
+                                      <input
+                                        type="file"
+                                        accept="image/*,.pdf"
+                                        onChange={(e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) handleInputChange('rentChecksPassportFile', file.name);
+                                        }}
+                                        className="w-full text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-indigo-600 file:text-white"
+                                        required
+                                      />
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* إذا كان شركة */}
+                          {formData.rentChecksOwnerType === 'company' && (
+                            <div className="bg-white rounded-lg p-4 border border-purple-200">
+                              <p className="font-semibold text-gray-900 mb-3 text-sm">🏢 بيانات الشركة</p>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">اسم الشركة *</label>
+                                  <input
+                                    type="text"
+                                    value={formData.rentChecksOwnerName}
+                                    onChange={(e) => handleInputChange('rentChecksOwnerName', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                    required
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">رقم السجل التجاري *</label>
+                                  <input
+                                    type="text"
+                                    value={formData.rentChecksCommercialRegister}
+                                    onChange={(e) => handleInputChange('rentChecksCommercialRegister', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                    required
+                                  />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">نسخة من السجل التجاري *</label>
+                                  <input
+                                    type="file"
+                                    accept=".pdf,.jpg,.jpeg,.png"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) handleInputChange('rentChecksCommercialRegisterFile', file.name);
+                                    }}
+                                    className="w-full text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-purple-600 file:text-white"
+                                    required
+                                  />
+                                </div>
+                              </div>
+                              
+                              <div className="border-t pt-3">
+                                <p className="font-semibold text-gray-900 mb-3 text-sm">✍️ بيانات المفوض بالتوقيع</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">اسم المفوض *</label>
+                                    <input
+                                      type="text"
+                                      value={formData.rentChecksAuthorizedPersonName}
+                                      onChange={(e) => handleInputChange('rentChecksAuthorizedPersonName', e.target.value)}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                      required
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">جنسية المفوض *</label>
+                                    <select
+                                      value={formData.rentChecksAuthorizedPersonIsOmani ? 'omani' : 'foreign'}
+                                      onChange={(e) => handleInputChange('rentChecksAuthorizedPersonIsOmani', e.target.value === 'omani')}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                      required
+                                    >
+                                      <option value="omani">عماني</option>
+                                      <option value="foreign">وافد</option>
+                                    </select>
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">رقم بطاقة المفوض *</label>
+                                    <input
+                                      type="text"
+                                      value={formData.rentChecksAuthorizedPersonId}
+                                      onChange={(e) => handleInputChange('rentChecksAuthorizedPersonId', e.target.value)}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                      required
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">تاريخ انتهاء البطاقة *</label>
+                                    <input
+                                      type="date"
+                                      value={formData.rentChecksAuthorizedPersonIdExpiry}
+                                      onChange={(e) => handleInputChange('rentChecksAuthorizedPersonIdExpiry', e.target.value)}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                      required
+                                      suppressHydrationWarning
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">نسخة من بطاقة المفوض *</label>
+                                    <input
+                                      type="file"
+                                      accept="image/*,.pdf"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleInputChange('rentChecksAuthorizedPersonIdFile', file.name);
+                                      }}
+                                      className="w-full text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-purple-600 file:text-white"
+                                      required
+                                    />
+                                  </div>
+                                  {!formData.rentChecksAuthorizedPersonIsOmani && (
+                                    <>
+                                      <div>
+                                        <label className="block text-xs font-medium text-gray-700 mb-1">رقم جواز المفوض *</label>
+                                        <input
+                                          type="text"
+                                          value={formData.rentChecksAuthorizedPersonPassport}
+                                          onChange={(e) => handleInputChange('rentChecksAuthorizedPersonPassport', e.target.value)}
+                                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                          required
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-xs font-medium text-gray-700 mb-1">تاريخ انتهاء الجواز *</label>
+                                        <input
+                                          type="date"
+                                          value={formData.rentChecksAuthorizedPersonPassportExpiry}
+                                          onChange={(e) => handleInputChange('rentChecksAuthorizedPersonPassportExpiry', e.target.value)}
+                                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                          required
+                                          suppressHydrationWarning
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-xs font-medium text-gray-700 mb-1">نسخة من جواز المفوض *</label>
+                                        <input
+                                          type="file"
+                                          accept="image/*,.pdf"
+                                          onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) handleInputChange('rentChecksAuthorizedPersonPassportFile', file.name);
+                                          }}
+                                          className="w-full text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-purple-600 file:text-white"
+                                          required
+                                        />
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* قائمة الشيكات - مبسطة */}
+                      <div className="bg-white rounded-lg p-6 border-2 border-blue-200">
+                        <div className="flex items-center justify-between mb-4">
+                          <h6 className="font-semibold text-gray-900">📝 شيكات الإيجار</h6>
+                        <div className="flex gap-2">
+                          {formData.rentChecks.length === 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                // إنشاء شيكات بعدد أشهر العقد
+                                const checks = [];
+                                for (let i = 0; i < formData.duration; i++) {
+                                  const checkDate = new Date(formData.startDate);
+                                  checkDate.setMonth(checkDate.getMonth() + i);
+                                  checkDate.setDate(formData.rentDueDay);
+                                  
+                                  checks.push({
+                                    checkNumber: '',
+                                    amount: formData.monthlyRent,
+                                    date: checkDate.toISOString().split('T')[0]
+                                  });
+                                }
+                                handleInputChange('rentChecks', checks);
+                              }}
+                              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 text-sm"
+                            >
+                              <FaPlus className="w-3 h-3" />
+                              إنشاء {formData.duration} شيك تلقائياً
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const lastCheck = formData.rentChecks[formData.rentChecks.length - 1];
+                              const lastDate = lastCheck ? new Date(lastCheck.date) : new Date(formData.startDate);
+                              lastDate.setMonth(lastDate.getMonth() + 1);
+                              lastDate.setDate(formData.rentDueDay);
+                              
+                              const lastCheckNum = lastCheck?.checkNumber ? parseInt(lastCheck.checkNumber) : 0;
+                              
+                              const newCheck = {
+                                checkNumber: lastCheckNum > 0 ? String(lastCheckNum + 1) : '',
+                                amount: lastCheck?.amount || formData.monthlyRent,
+                                date: lastDate.toISOString().split('T')[0]
+                              };
+                              handleInputChange('rentChecks', [...formData.rentChecks, newCheck]);
+                            }}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm"
+                          >
+                            <FaPlus className="w-3 h-3" />
+                            إضافة شيك
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-4 max-h-96 overflow-y-auto">
+                        {formData.rentChecks.map((check, index) => (
+                          <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="font-semibold text-gray-900">الشيك #{index + 1}</span>
+                              {formData.rentChecks.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newChecks = formData.rentChecks.filter((_, i) => i !== index);
+                                    handleInputChange('rentChecks', newChecks);
+                                  }}
+                                  className="text-red-600 hover:text-red-800 text-sm"
+                                >
+                                  <FaTrash className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                            {/* معلومات الشيك الأساسية */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                  رقم الشيك *
+                                </label>
+                                <input
+                                  type="text"
+                                  value={check.checkNumber}
+                                  onChange={(e) => {
+                                    const newChecks = [...formData.rentChecks];
+                                    newChecks[index].checkNumber = e.target.value;
+                                    
+                                    // إذا كان الشيك الأول وتم إدخال رقم، املأ باقي الشيكات تلقائياً بالتسلسل
+                                    if (index === 0 && e.target.value && !isNaN(parseInt(e.target.value))) {
+                                      const firstCheckNum = parseInt(e.target.value);
+                                      for (let i = 1; i < newChecks.length; i++) {
+                                        // املأ جميع الشيكات بالتسلسل (8001 → 8002 → 8003)
+                                        newChecks[i].checkNumber = String(firstCheckNum + i);
+                                      }
+                                    }
+                                    
+                                    handleInputChange('rentChecks', newChecks);
+                                  }}
+                                  className={getRequiredFieldClasses(check.checkNumber, "w-full px-3 py-2 rounded text-sm")}
+                                  placeholder={index === 0 ? "أدخل رقم الشيك الأول" : "رقم الشيك"}
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                  المبلغ ({formData.currency}) *
+                                </label>
+                                <input
+                                  type="number"
+                                  value={check.amount}
+                                  onChange={(e) => {
+                                    const newChecks = [...formData.rentChecks];
+                                    newChecks[index].amount = parseFloat(e.target.value) || 0;
+                                    handleInputChange('rentChecks', newChecks);
+                                  }}
+                                  className={getRequiredFieldClasses(check.amount, "w-full px-3 py-2 rounded text-sm")}
+                                  min="0"
+                                  step="any"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                  تاريخ الشيك *
+                                </label>
+                                <input
+                                  type="date"
+                                  value={check.date}
+                                  onChange={(e) => {
+                                    const newChecks = [...formData.rentChecks];
+                                    newChecks[index].date = e.target.value;
+                                    handleInputChange('rentChecks', newChecks);
+                                  }}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+                                  required
+                                  suppressHydrationWarning
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="mt-4 space-y-2">
+                        <div className="bg-blue-100 rounded-lg p-3">
+                          <p className="text-sm text-blue-900" suppressHydrationWarning>
+                            <strong>إجمالي شيكات الإيجار:</strong> {formData.rentChecks.reduce((sum, check) => sum + check.amount, 0).toFixed(3)} {formData.currency}
+                          </p>
+                          <p className="text-xs text-blue-700 mt-1" suppressHydrationWarning>
+                            عدد الشيكات: {formData.rentChecks.length} / {formData.duration}
+                          </p>
+                        </div>
+                        <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-3">
+                          <p className="text-xs font-bold text-purple-900 mb-2">💡 كيفية الاستخدام:</p>
+                          <ul className="text-xs text-purple-700 space-y-1">
+                            <li>1️⃣ املأ معلومات مالك الشيك أعلاه (مرة واحدة)</li>
+                            <li>2️⃣ اضغط "إنشاء {formData.duration} شيك تلقائياً"</li>
+                            <li>3️⃣ أدخل رقم الشيك الأول (مثال: 10001)</li>
+                            <li>4️⃣ باقي الأرقام تملأ تلقائياً (10002، 10003...)</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    </>
+                  )}
+                </div>
+              </div>
+              
+              {/* دفع الضمان */}
+              <div className="bg-green-50 rounded-lg p-6">
+                <h5 className="font-semibold text-green-900 mb-4">🛡️ دفع الضمان</h5>
+                <div className="grid grid-cols-1 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      طريقة دفع الضمان *
+                    </label>
+                    <select
+                      value={formData.depositPaymentMethod}
+                      onChange={(e) => {
+                        const method = e.target.value;
+                        handleInputChange('depositPaymentMethod', method);
+                        // إعادة تعيين البيانات عند تغيير الطريقة
+                        if (method === 'check' || method === 'cash_and_check') {
+                          handleInputChange('depositReceiptNumber', '');
+                          // لا ننشئ شيكات تلقائياً - المستخدم يملأها
+                        } else {
+                          handleInputChange('depositChecks', []);
+                        }
+                        
+                        if (method === 'cash_and_check') {
+                          // تهيئة القيم للمبلغ النقدي - استخدام مبلغ الضمان الكامل
+                          handleInputChange('depositCashAmount', formData.deposit);
+                          handleInputChange('depositCashDate', formData.startDate);
+                        } else {
+                          handleInputChange('depositCashAmount', 0);
+                          handleInputChange('depositCashDate', '');
+                          handleInputChange('depositCashReceiptNumber', '');
+                        }
+                      }}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      required
+                    >
+                      <option value="cash">نقداً</option>
+                      <option value="check">شيك</option>
+                      <option value="cash_and_check">نقدي + شيك</option>
+                      <option value="bank_transfer">تحويل في الحساب</option>
+                      <option value="electronic_payment">دفع إلكتروني</option>
+                    </select>
+                  </div>
+                  
+                  {/* رقم الإيصال لغير الشيكات */}
+                  {formData.depositPaymentMethod !== 'check' && formData.depositPaymentMethod !== 'cash_and_check' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        رقم الإيصال *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.depositReceiptNumber}
+                        onChange={(e) => handleInputChange('depositReceiptNumber', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="أدخل رقم الإيصال"
+                        required
+                      />
+                    </div>
+                  )}
+                  
+                  {/* المبلغ النقدي (في حالة نقدي + شيك) */}
+                  {formData.depositPaymentMethod === 'cash_and_check' && (
+                    <div className="bg-white rounded-lg p-6 border-2 border-orange-200 mb-4">
+                      <h6 className="font-semibold text-gray-900 mb-4">💵 المبلغ النقدي</h6>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            المبلغ النقدي ({formData.currency}) *
+                          </label>
+                          <input
+                            type="number"
+                            value={formData.depositCashAmount}
+                            onChange={(e) => handleInputChange('depositCashAmount', parseFloat(e.target.value) || 0)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500"
+                            min="0"
+                            step="any"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            تاريخ الدفع *
+                          </label>
+                          <input
+                            type="date"
+                            value={formData.depositCashDate}
+                            onChange={(e) => handleInputChange('depositCashDate', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500"
+                            required
+                            suppressHydrationWarning
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            رقم الإيصال النقدي *
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.depositCashReceiptNumber}
+                            onChange={(e) => handleInputChange('depositCashReceiptNumber', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500"
+                            placeholder="رقم الإيصال"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* شيكات الضمان */}
+                  {(formData.depositPaymentMethod === 'check' || formData.depositPaymentMethod === 'cash_and_check') && (
+                    <>
+                      {/* معلومات مالك شيكات الضمان + زر النسخ */}
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6 border-2 border-green-200 mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h6 className="font-semibold text-green-900 flex items-center gap-2">
+                            <FaUser className="w-5 h-5" />
+                            👤 معلومات مالك شيكات الضمان
+                          </h6>
+                          {formData.rentPaymentMethod === 'check' && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                // نسخ بيانات شيكات الإيجار
+                                handleInputChange('depositChecksOwnerType', formData.rentChecksOwnerType);
+                                handleInputChange('depositChecksOwnerName', formData.rentChecksOwnerName);
+                                handleInputChange('depositChecksBankName', formData.rentChecksBankName);
+                                handleInputChange('depositChecksBankBranch', formData.rentChecksBankBranch);
+                                handleInputChange('depositChecksBankAccount', formData.rentChecksBankAccount);
+                                handleInputChange('depositChecksNationalId', formData.rentChecksNationalId);
+                                handleInputChange('depositChecksNationalIdExpiry', formData.rentChecksNationalIdExpiry);
+                                handleInputChange('depositChecksNationalIdFile', formData.rentChecksNationalIdFile);
+                                handleInputChange('depositChecksIsOmani', formData.rentChecksIsOmani);
+                                handleInputChange('depositChecksPassportNumber', formData.rentChecksPassportNumber);
+                                handleInputChange('depositChecksPassportExpiry', formData.rentChecksPassportExpiry);
+                                handleInputChange('depositChecksPassportFile', formData.rentChecksPassportFile);
+                                handleInputChange('depositChecksCommercialRegister', formData.rentChecksCommercialRegister);
+                                handleInputChange('depositChecksCommercialRegisterFile', formData.rentChecksCommercialRegisterFile);
+                                handleInputChange('depositChecksAuthorizedPersonName', formData.rentChecksAuthorizedPersonName);
+                                handleInputChange('depositChecksAuthorizedPersonId', formData.rentChecksAuthorizedPersonId);
+                                handleInputChange('depositChecksAuthorizedPersonIdExpiry', formData.rentChecksAuthorizedPersonIdExpiry);
+                                handleInputChange('depositChecksAuthorizedPersonIdFile', formData.rentChecksAuthorizedPersonIdFile);
+                                handleInputChange('depositChecksAuthorizedPersonIsOmani', formData.rentChecksAuthorizedPersonIsOmani);
+                                handleInputChange('depositChecksAuthorizedPersonPassport', formData.rentChecksAuthorizedPersonPassport);
+                                handleInputChange('depositChecksAuthorizedPersonPassportExpiry', formData.rentChecksAuthorizedPersonPassportExpiry);
+                                handleInputChange('depositChecksAuthorizedPersonPassportFile', formData.rentChecksAuthorizedPersonPassportFile);
+                                alert('✅ تم نسخ بيانات شيكات الإيجار بنجاح!');
+                              }}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm"
+                            >
+                              <FaCheck className="w-3 h-3" />
+                              نسخ من شيكات الإيجار
+                            </button>
+                          )}
+                        </div>
+                        
+                        {/* نفس الواجهة لشيكات الضمان */}
+                        <div className="grid grid-cols-1 gap-6">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              الشيكات باسم *
+                            </label>
+                            <select
+                              value={formData.depositChecksOwnerType}
+                              onChange={(e) => handleInputChange('depositChecksOwnerType', e.target.value)}
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                              required
+                            >
+                              <option value="tenant">المستأجر</option>
+                              <option value="other_individual">شخص آخر</option>
+                              <option value="company">شركة</option>
+                            </select>
+                          </div>
+                          
+                          {/* معلومات البنك */}
+                          <div className="bg-white rounded-lg p-4 border border-green-200">
+                            <p className="font-semibold text-gray-900 mb-3 text-sm">🏦 معلومات البنك</p>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">اسم البنك *</label>
+                                <input
+                                  type="text"
+                                  value={formData.depositChecksBankName}
+                                  onChange={(e) => handleInputChange('depositChecksBankName', e.target.value)}
+                                  className={getRequiredFieldClasses(formData.depositChecksBankName, "w-full px-3 py-2 rounded text-sm")}
+                                  placeholder="مثال: بنك مسقط"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">الفرع *</label>
+                                <input
+                                  type="text"
+                                  value={formData.depositChecksBankBranch}
+                                  onChange={(e) => handleInputChange('depositChecksBankBranch', e.target.value)}
+                                  className={getRequiredFieldClasses(formData.depositChecksBankBranch, "w-full px-3 py-2 rounded text-sm")}
+                                  placeholder="مثال: الخوير"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">رقم الحساب *</label>
+                                <input
+                                  type="text"
+                                  value={formData.depositChecksBankAccount}
+                                  onChange={(e) => handleInputChange('depositChecksBankAccount', e.target.value)}
+                                  className={getRequiredFieldClasses(formData.depositChecksBankAccount, "w-full px-3 py-2 rounded text-sm")}
+                                  placeholder="رقم الحساب البنكي"
+                                  required
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* إذا كان شخص آخر - نفس التصميم */}
+                          {formData.depositChecksOwnerType === 'other_individual' && (
+                            <div className="bg-white rounded-lg p-4 border border-green-200">
+                              <p className="font-semibold text-gray-900 mb-3 text-sm">📋 بيانات مالك الشيك</p>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">اسم المالك *</label>
+                                  <input
+                                    type="text"
+                                    value={formData.depositChecksOwnerName}
+                                    onChange={(e) => handleInputChange('depositChecksOwnerName', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                    required
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">الجنسية *</label>
+                                  <select
+                                    value={formData.depositChecksIsOmani ? 'omani' : 'foreign'}
+                                    onChange={(e) => handleInputChange('depositChecksIsOmani', e.target.value === 'omani')}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                    required
+                                  >
+                                    <option value="omani">عماني</option>
+                                    <option value="foreign">وافد</option>
+                                  </select>
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">رقم البطاقة المدنية *</label>
+                                  <input
+                                    type="text"
+                                    value={formData.depositChecksNationalId}
+                                    onChange={(e) => handleInputChange('depositChecksNationalId', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                    required
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">تاريخ انتهاء البطاقة *</label>
+                                  <input
+                                    type="date"
+                                    value={formData.depositChecksNationalIdExpiry}
+                                    onChange={(e) => handleInputChange('depositChecksNationalIdExpiry', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                    required
+                                    suppressHydrationWarning
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">نسخة من البطاقة *</label>
+                                  <input
+                                    type="file"
+                                    accept="image/*,.pdf"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) handleInputChange('depositChecksNationalIdFile', file.name);
+                                    }}
+                                    className="w-full text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-green-600 file:text-white"
+                                    required
+                                  />
+                                </div>
+                                {!formData.depositChecksIsOmani && (
+                                  <>
+                                    <div>
+                                      <label className="block text-xs font-medium text-gray-700 mb-1">رقم الجواز *</label>
+                                      <input
+                                        type="text"
+                                        value={formData.depositChecksPassportNumber}
+                                        onChange={(e) => handleInputChange('depositChecksPassportNumber', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                        required
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-xs font-medium text-gray-700 mb-1">تاريخ انتهاء الجواز *</label>
+                                      <input
+                                        type="date"
+                                        value={formData.depositChecksPassportExpiry}
+                                        onChange={(e) => handleInputChange('depositChecksPassportExpiry', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                        required
+                                        suppressHydrationWarning
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-xs font-medium text-gray-700 mb-1">نسخة من الجواز *</label>
+                                      <input
+                                        type="file"
+                                        accept="image/*,.pdf"
+                                        onChange={(e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) handleInputChange('depositChecksPassportFile', file.name);
+                                        }}
+                                        className="w-full text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-green-600 file:text-white"
+                                        required
+                                      />
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* إذا كان شركة - نفس التصميم */}
+                          {formData.depositChecksOwnerType === 'company' && (
+                            <div className="bg-white rounded-lg p-4 border border-green-200">
+                              <p className="font-semibold text-gray-900 mb-3 text-sm">🏢 بيانات الشركة</p>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">اسم الشركة *</label>
+                                  <input
+                                    type="text"
+                                    value={formData.depositChecksOwnerName}
+                                    onChange={(e) => handleInputChange('depositChecksOwnerName', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                    required
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">رقم السجل التجاري *</label>
+                                  <input
+                                    type="text"
+                                    value={formData.depositChecksCommercialRegister}
+                                    onChange={(e) => handleInputChange('depositChecksCommercialRegister', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                    required
+                                  />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">نسخة من السجل التجاري *</label>
+                                  <input
+                                    type="file"
+                                    accept=".pdf,.jpg,.jpeg,.png"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) handleInputChange('depositChecksCommercialRegisterFile', file.name);
+                                    }}
+                                    className="w-full text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-green-600 file:text-white"
+                                    required
+                                  />
+                                </div>
+                              </div>
+                              
+                              <div className="border-t pt-3">
+                                <p className="font-semibold text-gray-900 mb-3 text-sm">✍️ بيانات المفوض بالتوقيع</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">اسم المفوض *</label>
+                                    <input
+                                      type="text"
+                                      value={formData.depositChecksAuthorizedPersonName}
+                                      onChange={(e) => handleInputChange('depositChecksAuthorizedPersonName', e.target.value)}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                      required
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">جنسية المفوض *</label>
+                                    <select
+                                      value={formData.depositChecksAuthorizedPersonIsOmani ? 'omani' : 'foreign'}
+                                      onChange={(e) => handleInputChange('depositChecksAuthorizedPersonIsOmani', e.target.value === 'omani')}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                      required
+                                    >
+                                      <option value="omani">عماني</option>
+                                      <option value="foreign">وافد</option>
+                                    </select>
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">رقم بطاقة المفوض *</label>
+                                    <input
+                                      type="text"
+                                      value={formData.depositChecksAuthorizedPersonId}
+                                      onChange={(e) => handleInputChange('depositChecksAuthorizedPersonId', e.target.value)}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                      required
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">تاريخ انتهاء البطاقة *</label>
+                                    <input
+                                      type="date"
+                                      value={formData.depositChecksAuthorizedPersonIdExpiry}
+                                      onChange={(e) => handleInputChange('depositChecksAuthorizedPersonIdExpiry', e.target.value)}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                      required
+                                      suppressHydrationWarning
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">نسخة من بطاقة المفوض *</label>
+                                    <input
+                                      type="file"
+                                      accept="image/*,.pdf"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleInputChange('depositChecksAuthorizedPersonIdFile', file.name);
+                                      }}
+                                      className="w-full text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-green-600 file:text-white"
+                                      required
+                                    />
+                                  </div>
+                                  {!formData.depositChecksAuthorizedPersonIsOmani && (
+                                    <>
+                                      <div>
+                                        <label className="block text-xs font-medium text-gray-700 mb-1">رقم جواز المفوض *</label>
+                                        <input
+                                          type="text"
+                                          value={formData.depositChecksAuthorizedPersonPassport}
+                                          onChange={(e) => handleInputChange('depositChecksAuthorizedPersonPassport', e.target.value)}
+                                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                          required
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-xs font-medium text-gray-700 mb-1">تاريخ انتهاء الجواز *</label>
+                                        <input
+                                          type="date"
+                                          value={formData.depositChecksAuthorizedPersonPassportExpiry}
+                                          onChange={(e) => handleInputChange('depositChecksAuthorizedPersonPassportExpiry', e.target.value)}
+                                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                          required
+                                          suppressHydrationWarning
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-xs font-medium text-gray-700 mb-1">نسخة من جواز المفوض *</label>
+                                        <input
+                                          type="file"
+                                          accept="image/*,.pdf"
+                                          onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) handleInputChange('depositChecksAuthorizedPersonPassportFile', file.name);
+                                          }}
+                                          className="w-full text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-green-600 file:text-white"
+                                          required
+                                        />
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* قائمة شيكات الضمان - مبسطة */}
+                      <div className="bg-white rounded-lg p-6 border-2 border-green-200">
+                        <div className="flex items-center justify-between mb-4">
+                          <h6 className="font-semibold text-gray-900">📝 شيكات الضمان</h6>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newCheck = {
+                                checkNumber: '',
+                                amount: formData.depositPaymentMethod === 'cash_and_check' 
+                                  ? (formData.deposit - formData.depositCashAmount) 
+                                  : formData.deposit,
+                                date: '',
+                                hasDate: false
+                              };
+                              handleInputChange('depositChecks', [...formData.depositChecks, newCheck]);
+                            }}
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 text-sm"
+                          >
+                            <FaPlus className="w-3 h-3" />
+                            إضافة شيك
+                          </button>
+                        </div>
+                        
+                        <div className="space-y-4 max-h-96 overflow-y-auto">
+                          {formData.depositChecks.map((check, index) => (
+                            <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                              <div className="flex items-center justify-between mb-3">
+                                <span className="font-semibold text-gray-900">الشيك #{index + 1}</span>
+                                {formData.depositChecks.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const newChecks = formData.depositChecks.filter((_, i) => i !== index);
+                                      handleInputChange('depositChecks', newChecks);
+                                    }}
+                                    className="text-red-600 hover:text-red-800 text-sm"
+                                  >
+                                    <FaTrash className="w-4 h-4" />
+                                  </button>
+                                )}
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                                    رقم الشيك *
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={check.checkNumber}
+                                    onChange={(e) => {
+                                      const newChecks = [...formData.depositChecks];
+                                      newChecks[index].checkNumber = e.target.value;
+                                      handleInputChange('depositChecks', newChecks);
+                                    }}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500"
+                                    placeholder="رقم الشيك"
+                                    required
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                                    المبلغ ({formData.currency}) *
+                                  </label>
+                                  <input
+                                    type="number"
+                                    value={check.amount}
+                                    onChange={(e) => {
+                                      const newChecks = [...formData.depositChecks];
+                                      newChecks[index].amount = parseFloat(e.target.value) || 0;
+                                      handleInputChange('depositChecks', newChecks);
+                                    }}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500"
+                                    min="0"
+                                    step="any"
+                                    required
+                                  />
+                                </div>
+                                <div>
+                                  <div className="mb-2">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={!check.hasDate}
+                                        onChange={(e) => {
+                                          const newChecks = [...formData.depositChecks];
+                                          newChecks[index].hasDate = !e.target.checked;
+                                          if (e.target.checked) {
+                                            newChecks[index].date = '';
+                                          }
+                                          handleInputChange('depositChecks', newChecks);
+                                        }}
+                                        className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+                                      />
+                                      <span className="text-xs text-gray-700">شيك بدون تاريخ</span>
+                                    </label>
+                                  </div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                                    تاريخ الشيك {check.hasDate ? '*' : '(اختياري)'}
+                                  </label>
+                                  <input
+                                    type="date"
+                                    value={check.date}
+                                    onChange={(e) => {
+                                      const newChecks = [...formData.depositChecks];
+                                      newChecks[index].date = e.target.value;
+                                      handleInputChange('depositChecks', newChecks);
+                                    }}
+                                    className={`w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500 ${!check.hasDate ? 'bg-gray-100' : ''}`}
+                                    required={check.hasDate}
+                                    disabled={!check.hasDate}
+                                    suppressHydrationWarning
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        <div className="mt-4 bg-green-100 rounded-lg p-3">
+                          <p className="text-sm text-green-900" suppressHydrationWarning>
+                            <strong>إجمالي شيكات الضمان:</strong> {formData.depositChecks.reduce((sum, check) => sum + check.amount, 0).toFixed(3)} {formData.currency}
+                          </p>
+                          {formData.depositPaymentMethod === 'cash_and_check' && (
+                            <p className="text-sm text-green-900 mt-1" suppressHydrationWarning>
+                              <strong>إجمالي الضمان:</strong> {(formData.depositCashAmount + formData.depositChecks.reduce((sum, check) => sum + check.amount, 0)).toFixed(3)} {formData.currency}
+                              <span className="text-xs ml-2">(نقدي: {formData.depositCashAmount} + شيكات: {formData.depositChecks.reduce((sum, check) => sum + check.amount, 0).toFixed(3)})</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {/* القسم 4: أرقام المستندات ورسوم البلدية */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaFileAlt className="text-purple-600" />
+                أرقام المستندات الرسمية ورسوم البلدية
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    قراءة عداد الكهرباء *
+                    رقم استمارة عقد الإيجار للبلدية *
                   </label>
                   <input
                     type="text"
-                    value={formData.electricityMeterReading}
-                    onChange={(e) => handleInputChange('electricityMeterReading', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="أدخل القراءة الحالية للكهرباء"
+                    name="municipalityFormNumber"
+                    value={formData.municipalityFormNumber}
+                    onChange={(e) => handleInputChange('municipalityFormNumber', e.target.value)}
+                    className={getRequiredFieldClasses(formData.municipalityFormNumber, "w-full px-4 py-3 rounded-lg mb-3")}
+                    placeholder="أدخل رقم الاستمارة"
                     required
+                  />
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    نسخة ورقية من الاستمارة *
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleInputChange('municipalityFormFile', file.name);
+                      }
+                    }}
+                    className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white hover:file:bg-purple-700"
+                    required
+                  />
+                </div>
+                
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-300">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    رقم عقد الإيجار المعتمد من البلدية (اختياري)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.municipalityContractNumber}
+                    onChange={(e) => handleInputChange('municipalityContractNumber', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent mb-3"
+                    placeholder="أدخل رقم العقد المعتمد (إن وُجد)"
+                  />
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    نسخة ورقية من العقد المعتمد (اختياري)
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleInputChange('municipalityContractFile', file.name);
+                      }
+                    }}
+                    className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-600 file:text-white hover:file:bg-gray-700"
                   />
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    قراءة عداد الماء *
+                    رسوم تسجيل العقد في البلدية ({formData.currency}) *
                   </label>
                   <input
-                    type="text"
-                    value={formData.waterMeterReading}
-                    onChange={(e) => handleInputChange('waterMeterReading', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="أدخل القراءة الحالية للماء"
+                    type="number"
+                    value={formData.municipalityRegistrationFee}
+                    onChange={(e) => handleInputChange('municipalityRegistrationFee', parseFloat(e.target.value) || 1)}
+                    className={getRequiredFieldClasses(formData.municipalityRegistrationFee, "w-full px-4 py-3 rounded-lg")}
+                    min="0"
+                    step="any"
                     required
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    💡 عادةً 1 ريال - يدفعها المالك
+                  </p>
+                </div>
+              </div>
+              
+              {/* توضيح رسوم البلدية */}
+              <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <FaExclamationTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-yellow-900 mb-1">ملاحظة مهمة - رسوم البلدية</p>
+                    <p className="text-sm text-yellow-800">
+                      • رسوم البلدية (3% من إجمالي العقد) + رسوم التسجيل <strong>يدفعها المالك</strong>
+                    </p>
+                    <p className="text-sm text-yellow-800">
+                      • تظهر في البيانات للمعلومية فقط ولن تُحسب على المستأجر
+                    </p>
+                    <p className="text-sm text-yellow-800" suppressHydrationWarning>
+                      • إجمالي رسوم المالك للبلدية: {(formData.municipalityFees + formData.municipalityRegistrationFee).toFixed(3)} {formData.currency}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
             
-            {/* القسم 7: رسوم الإنترنت */}
+            {/* القسم 5: قراءات العدادات */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaMoneyBillWave className="text-yellow-600" />
+                قراءات العدادات والفواتير أثناء الاستئجار
+              </h4>
+              
+              {/* عداد الكهرباء */}
+              <div className="bg-yellow-50 rounded-lg p-6 mb-6">
+                <h5 className="font-semibold text-yellow-900 mb-4">⚡ عداد الكهرباء</h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      قراءة عداد الكهرباء *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.electricityMeterReading}
+                      onChange={(e) => handleInputChange('electricityMeterReading', e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="أدخل القراءة الحالية"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      مبلغ الفاتورة ({formData.currency}) *
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.electricityBillAmount}
+                      onChange={(e) => handleInputChange('electricityBillAmount', parseFloat(e.target.value) || 0)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="مبلغ الفاتورة"
+                      min="0"
+                      step="any"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      صورة العداد *
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleInputChange('electricityMeterImage', file.name);
+                        }
+                      }}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-yellow-600 file:text-white hover:file:bg-yellow-700"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      صورة الفاتورة *
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleInputChange('electricityBillImage', file.name);
+                        }
+                      }}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-yellow-600 file:text-white hover:file:bg-yellow-700"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* عداد الماء */}
+              <div className="bg-blue-50 rounded-lg p-6">
+                <h5 className="font-semibold text-blue-900 mb-4">💧 عداد الماء</h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      قراءة عداد الماء *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.waterMeterReading}
+                      onChange={(e) => handleInputChange('waterMeterReading', e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="أدخل القراءة الحالية"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      مبلغ الفاتورة ({formData.currency}) *
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.waterBillAmount}
+                      onChange={(e) => handleInputChange('waterBillAmount', parseFloat(e.target.value) || 0)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="مبلغ الفاتورة"
+                      min="0"
+                      step="any"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      صورة العداد *
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleInputChange('waterMeterImage', file.name);
+                        }
+                      }}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      صورة الفاتورة *
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleInputChange('waterBillImage', file.name);
+                        }
+                      }}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* القسم 6: رسوم الإنترنت */}
             <div className="mb-8">
               <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaGlobe className="text-cyan-600" />
@@ -2334,7 +3921,7 @@ export default function NewRentalContract() {
                           onChange={(e) => handleInputChange('internetFees', parseFloat(e.target.value) || 0)}
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                           min="0"
-                          step="0.01"
+                          step="any"
                           placeholder="0.00"
                           required
                         />
@@ -2359,7 +3946,7 @@ export default function NewRentalContract() {
               </div>
             </div>
             
-            {/* القسم 8: رسوم أخرى */}
+            {/* القسم 7: رسوم أخرى */}
             <div className="mb-8">
               <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaMoneyBillWave className="text-red-600" />
@@ -2413,7 +4000,7 @@ export default function NewRentalContract() {
                         onChange={(e) => handleInputChange('otherFeesAmount', parseFloat(e.target.value) || 0)}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                         min="0"
-                        step="0.01"
+                        step="any"
                         placeholder="0.00"
                         required
                       />
@@ -2423,7 +4010,7 @@ export default function NewRentalContract() {
               </div>
             </div>
             
-            {/* القسم 9: الضريبة المضافة */}
+            {/* القسم 8: الضريبة المضافة */}
             <div className="mb-8">
               <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaDollarSign className="text-orange-600" />
@@ -2516,7 +4103,101 @@ export default function NewRentalContract() {
               </div>
             </div>
             
-            {/* القسم 10: الإيجارات الشهرية المخصصة */}
+            {/* القسم 8.5: ضرائب أخرى */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FaDollarSign className="text-red-600" />
+                ضرائب أخرى
+              </h4>
+              <div className="grid grid-cols-1 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    هل هناك ضرائب أخرى؟ *
+                  </label>
+                  <select
+                    value={formData.hasOtherTaxes ? 'yes' : 'no'}
+                    onChange={(e) => {
+                      const hasTaxes = e.target.value === 'yes';
+                      handleInputChange('hasOtherTaxes', hasTaxes);
+                      if (!hasTaxes) {
+                        handleInputChange('otherTaxName', '');
+                        handleInputChange('otherTaxRate', 0);
+                      }
+                    }}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="no">لا</option>
+                    <option value="yes">نعم</option>
+                  </select>
+                </div>
+                
+                {formData.hasOtherTaxes && (
+                  <div className="bg-red-50 rounded-lg p-6 border-2 border-red-200">
+                    <h6 className="font-semibold text-red-900 mb-4">📋 تفاصيل الضريبة الأخرى</h6>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          مسمى الضريبة *
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.otherTaxName}
+                          onChange={(e) => handleInputChange('otherTaxName', e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                          placeholder="مثال: ضريبة الدخل، ضريبة الأملاك"
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          نسبة الضريبة (%) *
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.otherTaxRate * 100}
+                          onChange={(e) => handleInputChange('otherTaxRate', parseFloat(e.target.value) / 100 || 0)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          placeholder="0"
+                          required
+                        />
+                      </div>
+                      
+                      <div className="relative">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          الضريبة الشهرية ({formData.currency})
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.monthlyOtherTaxAmount}
+                          className="w-full px-4 py-3 border-2 border-green-300 rounded-lg bg-green-50 cursor-not-allowed font-bold text-green-700"
+                          readOnly
+                          suppressHydrationWarning
+                        />
+                        <div className="absolute top-11 left-3 text-xs text-green-600 font-semibold bg-green-50 px-2 py-1 rounded">
+                          محسوب تلقائياً ✓
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 bg-white rounded-lg p-4 border border-red-200">
+                      <p className="font-semibold text-red-900 mb-2">حسابات الضريبة</p>
+                      <div className="text-sm text-red-800 space-y-1">
+                        <p suppressHydrationWarning>• الإيجار الشهري: {formData.monthlyRent} {formData.currency}</p>
+                        <p suppressHydrationWarning>• الضريبة الشهرية ({formData.otherTaxName || 'ضريبة أخرى'}): {formData.monthlyOtherTaxAmount} {formData.currency} ({formData.otherTaxRate * 100}%)</p>
+                        <p suppressHydrationWarning>• إجمالي الضريبة للعقد: {formData.totalOtherTaxAmount} {formData.currency}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* القسم 9: الإيجارات الشهرية المخصصة */}
             <div className="mb-8">
               <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaMoneyBillWave className="text-purple-600" />
@@ -2554,13 +4235,13 @@ export default function NewRentalContract() {
                     
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto p-2">
                       {formData.customMonthlyRents.map((rent, index) => {
-                        // حساب تاريخ كل شهر
+                        // حساب تاريخ كل شهر بالإنجليزي
                         const monthDate = new Date(formData.startDate);
                         monthDate.setMonth(monthDate.getMonth() + index);
-                        const monthName = monthDate.toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' });
+                        const monthName = monthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
                         const dueDate = new Date(monthDate);
                         dueDate.setDate(formData.rentDueDay);
-                        const dueDateStr = dueDate.toLocaleDateString('ar-SA');
+                        const dueDateStr = dueDate.toLocaleDateString('en-GB'); // DD/MM/YYYY
                         
                         return (
                           <div key={index} className="bg-white rounded-lg p-3 border-2 border-purple-200 shadow-sm hover:shadow-md transition-shadow">
@@ -2581,7 +4262,7 @@ export default function NewRentalContract() {
                               }}
                               className="w-full px-2 py-2 border border-purple-300 rounded text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent font-bold"
                               min="0"
-                              step="0.01"
+                              step="any"
                               placeholder="0.00"
                             />
                             <p className="text-[10px] text-gray-500 mt-1">
@@ -2614,7 +4295,7 @@ export default function NewRentalContract() {
               </div>
             </div>
             
-            {/* القسم 11: ملخص الحسابات النهائية */}
+            {/* القسم 10: ملخص الحسابات النهائية */}
             <div className="mb-8">
               <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaMoneyBillWave className="text-green-600" />
@@ -2628,69 +4309,148 @@ export default function NewRentalContract() {
                       💰 مستحقات المستأجر
                     </h5>
                     <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">الإيجار الأساسي:</span>
-                        <span className="font-bold" suppressHydrationWarning>
-                          {formData.useCustomMonthlyRents 
-                            ? formData.customMonthlyRents.reduce((sum, rent) => sum + rent, 0).toFixed(3)
-                            : (formData.monthlyRent * formData.duration).toFixed(3)
-                          } {formData.currency}
-                        </span>
-                      </div>
-                      {formData.includesVAT && (
-                        <div className="flex justify-between text-orange-600">
-                          <span>ضريبة القيمة المضافة ({formData.vatRate * 100}%):</span>
-                          <span className="font-bold" suppressHydrationWarning>
-                            +{formData.totalVATAmount} {formData.currency}
-                          </span>
-                        </div>
-                      )}
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">مبلغ الضمان:</span>
-                        <span className="font-bold" suppressHydrationWarning>
-                          {formData.deposit} {formData.currency}
-                        </span>
-                      </div>
-                      {formData.internetIncluded && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">
-                            رسوم الإنترنت ({formData.internetPaymentType === 'monthly' ? 'شهري' : 'سنوي'}):
-                          </span>
-                          <span className="font-bold" suppressHydrationWarning>
-                            {formData.internetPaymentType === 'monthly' 
-                              ? `${(formData.internetFees * formData.duration).toFixed(3)}`
-                              : formData.internetFees.toFixed(3)
-                            } {formData.currency}
-                          </span>
-                        </div>
-                      )}
-                      {formData.hasOtherFees && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">{formData.otherFeesDescription}:</span>
-                          <span className="font-bold" suppressHydrationWarning>
-                            {formData.otherFeesAmount} {formData.currency}
-                          </span>
-                        </div>
-                      )}
-                      <div className="flex justify-between pt-2 border-t-2 border-green-300 font-bold text-green-900">
-                        <span>إجمالي مستحقات المستأجر:</span>
-                        <span className="text-lg" suppressHydrationWarning>
-                          {(
-                            (formData.useCustomMonthlyRents 
-                              ? formData.customMonthlyRents.reduce((sum, rent) => sum + rent, 0)
-                              : formData.monthlyRent * formData.duration
-                            ) +
-                            formData.totalVATAmount +
-                            formData.deposit +
-                            (formData.internetIncluded 
-                              ? (formData.internetPaymentType === 'monthly' 
-                                  ? formData.internetFees * formData.duration 
-                                  : formData.internetFees)
-                              : 0) +
-                            (formData.hasOtherFees ? formData.otherFeesAmount : 0)
-                          ).toFixed(3)} {formData.currency}
-                        </span>
-                      </div>
+                      {/* حساب الإيجار الأساسي الكامل والتخفيضات */}
+                      {(() => {
+                        // الإيجار الأساسي الكامل (قبل أي تخفيضات)
+                        const fullRent = formData.monthlyRent * formData.duration;
+                        
+                        // حساب التخفيض من الإيجارات المخصصة
+                        const customRentDiscount = formData.useCustomMonthlyRents 
+                          ? fullRent - formData.customMonthlyRents.reduce((sum, rent) => sum + rent, 0)
+                          : 0;
+                        
+                        // حساب التخفيض من فترة السماح
+                        const gracePeriodDiscount = formData.gracePeriodDays && formData.gracePeriodDays > 0
+                          ? (formData.monthlyRent / 30) * formData.gracePeriodDays
+                          : 0;
+                        
+                        // إجمالي التخفيضات
+                        const totalDiscounts = customRentDiscount + gracePeriodDiscount;
+                        
+                        // الإيجار الفعلي بعد التخفيضات
+                        const actualRent = fullRent - totalDiscounts;
+                        
+                        // إعادة حساب الضرائب على الإيجار الفعلي
+                        const actualVAT = formData.includesVAT ? actualRent * formData.vatRate : 0;
+                        const actualOtherTax = formData.hasOtherTaxes ? actualRent * formData.otherTaxRate : 0;
+                        
+                        return (
+                          <>
+                            {/* الإيجار الأساسي الكامل */}
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">الإيجار الأساسي الكامل:</span>
+                              <span className="font-bold" suppressHydrationWarning>
+                                {fullRent.toFixed(3)} {formData.currency}
+                              </span>
+                            </div>
+                            
+                            {/* التخفيضات الممنوحة */}
+                            {totalDiscounts > 0 && (
+                              <div className="bg-blue-50 rounded-lg p-3 border border-blue-200 my-2">
+                                <p className="font-semibold text-blue-900 text-xs mb-2">🎁 التخفيضات الممنوحة:</p>
+                                <div className="space-y-1">
+                                  {customRentDiscount > 0 && (
+                                    <div className="flex justify-between text-xs text-blue-700">
+                                      <span>• تخفيض الإيجار المخصص:</span>
+                                      <span className="font-bold" suppressHydrationWarning>
+                                        -{customRentDiscount.toFixed(3)} {formData.currency}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {gracePeriodDiscount > 0 && (
+                                    <div className="flex justify-between text-xs text-blue-700">
+                                      <span>• تخفيض فترة السماح ({formData.gracePeriodDays} يوم):</span>
+                                      <span className="font-bold" suppressHydrationWarning>
+                                        -{gracePeriodDiscount.toFixed(3)} {formData.currency}
+                                      </span>
+                                    </div>
+                                  )}
+                                  <div className="flex justify-between text-xs font-bold text-blue-900 pt-1 border-t border-blue-300">
+                                    <span>إجمالي التخفيضات:</span>
+                                    <span suppressHydrationWarning>
+                                      -{totalDiscounts.toFixed(3)} {formData.currency}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* الإيجار الفعلي */}
+                            <div className="flex justify-between font-semibold text-green-700 bg-green-50 px-2 py-1 rounded">
+                              <span>الإيجار الفعلي المطلوب:</span>
+                              <span suppressHydrationWarning>
+                                {actualRent.toFixed(3)} {formData.currency}
+                              </span>
+                            </div>
+                            
+                            {/* الضرائب على الإيجار الفعلي */}
+                            {formData.includesVAT && (
+                              <div className="flex justify-between text-orange-600">
+                                <span>ضريبة القيمة المضافة ({formData.vatRate * 100}%):</span>
+                                <span className="font-bold" suppressHydrationWarning>
+                                  +{actualVAT.toFixed(3)} {formData.currency}
+                                </span>
+                              </div>
+                            )}
+                            {formData.hasOtherTaxes && (
+                              <div className="flex justify-between text-red-600">
+                                <span>{formData.otherTaxName} ({formData.otherTaxRate * 100}%):</span>
+                                <span className="font-bold" suppressHydrationWarning>
+                                  +{actualOtherTax.toFixed(3)} {formData.currency}
+                                </span>
+                              </div>
+                            )}
+                            
+                            {/* باقي المستحقات */}
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">مبلغ الضمان:</span>
+                              <span className="font-bold" suppressHydrationWarning>
+                                {formData.deposit} {formData.currency}
+                              </span>
+                            </div>
+                            {formData.internetIncluded && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">
+                                  رسوم الإنترنت ({formData.internetPaymentType === 'monthly' ? 'شهري' : 'سنوي'}):
+                                </span>
+                                <span className="font-bold" suppressHydrationWarning>
+                                  {formData.internetPaymentType === 'monthly' 
+                                    ? `${(formData.internetFees * formData.duration).toFixed(3)}`
+                                    : formData.internetFees.toFixed(3)
+                                  } {formData.currency}
+                                </span>
+                              </div>
+                            )}
+                            {formData.hasOtherFees && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">{formData.otherFeesDescription}:</span>
+                                <span className="font-bold" suppressHydrationWarning>
+                                  {formData.otherFeesAmount} {formData.currency}
+                                </span>
+                              </div>
+                            )}
+                            
+                            {/* الإجمالي النهائي */}
+                            <div className="flex justify-between pt-2 border-t-2 border-green-300 font-bold text-green-900">
+                              <span>إجمالي مستحقات المستأجر:</span>
+                              <span className="text-lg" suppressHydrationWarning>
+                                {(
+                                  actualRent +
+                                  actualVAT +
+                                  actualOtherTax +
+                                  formData.deposit +
+                                  (formData.internetIncluded 
+                                    ? (formData.internetPaymentType === 'monthly' 
+                                        ? formData.internetFees * formData.duration 
+                                        : formData.internetFees)
+                                    : 0) +
+                                  (formData.hasOtherFees ? formData.otherFeesAmount : 0)
+                                ).toFixed(3)} {formData.currency}
+                              </span>
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                   
@@ -2713,16 +4473,43 @@ export default function NewRentalContract() {
                           {formData.municipalityRegistrationFee} {formData.currency}
                         </span>
                       </div>
+                      {formData.electricityBillAmount > 0 && (
+                        <div className="flex justify-between text-blue-600">
+                          <span>فاتورة الكهرباء الحالية:</span>
+                          <span className="font-bold" suppressHydrationWarning>
+                            {formData.electricityBillAmount.toFixed(3)} {formData.currency}
+                          </span>
+                        </div>
+                      )}
+                      {formData.waterBillAmount > 0 && (
+                        <div className="flex justify-between text-blue-600">
+                          <span>فاتورة الماء الحالية:</span>
+                          <span className="font-bold" suppressHydrationWarning>
+                            {formData.waterBillAmount.toFixed(3)} {formData.currency}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex justify-between pt-2 border-t-2 border-yellow-300 font-bold text-yellow-900">
                         <span>إجمالي مستحقات المالك:</span>
                         <span className="text-lg" suppressHydrationWarning>
-                          {(formData.municipalityFees + formData.municipalityRegistrationFee).toFixed(3)} {formData.currency}
+                          {(
+                            formData.municipalityFees + 
+                            formData.municipalityRegistrationFee +
+                            (formData.electricityBillAmount || 0) +
+                            (formData.waterBillAmount || 0)
+                          ).toFixed(3)} {formData.currency}
                         </span>
                       </div>
                     </div>
                     <div className="mt-3 bg-yellow-50 rounded-lg p-2 border border-yellow-200">
                       <p className="text-xs text-yellow-800">
-                        ℹ️ هذه الرسوم يدفعها المالك للبلدية ولا تُحسب على المستأجر
+                        ℹ️ هذه الرسوم والفواتير يدفعها المالك ولا تُحسب على المستأجر
+                      </p>
+                      <p className="text-xs text-yellow-700 mt-1">
+                        • رسوم البلدية والتسجيل: للجهات الحكومية
+                      </p>
+                      <p className="text-xs text-yellow-700">
+                        • فواتير الكهرباء والماء: إذا كان المستأجر جديد (على المالك)
                       </p>
                     </div>
                   </div>
@@ -2742,6 +4529,7 @@ export default function NewRentalContract() {
                               : formData.monthlyRent * formData.duration
                             ) +
                             formData.totalVATAmount +
+                            formData.totalOtherTaxAmount +
                             formData.deposit +
                             (formData.internetIncluded 
                               ? (formData.internetPaymentType === 'monthly' 
@@ -2759,7 +4547,7 @@ export default function NewRentalContract() {
               </div>
             </div>
             
-            {/* القسم 10: الشروط والأحكام الإضافية */}
+            {/* القسم 11: الشروط والأحكام الإضافية */}
             <div className="mb-8">
               <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaFileAlt className="text-gray-600" />
@@ -2784,9 +4572,36 @@ export default function NewRentalContract() {
               </button>
               <button
                 type="button"
-                onClick={() => setCurrentStep(5)}
+                onClick={() => {
+                  const missingFields = validateStep4();
+                  if (missingFields.length > 0) {
+                    // عرض رسالة مفصلة بالحقول الناقصة
+                    const message = `⚠️ يرجى إكمال الحقول التالية:\n\n${missingFields.map((item, i) => `${i + 1}. ${item.field}`).join('\n')}\n\nسيتم الانتقال إلى أول حقل ناقص عند الضغط على "موافق".`;
+                    
+                    if (confirm(message)) {
+                      // الانتقال إلى أول حقل ناقص
+                      const firstMissing = missingFields[0];
+                      if (firstMissing.element) {
+                        // محاولة التركيز على الحقل
+                        setTimeout(() => {
+                          const element = document.querySelector(`[name="${firstMissing.element}"]`) as HTMLElement;
+                          if (element) {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            element.focus();
+                            // إضافة تأثير بصري
+                            element.classList.add('ring-4', 'ring-red-500', 'ring-opacity-50');
+                            setTimeout(() => {
+                              element.classList.remove('ring-4', 'ring-red-500', 'ring-opacity-50');
+                            }, 2000);
+                          }
+                        }, 100);
+                      }
+                    }
+                    return;
+                  }
+                  setCurrentStep(5);
+                }}
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-                disabled={!formData.startDate || !formData.duration || !formData.monthlyRent}
               >
                 التالي
                 <FaArrowLeft className="w-4 h-4" />
@@ -2812,54 +4627,216 @@ export default function NewRentalContract() {
               </div>
             </div>
             
-            {/* ملخص العقد */}
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4">ملخص العقد</h4>
+            {/* ملخص العقد الشامل */}
+            <div className="space-y-6 mb-6">
+              {/* نوع العقد */}
+              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-6 border-2 border-purple-300">
+                <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <FaFileContract className="text-purple-600" />
+                  نوع العقد
+                </h4>
+                <p className="text-xl font-bold" suppressHydrationWarning>
+                  {formData.contractType === 'residential' ? '🏠 عقد سكني' : '🏢 عقد تجاري'}
+                </p>
+              </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h5 className="font-medium text-gray-700 mb-2">معلومات العقار</h5>
-                  <div className="space-y-1 text-sm">
-                    <p suppressHydrationWarning><span className="font-medium">العقار:</span> {selectedProperty?.titleAr}</p>
-                    <p suppressHydrationWarning><span className="font-medium">الوحدة:</span> الوحدة {selectedUnit?.unitNo}</p>
-                    <p suppressHydrationWarning><span className="font-medium">النوع:</span> {selectedUnit?.type}</p>
-                    <p suppressHydrationWarning><span className="font-medium">المساحة:</span> {selectedUnit?.area} م²</p>
+              {/* معلومات المؤجر (المالك) */}
+              <div className="bg-indigo-50 rounded-lg p-6 border-2 border-indigo-300">
+                <h5 className="font-bold text-indigo-900 mb-3 flex items-center gap-2">
+                  <FaUser className="w-5 h-5" />
+                  معلومات المؤجر (المالك)
+                </h5>
+                <div className="space-y-2 text-sm">
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">اسم المالك:</span> <span className="text-gray-900">{selectedProperty?.ownerName || 'غير محدد'}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">الهاتف:</span> <span className="text-gray-900">{selectedProperty?.ownerPhone || 'غير محدد'}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">البريد:</span> <span className="text-gray-900">{selectedProperty?.ownerEmail || 'غير محدد'}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">معرف المالك:</span> <span className="text-gray-900">{selectedProperty?.ownerId || 'غير محدد'}</span></p>
+                </div>
+              </div>
+              
+              {/* معلومات العقار الأساسية */}
+              <div className="bg-blue-50 rounded-lg p-6 border-2 border-blue-300">
+                <h5 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
+                  <FaBuilding className="w-5 h-5" />
+                  معلومات العقار
+                </h5>
+                <div className="space-y-2 text-sm">
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">العقار:</span> <span className="text-gray-900">{selectedProperty?.titleAr}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">الوحدة:</span> <span className="text-gray-900">الوحدة {selectedUnit?.unitNo || 'N/A'}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">النوع:</span> <span className="text-gray-900">{selectedProperty?.buildingType === 'single' ? 'عقار مفرد' : 'عقار متعدد الوحدات'}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">المساحة:</span> <span className="text-gray-900">{selectedUnit?.area || selectedProperty?.area} م²</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">رقم المبنى:</span> <span className="text-gray-900">{selectedProperty?.buildingNumber || 'غير محدد'}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">الرقم المتسلسل:</span> <span className="text-gray-900">{selectedProperty?.serialNumber || 'غير محدد'}</span></p>
+                </div>
+              </div>
+              
+              {/* البيانات الإضافية للعقار */}
+              <div className="bg-teal-50 rounded-lg p-6 border-2 border-teal-300">
+                <h5 className="font-bold text-teal-900 mb-3 flex items-center gap-2">
+                  <FaMapMarkerAlt className="w-5 h-5" />
+                  البيانات الإضافية للعقار
+                </h5>
+                <div className="space-y-2 text-sm">
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">المجمع:</span> <span className="text-gray-900">{selectedProperty?.complexName || 'غير محدد'}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">رقم المجمع:</span> <span className="text-gray-900">{selectedProperty?.complexNumber || 'غير محدد'}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">السكة:</span> <span className="text-gray-900">{selectedProperty?.streetName || 'غير محدد'}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">رقم الطريق:</span> <span className="text-gray-900">{selectedProperty?.roadNumber || 'غير محدد'}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">الرقم المساحي:</span> <span className="text-gray-900">{selectedProperty?.surveyNumber || 'غير محدد'}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">رقم القطعة:</span> <span className="text-gray-900">{selectedProperty?.plotNumber || 'غير محدد'}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">رقم المربع:</span> <span className="text-gray-900">{selectedProperty?.squareNumber || 'غير محدد'}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">رقم البلوك:</span> <span className="text-gray-900">{selectedProperty?.blockNumber || 'غير محدد'}</span></p>
+                </div>
+              </div>
+              
+              {/* معلومات المستأجر */}
+              <div className="bg-green-50 rounded-lg p-6 border-2 border-green-300">
+                <h5 className="font-bold text-green-900 mb-3 flex items-center gap-2">
+                  <FaUser className="w-5 h-5" />
+                  معلومات المستأجر
+                </h5>
+                <div className="space-y-2 text-sm">
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">الاسم:</span> <span className="text-gray-900">{formData.tenantName}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">الهاتف:</span> <span className="text-gray-900">{formData.tenantPhone}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">البريد:</span> <span className="text-gray-900">{formData.tenantEmail}</span></p>
+                  {formData.tenantId && <p suppressHydrationWarning><span className="font-medium text-gray-700">الهوية:</span> <span className="text-gray-900">{formData.tenantId}</span></p>}
+                </div>
+              </div>
+              
+              {/* التواريخ */}
+              <div className="bg-orange-50 rounded-lg p-6 border-2 border-orange-300">
+                <h5 className="font-bold text-orange-900 mb-3 flex items-center gap-2">
+                  <FaCalendar className="w-5 h-5" />
+                  التواريخ المهمة
+                </h5>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">تاريخ الاستئجار الفعلي:</span> <span className="text-gray-900">{formData.actualRentalDate}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">تاريخ استلام الوحدة:</span> <span className="text-gray-900">{formData.unitHandoverDate}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">تاريخ بدء العقد الرسمي:</span> <span className="text-gray-900">{formData.startDate}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">تاريخ انتهاء العقد:</span> <span className="text-gray-900">{formData.endDate}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">المدة:</span> <span className="text-gray-900">{formData.duration} شهر</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">يوم استحقاق الإيجار:</span> <span className="text-gray-900">اليوم {formData.rentDueDay} من كل شهر</span></p>
+                </div>
+              </div>
+              
+              {/* المبالغ المالية */}
+              <div className="bg-green-50 rounded-lg p-6 border-2 border-green-300">
+                <h5 className="font-bold text-green-900 mb-3 flex items-center gap-2">
+                  <FaMoneyBillWave className="w-5 h-5" />
+                  المبالغ المالية
+                </h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2 text-sm">
+                    {formData.calculateByArea && (
+                      <>
+                        <p className="font-semibold text-indigo-700">📐 محسوب بالمتر:</p>
+                        <p suppressHydrationWarning><span className="font-medium text-gray-700">المساحة:</span> <span className="text-gray-900">{formData.rentArea} م²</span></p>
+                        <p suppressHydrationWarning><span className="font-medium text-gray-700">السعر للمتر:</span> <span className="text-gray-900">{formData.pricePerMeter} {formData.currency}</span></p>
+                      </>
+                    )}
+                    <p suppressHydrationWarning><span className="font-medium text-gray-700">الإيجار الشهري:</span> <span className="text-gray-900 font-bold">{formData.monthlyRent.toFixed(3)} {formData.currency}</span></p>
+                    <p suppressHydrationWarning><span className="font-medium text-gray-700">مبلغ الضمان:</span> <span className="text-gray-900">{formData.deposit.toFixed(3)} {formData.currency}</span></p>
+                    {formData.gracePeriodDays > 0 && (
+                      <p suppressHydrationWarning><span className="font-medium text-gray-700">فترة السماح:</span> <span className="text-gray-900">{formData.gracePeriodDays} يوم ({formData.gracePeriodAmount.toFixed(3)} {formData.currency})</span></p>
+                    )}
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    {formData.includesVAT && (
+                      <p suppressHydrationWarning><span className="font-medium text-gray-700">ضريبة القيمة المضافة:</span> <span className="text-gray-900">{formData.vatRate * 100}% ({formData.totalVATAmount.toFixed(3)} {formData.currency})</span></p>
+                    )}
+                    {formData.hasOtherTaxes && (
+                      <p suppressHydrationWarning><span className="font-medium text-gray-700">{formData.otherTaxName}:</span> <span className="text-gray-900">{formData.otherTaxRate * 100}% ({formData.totalOtherTaxAmount.toFixed(3)} {formData.currency})</span></p>
+                    )}
+                    <p suppressHydrationWarning className="font-bold text-green-900"><span className="font-medium text-gray-700">إجمالي العقد:</span> {(formData.monthlyRent * formData.duration).toFixed(3)} {formData.currency}</p>
                   </div>
                 </div>
-                
-                <div>
-                  <h5 className="font-medium text-gray-700 mb-2">معلومات المستأجر</h5>
-                  <div className="space-y-1 text-sm">
-                    <p suppressHydrationWarning><span className="font-medium">الاسم:</span> {formData.tenantName}</p>
-                    <p suppressHydrationWarning><span className="font-medium">الهاتف:</span> {formData.tenantPhone}</p>
-                    <p suppressHydrationWarning><span className="font-medium">البريد:</span> {formData.tenantEmail}</p>
-                    {formData.tenantId && <p suppressHydrationWarning><span className="font-medium">الهوية:</span> {formData.tenantId}</p>}
+              </div>
+              
+              {/* طرق الدفع */}
+              <div className="bg-indigo-50 rounded-lg p-6 border-2 border-indigo-300">
+                <h5 className="font-bold text-indigo-900 mb-3 flex items-center gap-2">
+                  <FaDollarSign className="w-5 h-5" />
+                  طرق الدفع
+                </h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="font-semibold text-gray-900 mb-2">دفع الإيجار:</p>
+                    <p suppressHydrationWarning>
+                      <span className="font-medium text-gray-700">الطريقة:</span>{' '}
+                      {formData.rentPaymentMethod === 'cash' && '💵 نقداً'}
+                      {formData.rentPaymentMethod === 'check' && '📝 شيك'}
+                      {formData.rentPaymentMethod === 'bank_transfer' && '🏦 تحويل بنكي'}
+                      {formData.rentPaymentMethod === 'electronic_payment' && '💳 دفع إلكتروني'}
+                    </p>
+                    {formData.rentPaymentMethod === 'check' && (
+                      <p suppressHydrationWarning><span className="font-medium text-gray-700">عدد الشيكات:</span> {formData.rentChecks.length}</p>
+                    )}
+                    {formData.rentReceiptNumber && (
+                      <p suppressHydrationWarning><span className="font-medium text-gray-700">رقم الإيصال:</span> {formData.rentReceiptNumber}</p>
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 mb-2">دفع الضمان:</p>
+                    <p suppressHydrationWarning>
+                      <span className="font-medium text-gray-700">الطريقة:</span>{' '}
+                      {formData.depositPaymentMethod === 'cash' && '💵 نقداً'}
+                      {formData.depositPaymentMethod === 'check' && '📝 شيك'}
+                      {formData.depositPaymentMethod === 'cash_and_check' && '💵📝 نقدي + شيك'}
+                      {formData.depositPaymentMethod === 'bank_transfer' && '🏦 تحويل بنكي'}
+                      {formData.depositPaymentMethod === 'electronic_payment' && '💳 دفع إلكتروني'}
+                    </p>
+                    {formData.depositPaymentMethod === 'cash_and_check' && (
+                      <>
+                        <p suppressHydrationWarning><span className="font-medium text-gray-700">المبلغ النقدي:</span> {formData.depositCashAmount.toFixed(3)} {formData.currency}</p>
+                        <p suppressHydrationWarning><span className="font-medium text-gray-700">عدد الشيكات:</span> {formData.depositChecks.length}</p>
+                      </>
+                    )}
                   </div>
                 </div>
-                
-                <div>
-                  <h5 className="font-medium text-gray-700 mb-2">تفاصيل العقد</h5>
-                  <div className="space-y-1 text-sm">
-                    <p suppressHydrationWarning><span className="font-medium">تاريخ البدء:</span> {formData.startDate}</p>
-                    <p suppressHydrationWarning><span className="font-medium">تاريخ الانتهاء:</span> {formData.endDate}</p>
-                    <p suppressHydrationWarning><span className="font-medium">المدة:</span> {formData.duration} شهر</p>
-                    <p suppressHydrationWarning><span className="font-medium">العملة:</span> {formData.currency}</p>
-                  </div>
+              </div>
+              
+              {/* المستندات */}
+              <div className="bg-purple-50 rounded-lg p-6 border-2 border-purple-300">
+                <h5 className="font-bold text-purple-900 mb-3 flex items-center gap-2">
+                  <FaFileAlt className="w-5 h-5" />
+                  المستندات الرسمية
+                </h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">رقم استمارة البلدية:</span> <span className="text-gray-900">{formData.municipalityFormNumber}</span></p>
+                  {formData.municipalityContractNumber && (
+                    <p suppressHydrationWarning><span className="font-medium text-gray-700">رقم العقد المعتمد:</span> <span className="text-gray-900">{formData.municipalityContractNumber}</span></p>
+                  )}
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">رسوم التسجيل:</span> <span className="text-gray-900">{formData.municipalityRegistrationFee} {formData.currency}</span></p>
+                  <p suppressHydrationWarning><span className="font-medium text-gray-700">رسوم البلدية (3%):</span> <span className="text-gray-900">{formData.municipalityFees.toFixed(3)} {formData.currency}</span></p>
                 </div>
-                
-                <div>
-                  <h5 className="font-medium text-gray-700 mb-2">المبالغ المالية</h5>
-                  <div className="space-y-1 text-sm">
-                    <p suppressHydrationWarning><span className="font-medium">الإيجار الشهري:</span> {formData.monthlyRent} {formData.currency}</p>
-                    <p suppressHydrationWarning><span className="font-medium">مبلغ الضمان:</span> {formData.deposit} {formData.currency}</p>
-                    <p suppressHydrationWarning><span className="font-medium">إجمالي العقد:</span> {formData.monthlyRent * formData.duration} {formData.currency}</p>
+              </div>
+              
+              {/* قراءات العدادات */}
+              <div className="bg-yellow-50 rounded-lg p-6 border-2 border-yellow-300">
+                <h5 className="font-bold text-yellow-900 mb-3 flex items-center gap-2">
+                  <FaFileAlt className="w-5 h-5" />
+                  قراءات العدادات
+                </h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="font-semibold text-gray-900 mb-1">⚡ الكهرباء:</p>
+                    <p suppressHydrationWarning><span className="font-medium text-gray-700">القراءة:</span> {formData.electricityMeterReading}</p>
+                    {formData.electricityBillAmount > 0 && (
+                      <p suppressHydrationWarning><span className="font-medium text-gray-700">مبلغ الفاتورة:</span> {formData.electricityBillAmount.toFixed(3)} {formData.currency}</p>
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 mb-1">💧 الماء:</p>
+                    <p suppressHydrationWarning><span className="font-medium text-gray-700">القراءة:</span> {formData.waterMeterReading}</p>
+                    {formData.waterBillAmount > 0 && (
+                      <p suppressHydrationWarning><span className="font-medium text-gray-700">مبلغ الفاتورة:</span> {formData.waterBillAmount.toFixed(3)} {formData.currency}</p>
+                    )}
                   </div>
                 </div>
               </div>
               
               {formData.customTerms && (
-                <div className="mt-4">
-                  <h5 className="font-medium text-gray-700 mb-2">الشروط الإضافية</h5>
+                <div className="bg-gray-50 rounded-lg p-6 border-2 border-gray-300">
+                  <h5 className="font-medium text-gray-900 mb-2">الشروط الإضافية</h5>
                   <p className="text-sm text-gray-600 bg-white p-3 rounded border">{formData.customTerms}</p>
                 </div>
               )}
@@ -3035,7 +5012,43 @@ export default function NewRentalContract() {
               </div>
             )}
             
-            <div className="flex justify-between">
+            {/* زر اختيار القالب */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-lg p-6 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex-1">
+                  <h5 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    <FaFileContract className="w-5 h-5 text-blue-600" />
+                    اختر قالب العقد الاحترافي
+                  </h5>
+                  <p className="text-sm text-gray-600">
+                    اختر من مكتبة القوالب الاحترافية - سيتم ملء القالب تلقائياً بجميع البيانات
+                  </p>
+                </div>
+                <InstantLink
+                  href={`/contracts/templates?contractType=${formData.contractType}&returnUrl=${encodeURIComponent('/rentals/new')}&step=5`}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg flex items-center gap-2 whitespace-nowrap"
+                >
+                  <FaFileContract className="w-4 h-4" />
+                  مكتبة القوالب
+                </InstantLink>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-white rounded p-3 text-center">
+                  <p className="text-2xl mb-1">📋</p>
+                  <p className="text-xs text-gray-600">قوالب جاهزة</p>
+                </div>
+                <div className="bg-white rounded p-3 text-center">
+                  <p className="text-2xl mb-1">⚡</p>
+                  <p className="text-xs text-gray-600">ملء تلقائي</p>
+                </div>
+                <div className="bg-white rounded p-3 text-center">
+                  <p className="text-2xl mb-1">✅</p>
+                  <p className="text-xs text-gray-600">جاهز للطباعة</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex flex-col md:flex-row justify-between gap-4">
               <button
                 type="button"
                 onClick={() => setCurrentStep(4)}
@@ -3043,23 +5056,113 @@ export default function NewRentalContract() {
               >
                 السابق
               </button>
-              <button
-                type="submit"
-                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <FaSpinner className="w-4 h-4 animate-spin" />
-                    جاري الحفظ...
-                  </>
-                ) : (
-                  <>
-                    <FaSave className="w-4 h-4" />
-                    حفظ العقد
-                  </>
-                )}
-              </button>
+              
+              <div className="flex flex-col md:flex-row gap-3">
+                {/* زر الأرشفة */}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (confirm('هل تريد أرشفة هذا العقد؟\n\nسيتم حفظ العقد في الأرشيف بدون إرساله للتوقيع.')) {
+                      setLoading(true);
+                      try {
+                        const response = await fetch('/api/rentals/archive', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            ...formData,
+                            propertyId: selectedProperty?.id,
+                            unitId: selectedUnit?.id,
+                            status: 'archived'
+                          })
+                        });
+                        
+                        if (response.ok) {
+                          setSuccess('✅ تم أرشفة العقد بنجاح!');
+                          setTimeout(() => router.push('/dashboard/owner'), 2000);
+                        } else {
+                          setError('فشل أرشفة العقد');
+                        }
+                      } catch (err) {
+                        setError('حدث خطأ في الأرشفة');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }
+                  }}
+                  className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 text-white rounded-lg hover:from-yellow-700 hover:to-orange-700 transition-all shadow-lg flex items-center justify-center gap-2"
+                  disabled={loading}
+                >
+                  <FaFileAlt className="w-4 h-4" />
+                  أرشفة العقد
+                </button>
+                
+                {/* زر حفظ ومتابعة */}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setLoading(true);
+                    try {
+                      const response = await fetch('/api/rentals', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          ...formData,
+                          propertyId: selectedProperty?.id,
+                          unitId: selectedUnit?.id,
+                          status: 'draft'
+                        })
+                      });
+                      
+                      if (response.ok) {
+                        const data = await response.json();
+                        setSuccess('✅ تم حفظ العقد بنجاح!');
+                        // الانتقال إلى صفحة العقد للمتابعة
+                        setTimeout(() => router.push(`/rentals/${data.id}`), 1500);
+                      } else {
+                        setError('فشل حفظ العقد');
+                      }
+                    } catch (err) {
+                      console.error('Error saving rental:', err);
+                      setError('حدث خطأ في الحفظ');
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg flex items-center justify-center gap-2"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <FaSpinner className="w-4 h-4 animate-spin" />
+                      جاري الحفظ...
+                    </>
+                  ) : (
+                    <>
+                      <FaSave className="w-4 h-4" />
+                      حفظ ومتابعة
+                    </>
+                  )}
+                </button>
+                
+                {/* زر الحفظ النهائي */}
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg flex items-center justify-center gap-2"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <FaSpinner className="w-4 h-4 animate-spin" />
+                      جاري الحفظ...
+                    </>
+                  ) : (
+                    <>
+                      <FaCheck className="w-4 h-4" />
+                      حفظ نهائي
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </motion.div>
         );
@@ -3168,13 +5271,15 @@ export default function NewRentalContract() {
                     return (
                       <div key={step.id} className="flex flex-col items-center flex-1">
                         <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          className={`relative z-10 flex items-center justify-center w-12 h-12 rounded-full transition-all mb-2 ${
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setCurrentStep(step.id)}
+                          className={`relative z-10 flex items-center justify-center w-12 h-12 rounded-full transition-all mb-2 cursor-pointer ${
                             isActive
                               ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg ring-4 ring-blue-100'
                               : isCompleted
-                              ? 'bg-green-500 text-white shadow-md'
-                              : 'bg-gray-200 text-gray-400'
+                              ? 'bg-green-500 text-white shadow-md hover:shadow-lg'
+                              : 'bg-gray-200 text-gray-400 hover:bg-gray-300'
                           }`}
                         >
                           {isCompleted ? (
@@ -3190,9 +5295,12 @@ export default function NewRentalContract() {
                             />
                           )}
                         </motion.div>
-                        <p className={`text-xs font-medium text-center transition-colors ${
-                          isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-500'
-                        }`}>
+                        <p 
+                          onClick={() => setCurrentStep(step.id)}
+                          className={`text-xs font-medium text-center transition-colors cursor-pointer ${
+                            isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-500'
+                          }`}
+                        >
                           {step.name}
                         </p>
                       </div>

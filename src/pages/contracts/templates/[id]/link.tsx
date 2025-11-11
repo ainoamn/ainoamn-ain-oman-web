@@ -15,6 +15,7 @@ const LinkTemplatePage: NextPage = () => {
   const [selectedUnit, setSelectedUnit] = useState<string>('');
   const [selectedUsageType, setSelectedUsageType] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState<string | null>(null);
   const getText = (obj: any, lang: 'ar' | 'en' = 'ar'): string => {
     if (typeof obj === 'string') return obj;
     if (obj && typeof obj === 'object') {

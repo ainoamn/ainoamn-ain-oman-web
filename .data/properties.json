@@ -189,9 +189,13 @@
           "nationalId": "95655200",
           "nationalIdExpiry": "2029-09-20",
           "phone": "96552661",
-          "email": "ah@sfg.om"
+          "email": "ah@sfg.om",
+          "nationalIdFile": "WhatsApp Image 2025-11-09 at 10.58.23 AM.jpeg"
         },
-        "staffData": {},
+        "staffData": {
+          "maintenanceOfficerName": "علي",
+          "maintenanceOfficerPhone": "99856885"
+        },
         "propertyData": {
           "complexNumber": "9050",
           "plotNumber": "888",
@@ -201,12 +205,48 @@
           "surveyNumber": "90880",
           "buildingNumber": "80",
           "roadNumber": "90090",
-          "landUseType": "سكني"
+          "landUseType": "residential"
         },
-        "serviceAccounts": [],
-        "documents": [],
+        "serviceAccounts": [
+          {
+            "id": "service-1762679226560",
+            "type": "electricity",
+            "accountNumber": "990990",
+            "active": true,
+            "meterImage": "WhatsApp Image 2025-11-09 at 10.58.23 AM.jpeg",
+            "paymentType": "prepaid"
+          },
+          {
+            "id": "service-1762680708829",
+            "type": "water",
+            "accountNumber": "808080",
+            "active": true,
+            "meterImage": "WhatsApp Image 2025-11-09 at 10.58.23 AM.jpeg",
+            "paymentType": "postpaid"
+          }
+        ],
+        "documents": [
+          {
+            "id": "doc-1762680777297",
+            "name": "0",
+            "type": "ownership_deed",
+            "fileUrl": "WhatsApp Image 2025-11-09 at 10.47.28 AM.jpeg",
+            "fileName": "WhatsApp Image 2025-11-09 at 10.47.28 AM.jpeg",
+            "fileSize": "88.83 KB",
+            "uploadedAt": "2025-11-09T09:32:57.297Z"
+          },
+          {
+            "id": "doc-1762682460944-0",
+            "type": "survey_drawing",
+            "name": "2",
+            "fileUrl": "WhatsApp Image 2025-11-09 at 10.47.28 AM.jpeg",
+            "fileName": "WhatsApp Image 2025-11-09 at 10.47.28 AM.jpeg",
+            "fileSize": "88.83 KB",
+            "uploadedAt": "2025-11-09T10:01:00.944Z"
+          }
+        ],
         "bankAccounts": [],
-        "updatedAt": "2025-11-09T05:51:42.129Z"
+        "updatedAt": "2025-11-09T10:01:12.404Z"
       }
     },
     {

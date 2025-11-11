@@ -325,39 +325,80 @@ const OwnerDashboard: NextPage = () => {
                     إنشاء عقد جديد
                   </InstantLink>
                 </div>
-                <ul className="divide-y divide-gray-200">
-                  {rentals.map((rental) => (
-                    <li key={rental.id}>
-                      <div className="px-4 py-4 flex items-center justify-between hover:bg-gray-50">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0">
-                            <div className={`h-3 w-3 rounded-full ${
-                              rental.state === "handover_completed" ? "bg-green-400" :
-                              rental.state === "paid" ? "bg-blue-400" :
-                              rental.state === "reserved" ? "bg-yellow-400" : "bg-gray-400"
-                            }`}></div>
-                          </div>
-                          <div className="ml-3">
-                            <p className="text-sm font-medium text-gray-900">
-                              عقد #{rental.id.slice(0, 8)}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {new Date(rental.createdAt).toLocaleDateString('ar', { calendar: 'gregory', numberingSystem: 'latn' })}
-                            </p>
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
-                            {rental.amount} {rental.currency}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {getStateLabel(rental.state)}
-                          </p>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">رقم العقد</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">العقار/الوحدة</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المستأجر</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ البدء</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الانتهاء</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإيجار الشهري</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {rentals.map((rental) => {
+                        const property = properties.find(p => p.id === rental.propertyId);
+                        return (
+                          <tr key={rental.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className={`h-3 w-3 rounded-full ml-2 ${
+                                  rental.state === "handover_completed" ? "bg-green-400" :
+                                  rental.state === "paid" ? "bg-blue-400" :
+                                  rental.state === "reserved" ? "bg-yellow-400" : "bg-gray-400"
+                                }`}></div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  #{rental.id || 'N/A'}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="text-sm text-gray-900">
+                                <div className="font-medium">{property?.buildingNumber || rental.propertyId || 'غير محدد'}</div>
+                                {rental.unitId && <div className="text-xs text-gray-500">وحدة: {rental.unitId}</div>}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="text-sm text-gray-900">
+                                {rental.tenantName || rental.tenantId || 'غير محدد'}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {rental.startDate ? new Date(rental.startDate).toLocaleDateString('ar-SA', { calendar: 'gregory', numberingSystem: 'latn' }) : 'غير محدد'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {rental.endDate ? new Date(rental.endDate).toLocaleDateString('ar-SA', { calendar: 'gregory', numberingSystem: 'latn' }) : 'غير محدد'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                              {rental.monthlyRent || rental.amount || 0} {rental.currency || 'OMR'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                rental.state === "handover_completed" ? "bg-green-100 text-green-800" :
+                                rental.state === "paid" ? "bg-blue-100 text-blue-800" :
+                                rental.state === "reserved" ? "bg-yellow-100 text-yellow-800" : "bg-gray-100 text-gray-800"
+                              }`}>
+                                {getStateLabel(rental.state)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <InstantLink
+                                href={`/contracts/rental/${rental.id}`}
+                                className="text-blue-600 hover:text-blue-900"
+                              >
+                                عرض التفاصيل
+                              </InstantLink>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
                 
                 {rentals.length === 0 && (
                   <div className="text-center py-12">

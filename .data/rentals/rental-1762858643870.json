@@ -1,0 +1,19 @@
+{
+  "id": "rental-1762858643870",
+  "propertyId": "P-20251022094422",
+  "tenantId": "TENANT-003",
+  "amount": 0,
+  "currency": "OMR",
+  "state": "reserved",
+  "docs": [],
+  "history": [
+    {
+      "at": 1762858655492,
+      "by": "demo-user",
+      "event": "reserve",
+      "to": "reserved"
+    }
+  ],
+  "createdAt": 1762858655492,
+  "updatedAt": 1762858655492
+}

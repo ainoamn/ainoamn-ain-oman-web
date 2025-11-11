@@ -66,6 +66,35 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(200).json({ template: data.templates[index] });
     }
 
+    if (req.method === 'DELETE') {
+      // السماح بحذف جميع القوالب بدون قيود
+      console.log(`🗑️ حذف القالب: ${id}`);
+
+      // حذف القالب من القائمة
+      const beforeCount = data.templates.length;
+      data.templates = data.templates.filter((t: any) => t.id !== id);
+      const afterCount = data.templates.length;
+
+      if (beforeCount === afterCount) {
+        console.log(`⚠️ القالب غير موجود: ${id}`);
+        return res.status(404).json({ 
+          error: 'Template not found',
+          message: 'القالب غير موجود' 
+        });
+      }
+
+      // حفظ التغييرات
+      fs.writeFileSync(templatesPath, JSON.stringify(data, null, 2));
+      
+      console.log(`✅ تم حذف القالب بنجاح: ${id} (isDefault: ${template.isDefault})`);
+      return res.status(200).json({ 
+        success: true,
+        message: 'تم حذف القالب بنجاح',
+        deletedId: id,
+        wasDefault: template.isDefault || false
+      });
+    }
+
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (error) {
     console.error('Error in template API:', error);
