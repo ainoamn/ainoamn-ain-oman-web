@@ -113,9 +113,10 @@ const RentalContractsPage: NextPage = () => {
                           </td>
                           <td className="px-6 py-4">
                             <div className="text-sm text-gray-900">
-                              <div className="font-medium">{property?.buildingNumber || rental.propertyId || 'غير محدد'}</div>
+                              <div className="font-medium">
+                                {property?.buildingNumber ? `مبنى ${property.buildingNumber}` : 'غير محدد'}
+                              </div>
                               {rental.unitId && <div className="text-xs text-gray-500">وحدة: {rental.unitId}</div>}
-                              {property?.titleAr && <div className="text-xs text-gray-500">{property.titleAr}</div>}
                             </div>
                           </td>
                           <td className="px-6 py-4">

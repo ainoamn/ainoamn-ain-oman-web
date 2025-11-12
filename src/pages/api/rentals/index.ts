@@ -11,11 +11,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.json({ items: await repo.listAll() });
   }
   if (req.method === "POST") {
-    const b = req.body as Partial<Rental>;
+    const b = req.body as any;
     if (!b?.id || !b?.propertyId || !b?.tenantId) return res.status(400).json({ error: "missing_fields" });
-    const r: Rental = {
-      id: b.id!, propertyId: b.propertyId!, tenantId: b.tenantId!, amount: b.amount ?? 0, currency: b.currency ?? "OMR",
-      state: "reserved", docs: [], history: [{ at: Date.now(), by: userId, event: "reserve", to: "reserved" }], createdAt: Date.now(), updatedAt: Date.now()
+    
+    // حفظ جميع البيانات المرسلة
+    const r: any = {
+      id: b.id,
+      propertyId: b.propertyId,
+      tenantId: b.tenantId,
+      tenantName: b.tenantName,
+      tenantPhone: b.tenantPhone,
+      tenantEmail: b.tenantEmail,
+      unitId: b.unitId,
+      startDate: b.startDate,
+      endDate: b.endDate,
+      duration: b.duration,
+      monthlyRent: b.monthlyRent,
+      deposit: b.deposit,
+      amount: b.amount || b.monthlyRent || 0,
+      currency: b.currency || "OMR",
+      contractType: b.contractType,
+      terms: b.terms,
+      customTerms: b.customTerms,
+      status: b.status,
+      state: "reserved",
+      docs: [],
+      history: [{ at: Date.now(), by: userId, event: "reserve", to: "reserved" }],
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      // بيانات إضافية
+      ...b
     };
     return res.json({ ok: true, rental: await repo.save(r) });
   }
