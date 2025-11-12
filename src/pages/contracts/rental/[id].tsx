@@ -25,24 +25,36 @@ const RentalContractDetailPage: NextPage = () => {
 
   const loadRentalDetails = async () => {
     try {
-      // جلب بيانات العقد
+      console.log(`🔍 جلب تفاصيل العقد: ${id}`);
+      // جلب بيانات العقد والعقار معاً
       const rentalRes = await fetch(`/api/rentals/${id}`);
       if (rentalRes.ok) {
-        const rentalData = await rentalRes.json();
-        setRental(rentalData.rental || rentalData);
+        const data = await rentalRes.json();
+        console.log('📦 البيانات المستلمة:', data);
         
-        // جلب بيانات العقار
-        if (rentalData.rental?.propertyId || rentalData.propertyId) {
-          const propertyId = rentalData.rental?.propertyId || rentalData.propertyId;
-          const propertyRes = await fetch(`/api/properties/${propertyId}`);
+        // تعيين بيانات العقد
+        const rentalData = data.rental || data;
+        setRental(rentalData);
+        console.log('✅ تم تعيين بيانات العقد:', rentalData);
+        
+        // تعيين بيانات العقار (إذا كانت موجودة في الرد)
+        if (data.property) {
+          setProperty(data.property);
+          console.log('✅ تم تعيين بيانات العقار:', data.property);
+        } else if (rentalData.propertyId) {
+          // إذا لم تكن موجودة، جلبها من API منفصل
+          const propertyRes = await fetch(`/api/properties/${rentalData.propertyId}`);
           if (propertyRes.ok) {
             const propertyData = await propertyRes.json();
             setProperty(propertyData.property || propertyData);
+            console.log('✅ تم جلب بيانات العقار من API منفصل:', propertyData);
           }
         }
+      } else {
+        console.error('❌ فشل جلب بيانات العقد:', rentalRes.status);
       }
     } catch (error) {
-      console.error('Error loading rental details:', error);
+      console.error('❌ خطأ في جلب تفاصيل العقد:', error);
     } finally {
       setLoading(false);
     }
@@ -250,13 +262,13 @@ const RentalContractDetailPage: NextPage = () => {
                   <div>
                     <p className="text-sm text-gray-500">تاريخ البدء</p>
                     <p className="text-base font-medium text-gray-900">
-                      {rental.startDate ? new Date(rental.startDate).toLocaleDateString('ar-SA') : 'غير محدد'}
+                      {rental.startDate ? new Date(rental.startDate).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'غير محدد'}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">تاريخ الانتهاء</p>
                     <p className="text-base font-medium text-gray-900">
-                      {rental.endDate ? new Date(rental.endDate).toLocaleDateString('ar-SA') : 'غير محدد'}
+                      {rental.endDate ? new Date(rental.endDate).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'غير محدد'}
                     </p>
                   </div>
                   <div>
@@ -364,14 +376,14 @@ const RentalContractDetailPage: NextPage = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-500">تاريخ الإنشاء</span>
                     <span className="font-medium text-gray-900">
-                      {rental.createdAt ? new Date(rental.createdAt).toLocaleDateString('ar-SA') : 'غير محدد'}
+                      {rental.createdAt ? new Date(rental.createdAt).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'غير محدد'}
                     </span>
                   </div>
                   {rental.updatedAt && (
                     <div className="flex justify-between">
                       <span className="text-gray-500">آخر تحديث</span>
                       <span className="font-medium text-gray-900">
-                        {new Date(rental.updatedAt).toLocaleDateString('ar-SA')}
+                        {new Date(rental.updatedAt).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' })}
                       </span>
                     </div>
                   )}

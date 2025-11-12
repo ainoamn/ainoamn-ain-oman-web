@@ -6,9 +6,37 @@ import type { Rental } from "@/server/rentals/repo";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const userId = (req.headers["x-user-id"] as string) || "demo-user";
   if (req.method === "GET") {
-    if ("mine" in req.query) return res.json({ items: await repo.listMine(userId) });
-    if (req.query.propertyId) return res.json({ items: await repo.listByProperty(String(req.query.propertyId)) });
-    return res.json({ items: await repo.listAll() });
+    try {
+      let items: any[] = [];
+      
+      if ("mine" in req.query) {
+        items = await repo.listMine(userId);
+        console.log(`📋 جلب عقود المستخدم ${userId}:`, items.length, 'عقد');
+      } else if (req.query.propertyId) {
+        items = await repo.listByProperty(String(req.query.propertyId));
+        console.log(`📋 جلب عقود العقار ${req.query.propertyId}:`, items.length, 'عقد');
+      } else {
+        items = await repo.listAll();
+        console.log(`📋 جلب جميع العقود:`, items.length, 'عقد');
+      }
+      
+      // Log أول عقد كمثال
+      if (items.length > 0) {
+        console.log('📦 مثال على بيانات العقد:', {
+          id: items[0].id,
+          propertyId: items[0].propertyId,
+          tenantName: items[0].tenantName,
+          startDate: items[0].startDate,
+          endDate: items[0].endDate,
+          monthlyRent: items[0].monthlyRent
+        });
+      }
+      
+      return res.json({ items });
+    } catch (error) {
+      console.error('❌ خطأ في جلب العقود:', error);
+      return res.status(500).json({ error: 'Internal server error', items: [] });
+    }
   }
   if (req.method === "POST") {
     const b = req.body as any;

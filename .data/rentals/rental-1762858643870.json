@@ -1,19 +1,30 @@
 {
-  "id": "rental-1762858643870",
-  "propertyId": "P-20251022094422",
-  "tenantId": "TENANT-003",
-  "amount": 0,
-  "currency": "OMR",
-  "state": "reserved",
-  "docs": [],
-  "history": [
-    {
-      "at": 1762858655492,
-      "by": "demo-user",
-      "event": "reserve",
-      "to": "reserved"
-    }
-  ],
-  "createdAt": 1762858655492,
-  "updatedAt": 1762858655492
+    "id":  "rental-1762858643870",
+    "propertyId":  "P-20251022094422",
+    "tenantId":  "TENANT-003",
+    "amount":  0,
+    "currency":  "OMR",
+    "state":  "reserved",
+    "docs":  [
+
+             ],
+    "history":  [
+                    {
+                        "at":  1762858655492,
+                        "by":  "demo-user",
+                        "event":  "reserve",
+                        "to":  "reserved"
+                    }
+                ],
+    "createdAt":  1762858655492,
+    "updatedAt":  1762858655492,
+    "tenantName":  "عبد الحميد حمود حمدان",
+    "tenantPhone":  "95655200",
+    "tenantEmail":  "ah@sfg.om",
+    "startDate":  "2025-12-01",
+    "endDate":  "2026-11-30",
+    "duration":  12,
+    "monthlyRent":  500,
+    "deposit":  500,
+    "contractType":  "residential"
 }

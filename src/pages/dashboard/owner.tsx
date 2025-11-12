@@ -370,10 +370,10 @@ const OwnerDashboard: NextPage = () => {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {rental.startDate ? new Date(rental.startDate).toLocaleDateString('ar-SA', { calendar: 'gregory', numberingSystem: 'latn' }) : 'غير محدد'}
+                              {rental.startDate ? new Date(rental.startDate).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'غير محدد'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {rental.endDate ? new Date(rental.endDate).toLocaleDateString('ar-SA', { calendar: 'gregory', numberingSystem: 'latn' }) : 'غير محدد'}
+                              {rental.endDate ? new Date(rental.endDate).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'غير محدد'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                               {rental.monthlyRent || rental.amount || 0} {rental.currency || 'OMR'}

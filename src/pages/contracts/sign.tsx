@@ -24,23 +24,36 @@ const ElectronicSignPage: NextPage = () => {
   const loadContractData = async () => {
     try {
       setLoading(true);
+      console.log(`🔍 جلب بيانات العقد للتوقيع: ${contractId}`);
+      
       const rentalRes = await fetch(`/api/rentals/${contractId}`);
       if (rentalRes.ok) {
-        const rentalData = await rentalRes.json();
-        setRental(rentalData.rental || rentalData);
+        const data = await rentalRes.json();
+        console.log('📦 البيانات المستلمة:', data);
         
-        // جلب بيانات العقار
-        const propertyId = rentalData.rental?.propertyId || rentalData.propertyId;
-        if (propertyId) {
-          const propertyRes = await fetch(`/api/properties/${propertyId}`);
+        // تعيين بيانات العقد
+        const rentalData = data.rental || data;
+        setRental(rentalData);
+        console.log('✅ تم تعيين بيانات العقد:', rentalData);
+        
+        // تعيين بيانات العقار (إذا كانت موجودة في الرد)
+        if (data.property) {
+          setProperty(data.property);
+          console.log('✅ تم تعيين بيانات العقار:', data.property);
+        } else if (rentalData.propertyId) {
+          // إذا لم تكن موجودة، جلبها من API منفصل
+          const propertyRes = await fetch(`/api/properties/${rentalData.propertyId}`);
           if (propertyRes.ok) {
             const propertyData = await propertyRes.json();
             setProperty(propertyData.property || propertyData);
+            console.log('✅ تم جلب بيانات العقار من API منفصل');
           }
         }
+      } else {
+        console.error('❌ فشل جلب بيانات العقد:', rentalRes.status);
       }
     } catch (error) {
-      console.error('Error loading contract data:', error);
+      console.error('❌ خطأ في جلب بيانات العقد:', error);
     } finally {
       setLoading(false);
     }
@@ -101,13 +114,13 @@ const ElectronicSignPage: NextPage = () => {
                   <div>
                     <p className="text-sm text-gray-500">تاريخ البدء</p>
                     <p className="text-base font-medium text-gray-900">
-                      {rental.startDate ? new Date(rental.startDate).toLocaleDateString('ar-SA') : 'غير محدد'}
+                      {rental.startDate ? new Date(rental.startDate).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'غير محدد'}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">تاريخ الانتهاء</p>
                     <p className="text-base font-medium text-gray-900">
-                      {rental.endDate ? new Date(rental.endDate).toLocaleDateString('ar-SA') : 'غير محدد'}
+                      {rental.endDate ? new Date(rental.endDate).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'غير محدد'}
                     </p>
                   </div>
                   <div>
