@@ -98,6 +98,7 @@ export default function UnifiedPropertyManagement() {
   const [units, setUnits] = useState<Unit[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rentals, setRentals] = useState<any[]>([]); // العقود المرتبطة بالعقارات
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedType, setSelectedType] = useState('');
@@ -205,10 +206,11 @@ export default function UnifiedPropertyManagement() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [propertiesRes, unitsRes, customersRes] = await Promise.all([
+      const [propertiesRes, unitsRes, customersRes, rentalsRes] = await Promise.all([
         fetch('/api/properties'),
         fetch('/api/admin/units'),
-        fetch('/api/customers')
+        fetch('/api/customers'),
+        fetch('/api/rentals')
       ]);
 
       if (propertiesRes.ok) {
@@ -224,6 +226,11 @@ export default function UnifiedPropertyManagement() {
       if (customersRes.ok) {
         const customersData = await customersRes.json();
         setCustomers(customersData.customers || []);
+      }
+
+      if (rentalsRes.ok) {
+        const rentalsData = await rentalsRes.json();
+        setRentals(rentalsData.items || []);
       }
 
       // توليد رؤى الذكاء الاصطناعي
@@ -543,6 +550,23 @@ export default function UnifiedPropertyManagement() {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(numPrice);
+  };
+
+  // وظيفة للحصول على تفاصيل العقد المرتبط بالعقار
+  const getRentalForProperty = (propertyId: string) => {
+    return rentals.find(r => r.propertyId === propertyId && (r.state === 'active' || r.signatureWorkflow === 'active'));
+  };
+
+  // وظيفة لحساب عدد الأيام المتبقية على انتهاء العقد
+  const getDaysRemaining = (rental: any) => {
+    if (!rental || !rental.endDate) return null;
+    
+    const endDate = new Date(rental.endDate);
+    const today = new Date();
+    const diffTime = endDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
   };
 
   // وظيفة الحصول على تسمية الحالة
@@ -1591,10 +1615,28 @@ export default function UnifiedPropertyManagement() {
                         )}
                         
                         {/* Status Badge */}
-                        <div className="absolute top-3 right-3">
+                        <div className="absolute top-3 right-3 flex flex-col gap-1">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(property.status || '')}`}>
                             {getStatusLabel(property.status || '')}
                           </span>
+                          {/* عدد الأيام المتبقية */}
+                          {property.status === 'leased' && (() => {
+                            const rental = getRentalForProperty(property.id);
+                            const daysRemaining = rental ? getDaysRemaining(rental) : null;
+                            if (daysRemaining !== null) {
+                              return (
+                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                  daysRemaining < 30 ? 'bg-red-100 text-red-800' : 
+                                  daysRemaining < 90 ? 'bg-orange-100 text-orange-800' : 
+                                  'bg-green-100 text-green-800'
+                                }`}>
+                                  <FaClock className="ml-1" />
+                                  {daysRemaining > 0 ? `${daysRemaining} يوم` : 'منتهي'}
+                                </span>
+                              );
+                            }
+                            return null;
+                          })()}
                         </div>
 
                         {/* Building Type Badge */}
@@ -1645,6 +1687,34 @@ export default function UnifiedPropertyManagement() {
                             </div>
                           </div>
                         </div>
+
+                        {/* Tenant Info for Leased Properties */}
+                        {property.status === 'leased' && (() => {
+                          const rental = getRentalForProperty(property.id);
+                          if (rental) {
+                            return (
+                              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+                                <div className="flex items-center text-sm font-semibold text-blue-900 mb-2">
+                                  <FaUser className="ml-1" />
+                                  معلومات المستأجر
+                                </div>
+                                <div className="text-sm text-blue-800 mb-1">
+                                  <strong>الاسم:</strong> {rental.tenantName || 'غير محدد'}
+                                </div>
+                                {rental.tenantPhone && (
+                                  <div className="text-sm text-blue-800 mb-1">
+                                    <FaPhone className="inline ml-1" />
+                                    {rental.tenantPhone}
+                                  </div>
+                                )}
+                                <div className="text-sm text-blue-800">
+                                  <strong>الإيجار:</strong> {rental.monthlyRent} OMR/شهر
+                                </div>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
 
                         {/* Property Info */}
                         <div className="grid grid-cols-2 gap-2 mb-4">

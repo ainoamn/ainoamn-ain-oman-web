@@ -104,6 +104,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
       await repo.save(updatedRental);
       
+      // تحديث حالة العقار في db.json إذا تغيرت حالة العقد
+      if (updates.state && updates.state !== rental.state && rental.propertyId) {
+        try {
+          const fs = await import('fs/promises');
+          const pathModule = await import('path');
+          const dbPath = pathModule.resolve(process.cwd(), '.data', 'db.json');
+          const dbContent = await fs.readFile(dbPath, 'utf8');
+          const db = JSON.parse(dbContent);
+          
+          if (db.properties && Array.isArray(db.properties)) {
+            const propertyIndex = db.properties.findIndex((p: any) => p.id === rental.propertyId);
+            if (propertyIndex !== -1) {
+              // تحديث حالة العقار حسب حالة العقد
+              db.properties[propertyIndex].status = updates.state;
+              db.properties[propertyIndex].updatedAt = new Date().toISOString();
+              await fs.writeFile(dbPath, JSON.stringify(db, null, 2), 'utf8');
+              console.log(`✅ تم تحديث حالة العقار ${rental.propertyId} إلى "${updates.state}"`);
+            }
+          }
+        } catch (error) {
+          console.error('⚠️ خطأ في تحديث حالة العقار:', error);
+          // لا نوقف العملية إذا فشل تحديث العقار
+        }
+      }
+      
       return res.status(200).json({ rental: updatedRental });
     } catch (error) {
       console.error('Error updating rental:', error);

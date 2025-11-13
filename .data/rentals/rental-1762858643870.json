@@ -1,30 +1,188 @@
 {
-    "id":  "rental-1762858643870",
-    "propertyId":  "P-20251022094422",
-    "tenantId":  "TENANT-003",
-    "amount":  0,
-    "currency":  "OMR",
-    "state":  "reserved",
-    "docs":  [
-
-             ],
-    "history":  [
-                    {
-                        "at":  1762858655492,
-                        "by":  "demo-user",
-                        "event":  "reserve",
-                        "to":  "reserved"
-                    }
-                ],
-    "createdAt":  1762858655492,
-    "updatedAt":  1762858655492,
-    "tenantName":  "عبد الحميد حمود حمدان",
-    "tenantPhone":  "95655200",
-    "tenantEmail":  "ah@sfg.om",
-    "startDate":  "2025-12-01",
-    "endDate":  "2026-11-30",
-    "duration":  12,
-    "monthlyRent":  500,
-    "deposit":  500,
-    "contractType":  "residential"
+  "id": "rental-1762858643870",
+  "propertyId": "P-20251022094422",
+  "unitId": "",
+  "tenantId": "TENANT-003",
+  "tenantName": "عبد الحميد حمود حمدان",
+  "tenantPhone": "95655200",
+  "tenantEmail": "ah@sfg.om",
+  "contractType": "residential",
+  "actualRentalDate": "2025-11-01",
+  "unitHandoverDate": "2025-11-01",
+  "startDate": "2025-12-01",
+  "endDate": "2026-11-30",
+  "duration": 12,
+  "monthlyRent": 500,
+  "deposit": 0,
+  "currency": "OMR",
+  "state": "active",
+  "municipalityFees": 180,
+  "rentPaymentMethod": "check",
+  "depositPaymentMethod": "cash_and_check",
+  "rentReceiptNumber": "",
+  "depositReceiptNumber": "",
+  "depositCashAmount": 500,
+  "depositCashDate": "2025-11-10",
+  "depositCashReceiptNumber": "22",
+  "rentChecks": [
+    {
+      "checkNumber": "12",
+      "amount": 500,
+      "date": "2026-10-05"
+    },
+    {
+      "checkNumber": "13",
+      "amount": 500,
+      "date": "2026-11-05"
+    },
+    {
+      "checkNumber": "14",
+      "amount": 500,
+      "date": "2026-12-05"
+    },
+    {
+      "checkNumber": "15",
+      "amount": 500,
+      "date": "2027-01-05"
+    },
+    {
+      "checkNumber": "16",
+      "amount": 500,
+      "date": "2027-02-05"
+    },
+    {
+      "checkNumber": "17",
+      "amount": 500,
+      "date": "2027-03-05"
+    },
+    {
+      "checkNumber": "18",
+      "amount": 500,
+      "date": "2027-04-05"
+    },
+    {
+      "checkNumber": "19",
+      "amount": 500,
+      "date": "2027-05-05"
+    },
+    {
+      "checkNumber": "20",
+      "amount": 500,
+      "date": "2027-06-05"
+    },
+    {
+      "checkNumber": "21",
+      "amount": 500,
+      "date": "2027-07-05"
+    },
+    {
+      "checkNumber": "22",
+      "amount": 500,
+      "date": "2027-08-05"
+    },
+    {
+      "checkNumber": "23",
+      "amount": 500,
+      "date": "2027-09-05"
+    }
+  ],
+  "rentChecksOwnerType": "tenant",
+  "rentChecksOwnerName": "",
+  "rentChecksBankName": "بنك مسقط",
+  "rentChecksBankBranch": "القرم",
+  "rentChecksBankAccount": "0021001454512016465",
+  "depositChecks": [
+    {
+      "checkNumber": "2",
+      "amount": 500,
+      "date": "",
+      "hasDate": false
+    }
+  ],
+  "depositChecksOwnerType": "tenant",
+  "depositChecksBankName": "بنك مسقط",
+  "depositChecksBankBranch": "القرم",
+  "depositChecksBankAccount": "0021001454512016465",
+  "municipalityFormNumber": "8000",
+  "municipalityContractNumber": "5210",
+  "municipalityRegistrationFee": 1,
+  "gracePeriodDays": 30,
+  "gracePeriodAmount": 500,
+  "electricityMeterReading": "8520",
+  "electricityBillAmount": 50,
+  "waterMeterReading": "820",
+  "waterBillAmount": 80,
+  "internetIncluded": true,
+  "internetPaymentType": "annually",
+  "internetFees": 70,
+  "rentDueDay": 6,
+  "hasOtherFees": true,
+  "otherFeesDescription": "رسوم خدمة",
+  "otherFeesAmount": 5,
+  "includesVAT": true,
+  "vatRate": 0.05,
+  "monthlyVATAmount": 25,
+  "totalVATAmount": 300,
+  "hasOtherTaxes": true,
+  "otherTaxName": "السياحه",
+  "otherTaxRate": 0.05,
+  "monthlyOtherTaxAmount": 25,
+  "totalOtherTaxAmount": 300,
+  "useCustomMonthlyRents": true,
+  "customMonthlyRents": [
+    400,
+    500,
+    500,
+    500,
+    500,
+    500,
+    500,
+    500,
+    500,
+    500,
+    500,
+    500
+  ],
+  "terms": [],
+  "customTerms": "",
+  "status": "draft",
+  "docs": [],
+  "history": [
+    {
+      "at": 1762858655492,
+      "by": "demo-user",
+      "event": "reserve",
+      "to": "reserved"
+    }
+  ],
+  "createdAt": 1762858655492,
+  "updatedAt": 1763030349375,
+  "signatureWorkflow": "active",
+  "signatures": [
+    {
+      "type": "tenant",
+      "name": "عبد الحميد",
+      "signedAt": 1763030144351,
+      "ipAddress": "::1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+    },
+    {
+      "type": "owner",
+      "name": "مدرك الرواحي",
+      "signedAt": 1763030256016,
+      "ipAddress": "::1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+    },
+    {
+      "type": "admin",
+      "name": "عميد ",
+      "signedAt": 1763030349290,
+      "ipAddress": "::1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+    }
+  ],
+  "createdBy": "demo-user",
+  "sentForSignaturesAt": 1763030100000,
+  "sentForSignaturesBy": "admin",
+  "activatedAt": 1763030349290
 }

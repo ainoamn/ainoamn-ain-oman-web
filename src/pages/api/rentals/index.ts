@@ -70,6 +70,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // بيانات إضافية
       ...b
     };
+    
+    // تحديث حالة العقار في db.json
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const dbPath = path.resolve(process.cwd(), '.data', 'db.json');
+      const dbContent = await fs.readFile(dbPath, 'utf8');
+      const db = JSON.parse(dbContent);
+      
+      if (db.properties && Array.isArray(db.properties)) {
+        const propertyIndex = db.properties.findIndex((p: any) => p.id === b.propertyId);
+        if (propertyIndex !== -1) {
+          db.properties[propertyIndex].status = 'reserved';
+          db.properties[propertyIndex].updatedAt = new Date().toISOString();
+          await fs.writeFile(dbPath, JSON.stringify(db, null, 2), 'utf8');
+          console.log(`✅ تم تحديث حالة العقار ${b.propertyId} إلى "محجوز"`);
+        }
+      }
+    } catch (error) {
+      console.error('⚠️ خطأ في تحديث حالة العقار:', error);
+      // لا نوقف العملية إذا فشل تحديث العقار
+    }
+    
     return res.json({ ok: true, rental: await repo.save(r) });
   }
   res.status(405).end();

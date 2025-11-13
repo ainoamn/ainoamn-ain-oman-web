@@ -79,8 +79,8 @@ export default function PropertiesPage() {
             const allItems: Property[] = [];
             
             for (const property of props) {
-              // إضافة العقار الرئيسي (إذا لم يكن parent مخفي)
-              if (!property.isParent || property.published !== false) {
+              // إضافة العقار الرئيسي (فقط إذا كان منشور)
+              if (property.published !== false) {
                 allItems.push(property);
               }
               
