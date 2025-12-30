@@ -3,6 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ⚡ Navigation Styles - سرعة البرق */
+@import './navigation.css';
+
 /* أساسيات */
 :root {
   --brand-50: #e6fffb;

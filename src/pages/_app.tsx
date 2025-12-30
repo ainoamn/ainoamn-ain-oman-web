@@ -11,15 +11,23 @@ import Sanitize from "@/lib/react-sanitize-children";
 // ThemeProvider
 import { ThemeProvider } from "@/context/ThemeContext";
 
-// i18n (اختياري إن وُجد)
+// i18n المحسّن - متعدد اللغات (7 لغات)
 let I18nProvider: React.ComponentType<any> = ({ children }: any) => <>{children}</>;
-let useI18n: any = () => ({ t: (k: string) => k, dir: "rtl", lang: "ar", setLang: () => {}, supported: ["ar","en"] });
+let useI18n: any = () => ({ t: (k: string) => k, dir: "rtl", lang: "ar", setLang: () => {}, supported: ["ar","en","fr","hi","ur","fa","zh"] });
 try {
-  const mod = require("@/lib/i18n");
-  const P = mod.I18nProvider || mod.default?.I18nProvider;
-  const H = mod.useI18n || mod.default?.useI18n;
-  if (typeof P === "function") I18nProvider = P;
-  if (typeof H === "function") useI18n = H;
+  // محاولة استخدام النظام المحسّن أولاً
+  const modEnhanced = require("@/lib/i18n-enhanced");
+  if (modEnhanced.EnhancedI18nProvider) {
+    I18nProvider = modEnhanced.EnhancedI18nProvider;
+    useI18n = modEnhanced.useI18n;
+  } else {
+    // Fallback للنظام القديم
+    const mod = require("@/lib/i18n");
+    const P = mod.I18nProvider || mod.default?.I18nProvider;
+    const H = mod.useI18n || mod.default?.useI18n;
+    if (typeof P === "function") I18nProvider = P;
+    if (typeof H === "function") useI18n = H;
+  }
 } catch {}
 
 // مزوّدات اختيارية
@@ -29,7 +37,13 @@ let ChatProvider: any = ({ children }: any) => <>{children}</>;
 let ChatWidget: any = () => null;
 let FloatingButtons: any = () => null;
 try { GoogleMapsProvider = require("@/components/maps/GoogleMapsProvider").default || GoogleMapsProvider; } catch {}
-try { CurrencyProvider = require("@/context/CurrencyContext").CurrencyProvider || CurrencyProvider; } catch {}
+// استخدام نظام العملات المحسّن
+try { 
+  const modEnhanced = require("@/context/CurrencyContext-enhanced");
+  CurrencyProvider = modEnhanced.EnhancedCurrencyProvider || CurrencyProvider;
+} catch {
+  try { CurrencyProvider = require("@/context/CurrencyContext").CurrencyProvider || CurrencyProvider; } catch {}
+}
 try { ChatProvider = require("@/context/ChatContext").ChatProvider || ChatProvider; } catch {}
 try { ChatWidget = require("@/components/chat/ChatWidget").default || ChatWidget; } catch {}
 try { FloatingButtons = require("@/components/floating/FloatingButtons").default || FloatingButtons; } catch {}
@@ -65,7 +79,7 @@ try {
   NotificationsProvider = mod.NotificationsProvider || NotificationsProvider;
 } catch {}
 
-// مزامنة اللغة
+// مزامنة اللغة - محسّن لدعم 7 لغات
 function LangSync() {
   const router = useRouter();
   const { setLang, supported } = useI18n();
@@ -74,7 +88,9 @@ function LangSync() {
     const fromUrl =
       typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("lang") || "" : "";
     const cand = (fromUrl || fromRouter).toLowerCase();
-    const list = Array.isArray(supported) && supported.length ? supported : ["ar", "en"];
+    const list = Array.isArray(supported) && supported.length 
+      ? supported 
+      : ["ar", "en", "fr", "hi", "ur", "fa", "zh"]; // جميع اللغات المدعومة
     if (cand && list.includes(cand as any)) setLang(cand as any);
   }, [router?.locale, setLang, supported]);
   return null;

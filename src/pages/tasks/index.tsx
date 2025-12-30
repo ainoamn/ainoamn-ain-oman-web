@@ -1,7 +1,47 @@
 import Head from "next/head";
 // Header and Footer are now handled by MainLayout in _app.tsx
-import { useI18n } from "@/lib/i18n";
 import React from "react";
+
+// ---- i18n fallback ----
+let useI18n: any;
+try { 
+  // محاولة استخدام النظام المحسّن أولاً
+  const modEnhanced = require("@/lib/i18n-enhanced");
+  if (modEnhanced.useI18n) {
+    useI18n = modEnhanced.useI18n;
+  } else {
+    useI18n = require("@/lib/i18n").useI18n;
+  }
+} catch {
+  // Fallback للنظام القديم
+  try {
+    useI18n = require("@/lib/i18n").useI18n;
+  } catch {
+    useI18n = () => ({
+      t: (k: string) => k,
+      lang: "ar",
+      dir: "rtl",
+      setLang: () => {},
+      supported: ["ar", "en"]
+    });
+  }
+}
+
+// Safe wrapper لـ useI18n
+function safeUseI18n() {
+  try {
+    return useI18n();
+  } catch (error) {
+    // إذا كان useI18n يحتاج I18nProvider ولم يكن موجوداً
+    return {
+      t: (k: string) => k,
+      lang: "ar",
+      dir: "rtl" as const,
+      setLang: () => {},
+      supported: ["ar", "en"]
+    };
+  }
+}
 import { useMemo, useState, useEffect } from "react";
 import PropertyBadge from "@/components/tasks/PropertyBadge";
 import TaskStatusPill from "@/components/tasks/TaskStatusPill";
@@ -247,7 +287,7 @@ export function Content() {
 }
 
     export default function Page() {
-      const { dir } = useI18n();
+      const { dir } = safeUseI18n();
       return (
         <main dir={dir} className="min-h-screen bg-slate-50 flex flex-col">
           <Head><title>المهام | Ain Oman</title></Head>

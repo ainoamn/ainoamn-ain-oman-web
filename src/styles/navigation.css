@@ -1,0 +1,82 @@
+/* ⚡ Navigation Styles - سرعة البرق */
+
+/* تحسين التنقل الفوري */
+body.navigating {
+  cursor: wait;
+}
+
+body.navigating * {
+  pointer-events: none;
+}
+
+/* تحسين الروابط */
+a[href] {
+  transition: opacity 0.1s ease;
+}
+
+a[href]:hover {
+  opacity: 0.8;
+}
+
+/* تحسين الأزرار */
+button[type="button"] {
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+button[type="button"]:active {
+  transform: scale(0.98);
+}
+
+/* تحسين التحميل */
+.loading-spinner {
+  animation: spin 0.5s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* تحسين الانتقالات */
+.page-transition {
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* تحسين الأداء */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* تحسين التمرير */
+html {
+  scroll-behavior: smooth;
+}
+
+/* تحسين التركيز */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+
+
+
+
+
+

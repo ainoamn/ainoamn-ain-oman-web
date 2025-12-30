@@ -107,7 +107,7 @@ export default function InstantLink({
     }
   };
 
-  // معالجة النقر بطريقة فورية
+  // معالجة النقر بطريقة فورية - سرعة البرق ⚡
   const handleClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     // إذا كان هناك معالج onClick مخصص
     if (onClick) {
@@ -123,11 +123,22 @@ export default function InstantLink({
     // منع السلوك الافتراضي للتنقل الفوري
     e.preventDefault();
 
-    // تنفيذ التنقل فورًا
+    // Optimistic UI - تحديث فوري قبل التنقل
+    if (typeof window !== 'undefined') {
+      // إضافة فئة للتحميل الفوري
+      document.body.classList.add('navigating');
+      
+      // إزالة الفئة بعد التنقل
+      setTimeout(() => {
+        document.body.classList.remove('navigating');
+      }, 100);
+    }
+
+    // تنفيذ التنقل فورًا بدون await لتقليل التأخير
     if (replace) {
-      await router.replace(href, undefined, { shallow, scroll });
+      router.replace(href, undefined, { shallow, scroll }).catch(() => {});
     } else {
-      await router.push(href, undefined, { shallow, scroll });
+      router.push(href, undefined, { shallow, scroll }).catch(() => {});
     }
   };
 

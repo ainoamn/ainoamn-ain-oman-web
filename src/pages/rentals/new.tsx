@@ -10,7 +10,7 @@ import {
   FaIdCard, FaClock, FaDollarSign, FaFileAlt, FaPlus,
   FaChevronDown, FaChevronUp, FaListAlt, FaUsers,
   FaCloudUploadAlt, FaFileUpload, FaPassport, FaTrash,
-  FaGlobe, FaFlag, FaExclamationTriangle, FaInfoCircle, FaKey
+  FaGlobe, FaFlag, FaExclamationTriangle, FaInfoCircle, FaKey, FaTimes, FaFilter, FaRuler
 } from 'react-icons/fa';
 import InstantLink from '@/components/InstantLink';
 import AddTenantModal from '@/components/tenants/AddTenantModal';
@@ -368,6 +368,21 @@ export default function NewRentalContract() {
   const [serialNumbers, setSerialNumbers] = useState<string[]>([]);
   const [propertyIds, setPropertyIds] = useState<{id: string, title: string, address: string}[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showPropertiesModal, setShowPropertiesModal] = useState(false);
+  const [existingContract, setExistingContract] = useState<any | null>(null);
+  const [showExistingContractModal, setShowExistingContractModal] = useState(false);
+  
+  // فلاتر البحث المتقدم
+  const [propertySearchQuery, setPropertySearchQuery] = useState('');
+  const [propertyFilterType, setPropertyFilterType] = useState<string>('');
+  const [propertyFilterProvince, setPropertyFilterProvince] = useState<string>('');
+  const [propertyFilterState, setPropertyFilterState] = useState<string>('');
+  const [propertyFilterCity, setPropertyFilterCity] = useState<string>('');
+  const [propertyFilterOwner, setPropertyFilterOwner] = useState<string>('');
+  const [propertyFilterStatus, setPropertyFilterStatus] = useState<string>('');
+  const [propertyFilterSerialNumber, setPropertyFilterSerialNumber] = useState<string>('');
+  const [propertyFilterPropertyId, setPropertyFilterPropertyId] = useState<string>('');
+  const [propertyFilterPlotNumber, setPropertyFilterPlotNumber] = useState<string>('');
   
   // حالة الشغور والعقود النشطة
   const [occupancyStatus, setOccupancyStatus] = useState<Record<string, {occupied: boolean, activeContracts: number}>>({});
@@ -829,8 +844,11 @@ export default function NewRentalContract() {
     }
   };
   
-  const searchProperties = async () => {
-    if (!formData.searchQuery.trim()) {
+  const searchProperties = async (query?: string, searchType?: typeof formData.searchType) => {
+    const searchQuery = (query || formData.searchQuery).trim();
+    const currentSearchType = searchType || formData.searchType;
+    
+    if (!searchQuery) {
       setFilteredProperties([]);
       setHasSearched(false);
       return;
@@ -842,50 +860,58 @@ export default function NewRentalContract() {
     
     try {
       let searchResults: Property[] = [];
+      const lowerQuery = searchQuery.toLowerCase();
       
-      switch (formData.searchType) {
+      switch (currentSearchType) {
         case 'buildingNumber':
-          searchResults = properties.filter(p => 
-            p.buildingNumber?.includes(formData.searchQuery) ||
-            p.id?.includes(formData.searchQuery)
-          );
+          searchResults = properties.filter(p => {
+            const buildingNum = (p.buildingNumber || '').toString().toLowerCase();
+            const propId = (p.id || '').toString().toLowerCase();
+            return buildingNum.includes(lowerQuery) || propId.includes(lowerQuery);
+          });
           break;
           
         case 'ownerId':
-          searchResults = properties.filter(p => 
-            p.ownerId?.includes(formData.searchQuery) ||
-            p.id?.includes(formData.searchQuery)
-          );
+          searchResults = properties.filter(p => {
+            const owner = (p.ownerId || '').toString().toLowerCase();
+            const propId = (p.id || '').toString().toLowerCase();
+            return owner.includes(lowerQuery) || propId.includes(lowerQuery);
+          });
           break;
           
         case 'serialNumber':
-          searchResults = properties.filter(p => 
-            p.serialNumber?.includes(formData.searchQuery) ||
-            p.id?.includes(formData.searchQuery)
-          );
+          searchResults = properties.filter(p => {
+            const serial = (p.serialNumber || '').toString().toLowerCase();
+            const propId = (p.id || '').toString().toLowerCase();
+            return serial.includes(lowerQuery) || propId.includes(lowerQuery);
+          });
           break;
           
         case 'propertyId':
-          searchResults = properties.filter(p => 
-            p.id?.includes(formData.searchQuery) ||
-            p.titleAr?.includes(formData.searchQuery) ||
-            p.address?.includes(formData.searchQuery)
-          );
+          searchResults = properties.filter(p => {
+            const propId = (p.id || '').toString().toLowerCase();
+            const titleAr = (p.titleAr || '').toString().toLowerCase();
+            const address = (p.address || '').toString().toLowerCase();
+            return propId.includes(lowerQuery) || titleAr.includes(lowerQuery) || address.includes(lowerQuery);
+          });
           break;
           
         default:
-          searchResults = properties.filter(p => 
-            p.id?.includes(formData.searchQuery) ||
-            p.titleAr?.includes(formData.searchQuery) ||
-            p.address?.includes(formData.searchQuery) ||
-            p.buildingNumber?.includes(formData.searchQuery)
-          );
+          searchResults = properties.filter(p => {
+            const propId = (p.id || '').toString().toLowerCase();
+            const titleAr = (p.titleAr || '').toString().toLowerCase();
+            const address = (p.address || '').toString().toLowerCase();
+            const buildingNum = (p.buildingNumber || '').toString().toLowerCase();
+            return propId.includes(lowerQuery) || titleAr.includes(lowerQuery) || address.includes(lowerQuery) || buildingNum.includes(lowerQuery);
+          });
       }
       
       setFilteredProperties(searchResults);
       
       if (searchResults.length === 0) {
         setError('لم يتم العثور على عقارات تطابق معايير البحث');
+      } else {
+        setError(null);
       }
     } catch (error) {
       console.error('Error searching properties:', error);
@@ -896,9 +922,43 @@ export default function NewRentalContract() {
   };
   
   const selectProperty = async (property: Property) => {
+    setError(null);
+    setExistingContract(null);
+    
+    // التحقق من وجود عقد سابق للعقار
+    try {
+      console.log('🔍 التحقق من وجود عقد سابق للعقار:', property.id);
+      const rentalsResponse = await fetch('/api/rentals');
+      
+      if (rentalsResponse.ok) {
+        const rentalsData = await rentalsResponse.json();
+        const allRentals = Array.isArray(rentalsData?.items) ? rentalsData.items : [];
+        
+        // البحث عن عقد نشط أو محجوز أو مؤجر لهذا العقار
+        const existing = allRentals.find((rental: any) => 
+          rental.propertyId === property.id && 
+          rental.state && 
+          ['active', 'reserved', 'paid', 'docs_submitted', 'docs_verified', 'handover_completed'].includes(rental.state) &&
+          rental.state !== 'cancelled' &&
+          rental.state !== 'expired'
+        );
+        
+        if (existing) {
+          console.log('⚠️ تم العثور على عقد سابق:', existing);
+          setExistingContract(existing);
+          setShowExistingContractModal(true);
+          return; // إيقاف عملية الاختيار حتى يتم إلغاء العقد أو إغلاق النافذة
+        } else {
+          console.log('✅ لا يوجد عقد سابق نشط للعقار');
+        }
+      }
+    } catch (err) {
+      console.error('❌ خطأ في التحقق من العقود السابقة:', err);
+      // نواصل العملية حتى لو فشل التحقق
+    }
+    
     setSelectedProperty(property);
     setFormData(prev => ({ ...prev, propertyId: property.id }));
-    setError(null);
     
     // جلب البيانات الإضافية للعقار
     try {
@@ -987,6 +1047,132 @@ export default function NewRentalContract() {
     }));
   };
   
+  // دالة للحصول على عنوان العقار
+  const getTitleFromProperty = (property: Property): string => {
+    if (property.titleAr) return property.titleAr;
+    if (property.titleEn) return property.titleEn;
+    if (property.title) {
+      if (typeof property.title === 'string') return property.title;
+      if (typeof property.title === 'object' && property.title) {
+        return property.title.ar || property.title.en || '';
+      }
+    }
+    return `العقار ${property.id}`;
+  };
+
+  // فلترة العقارات حسب الفلاتر المتقدمة
+  const getFilteredPropertiesAdvanced = (): Property[] => {
+    try {
+      if (!properties || properties.length === 0) {
+        return [];
+      }
+      
+      let filtered = [...properties];
+      
+      // فلترة حسب البحث النصي
+      if (propertySearchQuery && typeof propertySearchQuery === 'string' && propertySearchQuery.trim()) {
+        const query = propertySearchQuery.toLowerCase();
+        filtered = filtered.filter(p => {
+          try {
+            const title = getTitleFromProperty(p).toLowerCase();
+            const address = (p.address || '').toLowerCase();
+            const buildingNum = (p.buildingNumber || '').toString().toLowerCase();
+            const propId = (p.id || '').toString().toLowerCase();
+            const ownerId = (p.ownerId || '').toString().toLowerCase();
+            const serial = (p.serialNumber || '').toString().toLowerCase();
+            const plotNum = (p.plotNumber || '').toString().toLowerCase();
+            const province = (p.province || '').toLowerCase();
+            const state = (p.state || '').toLowerCase();
+            const city = (p.city || '').toLowerCase();
+            
+            return title.includes(query) ||
+                   address.includes(query) ||
+                   buildingNum.includes(query) ||
+                   propId.includes(query) ||
+                   ownerId.includes(query) ||
+                   serial.includes(query) ||
+                   plotNum.includes(query) ||
+                   province.includes(query) ||
+                   state.includes(query) ||
+                   city.includes(query);
+          } catch (err) {
+            console.error('Error filtering property:', err, p);
+            return false;
+          }
+        });
+      }
+      
+      // فلترة حسب نوع العقار
+      if (propertyFilterType && propertyFilterType.trim()) {
+        filtered = filtered.filter(p => p.type === propertyFilterType);
+      }
+      
+      // فلترة حسب الموقع (محافظة → ولاية → مدينة/حي)
+      if (propertyFilterProvince && propertyFilterProvince.trim()) {
+        filtered = filtered.filter(p => {
+          try {
+            const provinceMatch = p.province && p.province.toLowerCase() === propertyFilterProvince.toLowerCase();
+            if (!provinceMatch) return false;
+            
+            // إذا تم اختيار ولاية محددة
+            if (propertyFilterState && propertyFilterState.trim() && propertyFilterState !== 'all') {
+              const stateMatch = p.state && p.state.toLowerCase() === propertyFilterState.toLowerCase();
+              if (!stateMatch) return false;
+              
+              // إذا تم اختيار مدينة/حي محددة
+              if (propertyFilterCity && propertyFilterCity.trim() && propertyFilterCity !== 'all') {
+                const cityMatch = p.city && p.city.toLowerCase() === propertyFilterCity.toLowerCase();
+                return cityMatch;
+              }
+              return true; // تم اختيار المحافظة والولاية فقط
+            }
+            return true; // تم اختيار المحافظة فقط
+          } catch (err) {
+            return false;
+          }
+        });
+      }
+      
+      // فلترة حسب المالك
+      if (propertyFilterOwner && propertyFilterOwner.trim()) {
+        filtered = filtered.filter(p => 
+          (p.ownerId || '').toString().toLowerCase().includes(propertyFilterOwner.toLowerCase())
+        );
+      }
+      
+      // فلترة حسب الحالة
+      if (propertyFilterStatus && propertyFilterStatus.trim()) {
+        filtered = filtered.filter(p => p.status === propertyFilterStatus);
+      }
+      
+      // فلترة حسب الرقم المتسلسل
+      if (propertyFilterSerialNumber && propertyFilterSerialNumber.trim()) {
+        filtered = filtered.filter(p => 
+          (p.serialNumber || '').toString().toLowerCase().includes(propertyFilterSerialNumber.toLowerCase())
+        );
+      }
+      
+      // فلترة حسب رقم العقار (ID)
+      if (propertyFilterPropertyId && propertyFilterPropertyId.trim()) {
+        filtered = filtered.filter(p => 
+          (p.id || '').toString().toLowerCase().includes(propertyFilterPropertyId.toLowerCase())
+        );
+      }
+      
+      // فلترة حسب رقم الأرض
+      if (propertyFilterPlotNumber && propertyFilterPlotNumber.trim()) {
+        filtered = filtered.filter(p => 
+          (p.plotNumber || '').toString().toLowerCase().includes(propertyFilterPlotNumber.toLowerCase())
+        );
+      }
+      
+      return filtered;
+    } catch (error) {
+      console.error('Error in getFilteredPropertiesAdvanced:', error);
+      return properties || [];
+    }
+  };
+
   const getDropdownOptions = (): (string | {id: string, title: string, address: string})[] => {
     console.log('Getting dropdown options for search type:', formData.searchType);
     console.log('Search query:', formData.searchQuery);
@@ -1176,17 +1362,20 @@ export default function NewRentalContract() {
     }));
     
     if (field === 'searchQuery') {
+      // إظهار القائمة المنسدلة تلقائياً عند الكتابة
       setShowDropdown(value.length > 0);
       
-      // البحث الفوري أثناء الكتابة
-      setTimeout(() => {
-        if (value.trim()) {
-          searchProperties();
-        } else {
-          setFilteredProperties([]);
-          setHasSearched(false);
-        }
-      }, 300);
+      // البحث الفوري أثناء الكتابة باستخدام القيمة الجديدة مباشرة
+      if (value && value.trim().length > 0) {
+        // البحث الفوري في العقارات
+        setTimeout(() => {
+          searchProperties(value);
+        }, 300);
+      } else {
+        setFilteredProperties([]);
+        setHasSearched(false);
+        setError(null);
+      }
     }
     
     if (field === 'searchType') {
@@ -1495,169 +1684,578 @@ export default function NewRentalContract() {
               </div>
             </div>
             
-            {/* نوع البحث */}
+            {/* زر إظهار القائمة */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-3">نوع البحث</label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {[
-                  { value: 'buildingNumber', label: 'رقم المبنى', icon: FaBuilding },
-                  { value: 'ownerId', label: 'معرف المالك', icon: FaUser },
-                  { value: 'serialNumber', label: 'الرقم المتسلسل', icon: FaIdCard },
-                  { value: 'propertyId', label: 'معرف العقار', icon: FaHome }
-                ].map((type) => (
-                  <button
-                    key={type.value}
-                    type="button"
-                    onClick={() => handleInputChange('searchType', type.value)}
-                    className={`p-3 rounded-lg border-2 transition-all ${
-                      formData.searchType === type.value
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <type.icon className="w-5 h-5 mx-auto mb-1" />
-                    <span className="text-sm font-medium">{type.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            {/* حقل البحث الذكي */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {formData.searchType === 'buildingNumber' && 'اختر أو ابحث عن رقم المبنى'}
-                {formData.searchType === 'ownerId' && 'اختر أو ابحث عن معرف المالك'}
-                {formData.searchType === 'serialNumber' && 'أدخل الرقم المتسلسل'}
-                {formData.searchType === 'propertyId' && 'اختر أو ابحث عن العقار'}
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={formData.searchQuery}
-                  onChange={(e) => handleInputChange('searchQuery', e.target.value)}
-                  onFocus={() => setShowDropdown(formData.searchQuery.length > 0)}
-                  onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={
-                    formData.searchType === 'buildingNumber' ? 'ابحث عن رقم المبنى...' :
-                    formData.searchType === 'ownerId' ? 'ابحث عن معرف المالك...' :
-                    formData.searchType === 'serialNumber' ? 'أدخل الرقم المتسلسل...' :
-                    'ابحث عن العقار...'
+              <button 
+                type="button"
+                onClick={() => {
+                  setShowPropertiesModal(true);
+                  // تحميل جميع العقارات عند فتح القائمة
+                  if (filteredProperties.length === 0) {
+                    setFilteredProperties(properties);
+                    setHasSearched(true);
                   }
-                />
-                <button
-                  type="button"
-                  onClick={searchProperties}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600"
-                  disabled={searching}
-                >
-                  {searching ? <FaSpinner className="w-5 h-5 animate-spin" /> : <FaSearch className="w-5 h-5" />}
-                </button>
-                
-                {/* القائمة المنسدلة الذكية */}
-                {showDropdown && getDropdownOptions().length > 0 && (
-                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                    <div className="p-2 text-xs text-gray-500 bg-gray-50 border-b" suppressHydrationWarning>
-                      اختر من القائمة ({getDropdownOptions().length} خيار)
-                    </div>
-                    {getDropdownOptions().map((option, index) => (
-                      <div
-                        key={index}
-                        onClick={() => handleDropdownSelect(option)}
-                        className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
-                      >
-                        {formData.searchType === 'propertyId' && typeof option === 'object' ? (
+                }}
+                className="w-full inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl font-medium text-lg"
+              >
+                <FaListAlt className="w-6 h-6" />
+                <span>إظهار قائمة العقارات</span>
+                <span className="bg-white/20 px-3 py-1 rounded-full text-sm">
+                  ({properties.length} عقار)
+                </span>
+              </button>
+              {selectedProperty && (
+                <div className="mt-3 p-3 bg-green-50 border border-green-300 rounded-lg">
+                  <p className="text-sm text-green-800">
+                    <FaCheck className="inline ml-2" />
+                    تم اختيار: <strong>{getTitleFromProperty(selectedProperty)}</strong>
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Modal التنبيه بوجود عقد سابق */}
+            {showExistingContractModal && existingContract && (
+              <div className="fixed inset-0 z-50 overflow-y-auto" onClick={() => setShowExistingContractModal(false)}>
+                <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                  {/* خلفية معتمة */}
+                  <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                  
+                  {/* النافذة المنبثقة */}
+                  <div 
+                    className="inline-block align-bottom bg-white rounded-lg text-right overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {/* Header */}
+                    <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 text-white">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <FaExclamationTriangle className="w-6 h-6 ml-3" />
                           <div>
-                            <div className="font-medium text-gray-900">{option.title}</div>
-                            <div className="text-sm text-gray-600">{option.address}</div>
-                            <div className="text-xs text-gray-500">ID: {option.id}</div>
+                            <h2 className="text-xl font-bold">تنبيه: عقد سابق موجود</h2>
+                            <p className="text-sm text-orange-100">يوجد عقد إيجار مرتبط بهذا العقار</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setShowExistingContractModal(false)}
+                          className="bg-white/20 hover:bg-white/30 rounded-lg p-2 transition-colors"
+                        >
+                          <FaTimes className="text-xl" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="bg-white p-6">
+                      <div className="mb-6">
+                        <div className="bg-amber-50 border-r-4 border-amber-500 p-4 rounded-lg mb-4">
+                          <p className="text-amber-800 font-medium mb-2">
+                            ⚠️ لا يمكن إنشاء عقد إيجار جديد لهذا العقار
+                          </p>
+                          <p className="text-amber-700 text-sm">
+                            يوجد عقد إيجار نشط أو محجوز لهذا العقار. يجب إلغاء العقد السابق أولاً قبل إنشاء عقد جديد.
+                          </p>
+                        </div>
+                        
+                        {/* معلومات العقد السابق */}
+                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                          <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <FaFileContract className="text-blue-600" />
+                            معلومات العقد السابق
+                          </h3>
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <span className="text-gray-600">رقم العقد:</span>
+                              <span className="font-medium text-gray-900 mr-2">#{existingContract.id?.split('-')[1]?.substring(0, 8) || existingContract.id}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">الحالة:</span>
+                              <span className={`font-medium mr-2 ${
+                                existingContract.state === 'active' ? 'text-green-600' :
+                                existingContract.state === 'reserved' ? 'text-yellow-600' :
+                                'text-blue-600'
+                              }`}>
+                                {existingContract.state === 'active' ? 'نشط' :
+                                 existingContract.state === 'reserved' ? 'محجوز' :
+                                 existingContract.state === 'paid' ? 'تم الدفع' :
+                                 existingContract.state === 'docs_submitted' ? 'تم تقديم المستندات' :
+                                 existingContract.state === 'docs_verified' ? 'تم التحقق' :
+                                 existingContract.state === 'handover_completed' ? 'اكتمل التسليم' :
+                                 existingContract.state}
+                              </span>
+                            </div>
+                            {existingContract.tenantName && (
+                              <div className="col-span-2">
+                                <span className="text-gray-600">المستأجر:</span>
+                                <span className="font-medium text-gray-900 mr-2">{existingContract.tenantName}</span>
+                              </div>
+                            )}
+                            {existingContract.startDate && (
+                              <div>
+                                <span className="text-gray-600">تاريخ البدء:</span>
+                                <span className="font-medium text-gray-900 mr-2">
+                                  {new Date(existingContract.startDate).toLocaleDateString('ar-EG')}
+                                </span>
+                              </div>
+                            )}
+                            {existingContract.endDate && (
+                              <div>
+                                <span className="text-gray-600">تاريخ الانتهاء:</span>
+                                <span className="font-medium text-gray-900 mr-2">
+                                  {new Date(existingContract.endDate).toLocaleDateString('ar-EG')}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* ملاحظة */}
+                        <div className="bg-blue-50 border-r-4 border-blue-400 p-4 rounded-lg mb-4">
+                          <p className="text-blue-800 text-sm">
+                            <strong>ملاحظة:</strong> إذا كنت ترغب في إنشاء عقد إيجار جديد لهذا العقار، يجب إلغاء العقد السابق أولاً من صفحة إلغاء العقد.
+                          </p>
+                        </div>
+                        
+                        {/* الأزرار */}
+                        <div className="flex items-center justify-between gap-3">
+                          <InstantLink
+                            href={`/contracts/rental/${existingContract.id}`}
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+                          >
+                            <FaFileAlt className="w-4 h-4" />
+                            الاطلاع على بيانات العقد
+                          </InstantLink>
+                          
+                          <InstantLink
+                            href={`/rentals/edit/${existingContract.id}`}
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
+                          >
+                            <FaTrash className="w-4 h-4" />
+                            إلغاء العقد السابق
+                          </InstantLink>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="bg-gray-50 px-6 py-3 flex justify-end">
+                      <button
+                        onClick={() => setShowExistingContractModal(false)}
+                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium transition-colors"
+                      >
+                        إغلاق
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Modal البحث المتقدم */}
+            {showPropertiesModal && (
+              <div className="fixed inset-0 z-50 overflow-y-auto" onClick={() => setShowPropertiesModal(false)}>
+                <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                  {/* خلفية معتمة */}
+                  <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                  
+                  {/* النافذة المنبثقة */}
+                  <div 
+                    className="inline-block align-bottom bg-white rounded-lg text-right overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-6xl sm:w-full"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {/* Header */}
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 text-white">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <FaBuilding className="w-6 h-6 ml-3" />
+                          <div>
+                            <h2 className="text-xl font-bold">بحث واختيار العقار</h2>
+                            <p className="text-sm text-blue-100">ابحث وفلتر العقارات المتاحة</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setShowPropertiesModal(false)}
+                          className="bg-white/20 hover:bg-white/30 rounded-lg p-2 transition-colors"
+                        >
+                          <FaTimes className="text-xl" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="bg-white p-6 max-h-[75vh] overflow-y-auto">
+                      {/* الفلاتر */}
+                      <div className="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                          <FaFilter className="ml-2 text-blue-600" />
+                          الفلاتر والبحث
+                        </h3>
+                        
+                        {/* البحث النصي */}
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <FaSearch className="inline ml-2" />
+                            البحث العام (جميع الحقول)
+                          </label>
+                          <input
+                            type="text"
+                            value={propertySearchQuery}
+                            onChange={(e) => setPropertySearchQuery(e.target.value)}
+                            placeholder="ابحث في جميع الحقول (اسم، عنوان، رقم، مالك، مكان، رقم متسلسل، رقم عقار، رقم أرض)..."
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                        </div>
+                        
+                        {/* الفلاتر */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                          {/* نوع العقار */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              <FaHome className="inline ml-1 text-xs" />
+                              نوع العقار
+                            </label>
+                            <select
+                              value={propertyFilterType}
+                              onChange={(e) => setPropertyFilterType(e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            >
+                              <option value="">جميع الأنواع</option>
+                              {Array.from(new Set(properties.map(p => p.type).filter(Boolean))).map(type => (
+                                <option key={type} value={type}>{type}</option>
+                              ))}
+                            </select>
+                          </div>
+                          
+                          {/* الموقع - المحافظة */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              <FaMapMarkerAlt className="inline ml-1 text-xs" />
+                              المحافظة
+                            </label>
+                            <select
+                              value={propertyFilterProvince}
+                              onChange={(e) => {
+                                setPropertyFilterProvince(e.target.value);
+                                // إعادة تعيين الولاية والمدينة عند تغيير المحافظة
+                                setPropertyFilterState('');
+                                setPropertyFilterCity('');
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            >
+                              <option value="">جميع المحافظات</option>
+                              {Array.from(new Set(properties.map(p => p.province).filter(Boolean))).sort().map(province => (
+                                <option key={province} value={province}>{province}</option>
+                              ))}
+                            </select>
+                          </div>
+                          
+                          {/* الموقع - الولاية */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              <FaMapMarkerAlt className="inline ml-1 text-xs" />
+                              الولاية
+                            </label>
+                            <select
+                              value={propertyFilterState}
+                              onChange={(e) => {
+                                setPropertyFilterState(e.target.value);
+                                // إعادة تعيين المدينة عند تغيير الولاية
+                                setPropertyFilterCity('');
+                              }}
+                              disabled={!propertyFilterProvince}
+                              className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                                !propertyFilterProvince ? 'bg-gray-100 cursor-not-allowed opacity-50' : ''
+                              }`}
+                            >
+                              <option value="">
+                                {propertyFilterProvince ? 'كل الولايات' : 'اختر المحافظة أولاً'}
+                              </option>
+                              {propertyFilterProvince && Array.from(new Set(
+                                properties
+                                  .filter(p => p.province && p.province.toLowerCase() === propertyFilterProvince.toLowerCase())
+                                  .map(p => p.state)
+                                  .filter(Boolean)
+                              )).sort().map(state => (
+                                <option key={state} value={state}>{state}</option>
+                              ))}
+                            </select>
+                          </div>
+                          
+                          {/* الموقع - المدينة/الحي/القرية */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              <FaMapMarkerAlt className="inline ml-1 text-xs" />
+                              المدينة/الحي/القرية
+                            </label>
+                            <select
+                              value={propertyFilterCity}
+                              onChange={(e) => setPropertyFilterCity(e.target.value)}
+                              disabled={!propertyFilterProvince || (!propertyFilterState || propertyFilterState === '')}
+                              className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                                (!propertyFilterProvince || (!propertyFilterState || propertyFilterState === '')) 
+                                  ? 'bg-gray-100 cursor-not-allowed opacity-50' : ''
+                              }`}
+                            >
+                              <option value="">
+                                {(propertyFilterProvince && propertyFilterState) 
+                                  ? 'كل الأحياء والقراء' 
+                                  : propertyFilterProvince 
+                                    ? 'اختر الولاية أولاً'
+                                    : 'اختر المحافظة أولاً'}
+                              </option>
+                              {propertyFilterProvince && propertyFilterState && propertyFilterState !== 'all' && Array.from(new Set(
+                                properties
+                                  .filter(p => 
+                                    p.province && p.province.toLowerCase() === propertyFilterProvince.toLowerCase() &&
+                                    p.state && p.state.toLowerCase() === propertyFilterState.toLowerCase() &&
+                                    p.city
+                                  )
+                                  .map(p => p.city)
+                                  .filter(Boolean)
+                              )).sort().map(city => (
+                                <option key={city} value={city}>{city}</option>
+                              ))}
+                            </select>
+                          </div>
+                          
+                          {/* الحالة */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              <FaCheck className="inline ml-1 text-xs" />
+                              الحالة
+                            </label>
+                            <select
+                              value={propertyFilterStatus}
+                              onChange={(e) => setPropertyFilterStatus(e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            >
+                              <option value="">جميع الحالات</option>
+                              <option value="vacant">شاغر</option>
+                              <option value="leased">مؤجر</option>
+                              <option value="reserved">محجوز</option>
+                            </select>
+                          </div>
+                        </div>
+                        
+                        {/* فلاتر إضافية - أرقام محددة */}
+                        <div className="mt-4 pt-4 border-t border-gray-200">
+                          <h4 className="text-sm font-semibold text-gray-700 mb-3">بحث بالأرقام</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {/* الرقم المتسلسل */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <FaIdCard className="inline ml-1 text-xs" />
+                                الرقم المتسلسل
+                              </label>
+                              <input
+                                type="text"
+                                value={propertyFilterSerialNumber}
+                                onChange={(e) => setPropertyFilterSerialNumber(e.target.value)}
+                                placeholder="ابحث بالرقم المتسلسل"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                              />
+                            </div>
+                            
+                            {/* رقم العقار */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <FaHome className="inline ml-1 text-xs" />
+                                رقم العقار (ID)
+                              </label>
+                              <input
+                                type="text"
+                                value={propertyFilterPropertyId}
+                                onChange={(e) => setPropertyFilterPropertyId(e.target.value)}
+                                placeholder="ابحث برقم العقار"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                              />
+                            </div>
+                            
+                            {/* رقم الأرض */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <FaMapMarkerAlt className="inline ml-1 text-xs" />
+                                رقم الأرض
+                              </label>
+                              <input
+                                type="text"
+                                value={propertyFilterPlotNumber}
+                                onChange={(e) => setPropertyFilterPlotNumber(e.target.value)}
+                                placeholder="ابحث برقم الأرض"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                              />
+                            </div>
+                            
+                            {/* المالك */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <FaUser className="inline ml-1 text-xs" />
+                                المالك (معرف/رقم)
+                              </label>
+                              <input
+                                type="text"
+                                value={propertyFilterOwner}
+                                onChange={(e) => setPropertyFilterOwner(e.target.value)}
+                                placeholder="ابحث بمعرف/رقم المالك"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* زر إعادة تعيين الفلاتر */}
+                        <div className="mt-4 flex justify-end">
+                          <button
+                            onClick={() => {
+                              setPropertySearchQuery('');
+                              setPropertyFilterType('');
+                              setPropertyFilterProvince('');
+                              setPropertyFilterState('');
+                              setPropertyFilterCity('');
+                              setPropertyFilterOwner('');
+                              setPropertyFilterStatus('');
+                              setPropertyFilterSerialNumber('');
+                              setPropertyFilterPropertyId('');
+                              setPropertyFilterPlotNumber('');
+                            }}
+                            className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                          >
+                            إعادة تعيين الفلاتر
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* قائمة العقارات */}
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            النتائج ({getFilteredPropertiesAdvanced().length} عقار)
+                          </h3>
+                        </div>
+                        
+                        {getFilteredPropertiesAdvanced().length > 0 ? (
+                          <div className="space-y-3 max-h-96 overflow-y-auto">
+                            {getFilteredPropertiesAdvanced().map((property) => (
+                              <div
+                                key={property.id}
+                                onClick={() => {
+                                  selectProperty(property);
+                                  setShowPropertiesModal(false);
+                                  setHasSearched(true);
+                                  setFilteredProperties([property]);
+                                }}
+                                className={`p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                                  selectedProperty?.id === property.id
+                                    ? 'border-blue-500 bg-blue-50 shadow-lg'
+                                    : 'border-gray-200 hover:border-blue-300'
+                                }`}
+                              >
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <h5 className="font-bold text-lg text-gray-900 mb-2">
+                                      {getTitleFromProperty(property)}
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm text-gray-600 mb-3">
+                                      {property.address && (
+                                        <p className="flex items-center gap-2">
+                                          <FaMapMarkerAlt className="text-blue-500" />
+                                          {property.address}
+                                        </p>
+                                      )}
+                                      {property.type && (
+                                        <p className="flex items-center gap-2">
+                                          <FaHome className="text-green-500" />
+                                          النوع: {property.type}
+                                        </p>
+                                      )}
+                                      {property.area && (
+                                        <p className="flex items-center gap-2">
+                                          <FaRuler className="text-indigo-500" />
+                                          المساحة: {property.area} م²
+                                        </p>
+                                      )}
+                                    </div>
+                                    
+                                    {/* قسم الأرقام */}
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                      {property.id && (
+                                        <div className="flex flex-col">
+                                          <span className="text-gray-500 font-medium mb-1">رقم العقار:</span>
+                                          <span className="text-gray-900 font-bold">{property.id}</span>
+                                        </div>
+                                      )}
+                                      {property.serialNumber && (
+                                        <div className="flex flex-col">
+                                          <span className="text-gray-500 font-medium mb-1">الرقم المتسلسل:</span>
+                                          <span className="text-gray-900 font-bold">{property.serialNumber}</span>
+                                        </div>
+                                      )}
+                                      {property.plotNumber && (
+                                        <div className="flex flex-col">
+                                          <span className="text-gray-500 font-medium mb-1">رقم الأرض:</span>
+                                          <span className="text-gray-900 font-bold">{property.plotNumber}</span>
+                                        </div>
+                                      )}
+                                      {property.buildingNumber && (
+                                        <div className="flex flex-col">
+                                          <span className="text-gray-500 font-medium mb-1">رقم المبنى:</span>
+                                          <span className="text-gray-900 font-bold">{property.buildingNumber}</span>
+                                        </div>
+                                      )}
+                                      {property.ownerId && (
+                                        <div className="flex flex-col">
+                                          <span className="text-gray-500 font-medium mb-1">المالك:</span>
+                                          <span className="text-gray-900 font-bold">{property.ownerId}</span>
+                                        </div>
+                                      )}
+                                      {(property.province || property.state) && (
+                                        <div className="flex flex-col">
+                                          <span className="text-gray-500 font-medium mb-1">الموقع:</span>
+                                          <span className="text-gray-900 font-bold">
+                                            {[property.province, property.state, property.city].filter(Boolean).join(' - ')}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
+                                    {property.priceOMR && (
+                                      <p className="mt-2 text-lg font-bold text-blue-600">
+                                        {property.priceOMR} ر.ع
+                                      </p>
+                                    )}
+                                  </div>
+                                  {selectedProperty?.id === property.id && (
+                                    <FaCheck className="w-6 h-6 text-blue-600 ml-4 flex-shrink-0" />
+                                  )}
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         ) : (
-                          <div className="font-medium text-gray-900">{option}</div>
+                          <div className="text-center py-12 bg-gray-50 rounded-lg">
+                            <FaSearch className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                            <p className="text-gray-600">لا توجد عقارات تطابق معايير البحث</p>
+                            <p className="text-sm text-gray-500 mt-2">جرب تعديل الفلاتر أو البحث</p>
+                          </div>
                         )}
                       </div>
-                    ))}
-                  </div>
-                )}
-                
-                {/* رسالة إذا لم توجد خيارات */}
-                {showDropdown && getDropdownOptions().length === 0 && formData.searchQuery.length > 0 && (
-                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4">
-                    <div className="text-center text-gray-500">
-                      <p>لا توجد خيارات تطابق "{formData.searchQuery}"</p>
-                      <p className="text-xs mt-1">جرب كتابة نص مختلف</p>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="bg-gray-50 px-6 py-3 flex justify-between items-center">
+                      <button
+                        onClick={() => setShowPropertiesModal(false)}
+                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium transition-colors"
+                      >
+                        إغلاق
+                      </button>
+                      <div className="text-sm text-gray-600">
+                        عرض {getFilteredPropertiesAdvanced().length} من {properties.length} عقار
+                      </div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
-              
-              {/* معلومات إضافية حسب نوع البحث */}
-              <div className="mt-2 text-sm text-gray-500">
-                {formData.searchType === 'buildingNumber' && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-3">💡 يمكنك الاختيار من القائمة أو الكتابة للبحث</p>
-                    <button 
-                      type="button"
-                      onClick={() => {
-                        setShowDropdown(!showDropdown);
-                        // عرض جميع العقارات عند إظهار القائمة
-                        if (!showDropdown) {
-                          setFilteredProperties(properties);
-                          setHasSearched(true);
-                        }
-                      }}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg font-medium"
-                    >
-                      <FaListAlt className="w-5 h-5" />
-                      <span suppressHydrationWarning>{showDropdown ? 'إخفاء' : 'إظهار'} القائمة ({buildingNumbers.length} رقم مبنى)</span>
-                      {showDropdown ? <FaChevronUp className="w-4 h-4" /> : <FaChevronDown className="w-4 h-4" />}
-                    </button>
-                  </div>
-                )}
-                {formData.searchType === 'ownerId' && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-3">💡 يمكنك الاختيار من قائمة الملاك أو الكتابة للبحث</p>
-                    <button 
-                      type="button"
-                      onClick={() => setShowDropdown(!showDropdown)}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg font-medium"
-                    >
-                      <FaUser className="w-5 h-5" />
-                      <span suppressHydrationWarning>{showDropdown ? 'إخفاء' : 'إظهار'} قائمة الملاك ({ownerIds.length} مالك)</span>
-                      {showDropdown ? <FaChevronUp className="w-4 h-4" /> : <FaChevronDown className="w-4 h-4" />}
-                    </button>
-                  </div>
-                )}
-                {formData.searchType === 'serialNumber' && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-3">💡 أدخل الرقم المتسلسل الدقيق للعقار</p>
-                    <button 
-                      type="button"
-                      onClick={() => setShowDropdown(!showDropdown)}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all shadow-md hover:shadow-lg font-medium"
-                    >
-                      <FaIdCard className="w-5 h-5" />
-                      <span suppressHydrationWarning>{showDropdown ? 'إخفاء' : 'إظهار'} القائمة ({serialNumbers.length} رقم)</span>
-                      {showDropdown ? <FaChevronUp className="w-4 h-4" /> : <FaChevronDown className="w-4 h-4" />}
-                    </button>
-                  </div>
-                )}
-                {formData.searchType === 'propertyId' && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-3">💡 يمكنك البحث بالمعرف أو العنوان أو اسم العقار</p>
-                    <button 
-                      type="button"
-                      onClick={() => setShowDropdown(!showDropdown)}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg font-medium"
-                    >
-                      <FaHome className="w-5 h-5" />
-                      <span suppressHydrationWarning>{showDropdown ? 'إخفاء' : 'إظهار'} قائمة العقارات ({propertyIds.length} عقار)</span>
-                      {showDropdown ? <FaChevronUp className="w-4 h-4" /> : <FaChevronDown className="w-4 h-4" />}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+            )}
             
             {/* نتائج البحث */}
             {(hasSearched || selectedProperty) && filteredProperties.length > 0 && (

@@ -1,55 +1,93 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { mkdir, readFile, writeFile, access } from "node:fs/promises";
-import path from "node:path";
-const DATA = path.join(process.cwd(), ".data");
-const FILE = path.join(DATA, "features.json");
+// src/pages/api/features/index.ts - API إدارة الميزات
+import type { NextApiRequest, NextApiResponse } from 'next';
+import {
+  getAllFeatures,
+  getFeature,
+  saveFeature,
+  deleteFeature,
+  getFeatureStats,
+} from '@/server/features/store';
+import { FeatureConfig, FeatureId } from '@/types/features';
 
-type Feature = { key: string; enabled: boolean; requiresSubscription: boolean; minPlan?: string|null };
-type Store = { items: Feature[] };
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  try {
+    // التحقق من الصلاحيات (يجب أن يكون admin)
+    // TODO: إضافة التحقق من الصلاحيات
 
-async function ensure(){ try{await access(DATA)}catch{await mkdir(DATA,{recursive:true})} try{await access(FILE)}catch{await writeFile(FILE,JSON.stringify({items:[]},null,2),"utf8")} }
-async function readDB():Promise<Store>{ const raw=await readFile(FILE,"utf8").catch(()=> '{"items":[]}'); try{ return JSON.parse(raw||'{"items":[]}'); }catch{ return { items: [] }; } }
-async function writeDB(d:Store){ await writeFile(FILE, JSON.stringify(d,null,2), "utf8"); }
+    if (req.method === 'GET') {
+      const { id, stats } = req.query;
 
-function seed(): Store {
-  return {
-    items: [
-      { key:"auctions",        enabled:true,  requiresSubscription:true,  minPlan:"pro" },
-      { key:"featuredAds",     enabled:true,  requiresSubscription:true,  minPlan:"pro" },
-      { key:"buySell",         enabled:true,  requiresSubscription:false, minPlan:null },
-      { key:"realEstateDev",   enabled:false, requiresSubscription:true,  minPlan:"business" },
-      { key:"tasks",           enabled:true,  requiresSubscription:false, minPlan:null },
-    ],
-  };
-}
+      if (id) {
+        const feature = await getFeature(id as FeatureId);
+        if (!feature) {
+          return res.status(404).json({ error: 'Feature not found' });
+        }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse){
-  await ensure();
+        if (stats === 'true') {
+          const statsData = await getFeatureStats(id as FeatureId);
+          return res.json({ feature, stats: statsData });
+        }
 
-  if (req.method === "GET") {
-    let db = await readDB();
-    if (!db.items || db.items.length === 0) { db = seed(); await writeDB(db); }
-    return res.status(200).json(db);
+        return res.json({ feature });
+      }
+
+      const features = await getAllFeatures();
+      return res.json({ features, count: features.length });
+    }
+
+    if (req.method === 'POST') {
+      const featureData = req.body as FeatureConfig;
+      
+      if (!featureData.id) {
+        return res.status(400).json({ error: 'Feature ID is required' });
+      }
+
+      const feature = await saveFeature(featureData);
+      return res.status(201).json({ feature });
+    }
+
+    if (req.method === 'PUT') {
+      const { id, ...updates } = req.body;
+      
+      if (!id) {
+        return res.status(400).json({ error: 'Feature ID is required' });
+      }
+
+      const existing = await getFeature(id as FeatureId);
+      if (!existing) {
+        return res.status(404).json({ error: 'Feature not found' });
+      }
+
+      const updated = await saveFeature({
+        ...existing,
+        ...updates,
+        updatedBy: req.body.updatedBy || 'system',
+      });
+
+      return res.json({ feature: updated });
+    }
+
+    if (req.method === 'DELETE') {
+      const { id } = req.query;
+      
+      if (!id) {
+        return res.status(400).json({ error: 'Feature ID is required' });
+      }
+
+      const deleted = await deleteFeature(id as FeatureId);
+      if (!deleted) {
+        return res.status(404).json({ error: 'Feature not found' });
+      }
+
+      return res.json({ success: true });
+    }
+
+    return res.status(405).json({ error: 'Method not allowed' });
+  } catch (error: any) {
+    console.error('Error in features API:', error);
+    return res.status(500).json({ error: error.message || 'Internal server error' });
   }
-
-  if (req.method === "PUT") {
-    const b = req.body as Store;
-    if (!b || !Array.isArray(b.items)) return res.status(400).json({ error:"items required" });
-    await writeDB({ items: b.items });
-    return res.status(200).json({ ok:true });
-  }
-
-  if (req.method === "PATCH") {
-    const b = req.body as Partial<Feature> & { key: string };
-    if (!b?.key) return res.status(400).json({ error:"key required" });
-    const db = await readDB();
-    const i = (db.items||[]).findIndex(x=> x.key === b.key);
-    if (i === -1) db.items.push({ key:b.key, enabled: !!b.enabled, requiresSubscription: !!b.requiresSubscription, minPlan: b.minPlan ?? null });
-    else db.items[i] = { ...db.items[i], ...b };
-    await writeDB(db);
-    return res.status(200).json({ ok:true });
-  }
-
-  res.setHeader("Allow","GET, PUT, PATCH");
-  return res.status(405).json({ error:"Method Not Allowed" });
 }

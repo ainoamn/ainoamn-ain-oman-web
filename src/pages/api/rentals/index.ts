@@ -4,7 +4,28 @@ import { repo } from "@/server/rentals/workflow";
 import type { Rental } from "@/server/rentals/repo";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const userId = (req.headers["x-user-id"] as string) || "demo-user";
+  // الحصول على userId من مصادر متعددة
+  const getUserId = (): string => {
+    // من query parameter
+    if (req.query.userId && typeof req.query.userId === 'string') {
+      return req.query.userId;
+    }
+    // من header
+    if (req.headers["x-user-id"] && typeof req.headers["x-user-id"] === 'string') {
+      return req.headers["x-user-id"];
+    }
+    // من cookies
+    const cookies = req.headers.cookie || '';
+    const uidMatch = cookies.match(/(?:^|;\s*)uid=([^;]+)/);
+    if (uidMatch && uidMatch[1]) {
+      return decodeURIComponent(uidMatch[1]);
+    }
+    // افتراضي للاختبار
+    return "demo-user";
+  };
+  
+  const userId = getUserId();
+  
   if (req.method === "GET") {
     try {
       let items: any[] = [];

@@ -16,7 +16,21 @@ interface PropertyCardProps {
  * تحل مشكلة Objects في React باستخدام toSafeText
  */
 export default function PropertyCard({ property }: PropertyCardProps) {
-  const { format } = useCurrency();
+  // Safe fallback for useCurrency
+  let currencyFormat: (amount: number, currency?: string) => string;
+  try {
+    const currencyContext = useCurrency();
+    currencyFormat = currencyContext.format;
+  } catch {
+    // Fallback if CurrencyProvider is not available
+    currencyFormat = (amount: number, currency = "OMR") => {
+      return new Intl.NumberFormat("ar-OM", {
+        style: "currency",
+        currency: currency,
+        maximumFractionDigits: 3
+      }).format(amount);
+    };
+  }
   
   // تحويل title و description إلى نص آمن
   const safeTitle = toSafeText(property.title || '', 'ar');
@@ -60,7 +74,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         
         <div className="flex justify-between items-center mb-3">
           <span className="text-brand-700 font-bold text-xl">
-            {format(property.priceOMR)}
+            {currencyFormat(property.priceOMR)}
           </span>
           <div className="flex items-center gap-1 text-yellow-600">
             <FaStar /> {property.rating || 0}

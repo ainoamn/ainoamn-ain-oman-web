@@ -138,12 +138,46 @@ const OwnerDashboard: NextPage = () => {
     }
   }, [activeTab, session]);
 
+  // دالة للحصول على userId من مصادر متعددة
+  const getUserId = (): string | null => {
+    // من session
+    if (session?.user?.id) return session.user.id;
+    
+    // من localStorage
+    if (typeof window !== "undefined") {
+      const uid = localStorage.getItem("ao_uid") || localStorage.getItem("uid");
+      if (uid) return uid;
+      
+      // من cookies
+      const cookies = document.cookie.split(';');
+      const uidCookie = cookies.find(c => c.trim().startsWith('uid='));
+      if (uidCookie) {
+        return decodeURIComponent(uidCookie.split('=')[1]);
+      }
+    }
+    
+    return null;
+  };
+
   const fetchOwnerData = async () => {
     try {
       setLoading(true);
+      const userId = getUserId();
+      console.log('🔍 Owner userId:', userId);
+      
+      // إضافة userId إلى query parameters
+      const rentalsUrl = userId 
+        ? `/api/rentals?mine=true&userId=${encodeURIComponent(userId)}`
+        : "/api/rentals?mine=true";
+      const propertiesUrl = userId
+        ? `/api/properties?mine=true&userId=${encodeURIComponent(userId)}`
+        : "/api/properties?mine=true";
+      
+      console.log('📡 Fetching:', { rentalsUrl, propertiesUrl });
+      
       const [propertiesRes, rentalsRes, usersRes] = await Promise.all([
-        fetch("/api/properties?mine=true"),
-        fetch("/api/rentals?mine=true"),
+        fetch(propertiesUrl),
+        fetch(rentalsUrl),
         fetch("/api/users")
       ]);
 
@@ -159,6 +193,9 @@ const OwnerDashboard: NextPage = () => {
         // FIX: sanitize rentals too
         const items = Array.isArray(rentalsData?.items) ? sanitizeDeep<any[]>(rentalsData.items, "ar") : [];
         setRentals(items);
+        console.log('✅ Owner rentals loaded:', items.length, 'rentals');
+      } else {
+        console.error('❌ Failed to load rentals:', rentalsRes.status);
       }
       
       if (usersRes.ok) {
@@ -178,9 +215,18 @@ const OwnerDashboard: NextPage = () => {
 
   const stats = {
     totalProperties: properties.length,
-    activeRentals: rentals.filter(r => ["paid", "docs_submitted", "docs_verified"].includes(r.state)).length,
-    completedRentals: rentals.filter(r => r.state === "handover_completed").length,
-    pendingActions: rentals.filter(r => ["reserved", "paid"].includes(r.state)).length
+    activeRentals: rentals.filter(r => {
+      const state = (r as any).signatureWorkflow || r.state;
+      return ["paid", "docs_submitted", "docs_verified", "active", "owner_signed", "tenant_signed"].includes(state);
+    }).length,
+    completedRentals: rentals.filter(r => {
+      const state = (r as any).signatureWorkflow || r.state;
+      return state === "handover_completed" || state === "active";
+    }).length,
+    pendingActions: rentals.filter(r => {
+      const state = (r as any).signatureWorkflow || r.state;
+      return ["reserved", "paid", "pending_owner_signature", "pending_tenant_signature", "pending_admin_approval"].includes(state);
+    }).length
   };
 
   if (loading) {
@@ -342,14 +388,18 @@ const OwnerDashboard: NextPage = () => {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {rentals.map((rental) => {
                         const property = properties.find(p => p.id === rental.propertyId);
+                        // تحديد الحالة الفعلية (من state أو signatureWorkflow)
+                        const actualState = (rental as any).signatureWorkflow || rental.state;
                         return (
                           <tr key={rental.id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
                                 <div className={`h-3 w-3 rounded-full ml-2 ${
-                                  rental.state === "handover_completed" ? "bg-green-400" :
-                                  rental.state === "paid" ? "bg-blue-400" :
-                                  rental.state === "reserved" ? "bg-yellow-400" : "bg-gray-400"
+                                  actualState === "active" || actualState === "handover_completed" ? "bg-green-400" :
+                                  actualState === "paid" || actualState === "owner_signed" ? "bg-blue-400" :
+                                  actualState === "reserved" ? "bg-yellow-400" : 
+                                  actualState === "pending_owner_signature" || actualState === "pending_tenant_signature" ? "bg-orange-400" :
+                                  "bg-gray-400"
                                 }`}></div>
                                 <div className="text-sm font-medium text-gray-900">
                                   #{rental.id || 'N/A'}
@@ -380,11 +430,14 @@ const OwnerDashboard: NextPage = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                rental.state === "handover_completed" ? "bg-green-100 text-green-800" :
-                                rental.state === "paid" ? "bg-blue-100 text-blue-800" :
-                                rental.state === "reserved" ? "bg-yellow-100 text-yellow-800" : "bg-gray-100 text-gray-800"
+                                actualState === "active" || actualState === "handover_completed" ? "bg-green-100 text-green-800" :
+                                actualState === "paid" || actualState === "owner_signed" ? "bg-blue-100 text-blue-800" :
+                                actualState === "reserved" ? "bg-yellow-100 text-yellow-800" :
+                                actualState === "pending_owner_signature" || actualState === "pending_tenant_signature" ? "bg-orange-100 text-orange-800" :
+                                actualState === "rejected" ? "bg-red-100 text-red-800" :
+                                "bg-gray-100 text-gray-800"
                               }`}>
-                                {getStateLabel(rental.state)}
+                                {getStateLabel(actualState)}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -920,7 +973,15 @@ function getStateLabel(state: string): string {
     "accountant_checked": "تم المراجعة المالية",
     "admin_approved": "اعتمد المشرف العام",
     "handover_ready": "جاهز للتسليم",
-    "handover_completed": "تم التسليم"
+    "handover_completed": "تم التسليم",
+    // حالات التوقيع الإلكتروني
+    "draft": "مسودة",
+    "sent_for_signatures": "تم الإرسال للتوقيع",
+    "pending_tenant_signature": "في انتظار توقيع المستأجر",
+    "pending_owner_signature": "في انتظار توقيعك",
+    "pending_admin_approval": "في انتظار موافقة الإدارة",
+    "active": "مفعّل",
+    "rejected": "مرفوض"
   };
   
   return states[state] || state;

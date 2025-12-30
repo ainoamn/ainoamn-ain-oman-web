@@ -7,28 +7,57 @@ import { FaBed, FaBath, FaRulerCombined, FaStar, FaBolt, FaMapMarkerAlt, FaHeart
 
 // ---- i18n fallback ----
 let useI18n: any;
-try { useI18n = require("@/lib/i18n").useI18n; } catch {
-  useI18n = () => ({
-    t: (k: string) => ({
-      "home.hero.title": "منصة عين عمان الرائدة في العقارات",
-      "home.hero.subtitle": "اكتشف أفضل الفرص العقارية في سلطنة عمان",
-      "home.hero.search": "ابحث عن عقار أو موقع...",
-      "home.featured.properties": "عقارات مميزة",
-      "home.active.auctions": "مزادات نشطة",
-      "home.partners": "شركاؤنا",
-      "home.developers": "المطورون العقاريون",
-      "home.view.all": "عرض الكل",
-      "common.loading": "جاري التحميل...",
-      "common.view.details": "عرض التفاصيل",
-      "common.bid": "قدّم مزايدة",
-      "common.location": "الموقع",
-      "common.initial_price": "السعر الابتدائي",
-      "common.current_bid": "المزايدة الحالية",
-      "common.remaining": "الوقت المتبقي",
-    } as Record<string, string>)[k] || k,
-    lang: "ar",
-    dir: "rtl",
-  });
+try { 
+  // محاولة استخدام النظام المحسّن أولاً
+  const modEnhanced = require("@/lib/i18n-enhanced");
+  if (modEnhanced.useI18n) {
+    useI18n = modEnhanced.useI18n;
+  } else {
+    useI18n = require("@/lib/i18n").useI18n;
+  }
+} catch {
+  // Fallback للنظام القديم
+  try {
+    useI18n = require("@/lib/i18n").useI18n;
+  } catch {
+    useI18n = () => ({
+      t: (k: string) => ({
+        "home.hero.title": "منصة عين عمان الرائدة في العقارات",
+        "home.hero.subtitle": "اكتشف أفضل الفرص العقارية في سلطنة عمان",
+        "home.hero.search": "ابحث عن عقار أو موقع...",
+        "home.featured.properties": "عقارات مميزة",
+        "home.active.auctions": "مزادات نشطة",
+        "home.partners": "شركاؤنا",
+        "home.developers": "المطورون العقاريون",
+        "home.view.all": "عرض الكل",
+        "common.loading": "جاري التحميل...",
+        "common.view.details": "عرض التفاصيل",
+        "common.bid": "قدّم مزايدة",
+        "common.location": "الموقع",
+        "common.initial_price": "السعر الابتدائي",
+        "common.current_bid": "المزايدة الحالية",
+        "common.remaining": "الوقت المتبقي",
+      } as Record<string, string>)[k] || k,
+      lang: "ar",
+      dir: "rtl",
+    });
+  }
+}
+
+// Safe wrapper لـ useI18n
+function safeUseI18n() {
+  try {
+    return useI18n();
+  } catch (error) {
+    // إذا كان useI18n يحتاج I18nProvider ولم يكن موجوداً
+    return {
+      t: (k: string) => k,
+      lang: "ar",
+      dir: "rtl" as const,
+      setLang: () => {},
+      supported: ["ar", "en"]
+    };
+  }
 }
 
 let useTheme: any;
@@ -104,7 +133,7 @@ export default function HomePage() {
   }, []);
 
   // --- إصلاح قوي: توحيد واجهة i18n حتى لو أعادت دالة أو كائن ---
-  const _i18n = useI18n();
+  const _i18n = safeUseI18n();
   const t: (k: string, vars?: Record<string, unknown>) => string =
     typeof _i18n === "function"
       ? _i18n

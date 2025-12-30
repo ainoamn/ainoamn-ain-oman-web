@@ -25,7 +25,7 @@
   "depositCashDate": "2025-11-10",
   "depositCashReceiptNumber": "22",
   "rentChecks": [
-    {
+                    {
       "checkNumber": "12",
       "amount": 500,
       "date": "2026-10-05"
@@ -97,8 +97,8 @@
       "amount": 500,
       "date": "",
       "hasDate": false
-    }
-  ],
+                    }
+                ],
   "depositChecksOwnerType": "tenant",
   "depositChecksBankName": "بنك مسقط",
   "depositChecksBankBranch": "القرم",

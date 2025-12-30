@@ -238,10 +238,10 @@ const RentalContractDetailPage: NextPage = () => {
             </motion.div>
 
             {/* معلومات المؤجر (المالك) */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
               className="bg-indigo-50 rounded-lg p-6 border-2 border-indigo-300"
             >
               <h5 className="font-bold text-indigo-900 mb-3 flex items-center gap-2">
@@ -337,7 +337,7 @@ const RentalContractDetailPage: NextPage = () => {
                 <p><span className="font-medium text-gray-700">تاريخ انتهاء العقد:</span> <span className="text-gray-900">{new Date(rental.endDate).toLocaleDateString('en-GB')}</span></p>
                 <p><span className="font-medium text-gray-700">المدة:</span> <span className="text-gray-900">{rental.duration} شهر</span></p>
                 {rental.rentDueDay && <p><span className="font-medium text-gray-700">يوم استحقاق الإيجار:</span> <span className="text-gray-900">اليوم {rental.rentDueDay} من كل شهر</span></p>}
-              </div>
+                  </div>
             </motion.div>
 
             {/* المبالغ المالية */}
@@ -374,8 +374,8 @@ const RentalContractDetailPage: NextPage = () => {
                     <p><span className="font-medium text-gray-700">{rental.otherTaxName}:</span> <span className="text-gray-900">{rental.otherTaxRate * 100}% ({rental.totalOtherTaxAmount.toFixed(3)} {rental.currency})</span></p>
                   )}
                   <p className="font-bold text-green-900"><span className="font-medium text-gray-700">إجمالي العقد:</span> {(rental.monthlyRent * rental.duration).toFixed(3)} {rental.currency}</p>
-                </div>
-              </div>
+                  </div>
+                  </div>
             </motion.div>
 
             {/* طرق الدفع */}
@@ -390,7 +390,7 @@ const RentalContractDetailPage: NextPage = () => {
                 طرق الدفع
               </h5>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
+                  <div>
                   <p className="font-semibold text-gray-900 mb-2">دفع الإيجار:</p>
                   <p>
                     <span className="font-medium text-gray-700">الطريقة:</span>{' '}
@@ -405,8 +405,8 @@ const RentalContractDetailPage: NextPage = () => {
                   {rental.rentReceiptNumber && (
                     <p><span className="font-medium text-gray-700">رقم الإيصال:</span> {rental.rentReceiptNumber}</p>
                   )}
-                </div>
-                <div>
+                  </div>
+                  <div>
                   <p className="font-semibold text-gray-900 mb-2">دفع الضمان:</p>
                   <p>
                     <span className="font-medium text-gray-700">الطريقة:</span>{' '}
@@ -422,9 +422,9 @@ const RentalContractDetailPage: NextPage = () => {
                       <p><span className="font-medium text-gray-700">عدد الشيكات:</span> {rental.depositChecks?.length || 0}</p>
                     </>
                   )}
+                  </div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
 
             {/* تفاصيل الشيكات */}
             {rental.rentChecks && rental.rentChecks.length > 0 && (
@@ -450,9 +450,9 @@ const RentalContractDetailPage: NextPage = () => {
                       <p className="text-xs"><span className="text-gray-600">رقم:</span> {check.checkNumber}</p>
                       <p className="text-xs"><span className="text-gray-600">المبلغ:</span> {check.amount} {rental.currency}</p>
                       <p className="text-xs"><span className="text-gray-600">التاريخ:</span> {new Date(check.date).toLocaleDateString('en-GB')}</p>
-                    </div>
+                  </div>
                   ))}
-                </div>
+                  </div>
                 <div className="mt-4 bg-white rounded-lg p-3">
                   <p className="text-sm font-bold text-green-700">
                     إجمالي شيكات الإيجار: {rental.rentChecks.reduce((sum: number, c: any) => sum + c.amount, 0).toFixed(3)} {rental.currency}
@@ -486,7 +486,7 @@ const RentalContractDetailPage: NextPage = () => {
                       <p className="text-xs"><span className="text-gray-600">رقم:</span> {check.checkNumber}</p>
                       <p className="text-xs"><span className="text-gray-600">المبلغ:</span> {check.amount} {rental.currency}</p>
                       <p className="text-xs"><span className="text-gray-600">التاريخ:</span> {check.hasDate === false ? 'شيك بدون تاريخ' : new Date(check.date).toLocaleDateString('en-GB')}</p>
-                    </div>
+                  </div>
                   ))}
                 </div>
                 <div className="mt-4 bg-white rounded-lg p-3">
@@ -520,7 +520,7 @@ const RentalContractDetailPage: NextPage = () => {
                 )}
                 <p><span className="font-medium text-gray-700">رسوم التسجيل:</span> <span className="text-gray-900">{rental.municipalityRegistrationFee} {rental.currency}</span></p>
                 <p><span className="font-medium text-gray-700">رسوم البلدية (3%):</span> <span className="text-gray-900">{rental.municipalityFees.toFixed(3)} {rental.currency}</span></p>
-              </div>
+                  </div>
             </motion.div>
 
             {/* قراءات العدادات */}
@@ -535,21 +535,21 @@ const RentalContractDetailPage: NextPage = () => {
                 قراءات العدادات
               </h5>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
+                  <div>
                   <p className="font-semibold text-gray-900 mb-1">⚡ الكهرباء:</p>
                   <p><span className="font-medium text-gray-700">القراءة:</span> {rental.electricityMeterReading}</p>
                   {rental.electricityBillAmount > 0 && (
                     <p><span className="font-medium text-gray-700">مبلغ الفاتورة:</span> {rental.electricityBillAmount.toFixed(3)} {rental.currency}</p>
                   )}
-                </div>
-                <div>
+                  </div>
+                  <div>
                   <p className="font-semibold text-gray-900 mb-1">💧 الماء:</p>
                   <p><span className="font-medium text-gray-700">القراءة:</span> {rental.waterMeterReading}</p>
                   {rental.waterBillAmount > 0 && (
                     <p><span className="font-medium text-gray-700">مبلغ الفاتورة:</span> {rental.waterBillAmount.toFixed(3)} {rental.currency}</p>
                   )}
-                </div>
-              </div>
+                  </div>
+                  </div>
             </motion.div>
 
             {/* رسوم الإنترنت */}
@@ -591,7 +591,7 @@ const RentalContractDetailPage: NextPage = () => {
                 <div className="space-y-2 text-sm">
                   <p><span className="font-medium text-gray-700">الوصف:</span> <span className="text-gray-900">{rental.otherFeesDescription}</span></p>
                   <p><span className="font-medium text-gray-700">المبلغ:</span> <span className="text-gray-900">{rental.otherFeesAmount.toFixed(3)} {rental.currency}</span></p>
-                </div>
+            </div>
               </motion.div>
             )}
 
@@ -616,7 +616,7 @@ const RentalContractDetailPage: NextPage = () => {
                         <p className="font-semibold text-gray-900 text-sm">الشهر {index + 1}</p>
                         <p className="text-xs text-gray-600">{monthDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</p>
                         <p className="text-sm font-bold text-indigo-700 mt-1">{amount.toFixed(3)} {rental.currency}</p>
-                      </div>
+                  </div>
                     );
                   })}
                 </div>
@@ -778,17 +778,17 @@ const RentalContractDetailPage: NextPage = () => {
                     ℹ️ هذه الرسوم والفواتير يدفعها المالك ولا تُحسب على المستأجر
                   </p>
                 </div>
-              </div>
-            </motion.div>
+                </div>
+              </motion.div>
 
-            {/* معلومات إضافية */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              {/* معلومات إضافية */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.7 }}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
-            >
-              <h3 className="font-semibold text-gray-900 mb-4">معلومات إضافية</h3>
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+              >
+                <h3 className="font-semibold text-gray-900 mb-4">معلومات إضافية</h3>
               <div className="space-y-4">
                 {/* معلومات النظام */}
                 <div className="bg-gray-50 rounded-lg p-4">
@@ -798,16 +798,16 @@ const RentalContractDetailPage: NextPage = () => {
                       <span className="text-gray-500">معرف العقد</span>
                       <span className="font-mono text-xs text-gray-900">{rental.id}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">تاريخ الإنشاء</span>
-                      <span className="font-medium text-gray-900">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">تاريخ الإنشاء</span>
+                    <span className="font-medium text-gray-900">
                         {rental.createdAt ? new Date(rental.createdAt).toLocaleDateString('en-GB') + ' - ' + new Date(rental.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : 'غير محدد'}
-                      </span>
-                    </div>
-                    {rental.updatedAt && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">آخر تحديث</span>
-                        <span className="font-medium text-gray-900">
+                    </span>
+                  </div>
+                  {rental.updatedAt && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">آخر تحديث</span>
+                      <span className="font-medium text-gray-900">
                           {new Date(rental.updatedAt).toLocaleDateString('en-GB') + ' - ' + new Date(rental.updatedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
@@ -829,11 +829,11 @@ const RentalContractDetailPage: NextPage = () => {
                         {rental.createdAt ? new Date(rental.createdAt).toLocaleDateString('en-GB') : 'غير محدد'}
                       </span>
                     </div>
-                    <div className="flex justify-between">
+                  <div className="flex justify-between">
                       <span className="text-gray-500">وقت الإدخال</span>
-                      <span className="font-medium text-gray-900">
+                    <span className="font-medium text-gray-900">
                         {rental.createdAt ? new Date(rental.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'غير محدد'}
-                      </span>
+                    </span>
                     </div>
                   </div>
                 </div>
@@ -875,8 +875,8 @@ const RentalContractDetailPage: NextPage = () => {
                     <p className="text-sm text-yellow-800">⚠️ لم يتم توقيع العقد بعد</p>
                   </div>
                 )}
-              </div>
-            </motion.div>
+                </div>
+              </motion.div>
 
           </div>
         </main>

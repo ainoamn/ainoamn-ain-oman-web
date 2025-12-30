@@ -1,12 +1,16 @@
 // @ts-nocheck
 // صفحة موحدة لإدارة العقارات والوحدات - تصميم احترافي مع الذكاء الاصطناعي
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import InstantImage from '@/components/InstantImage';
 import Head from 'next/head';
 import InstantLink from '@/components/InstantLink';
 import BuildingUnitsManager from '@/components/property/BuildingUnitsManager';
 
-import { FaBuilding, FaHome, FaEye, FaEdit, FaTrash, FaPlus, FaSearch, FaFilter, FaSort, FaChevronDown, FaChevronUp, FaExpand, FaArchive, FaGlobe, FaEyeSlash, FaChartLine, FaRobot, FaMapMarkerAlt, FaBed, FaBath, FaRuler, FaTag, FaCalendar, FaUser, FaPhone, FaEnvelope, FaCog, FaDownload, FaPrint, FaShare, FaHeart, FaStar, FaCheck, FaTimes, FaExclamationTriangle, FaInfoCircle, FaQuestionCircle, FaLightbulb, FaArrowUp, FaArrowDown, FaEquals, FaClock, FaHistory, FaDatabase } from 'react-icons/fa';
+import { FaBuilding, FaHome, FaEye, FaEdit, FaTrash, FaPlus, FaSearch, FaFilter, FaSort, FaChevronDown, FaChevronUp, FaExpand, FaArchive, FaGlobe, FaEyeSlash, FaChartLine, FaRobot, FaMapMarkerAlt, FaBed, FaBath, FaRuler, FaTag, FaCalendar, FaUser, FaPhone, FaEnvelope, FaCog, FaDownload, FaPrint, FaShare, FaHeart, FaStar, FaCheck, FaTimes, FaExclamationTriangle, FaInfoCircle, FaQuestionCircle, FaLightbulb, FaArrowUp, FaArrowDown, FaEquals, FaClock, FaHistory, FaDatabase, FaFileContract, FaReceipt, FaUsers, FaToolbox, FaFileAlt, FaDollarSign, FaExclamationCircle } from 'react-icons/fa';
+import StatsOverview from '@/components/dashboard/StatsOverview';
+import RentalStatusChart from '@/components/dashboard/RentalStatusChart';
+import { useSession } from 'next-auth/react';
+import { useBookings } from '@/context/BookingsContext';
 
 interface Property {
   id: string;
@@ -93,7 +97,9 @@ interface Customer {
 }
 
 export default function UnifiedPropertyManagement() {
-  const [activeTab, setActiveTab] = useState<'properties' | 'units' | 'customers'>('properties');
+  const { data: session } = useSession();
+  const { bookings: allBookings, loading: bookingsLoading } = useBookings();
+  const [activeTab, setActiveTab] = useState<'properties' | 'units' | 'customers' | 'rentals' | 'bookings' | 'tenants' | 'services' | 'documents' | 'expenses' | 'overdue' | 'analytics'>('properties');
   const [properties, setProperties] = useState<Property[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -113,6 +119,16 @@ export default function UnifiedPropertyManagement() {
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [bulkAction, setBulkAction] = useState('');
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [isStatsCollapsed, setIsStatsCollapsed] = useState(false);
+  
+  // بيانات إضافية للإدارة
+  const [services, setServices] = useState<any[]>([]);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [expenses, setExpenses] = useState<any[]>([]);
+  const [overdueServices, setOverdueServices] = useState<any[]>([]);
+  const [expiringDocuments, setExpiringDocuments] = useState<any[]>([]);
+  const [tenantsCount, setTenantsCount] = useState(0);
 
   // استرجاع viewMode من localStorage بعد التحميل وحفظه عند التغيير
   useEffect(() => {
@@ -202,6 +218,62 @@ export default function UnifiedPropertyManagement() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // تحميل بيانات الإدارة عند فتح تبويباتها
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    const userId = session.user.id as string;
+
+    const loadServices = async () => {
+      try {
+        const res = await fetch(`/api/property-services?ownerId=${encodeURIComponent(userId)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setServices(Array.isArray(data.services) ? data.services : []);
+        }
+      } catch {}
+    };
+
+    const loadDocuments = async () => {
+      try {
+        const res = await fetch(`/api/property-documents?ownerId=${encodeURIComponent(userId)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setDocuments(Array.isArray(data.documents) ? data.documents : []);
+        }
+      } catch {}
+    };
+
+    const loadExpenses = async () => {
+      try {
+        const res = await fetch(`/api/property-expenses?ownerId=${encodeURIComponent(userId)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setExpenses(Array.isArray(data.expenses) ? data.expenses : []);
+        }
+      } catch {}
+    };
+
+    const loadOverdue = async () => {
+      try {
+        const sRes = await fetch(`/api/property-services?ownerId=${encodeURIComponent(userId)}&overdue=true`);
+        if (sRes.ok) {
+          const sData = await sRes.json();
+          setOverdueServices(Array.isArray(sData.services) ? sData.services : []);
+        }
+        const dRes = await fetch(`/api/property-documents?ownerId=${encodeURIComponent(userId)}&expiring=true`);
+        if (dRes.ok) {
+          const dData = await dRes.json();
+          setExpiringDocuments(Array.isArray(dData.documents) ? dData.documents : []);
+        }
+      } catch {}
+    };
+
+    if (activeTab === 'services') loadServices();
+    if (activeTab === 'documents') loadDocuments();
+    if (activeTab === 'expenses') loadExpenses();
+    if (activeTab === 'overdue') loadOverdue();
+  }, [activeTab, session]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -822,6 +894,72 @@ export default function UnifiedPropertyManagement() {
     return '';
   };
 
+  // حساب الإحصائيات
+  const stats = {
+    totalProperties: properties.length,
+    activeRentals: rentals.filter(r => {
+      const state = (r as any).signatureWorkflow || r.state;
+      return ["paid", "docs_submitted", "docs_verified", "active", "owner_signed", "tenant_signed"].includes(state);
+    }).length,
+    completedRentals: rentals.filter(r => {
+      const state = (r as any).signatureWorkflow || r.state;
+      return state === "handover_completed" || state === "active";
+    }).length,
+    pendingActions: rentals.filter(r => {
+      const state = (r as any).signatureWorkflow || r.state;
+      return ["reserved", "paid", "pending_owner_signature", "pending_tenant_signature", "pending_admin_approval"].includes(state);
+    }).length
+  };
+
+  // دالة للحصول على تسمية حالة العقد
+  const getStateLabel = (state: string): string => {
+    const states: Record<string, string> = {
+      "reserved": "محجوز",
+      "paid": "مدفوع",
+      "docs_submitted": "تم رفع المستندات",
+      "docs_verified": "تم التحقق",
+      "contract_generated": "تم إنشاء العقد",
+      "tenant_signed": "تم توقيع المستأجر",
+      "owner_signed": "تم توقيع المالك",
+      "admin_approved": "اعتمد المشرف العام",
+      "active": "مفعّل",
+      "handover_completed": "تم التسليم",
+      "pending_tenant_signature": "في انتظار توقيع المستأجر",
+      "pending_owner_signature": "في انتظار توقيع المالك",
+      "pending_admin_approval": "في انتظار موافقة الإدارة",
+      "sent_for_signatures": "تم الإرسال للتوقيع",
+      "rejected": "مرفوض",
+      "draft": "مسودة"
+    };
+    return states[state] || state;
+  };
+
+  // دالة للحصول على userId
+  const getUserId = (): string | null => {
+    if (session?.user?.id) return session.user.id;
+    if (typeof window !== "undefined") {
+      const uid = localStorage.getItem("ao_uid") || localStorage.getItem("uid");
+      if (uid) return uid;
+    }
+    return null;
+  };
+
+  // تصفية الحجوزات
+  const ownerBookings = useMemo(() => {
+    const userId = getUserId();
+    if (!userId) return [];
+    const filtered = allBookings.filter(b => 
+      properties.some(p => p.id === b.propertyId)
+    );
+    return filtered.length === 0 ? allBookings : filtered;
+  }, [allBookings, properties]);
+
+  // حساب عدد المستأجرين
+  useEffect(() => {
+    const uniqueTenants = new Set(rentals.map(r => r.tenantId || r.tenantName).filter(Boolean));
+    setTenantsCount(uniqueTenants.size);
+  }, [rentals]);
+
 
   return (
     <>
@@ -832,6 +970,311 @@ export default function UnifiedPropertyManagement() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
+          <div className="bg-white rounded-xl shadow-lg p-4 mb-4 border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setIsStatsCollapsed(!isStatsCollapsed)}
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  {isStatsCollapsed ? <FaChevronDown /> : <FaChevronUp />}
+                </button>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900 mb-1">لوحة تحكم إدارة العقار</h1>
+                  <p className="text-sm text-gray-600">نظام شامل لإدارة العقارات والعقود والحجوزات</p>
+                </div>
+              </div>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowAIModal(true);
+                }}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2"
+              >
+                <FaRobot className="text-sm" />
+                <span className="text-sm">مركز الذكاء الاصطناعي</span>
+              </button>
+            </div>
+            
+            {/* الإحصائيات الرئيسية - مصغرة - قابلة للطي */}
+            {!isStatsCollapsed && (
+              <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="bg-blue-50 rounded-lg p-3 border-r-4 border-blue-500">
+                <div className="flex items-center justify-between">
+                  <span className="inline-block w-2 h-2 rounded-full bg-blue-500" />
+                  <span className="text-xl font-bold">{stats.totalProperties}</span>
+                </div>
+                <div className="mt-1 text-xs text-gray-700">إجمالي العقارات</div>
+              </div>
+              <div className="bg-emerald-50 rounded-lg p-3 border-r-4 border-emerald-500">
+                <div className="flex items-center justify-between">
+                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
+                  <span className="text-xl font-bold">{stats.activeRentals}</span>
+                </div>
+                <div className="mt-1 text-xs text-gray-700">حجوزات نشطة</div>
+              </div>
+              <div className="bg-indigo-50 rounded-lg p-3 border-r-4 border-indigo-500">
+                <div className="flex items-center justify-between">
+                  <span className="inline-block w-2 h-2 rounded-full bg-indigo-500" />
+                  <span className="text-xl font-bold">{stats.completedRentals}</span>
+                </div>
+                <div className="mt-1 text-xs text-gray-700">عقود مكتملة</div>
+              </div>
+              <div className="bg-amber-50 rounded-lg p-3 border-r-4 border-amber-500">
+                <div className="flex items-center justify-between">
+                  <span className="inline-block w-2 h-2 rounded-full bg-amber-500" />
+                  <span className="text-xl font-bold">{stats.pendingActions}</span>
+                </div>
+                <div className="mt-1 text-xs text-gray-700">إجراءات معلّقة</div>
+              </div>
+            </div>
+            
+            {/* مخطط حالة العقود - مصغر */}
+            <div className="mt-4 bg-white rounded-lg p-3 border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold">حالة الطلبات</h3>
+                <span className="text-xs text-gray-500">الإجمالي: {rentals.length}</span>
+              </div>
+              {rentals.length === 0 ? (
+                <div className="text-center text-gray-400 text-xs py-2">لا توجد بيانات بعد</div>
+              ) : (
+                <div className="w-full h-2 rounded-full overflow-hidden bg-gray-100">
+                  {(() => {
+                    const buckets: Record<string, number> = {};
+                    rentals.forEach(r => {
+                      const state = (r as any).signatureWorkflow || r.state || 'pending';
+                      buckets[state] = (buckets[state] || 0) + 1;
+                    });
+                    const total = rentals.length;
+                    const entries = Object.entries(buckets).sort((a, b) => b[1] - a[1]);
+                    return (
+                      <div className="flex h-full">
+                        {entries.map(([k]) => {
+                          const colors: Record<string, string> = {
+                            reserved: 'bg-blue-500',
+                            paid: 'bg-indigo-500',
+                            active: 'bg-green-600',
+                            pending_owner_signature: 'bg-orange-500',
+                            pending_tenant_signature: 'bg-yellow-500',
+                          };
+                          return (
+                            <div
+                              key={k}
+                              className={colors[k] || 'bg-gray-400'}
+                              style={{ width: `${(buckets[k] / total) * 100}%` }}
+                            />
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+            </div>
+            </>
+            )}
+          </div>
+
+          {/* Modal مركز الذكاء الاصطناعي */}
+          {showAIModal && (
+            <div className="fixed inset-0 z-50 overflow-y-auto" onClick={() => setShowAIModal(false)}>
+              <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                {/* خلفية معتمة */}
+                <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                
+                {/* النافذة المنبثقة */}
+                <div 
+                  className="inline-block align-bottom bg-white rounded-lg text-right overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Header */}
+                  <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 px-6 py-4 text-white">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="bg-white/20 p-2 rounded-lg ml-3">
+                          <FaRobot className="text-xl" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold">مركز الذكاء الاصطناعي</h2>
+                          <p className="text-sm text-blue-100">تحليلات وإحصائيات ذكية</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowAIModal(false);
+                        }}
+                        className="bg-white/20 hover:bg-white/30 rounded-lg p-2 transition-colors"
+                      >
+                        <FaTimes className="text-xl" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="bg-white p-6 max-h-[70vh] overflow-y-auto">
+                    {aiInsights ? (
+                      <>
+                        {/* الإحصائيات */}
+                        <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-4">
+                          <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
+                            <div className="bg-blue-500/30 w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-2">
+                              <FaBuilding className="text-blue-600" />
+                            </div>
+                            <div className="text-xl font-bold text-gray-900">{aiInsights.totalProperties}</div>
+                            <div className="text-xs text-gray-600">إجمالي</div>
+                          </div>
+                          <div className="bg-green-50 rounded-lg p-3 text-center border border-green-200">
+                            <div className="bg-green-500/30 w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-2">
+                              <FaGlobe className="text-green-600" />
+                            </div>
+                            <div className="text-xl font-bold text-gray-900">{aiInsights.publishedProperties}</div>
+                            <div className="text-xs text-gray-600">منشور</div>
+                          </div>
+                          <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
+                            <div className="bg-yellow-500/30 w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-2">
+                              <FaEyeSlash className="text-yellow-600" />
+                            </div>
+                            <div className="text-xl font-bold text-gray-900">{aiInsights.draftProperties}</div>
+                            <div className="text-xs text-gray-600">مسودة</div>
+                          </div>
+                          <div className="bg-purple-50 rounded-lg p-3 text-center border border-purple-200">
+                            <div className="bg-purple-500/30 w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-2">
+                              <FaHome className="text-purple-600" />
+                            </div>
+                            <div className="text-xl font-bold text-gray-900">{aiInsights.multiUnitBuildings}</div>
+                            <div className="text-xs text-gray-600">متعدد</div>
+                          </div>
+                          <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
+                            <div className="bg-orange-500/30 w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-2">
+                              <FaTag className="text-orange-600" />
+                            </div>
+                            <div className="text-xl font-bold text-gray-900">{aiInsights.vacantProperties}</div>
+                            <div className="text-xs text-gray-600">شاغر</div>
+                          </div>
+                          <div className="bg-indigo-50 rounded-lg p-3 text-center border border-indigo-200">
+                            <div className="bg-indigo-500/30 w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-2">
+                              <FaCheck className="text-indigo-600" />
+                            </div>
+                            <div className="text-xl font-bold text-gray-900">{aiInsights.leasedProperties}</div>
+                            <div className="text-xs text-gray-600">مؤجر</div>
+                          </div>
+                        </div>
+
+                        {/* التوصيات الذكية */}
+                        {aiInsights.recommendations && aiInsights.recommendations.length > 0 && (
+                          <div className="mb-4">
+                            <h3 className="text-md font-semibold mb-3 flex items-center text-gray-900">
+                              <FaLightbulb className="ml-2 text-yellow-500" />
+                              التوصيات الذكية
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {aiInsights.recommendations.map((rec: any, index: number) => (
+                                <div key={index} className={`rounded-lg p-3 border-2 ${
+                                  rec.type === 'error' ? 'bg-red-50 border-red-200' :
+                                  rec.type === 'warning' ? 'bg-yellow-50 border-yellow-200' :
+                                  'bg-blue-50 border-blue-200'
+                                }`}>
+                                  <div className="flex items-start">
+                                    <div className={`p-1.5 rounded-lg ml-2 ${
+                                      rec.type === 'error' ? 'bg-red-100' :
+                                      rec.type === 'warning' ? 'bg-yellow-100' :
+                                      'bg-blue-100'
+                                    }`}>
+                                      {rec.type === 'error' && <FaExclamationTriangle className="text-red-600 text-sm" />}
+                                      {rec.type === 'warning' && <FaExclamationTriangle className="text-yellow-600 text-sm" />}
+                                      {rec.type === 'info' && <FaInfoCircle className="text-blue-600 text-sm" />}
+                                    </div>
+                                    <div className="flex-1">
+                                      <p className="text-sm text-gray-800 mb-2">{rec.message}</p>
+                                      <button className="bg-white hover:bg-gray-50 px-3 py-1 rounded text-xs font-medium border border-gray-300">
+                                        {rec.action}
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* الإجراءات السريعة */}
+                        <div>
+                          <h3 className="text-md font-semibold mb-3 flex items-center text-gray-900">
+                            <FaStar className="ml-2 text-green-500" />
+                            إجراءات سريعة
+                          </h3>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <InstantLink 
+                              href="/properties/new"
+                              className="bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg p-3 transition-colors flex items-center justify-center gap-2"
+                            >
+                              <FaPlus className="text-blue-600" />
+                              <span className="text-sm font-medium text-blue-900">عقار جديد</span>
+                            </InstantLink>
+                            <button 
+                              onClick={publishAllDrafts}
+                              className="bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg p-3 transition-colors flex items-center justify-center gap-2"
+                            >
+                              <FaGlobe className="text-green-600" />
+                              <span className="text-sm font-medium text-green-900">نشر المسودات</span>
+                            </button>
+                            <button 
+                              onClick={exportReport}
+                              className="bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg p-3 transition-colors flex items-center justify-center gap-2"
+                            >
+                              <FaDownload className="text-purple-600" />
+                              <span className="text-sm font-medium text-purple-900">تصدير تقرير</span>
+                            </button>
+                            <button 
+                              onClick={printPropertiesList}
+                              className="bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg p-3 transition-colors flex items-center justify-center gap-2"
+                            >
+                              <FaPrint className="text-gray-600" />
+                              <span className="text-sm font-medium text-gray-900">طباعة</span>
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-8">
+                        <FaRobot className="text-6xl text-gray-300 mx-auto mb-4" />
+                        <p className="text-gray-500">جاري تحميل البيانات...</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="bg-gray-50 px-6 py-3 flex justify-end">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowAIModal(false);
+                      }}
+                      className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium transition-colors"
+                    >
+                      إغلاق
+                    </button>
+                    {aiInsights && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          generateAIInsights();
+                        }}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors mr-2"
+                      >
+                        تحديث البيانات
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Header الرئيسي */}
           <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
@@ -913,196 +1356,45 @@ export default function UnifiedPropertyManagement() {
             )}
 
             {/* Tabs */}
-            <div className="flex space-x-1 mt-6">
-              {[
-                { id: 'properties', label: 'العقارات', icon: '🏢', count: properties.length },
-                { id: 'units', label: 'الوحدات', icon: '🏠', count: units.length },
-                { id: 'customers', label: 'العملاء', icon: '👥', count: customers.length }
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 shadow-md'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <span className="text-lg mr-2">{tab.icon}</span>
-                  {tab.label}
-                  <span className={`text-xs px-3 py-1 rounded-full ml-2 ${
-                    activeTab === tab.id 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-200 text-gray-700'
-                  }`}>
-                    {tab.count}
-                  </span>
-                </button>
-              ))}
+            <div className="border-b border-gray-200 mt-6">
+              <nav className="-mb-px flex space-x-8 overflow-x-auto">
+                {[
+                  { id: 'properties', label: 'العقارات', icon: FaBuilding, count: properties.length },
+                  { id: 'units', label: 'الوحدات', icon: FaHome, count: units.length },
+                  { id: 'rentals', label: 'عقود الإيجار', icon: FaFileContract, count: rentals.length },
+                  { id: 'bookings', label: 'الحجوزات', icon: FaCalendar, count: ownerBookings.length },
+                  { id: 'tenants', label: 'المستأجرين', icon: FaUsers, count: tenantsCount },
+                  { id: 'customers', label: 'العملاء', icon: FaUser, count: customers.length },
+                  { id: 'services', label: 'الخدمات', icon: FaToolbox, count: services.length },
+                  { id: 'documents', label: 'المستندات', icon: FaFileAlt, count: documents.length },
+                  { id: 'expenses', label: 'المصاريف', icon: FaDollarSign, count: expenses.length },
+                  { id: 'overdue', label: 'المتأخرات', icon: FaExclamationCircle, count: (overdueServices.length + expiringDocuments.length) },
+                  { id: 'analytics', label: 'التحليلات', icon: FaChartLine, count: 0 }
+                ].map(tab => {
+                  const IconComponent = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id as any)}
+                      className={`py-4 px-1 text-sm font-medium whitespace-nowrap border-b-2 transition-colors flex items-center gap-2 ${
+                        activeTab === tab.id
+                          ? "border-blue-500 text-blue-600"
+                          : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      }`}
+                    >
+                      <IconComponent className="w-4 h-4" />
+                      {tab.label}
+                      {tab.count > 0 && (
+                        <span className="py-0.5 px-2 text-xs bg-gray-100 rounded-full">
+                          {tab.count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
             </div>
           </div>
-
-          {/* AI Insights Dashboard */}
-          {aiInsights && (
-            <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 rounded-lg shadow-lg p-4 mb-4 text-white border border-blue-500/20">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <h2 className="text-lg font-bold flex items-center">
-                    <div className="bg-white/20 p-1.5 rounded-lg ml-2">
-                      <FaRobot className="text-lg" />
-                    </div>
-                    مركز الذكاء الاصطناعي
-                  </h2>
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={generateAIInsights}
-                    className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center border border-white/20 hover:border-white/40 text-sm"
-                    title="تحديث جميع الإحصائيات والتحليلات"
-                  >
-                    <FaStar className="ml-1 text-sm" />
-                    تحديث
-                  </button>
-                  <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center border border-white/20 hover:border-white/40 text-sm"
-                    title="عرض/إخفاء الفلاتر المتقدمة"
-                  >
-                    <FaFilter className="ml-1 text-sm" />
-                    {showFilters ? 'إخفاء' : 'فلاتر'}
-                  </button>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-3">
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="إجمالي عدد العقارات في النظام">
-                  <div className="bg-blue-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
-                    <FaBuilding className="text-sm" />
-                  </div>
-                  <div className="text-lg font-bold mb-0.5">{aiInsights.totalProperties}</div>
-                  <div className="text-xs text-blue-100">إجمالي</div>
-                </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="العقارات المنشورة والمتاحة للجمهور">
-                  <div className="bg-green-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
-                    <FaGlobe className="text-sm" />
-                  </div>
-                  <div className="text-lg font-bold mb-0.5">{aiInsights.publishedProperties}</div>
-                  <div className="text-xs text-blue-100">منشور</div>
-                </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="العقارات المحفوظة كمسودات">
-                  <div className="bg-yellow-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
-                    <FaEyeSlash className="text-sm" />
-                  </div>
-                  <div className="text-lg font-bold mb-0.5">{aiInsights.draftProperties}</div>
-                  <div className="text-xs text-blue-100">مسودة</div>
-                </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="المباني التي تحتوي على وحدات متعددة">
-                  <div className="bg-purple-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
-                    <FaHome className="text-sm" />
-                  </div>
-                  <div className="text-lg font-bold mb-0.5">{aiInsights.multiUnitBuildings}</div>
-                  <div className="text-xs text-blue-100">متعدد</div>
-                </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="العقارات المتاحة للإيجار أو البيع">
-                  <div className="bg-orange-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
-                    <FaTag className="text-sm" />
-                  </div>
-                  <div className="text-lg font-bold mb-0.5">{aiInsights.vacantProperties}</div>
-                  <div className="text-xs text-blue-100">شاغر</div>
-                </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="العقارات المؤجرة حالياً">
-                  <div className="bg-indigo-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
-                    <FaCheck className="text-sm" />
-                  </div>
-                  <div className="text-lg font-bold mb-0.5">{aiInsights.leasedProperties}</div>
-                  <div className="text-xs text-blue-100">مؤجر</div>
-                </div>
-              </div>
-
-              {/* Smart Recommendations */}
-              {aiInsights.recommendations && aiInsights.recommendations.length > 0 && (
-                <div className="mt-3">
-                  <h3 className="text-sm font-semibold mb-2 flex items-center">
-                    <div className="bg-yellow-500/30 p-1 rounded-lg ml-2">
-                      <FaLightbulb className="text-sm" />
-                    </div>
-                    التوصيات الذكية
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {aiInsights.recommendations.map((rec: any, index: number) => (
-                      <div key={index} className={`bg-white/20 backdrop-blur-sm rounded-lg p-2 border transition-all duration-300 hover:bg-white/30 ${
-                        rec.type === 'error' ? 'border-red-400/50' :
-                        rec.type === 'warning' ? 'border-yellow-400/50' :
-                        'border-blue-400/50'
-                      }`}>
-                        <div className="flex items-start space-x-2">
-                          <div className={`p-1 rounded-lg ${
-                            rec.type === 'error' ? 'bg-red-500/30' :
-                            rec.type === 'warning' ? 'bg-yellow-500/30' :
-                            'bg-blue-500/30'
-                          }`}>
-                            {rec.type === 'error' && <FaExclamationTriangle className="text-red-300 text-xs" />}
-                            {rec.type === 'warning' && <FaExclamationTriangle className="text-yellow-300 text-xs" />}
-                            {rec.type === 'info' && <FaInfoCircle className="text-blue-300 text-xs" />}
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-white/90 mb-2 text-xs">{rec.message}</p>
-                            <button className="bg-white/30 hover:bg-white/40 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium transition-all duration-200 border border-white/20 hover:border-white/40">
-                              {rec.action}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Quick Actions */}
-              <div className="mt-3">
-                <h3 className="text-sm font-semibold mb-2 flex items-center">
-                  <div className="bg-green-500/30 p-1 rounded-lg ml-2">
-                    <FaStar className="text-sm" />
-                  </div>
-                  إجراءات سريعة
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  <InstantLink 
-                    href="/properties/new"
-                    className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
-                    title="إضافة عقار جديد"
-                  >
-                    <FaPlus className="text-sm" />
-                    <span className="text-xs font-medium">عقار جديد</span>
-                  </InstantLink>
-                  <button 
-                    onClick={publishAllDrafts}
-                    className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
-                    title="نشر جميع المسودات"
-                  >
-                    <FaGlobe className="text-sm" />
-                    <span className="text-xs font-medium">نشر المسودات</span>
-                  </button>
-                  <button 
-                    onClick={exportReport}
-                    className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
-                    title="تصدير تقرير شامل"
-                  >
-                    <FaDownload className="text-sm" />
-                    <span className="text-xs font-medium">تصدير تقرير</span>
-                  </button>
-                  <button 
-                    onClick={printPropertiesList}
-                    className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
-                    title="طباعة قائمة العقارات"
-                  >
-                    <FaPrint className="text-sm" />
-                    <span className="text-xs font-medium">طباعة</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Filters */}
           {showFilters && (
@@ -1848,6 +2140,646 @@ export default function UnifiedPropertyManagement() {
                     </div>
                   ))
                   )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* تبويب عقود الإيجار */}
+          {activeTab === 'rentals' && (
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+              <div className="px-4 py-5 sm:px-6 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">عقود الإيجار</h3>
+                  <p className="mt-1 max-w-2xl text-sm text-gray-500">إدارة جميع عقود الإيجار</p>
+                </div>
+                <InstantLink
+                  href="/rentals/new"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                >
+                  <FaPlus className="ml-2" />
+                  إنشاء عقد جديد
+                </InstantLink>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">رقم العقد</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">العقار</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المستأجر</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ البدء</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الانتهاء</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإيجار الشهري</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {rentals.map((rental) => {
+                      const property = properties.find(p => p.id === rental.propertyId);
+                      const actualState = (rental as any).signatureWorkflow || rental.state;
+                      return (
+                        <tr key={rental.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className={`h-3 w-3 rounded-full ml-2 ${
+                                actualState === "active" ? "bg-green-400" :
+                                actualState === "pending_owner_signature" || actualState === "pending_tenant_signature" ? "bg-orange-400" :
+                                "bg-gray-400"
+                              }`}></div>
+                              <div className="text-sm font-medium text-gray-900">#{rental.id?.split('-')[1]?.substring(0, 8) || rental.id}</div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            {getTitleFromProperty(property || {} as Property) || 'غير محدد'}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900">{rental.tenantName || rental.tenantId || 'غير محدد'}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {rental.startDate ? new Date(rental.startDate).toLocaleDateString('ar-EG') : 'غير محدد'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {rental.endDate ? new Date(rental.endDate).toLocaleDateString('ar-EG') : 'غير محدد'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {rental.monthlyRent || rental.amount || 0} {rental.currency || 'OMR'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              actualState === "active" ? "bg-green-100 text-green-800" :
+                              actualState === "pending_owner_signature" || actualState === "pending_tenant_signature" ? "bg-orange-100 text-orange-800" :
+                              "bg-gray-100 text-gray-800"
+                            }`}>
+                              {getStateLabel(actualState)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <InstantLink href={`/contracts/rental/${rental.id}`} className="text-blue-600 hover:text-blue-900">
+                              عرض التفاصيل
+                            </InstantLink>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {rentals.length === 0 && (
+                      <tr><td colSpan={8} className="px-6 py-10 text-center text-gray-500">لا توجد عقود إيجار</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* تبويب الحجوزات */}
+          {activeTab === 'bookings' && (
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+              <div className="px-4 py-5 sm:px-6">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">الحجوزات</h3>
+                <p className="mt-1 max-w-2xl text-sm text-gray-500">عرض جميع الحجوزات</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">العقار</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المستأجر</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الحجز</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {ownerBookings.map((booking: any) => {
+                      const property = properties.find(p => p.id === booking.propertyId);
+                      return (
+                        <tr key={booking.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 text-sm text-gray-900">{getTitleFromProperty(property || {} as Property)}</td>
+                          <td className="px-6 py-4 text-sm text-gray-900">{booking.tenantName || 'غير محدد'}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {booking.createdAt ? new Date(booking.createdAt).toLocaleDateString('ar-EG') : 'غير محدد'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              {booking.status || 'قيد المراجعة'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <InstantLink href={`/bookings/${booking.id}`} className="text-blue-600 hover:text-blue-900">
+                              عرض
+                            </InstantLink>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {ownerBookings.length === 0 && (
+                      <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500">لا توجد حجوزات</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* تبويب المستأجرين */}
+          {activeTab === 'tenants' && (
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+              <div className="px-4 py-5 sm:px-6">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">المستأجرين</h3>
+                <p className="mt-1 max-w-2xl text-sm text-gray-500">عرض جميع المستأجرين</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الاسم</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">العقار</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ البدء</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الانتهاء</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {Array.from(new Set(rentals.map(r => r.tenantId || r.tenantName).filter(Boolean))).map((tenantId, idx) => {
+                      const tenantRentals = rentals.filter(r => (r.tenantId || r.tenantName) === tenantId);
+                      const activeRental = tenantRentals.find(r => {
+                        const state = (r as any).signatureWorkflow || r.state;
+                        return state === 'active';
+                      }) || tenantRentals[0];
+                      const property = properties.find(p => p.id === activeRental?.propertyId);
+                      return (
+                        <tr key={tenantId || idx} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900">{tenantId}</td>
+                          <td className="px-6 py-4 text-sm text-gray-900">{getTitleFromProperty(property || {} as Property)}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {activeRental?.startDate ? new Date(activeRental.startDate).toLocaleDateString('ar-EG') : '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {activeRental?.endDate ? new Date(activeRental.endDate).toLocaleDateString('ar-EG') : '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <InstantLink href={`/tenants/${tenantId}`} className="text-blue-600 hover:text-blue-900">
+                              عرض التفاصيل
+                            </InstantLink>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {tenantsCount === 0 && (
+                      <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500">لا يوجد مستأجرين</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* تبويب الخدمات */}
+          {activeTab === 'services' && (
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+              <div className="px-4 py-5 sm:px-6 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">الخدمات والمرافق</h3>
+                  <p className="mt-1 max-w-2xl text-sm text-gray-500">عرض جميع الخدمات المرتبطة بعقاراتك</p>
+                </div>
+                <InstantLink
+                  href="/property-management/overdue#add-service"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                >
+                  <FaPlus className="ml-2" />
+                  إضافة خدمة جديدة
+                </InstantLink>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الخدمة</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحساب</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المزود</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المبلغ الشهري</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الاستحقاق</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {services.map((s: any) => (
+                      <tr key={s.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm text-gray-900">{s.serviceName}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{s.accountNumber}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{s.provider}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{(s.monthlyAmount || 0).toLocaleString()} {s.currency || 'OMR'}</td>
+                        <td className="px-6 py-4 text-sm">
+                          <span className={`px-2 py-1 rounded-full text-xs ${s.isOverdue ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                            {s.isOverdue ? 'متأخر' : 'مستحق'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                    {services.length === 0 && (
+                      <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500">لا توجد خدمات</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* تبويب المستندات */}
+          {activeTab === 'documents' && (
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+              <div className="px-4 py-5 sm:px-6 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">المستندات</h3>
+                  <p className="mt-1 max-w-2xl text-sm text-gray-500">عرض جميع المستندات</p>
+                </div>
+                <InstantLink
+                  href="/property-management/overdue#add-document"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                >
+                  <FaPlus className="ml-2" />
+                  إضافة مستند جديد
+                </InstantLink>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">اسم المستند</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">النوع</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الإصدار</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الانتهاء</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {documents.map((doc: any) => (
+                      <tr key={doc.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm text-gray-900">{doc.name}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{doc.type}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {doc.issueDate ? new Date(doc.issueDate).toLocaleDateString('ar-EG') : '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {doc.expiryDate ? new Date(doc.expiryDate).toLocaleDateString('ar-EG') : '-'}
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            doc.isExpiring ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'
+                          }`}>
+                            {doc.isExpiring ? 'ينتهي قريباً' : 'صالح'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                    {documents.length === 0 && (
+                      <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500">لا توجد مستندات</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* تبويب المصاريف */}
+          {activeTab === 'expenses' && (
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+              <div className="px-4 py-5 sm:px-6 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">المصاريف</h3>
+                  <p className="mt-1 max-w-2xl text-sm text-gray-500">عرض جميع المصاريف</p>
+                </div>
+                <InstantLink
+                  href="/property-management/overdue#add-expense"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                >
+                  <FaPlus className="ml-2" />
+                  إضافة مصروف جديد
+                </InstantLink>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الوصف</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الفئة</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المبلغ</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">التاريخ</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {expenses.map((exp: any) => (
+                      <tr key={exp.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm text-gray-900">{exp.description}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{exp.category}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {(exp.amount || 0).toLocaleString()} {exp.currency || 'OMR'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {exp.date ? new Date(exp.date).toLocaleDateString('ar-EG') : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                    {expenses.length === 0 && (
+                      <tr><td colSpan={4} className="px-6 py-10 text-center text-gray-500">لا توجد مصاريف</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* تبويب المتأخرات */}
+          {activeTab === 'overdue' && (
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+              <div className="px-4 py-5 sm:px-6">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">المتأخرات</h3>
+                <p className="mt-1 max-w-2xl text-sm text-gray-500">عرض الخدمات والمستندات المتأخرة</p>
+              </div>
+              <div className="p-6 space-y-6">
+                {overdueServices.length > 0 && (
+                  <div>
+                    <h4 className="text-md font-medium text-gray-900 mb-4">خدمات متأخرة</h4>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-red-50">
+                          <tr>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-red-700 uppercase">الخدمة</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-red-700 uppercase">المبلغ</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-red-700 uppercase">تاريخ الاستحقاق</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {overdueServices.map((s: any) => (
+                            <tr key={s.id} className="hover:bg-red-50">
+                              <td className="px-6 py-4 text-sm text-gray-900">{s.serviceName}</td>
+                              <td className="px-6 py-4 text-sm font-medium text-red-600">
+                                {(s.monthlyAmount || 0).toLocaleString()} {s.currency || 'OMR'}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-500">{s.dueDate ? new Date(s.dueDate).toLocaleDateString('ar-EG') : '-'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+                {expiringDocuments.length > 0 && (
+                  <div>
+                    <h4 className="text-md font-medium text-gray-900 mb-4">مستندات تنتهي قريباً</h4>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-orange-50">
+                          <tr>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-orange-700 uppercase">اسم المستند</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-orange-700 uppercase">تاريخ الانتهاء</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {expiringDocuments.map((doc: any) => (
+                            <tr key={doc.id} className="hover:bg-orange-50">
+                              <td className="px-6 py-4 text-sm text-gray-900">{doc.name}</td>
+                              <td className="px-6 py-4 text-sm text-orange-600">
+                                {doc.expiryDate ? new Date(doc.expiryDate).toLocaleDateString('ar-EG') : '-'}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+                {overdueServices.length === 0 && expiringDocuments.length === 0 && (
+                  <div className="text-center py-12">
+                    <FaCheck className="text-6xl text-green-300 mx-auto mb-4" />
+                    <p className="text-gray-500">لا توجد متأخرات</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* تبويب التحليلات */}
+          {activeTab === 'analytics' && (
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 p-6">
+              <div className="text-center py-8">
+                <FaChartLine className="text-6xl text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">التحليلات المتقدمة</h3>
+                <p className="text-gray-500 mb-4">للوصول إلى مركز الذكاء الاصطناعي، اضغط على الزر في أعلى الصفحة</p>
+                <button
+                  onClick={() => setShowAIModal(true)}
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 mx-auto"
+                >
+                  <FaRobot />
+                  فتح مركز الذكاء الاصطناعي
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* إزالة محتوى التحليلات القديم - تم نقله إلى Modal */}
+          {false && activeTab === 'analytics-old' && (
+            <div className="space-y-6">
+              {/* AI Insights Dashboard */}
+              {aiInsights && (
+                <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 rounded-lg shadow-lg p-4 text-white border border-blue-500/20">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h2 className="text-lg font-bold flex items-center">
+                        <div className="bg-white/20 p-1.5 rounded-lg ml-2">
+                          <FaRobot className="text-lg" />
+                        </div>
+                        مركز الذكاء الاصطناعي
+                      </h2>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={generateAIInsights}
+                        className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center border border-white/20 hover:border-white/40 text-sm"
+                        title="تحديث جميع الإحصائيات والتحليلات"
+                      >
+                        <FaStar className="ml-1 text-sm" />
+                        تحديث
+                      </button>
+                      <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center border border-white/20 hover:border-white/40 text-sm"
+                        title="عرض/إخفاء الفلاتر المتقدمة"
+                      >
+                        <FaFilter className="ml-1 text-sm" />
+                        {showFilters ? 'إخفاء' : 'فلاتر'}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-3">
+                    <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="إجمالي عدد العقارات في النظام">
+                      <div className="bg-blue-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
+                        <FaBuilding className="text-sm" />
+                      </div>
+                      <div className="text-lg font-bold mb-0.5">{aiInsights.totalProperties}</div>
+                      <div className="text-xs text-blue-100">إجمالي</div>
+                    </div>
+                    <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="العقارات المنشورة والمتاحة للجمهور">
+                      <div className="bg-green-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
+                        <FaGlobe className="text-sm" />
+                      </div>
+                      <div className="text-lg font-bold mb-0.5">{aiInsights.publishedProperties}</div>
+                      <div className="text-xs text-blue-100">منشور</div>
+                    </div>
+                    <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="العقارات المحفوظة كمسودات">
+                      <div className="bg-yellow-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
+                        <FaEyeSlash className="text-sm" />
+                      </div>
+                      <div className="text-lg font-bold mb-0.5">{aiInsights.draftProperties}</div>
+                      <div className="text-xs text-blue-100">مسودة</div>
+                    </div>
+                    <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="المباني التي تحتوي على وحدات متعددة">
+                      <div className="bg-purple-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
+                        <FaHome className="text-sm" />
+                      </div>
+                      <div className="text-lg font-bold mb-0.5">{aiInsights.multiUnitBuildings}</div>
+                      <div className="text-xs text-blue-100">متعدد</div>
+                    </div>
+                    <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="العقارات المتاحة للإيجار أو البيع">
+                      <div className="bg-orange-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
+                        <FaTag className="text-sm" />
+                      </div>
+                      <div className="text-lg font-bold mb-0.5">{aiInsights.vacantProperties}</div>
+                      <div className="text-xs text-blue-100">شاغر</div>
+                    </div>
+                    <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 text-center border border-white/20 hover:bg-white/30 transition-all duration-300 group cursor-pointer" title="العقارات المؤجرة حالياً">
+                      <div className="bg-indigo-500/30 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1 group-hover:scale-110 transition-transform duration-300">
+                        <FaCheck className="text-sm" />
+                      </div>
+                      <div className="text-lg font-bold mb-0.5">{aiInsights.leasedProperties}</div>
+                      <div className="text-xs text-blue-100">مؤجر</div>
+                    </div>
+                  </div>
+
+                  {/* Smart Recommendations */}
+                  {aiInsights.recommendations && aiInsights.recommendations.length > 0 && (
+                    <div className="mt-3">
+                      <h3 className="text-sm font-semibold mb-2 flex items-center">
+                        <div className="bg-yellow-500/30 p-1 rounded-lg ml-2">
+                          <FaLightbulb className="text-sm" />
+                        </div>
+                        التوصيات الذكية
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {aiInsights.recommendations.map((rec: any, index: number) => (
+                          <div key={index} className={`bg-white/20 backdrop-blur-sm rounded-lg p-2 border transition-all duration-300 hover:bg-white/30 ${
+                            rec.type === 'error' ? 'border-red-400/50' :
+                            rec.type === 'warning' ? 'border-yellow-400/50' :
+                            'border-blue-400/50'
+                          }`}>
+                            <div className="flex items-start space-x-2">
+                              <div className={`p-1 rounded-lg ${
+                                rec.type === 'error' ? 'bg-red-500/30' :
+                                rec.type === 'warning' ? 'bg-yellow-500/30' :
+                                'bg-blue-500/30'
+                              }`}>
+                                {rec.type === 'error' && <FaExclamationTriangle className="text-red-300 text-xs" />}
+                                {rec.type === 'warning' && <FaExclamationTriangle className="text-yellow-300 text-xs" />}
+                                {rec.type === 'info' && <FaInfoCircle className="text-blue-300 text-xs" />}
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-white/90 mb-2 text-xs">{rec.message}</p>
+                                <button className="bg-white/30 hover:bg-white/40 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium transition-all duration-200 border border-white/20 hover:border-white/40">
+                                  {rec.action}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Quick Actions */}
+                  <div className="mt-3">
+                    <h3 className="text-sm font-semibold mb-2 flex items-center">
+                      <div className="bg-green-500/30 p-1 rounded-lg ml-2">
+                        <FaStar className="text-sm" />
+                      </div>
+                      إجراءات سريعة
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      <InstantLink 
+                        href="/properties/new"
+                        className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
+                        title="إضافة عقار جديد"
+                      >
+                        <FaPlus className="text-sm" />
+                        <span className="text-xs font-medium">عقار جديد</span>
+                      </InstantLink>
+                      <button 
+                        onClick={publishAllDrafts}
+                        className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
+                        title="نشر جميع المسودات"
+                      >
+                        <FaGlobe className="text-sm" />
+                        <span className="text-xs font-medium">نشر المسودات</span>
+                      </button>
+                      <button 
+                        onClick={exportReport}
+                        className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
+                        title="تصدير تقرير شامل"
+                      >
+                        <FaDownload className="text-sm" />
+                        <span className="text-xs font-medium">تصدير تقرير</span>
+                      </button>
+                      <button 
+                        onClick={printPropertiesList}
+                        className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 flex items-center justify-center space-x-1"
+                        title="طباعة قائمة العقارات"
+                      >
+                        <FaPrint className="text-sm" />
+                        <span className="text-xs font-medium">طباعة</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* تحليلات إضافية */}
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 p-6">
+                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">تحليلات الأداء</h3>
+                <p className="text-gray-500 mb-4">قريباً: تحليلات متقدمة للأداء والإيرادات</p>
+                
+                {/* إحصائيات إضافية */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">متوسط سعر العقارات</p>
+                        <p className="text-2xl font-bold text-blue-600 mt-1">
+                          {aiInsights?.averagePrice ? `${aiInsights.averagePrice.toFixed(0)} ر.ع` : '0 ر.ع'}
+                        </p>
+                      </div>
+                      <FaTag className="text-blue-400 text-2xl" />
+                    </div>
+                  </div>
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">أفضل موقع</p>
+                        <p className="text-lg font-bold text-green-600 mt-1">
+                          {aiInsights?.topLocation || 'غير محدد'}
+                        </p>
+                      </div>
+                      <FaMapMarkerAlt className="text-green-400 text-2xl" />
+                    </div>
+                  </div>
+                  <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">إجمالي الوحدات</p>
+                        <p className="text-2xl font-bold text-purple-600 mt-1">
+                          {units.length}
+                        </p>
+                      </div>
+                      <FaHome className="text-purple-400 text-2xl" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
