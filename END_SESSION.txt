@@ -32,49 +32,76 @@ git add -f .data/*.json
 Write-Host "`n=== 3. Files to be Committed ===" -ForegroundColor Yellow
 git status --short
 
+# 4️⃣ نسخ المحادثة الكاملة إلى ملف بتاريخ اليوم
+Write-Host "`n=== 4. Saving Conversation ===" -ForegroundColor Yellow
+$date = Get-Date -Format "yyyy-MM-dd"
+$convDir = "CONVERSATIONS"
+if (-not (Test-Path $convDir)) {
+    New-Item -ItemType Directory -Path $convDir | Out-Null
+}
+Write-Host "⚠️ يرجى نسخ محتوى المحادثة الكاملة من Cursor إلى:" -ForegroundColor Cyan
+Write-Host "   $convDir/$date`_SESSION.md" -ForegroundColor Yellow
+Write-Host "   (أو سيتم إنشاؤه تلقائياً في الخطوة التالية)" -ForegroundColor Gray
+
 # 4️⃣ Commit التغييرات (عدّل الرسالة حسب عملك)
-Write-Host "`n=== 4. Committing Changes ===" -ForegroundColor Yellow
+Write-Host "`n=== 5. Committing Changes ===" -ForegroundColor Yellow
 $date = Get-Date -Format "yyyy-MM-dd-HHmm"
-git commit -m "session $date: نظام التوقيع الإلكتروني المتكامل ومعلومات العقارات المؤجرة
+$sessionDate = Get-Date -Format "yyyy-MM-dd"
+git commit -m "session $date: نظام البحث المتقدم والتحقق من العقود السابقة
 
-المرحلة 35: نظام التوقيع الإلكتروني الكامل + إدارة العقارات المؤجرة
+المرحلة 36: نظام البحث والفلترة المتقدم + حماية من العقود المكررة
 
-✅ نظام التوقيع الإلكتروني المتكامل:
-  - API endpoint جديد: /api/rentals/[id]/sign
-  - سير عمل متكامل (3 مراحل): مستأجر → مالك → إدارة
-  - تتبع زمني دقيق: وقت الإرسال، الاستلام، التوقيع، المدة
-  - حساب المدة بالأيام والساعات والثواني
-  - تحديث تلقائي لحالة العقار عند اكتمال التوقيعات
-  - صفحة توقيع إلكتروني احترافية مع تبديل الأدوار
-  - قائمة جميع العقود مع حالاتها
+✅ نظام البحث المتقدم في /rentals/new:
+  - حذف صندوق البحث القديم
+  - Modal جديد للبحث والفلترة المتقدمة
+  - فلترة متدرجة للموقع: محافظة → ولاية → مدينة/حي/قرية
+  - فلاتر متعددة: نوع العقار، الموقع، المالك، الحالة
+  - فلاتر للأرقام: الرقم المتسلسل، رقم العقار، رقم الأرض
+  - عرض شامل لجميع معلومات العقار (رقم، متسلسل، أرض، مالك، موقع)
+  - بحث نصي شامل في جميع الحقول
 
-✅ صفحة إدارة العقارات المؤجرة:
-  - عرض عدد الأيام المتبقية على انتهاء العقد (badge ملون ذكي)
-  - قسم معلومات المستأجر (اسم، هاتف، إيجار) في البطاقات
-  - جلب وعرض بيانات العقود (rentals) تلقائياً
-  - إلغاء نشر العقار تلقائياً بعد التأجير (published: false)
-  - العقار المؤجر لا يظهر في /properties العامة
+✅ التحقق من العقود السابقة:
+  - فحص تلقائي عند اختيار عقار
+  - Modal تنبيه عند وجود عقد سابق نشط
+  - عرض معلومات العقد السابق (رقم، حالة، مستأجر، تواريخ)
+  - زر الاطلاع على بيانات العقد
+  - زر إلغاء العقد السابق
+  - منع إنشاء عقد جديد بدون إلغاء السابق
 
-✅ قائمة العقود في صفحة المهام:
-  - قسم جديد: عقود تحتاج للتوقيع
-  - فلترة ذكية حسب حالة التوقيع
-  - روابط مباشرة لصفحة التوقيع
+✅ تحسينات واجهة المستخدم:
+  - تصميم Modal احترافي ومنظم
+  - عرض معلومات العقار بشكل منظم
+  - فلترة متدرجة ذكية
+  - رسائل توضيحية واضحة
 
-✅ تكامل شامل:
-  - تحديث API العقود لتحديث حالة العقار
-  - عرض التوقيعات في صفحة تفاصيل العقد
-  - تنسيق التواريخ بالإنجليزية (en-GB)
+✅ تحديث ملفات المحادثات:
+  - إنشاء CONVERSATIONS/$sessionDate`_SESSION.md
+  - نسخ المحادثة الكاملة مع جميع التفاصيل
+  - تحديث START_SESSION و END_SESSION
 
-الملفات المعدلة: 9
-الملفات الجديدة: 1
-إجمالي Commits: 350+"
+الملفات المعدلة: 1 (src/pages/rentals/new.tsx)
+الملفات الجديدة: 1 (CONVERSATIONS/$sessionDate`_SESSION.md)
+ملفات التوثيق: 3 (START_SESSION.txt, END_SESSION.txt, CONVERSATIONS/*.md)
+إجمالي Commits: 395+"
 
-# 5️⃣ رفع جميع التغييرات إلى GitHub
-Write-Host "`n=== 5. Pushing to GitHub ===" -ForegroundColor Yellow
+# 6️⃣ التأكد من نسخ ملف المحادثة
+Write-Host "`n=== 6. Verifying Conversation File ===" -ForegroundColor Yellow
+$sessionDate = Get-Date -Format "yyyy-MM-dd"
+$convFile = "CONVERSATIONS/$sessionDate`_SESSION.md"
+if (Test-Path $convFile) {
+    Write-Host "✅ ملف المحادثة موجود: $convFile" -ForegroundColor Green
+    git add $convFile
+} else {
+    Write-Host "⚠️ ملف المحادثة غير موجود: $convFile" -ForegroundColor Yellow
+    Write-Host "   يرجى نسخ المحادثة يدوياً من Cursor" -ForegroundColor Cyan
+}
+
+# 7️⃣ رفع جميع التغييرات إلى GitHub
+Write-Host "`n=== 7. Pushing to GitHub ===" -ForegroundColor Yellow
 git push origin main
 
-# 6️⃣ التحقق النهائي
-Write-Host "`n=== 6. Final Verification ===" -ForegroundColor Green
+# 8️⃣ التحقق النهائي
+Write-Host "`n=== 8. Final Verification ===" -ForegroundColor Green
 Write-Host "Total Commits: $(git rev-list --count HEAD)" -ForegroundColor Cyan
 Write-Host "Data Files: $(git ls-files .data/ | Measure-Object -Line | Select-Object -ExpandProperty Lines)" -ForegroundColor Cyan
 Write-Host "Git Status: " -ForegroundColor Cyan -NoNewline

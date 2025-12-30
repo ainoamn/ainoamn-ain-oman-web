@@ -83,6 +83,24 @@ Write-Host "Latest Commit: $(git log --oneline -1)" -ForegroundColor White
 Write-Host "Data Files: $(git ls-files .data/ | Measure-Object -Line | Select-Object -ExpandProperty Lines)" -ForegroundColor White
 Write-Host "Branch: $(git branch --show-current)" -ForegroundColor White
 
+# 8️⃣ ب - قراءة ملف المحادثة الأخير (مهم جداً!)
+Write-Host "`n=== 8b. Reading Last Conversation ===" -ForegroundColor Cyan
+if (Test-Path "CONVERSATIONS") {
+    $lastConv = Get-ChildItem -Path "CONVERSATIONS" -Filter "*_SESSION.md" -ErrorAction SilentlyContinue | 
+                Sort-Object LastWriteTime -Descending | 
+                Select-Object -First 1
+    if ($lastConv) {
+        Write-Host "📖 آخر ملف محادثة: $($lastConv.Name)" -ForegroundColor Green
+        Write-Host "📅 التاريخ: $($lastConv.LastWriteTime)" -ForegroundColor White
+        Write-Host "📄 المسار: $($lastConv.FullName)" -ForegroundColor White
+        Write-Host "`n💡 نصيحة: اقرأ ملف المحادثة لمعرفة آخر ما تم إنجازه" -ForegroundColor Yellow
+    } else {
+        Write-Host "⚠️ لا يوجد ملفات محادثة في CONVERSATIONS/" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "⚠️ مجلد CONVERSATIONS غير موجود" -ForegroundColor Yellow
+}
+
 # 9️⃣ فحص حجم الملفات المهمة
 Write-Host "`n=== 9. File Sizes ===" -ForegroundColor Cyan
 if (Test-Path .data\db.json) {
@@ -234,9 +252,35 @@ Test-Path package.json         # يجب أن يكون True
 
 ### ✅ الخطوة 5: قراءة الملفات المرجعية
 
-#### 5.1 قراءة CONVERSATION_HISTORY.md
+#### 5.1 قراءة ملف المحادثة الأخير (مهم جداً!)
+```powershell
+# الحصول على آخر ملف محادثة
+$lastConv = Get-ChildItem -Path "CONVERSATIONS" -Filter "*_SESSION.md" | 
+            Sort-Object LastWriteTime -Descending | 
+            Select-Object -First 1
+
+if ($lastConv) {
+    Write-Host "`n📖 قراءة ملف المحادثة الأخير: $($lastConv.Name)" -ForegroundColor Cyan
+    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Yellow
+    Get-Content $lastConv.FullName -Head 50
+    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Yellow
+    Write-Host "`n📄 للمزيد، افتح: $($lastConv.FullName)" -ForegroundColor Green
+} else {
+    Write-Host "⚠️ لا يوجد ملفات محادثة في CONVERSATIONS/" -ForegroundColor Yellow
+}
+```
+
+**ما تبحث عنه في ملف المحادثة:**
+- ✅ آخر المهام المنجزة
+- ✅ التغييرات التفصيلية في الكود
+- ✅ الأخطاء التي تم إصلاحها
+- ✅ الخطوات المتبعة (Step by Step)
+- ✅ الاختبارات المنجزة
+- ✅ أي ملاحظات مهمة
+
+#### 5.2 قراءة CONVERSATION_HISTORY.md
 ```bash
-# اقرأ آخر مرحلة (المرحلة 27 حالياً)
+# اقرأ آخر مرحلة
 # لفهم آخر ما تم إنجازه
 ```
 
@@ -246,7 +290,7 @@ Test-Path package.json         # يجب أن يكون True
 - ✅ الأخطاء المُصلحة
 - ✅ التقنيات الجديدة
 
-#### 5.2 قراءة PROJECT_GUIDE.md
+#### 5.3 قراءة PROJECT_GUIDE.md
 ```bash
 # لفهم المعايير والتقنيات
 ```
@@ -256,12 +300,6 @@ Test-Path package.json         # يجب أن يكون True
 - ✅ التقنيات المستخدمة
 - ✅ هيكل المشروع
 - ✅ Best Practices
-
-#### 5.3 قراءة SESSION_*.md الأخير
-```bash
-# اقرأ sessions/SESSION_2025-10-23.md
-# لمعرفة آخر جلسة عمل
-```
 
 ### ✅ الخطوة 6: تشغيل السيرفر
 
@@ -546,9 +584,22 @@ import Layout from '@/components/layout/Layout';
 - [x] صفحة العقارات تعرض البيانات
 - [x] قرأت آخر مرحلة في CONVERSATION_HISTORY.md
 
-### 🚀 الآن اسأل المستخدم:
+### 🚀 الآن اقرأ ملف المحادثة الأخير واسأل المستخدم:
 
-**"ما الذي تريد العمل عليه اليوم؟"**
+**1. قراءة ملف المحادثة:**
+```powershell
+# افتح آخر ملف محادثة
+$lastConv = Get-ChildItem -Path "CONVERSATIONS" -Filter "*_SESSION.md" | 
+            Sort-Object LastWriteTime -Descending | 
+            Select-Object -First 1
+if ($lastConv) {
+    notepad $lastConv.FullName
+}
+```
+
+**2. اسأل المستخدم:**
+
+**"مرحباً! قرأت ملف المحادثة الأخير وملف START_SESSION.txt. ما الذي تريد العمل عليه اليوم؟"**
 
 ================================================================================
 آخر تحديث: 30 ديسمبر 2025 - 11:55
