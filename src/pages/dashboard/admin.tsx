@@ -9,8 +9,10 @@ import {
   FiBell, FiMail, FiPhone, FiMapPin, FiGlobe,
   FiPackage, FiShield, FiDatabase, FiServer,
   FiRefreshCw, FiEye, FiEdit, FiTrash2, FiPlus,
-  FiArrowUp, FiArrowDown, FiMenu, FiX, FiUser
+  FiArrowUp, FiArrowDown, FiMenu, FiX, FiUser,
+  FiLayers, FiCreditCard, FiTool
 } from 'react-icons/fi';
+import { FaFileContract } from 'react-icons/fa';
 
 interface SystemStats {
   users: {
@@ -452,6 +454,22 @@ export default function AdminDashboard() {
             </button>
 
             <button
+              onClick={() => router.push('/rentals')}
+              className="p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors text-center border-2 border-indigo-300"
+            >
+              <FaFileContract className="w-6 h-6 text-indigo-600 mx-auto mb-2" />
+              <p className="text-sm font-bold text-gray-900">عقود الإيجار</p>
+            </button>
+
+            <button
+              onClick={() => router.push('/admin/rented-units')}
+              className="p-4 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors text-center border-2 border-amber-300"
+            >
+              <FiHome className="w-6 h-6 text-amber-600 mx-auto mb-2" />
+              <p className="text-sm font-bold text-gray-900">الوحدات المؤجرة</p>
+            </button>
+
+            <button
               onClick={() => router.push('/admin/subscriptions')}
               className="p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors text-center"
             >
@@ -547,6 +565,26 @@ export default function AdminDashboard() {
                 className="w-full text-right px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-lg transition-colors flex items-center justify-between"
               >
                 <span>إدارة الوحدات</span>
+                <FiArrowUp className="w-4 h-4 rotate-45" />
+              </button>
+              <button
+                onClick={() => router.push('/rentals')}
+                className="w-full text-right px-3 py-2 text-sm font-bold text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors flex items-center justify-between bg-indigo-50"
+              >
+                <span className="flex items-center gap-2">
+                  <FaFileContract className="w-4 h-4" />
+                  إدارة عقود الإيجار
+                </span>
+                <FiArrowUp className="w-4 h-4 rotate-45" />
+              </button>
+              <button
+                onClick={() => router.push('/admin/rented-units')}
+                className="w-full text-right px-3 py-2 text-sm font-bold text-amber-700 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-between bg-amber-50"
+              >
+                <span className="flex items-center gap-2">
+                  <FiHome className="w-4 h-4" />
+                  إدارة الوحدات المؤجرة
+                </span>
                 <FiArrowUp className="w-4 h-4 rotate-45" />
               </button>
               <button

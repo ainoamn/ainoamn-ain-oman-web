@@ -129,6 +129,7 @@ export default function UnifiedPropertyManagement() {
   const [overdueServices, setOverdueServices] = useState<any[]>([]);
   const [expiringDocuments, setExpiringDocuments] = useState<any[]>([]);
   const [tenantsCount, setTenantsCount] = useState(0);
+  const [allUsers, setAllUsers] = useState<any[]>([]);
 
   // استرجاع viewMode من localStorage بعد التحميل وحفظه عند التغيير
   useEffect(() => {
@@ -216,10 +217,12 @@ export default function UnifiedPropertyManagement() {
 
   // جلب البيانات
   useEffect(() => {
+    if (session?.user?.id) {
     fetchData();
-  }, []);
+    }
+  }, [session?.user?.id]);
 
-  // تحميل بيانات الإدارة عند فتح تبويباتها
+  // تحديث بيانات الإدارة عند فتح تبويباتها (للتحديث فقط)
   useEffect(() => {
     if (!session?.user?.id) return;
     const userId = session.user.id as string;
@@ -269,6 +272,7 @@ export default function UnifiedPropertyManagement() {
       } catch {}
     };
 
+    // تحديث البيانات عند فتح التبويب (للتحديث الفوري)
     if (activeTab === 'services') loadServices();
     if (activeTab === 'documents') loadDocuments();
     if (activeTab === 'expenses') loadExpenses();
@@ -278,21 +282,35 @@ export default function UnifiedPropertyManagement() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [propertiesRes, unitsRes, customersRes, rentalsRes] = await Promise.all([
+      const userId = session?.user?.id;
+      
+      // جلب جميع البيانات الأساسية
+      const [propertiesRes, customersRes, rentalsRes, tenantsRes, usersRes] = await Promise.all([
         fetch('/api/properties'),
-        fetch('/api/admin/units'),
         fetch('/api/customers'),
-        fetch('/api/rentals')
+        fetch('/api/rentals'),
+        fetch('/api/admin/tenants'),
+        fetch('/api/users')
       ]);
 
       if (propertiesRes.ok) {
         const propertiesData = await propertiesRes.json();
-        setProperties(propertiesData.items || []);
-      }
-
-      if (unitsRes.ok) {
-        const unitsData = await unitsRes.json();
-        setUnits(unitsData.units || []);
+        const allProperties = propertiesData.items || [];
+        setProperties(allProperties);
+        
+        // استخراج جميع الوحدات من العقارات
+        const allUnits: Unit[] = [];
+        allProperties.forEach((property: Property) => {
+          if (property.units && Array.isArray(property.units)) {
+            property.units.forEach((unit: Unit) => {
+              allUnits.push({
+                ...unit,
+                propertyId: property.id
+              });
+            });
+          }
+        });
+        setUnits(allUnits);
       }
 
       if (customersRes.ok) {
@@ -302,7 +320,79 @@ export default function UnifiedPropertyManagement() {
 
       if (rentalsRes.ok) {
         const rentalsData = await rentalsRes.json();
-        setRentals(rentalsData.items || []);
+        const allRentals = rentalsData.items || [];
+        setRentals(allRentals);
+        
+        // حساب عدد المستأجرين من العقود فقط (المصدر الحقيقي)
+        // نستخدم Set لإزالة التكرار
+        const uniqueTenants = new Set(
+          allRentals
+            .map((r: any) => r.tenantId || r.tenantName)
+            .filter(Boolean)
+        );
+        setTenantsCount(uniqueTenants.size);
+        console.log('✅ Tenants count from rentals:', uniqueTenants.size, 'unique tenants');
+      }
+
+      // جلب بيانات المستخدمين (للعرض الكامل للمستأجرين)
+      if (usersRes.ok) {
+        const usersData = await usersRes.json();
+        const users = Array.isArray(usersData.users) ? usersData.users : (Array.isArray(usersData) ? usersData : []);
+        setAllUsers(users);
+        console.log('✅ Users loaded for tenant display:', users.length);
+      }
+
+      // جلب بيانات الإدارة (services, documents, expenses) تلقائياً
+      if (userId) {
+        // جلب الخدمات
+        try {
+          const servicesRes = await fetch(`/api/property-services?ownerId=${encodeURIComponent(userId)}`);
+          if (servicesRes.ok) {
+            const servicesData = await servicesRes.json();
+            setServices(Array.isArray(servicesData.services) ? servicesData.services : []);
+          }
+        } catch (e) {
+          console.error('Error loading services:', e);
+        }
+
+        // جلب المستندات
+        try {
+          const documentsRes = await fetch(`/api/property-documents?ownerId=${encodeURIComponent(userId)}`);
+          if (documentsRes.ok) {
+            const documentsData = await documentsRes.json();
+            setDocuments(Array.isArray(documentsData.documents) ? documentsData.documents : []);
+          }
+        } catch (e) {
+          console.error('Error loading documents:', e);
+        }
+
+        // جلب المصاريف
+        try {
+          const expensesRes = await fetch(`/api/property-expenses?ownerId=${encodeURIComponent(userId)}`);
+          if (expensesRes.ok) {
+            const expensesData = await expensesRes.json();
+            setExpenses(Array.isArray(expensesData.expenses) ? expensesData.expenses : []);
+          }
+        } catch (e) {
+          console.error('Error loading expenses:', e);
+        }
+
+        // جلب المتأخرات
+        try {
+          const overdueServicesRes = await fetch(`/api/property-services?ownerId=${encodeURIComponent(userId)}&overdue=true`);
+          if (overdueServicesRes.ok) {
+            const overdueServicesData = await overdueServicesRes.json();
+            setOverdueServices(Array.isArray(overdueServicesData.services) ? overdueServicesData.services : []);
+          }
+          
+          const expiringDocumentsRes = await fetch(`/api/property-documents?ownerId=${encodeURIComponent(userId)}&expiring=true`);
+          if (expiringDocumentsRes.ok) {
+            const expiringDocumentsData = await expiringDocumentsRes.json();
+            setExpiringDocuments(Array.isArray(expiringDocumentsData.documents) ? expiringDocumentsData.documents : []);
+          }
+        } catch (e) {
+          console.error('Error loading overdue items:', e);
+        }
       }
 
       // توليد رؤى الذكاء الاصطناعي
@@ -643,14 +733,28 @@ export default function UnifiedPropertyManagement() {
 
   // وظيفة الحصول على تسمية الحالة
   const getStatusLabel = (status: string) => {
-    const statusLabels: { [key: string]: string } = {
-      'vacant': 'شاغر',
-      'leased': 'مؤجر',
-      'reserved': 'محجوز',
-      'sold': 'مباع',
-      'maintenance': 'صيانة'
-    };
-    return statusLabels[status] || status;
+    switch (status) {
+      case 'vacant':
+        return 'شاغر';
+      case 'available':
+        return 'متاح';
+      case 'reserved':
+        return 'محجوز';
+      case 'leased':
+        return 'مؤجر';
+      case 'rented':
+        return 'مؤجر';
+      case 'maintenance':
+        return 'صيانة';
+      case 'hidden':
+        return 'مخفي';
+      case 'draft':
+        return 'مسودة';
+      case 'sold':
+        return 'مباع';
+      default:
+        return status || 'غير محدد';
+    }
   };
 
   const togglePropertySelection = (propertyId: string) => {
@@ -954,11 +1058,13 @@ export default function UnifiedPropertyManagement() {
     return filtered.length === 0 ? allBookings : filtered;
   }, [allBookings, properties]);
 
-  // حساب عدد المستأجرين
+  // حساب عدد المستأجرين من العقود (تم تحديثه في fetchData، هذا للتحقق فقط)
   useEffect(() => {
     const uniqueTenants = new Set(rentals.map(r => r.tenantId || r.tenantName).filter(Boolean));
-    setTenantsCount(uniqueTenants.size);
-  }, [rentals]);
+    if (uniqueTenants.size !== tenantsCount) {
+      setTenantsCount(uniqueTenants.size);
+    }
+  }, [rentals, tenantsCount]);
 
 
   return (
@@ -1373,28 +1479,28 @@ export default function UnifiedPropertyManagement() {
                 ].map(tab => {
                   const IconComponent = tab.icon;
                   return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id as any)}
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
                       className={`py-4 px-1 text-sm font-medium whitespace-nowrap border-b-2 transition-colors flex items-center gap-2 ${
-                        activeTab === tab.id
+                    activeTab === tab.id
                           ? "border-blue-500 text-blue-600"
                           : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                      }`}
-                    >
+                  }`}
+                >
                       <IconComponent className="w-4 h-4" />
-                      {tab.label}
+                  {tab.label}
                       {tab.count > 0 && (
                         <span className="py-0.5 px-2 text-xs bg-gray-100 rounded-full">
-                          {tab.count}
-                        </span>
+                    {tab.count}
+                  </span>
                       )}
-                    </button>
+                  </button>
                   );
                 })}
               </nav>
-            </div>
-          </div>
+                </div>
+              </div>
 
           {/* Filters */}
           {showFilters && (
@@ -2280,6 +2386,158 @@ export default function UnifiedPropertyManagement() {
             </div>
           )}
 
+          {/* تبويب الوحدات */}
+          {activeTab === 'units' && (
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+              <div className="px-4 py-5 sm:px-6 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">الوحدات</h3>
+                  <p className="mt-1 max-w-2xl text-sm text-gray-500">عرض جميع الوحدات</p>
+                </div>
+                <div className="text-sm text-gray-600">
+                  إجمالي الوحدات: <span className="font-bold text-blue-600">{units.length}</span>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">رقم الوحدة</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">العقار</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">النوع</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المساحة</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الغرف</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">السعر</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المستأجر</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {getFilteredData().length > 0 ? (
+                      getFilteredData().map((unit: Unit) => {
+                        const property = properties.find(p => p.id === unit.propertyId);
+                        return (
+                          <tr key={unit.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                              {unit.unitNo || unit.unitNumber || 'غير محدد'}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-900">
+                              {getTitleFromProperty(property || {} as Property) || 'غير محدد'}
+                              {property?.buildingNumber && (
+                                <div className="text-xs text-gray-500">مبنى: {property.buildingNumber}</div>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {unit.type || '-'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {unit.area ? `${unit.area} م²` : '-'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {unit.beds || unit.bedrooms || '-'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                              {unit.rentalPrice || unit.price ? `${unit.rentalPrice || unit.price} OMR` : '-'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(unit.status)}`}>
+                                {getStatusLabel(unit.status)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {unit.tenantName || '-'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <InstantLink
+                                href={`/properties/${unit.propertyId}?unit=${unit.id}`}
+                                className="text-blue-600 hover:text-blue-900"
+                              >
+                                عرض
+                              </InstantLink>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan={9} className="px-6 py-10 text-center text-gray-500">
+                          {units.length === 0 ? 'لا توجد وحدات' : 'لا توجد وحدات تطابق معايير البحث'}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* تبويب العملاء */}
+          {activeTab === 'customers' && (
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+              <div className="px-4 py-5 sm:px-6 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">العملاء</h3>
+                  <p className="mt-1 max-w-2xl text-sm text-gray-500">عرض جميع العملاء</p>
+                </div>
+                <div className="text-sm text-gray-600">
+                  إجمالي العملاء: <span className="font-bold text-blue-600">{customers.length}</span>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الاسم</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">البريد الإلكتروني</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الهاتف</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">النوع</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {getFilteredData().length > 0 ? (
+                      getFilteredData().map((customer: Customer) => (
+                        <tr key={customer.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {customer.name || 'غير محدد'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {customer.email || '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {customer.phone || '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                              customer.type === 'company' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                            }`}>
+                              {customer.type === 'company' ? 'شركة' : 'فرد'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <InstantLink
+                              href={`/customers/${customer.id}`}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              عرض التفاصيل
+                            </InstantLink>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
+                          {customers.length === 0 ? 'لا يوجد عملاء' : 'لا يوجد عملاء يطابقون معايير البحث'}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
           {/* تبويب المستأجرين */}
           {activeTab === 'tenants' && (
             <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
@@ -2299,33 +2557,62 @@ export default function UnifiedPropertyManagement() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {Array.from(new Set(rentals.map(r => r.tenantId || r.tenantName).filter(Boolean))).map((tenantId, idx) => {
-                      const tenantRentals = rentals.filter(r => (r.tenantId || r.tenantName) === tenantId);
-                      const activeRental = tenantRentals.find(r => {
-                        const state = (r as any).signatureWorkflow || r.state;
-                        return state === 'active';
-                      }) || tenantRentals[0];
-                      const property = properties.find(p => p.id === activeRental?.propertyId);
-                      return (
-                        <tr key={tenantId || idx} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 text-sm font-medium text-gray-900">{tenantId}</td>
-                          <td className="px-6 py-4 text-sm text-gray-900">{getTitleFromProperty(property || {} as Property)}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {activeRental?.startDate ? new Date(activeRental.startDate).toLocaleDateString('ar-EG') : '-'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {activeRental?.endDate ? new Date(activeRental.endDate).toLocaleDateString('ar-EG') : '-'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <InstantLink href={`/tenants/${tenantId}`} className="text-blue-600 hover:text-blue-900">
-                              عرض التفاصيل
-                            </InstantLink>
-                          </td>
-                        </tr>
+                    {(() => {
+                      // إنشاء قائمة المستأجرين الفريدة من العقود
+                      const uniqueTenantsList = Array.from(
+                        new Set(rentals.map(r => r.tenantId || r.tenantName).filter(Boolean))
                       );
-                    })}
-                    {tenantsCount === 0 && (
-                      <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500">لا يوجد مستأجرين</td></tr>
+                      
+                      return uniqueTenantsList.map((tenantId, idx) => {
+                        const tenantRentals = rentals.filter(r => (r.tenantId || r.tenantName) === tenantId);
+                        const activeRental = tenantRentals.find(r => {
+                          const state = (r as any).signatureWorkflow || r.state;
+                          return state === 'active';
+                        }) || tenantRentals[0];
+                        const property = properties.find(p => p.id === activeRental?.propertyId);
+                        
+                        // محاولة جلب بيانات المستخدم للحصول على الاسم الكامل
+                        const tenantUser = allUsers.find((u: any) => 
+                          u.id === tenantId || 
+                          u.email === tenantId || 
+                          (u.role === 'tenant' && (u.name?.includes(tenantId) || tenantId?.includes(u.name)))
+                        );
+                        
+                        const displayName = tenantUser?.name || activeRental?.tenantName || tenantId;
+                        
+                        return (
+                          <tr key={tenantId || idx} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                              <div>{displayName}</div>
+                              <div className="text-xs text-gray-500">{tenantId}</div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-900">{getTitleFromProperty(property || {} as Property)}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {activeRental?.startDate ? new Date(activeRental.startDate).toLocaleDateString('ar-EG') : '-'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {activeRental?.endDate ? new Date(activeRental.endDate).toLocaleDateString('ar-EG') : '-'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <InstantLink href={`/tenants/${tenantId}`} className="text-blue-600 hover:text-blue-900">
+                                عرض التفاصيل
+                              </InstantLink>
+                            </td>
+                          </tr>
+                        );
+                      });
+                    })()}
+                    {(() => {
+                      const uniqueTenantsList = Array.from(
+                        new Set(rentals.map(r => r.tenantId || r.tenantName).filter(Boolean))
+                      );
+                      if (uniqueTenantsList.length === 0 && rentals.length > 0) {
+                        return <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500">لا يوجد مستأجرين في العقود</td></tr>;
+                      }
+                      return null;
+                    })()}
+                    {rentals.length === 0 && (
+                      <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500">لا يوجد عقود إيجار</td></tr>
                     )}
                   </tbody>
                 </table>

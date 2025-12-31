@@ -1,5 +1,5 @@
 // root: src/pages/dashboard/owner.tsx
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
@@ -51,7 +51,241 @@ const OwnerDashboard: NextPage = () => {
   // استخدام Context للحجوزات
   const { bookings: allBookings, loading: bookingsLoading } = useBookings();
   
+  // دالة للحصول على userId من مصادر متعددة (يجب تعريفها قبل استخدامها)
+  const getUserId = (): string | null => {
+    // من session
+    if (session?.user?.id) return session.user.id;
+    
+    // من localStorage
+    if (typeof window !== "undefined") {
+      const uid = localStorage.getItem("ao_uid") || localStorage.getItem("uid");
+      if (uid) return uid;
+      
+      // من cookies
+      const cookies = document.cookie.split(';');
+      const uidCookie = cookies.find(c => c.trim().startsWith('uid='));
+      if (uidCookie) {
+        return decodeURIComponent(uidCookie.split('=')[1]);
+      }
+    }
+    
+    return null;
+  };
+  
+  // استخدام ref لتتبع userId الذي تم جلب البيانات له
+  const lastFetchedUserIdRef = useRef<string | null>(null);
+  
+  // دالة جلب البيانات (يجب تعريفها قبل استخدامها في useEffect)
+  const fetchOwnerData = useCallback(async () => {
+    const userId = getUserId();
+    console.log('🔍 Owner userId:', userId);
+    
+    // منع إعادة الجلب المتكررة لنفس userId
+    if (userId && lastFetchedUserIdRef.current === userId) {
+      console.log('⏭️ Skipping fetch - already loaded for userId:', userId);
+      return;
+    }
+    
+    if (!userId) {
+      console.warn('⚠️ No userId found, skipping data fetch for owner dashboard.');
+      setLoading(false);
+      return;
+    }
+    
+    lastFetchedUserIdRef.current = userId;
+    
+    try {
+      setLoading(true);
+      
+      // إضافة userId إلى query parameters
+      const rentalsUrl = userId 
+        ? `/api/rentals?mine=true&userId=${encodeURIComponent(userId)}`
+        : "/api/rentals?mine=true";
+      const propertiesUrl = userId
+        ? `/api/properties?mine=true&userId=${encodeURIComponent(userId)}`
+        : "/api/properties?mine=true";
+      
+      console.log('📡 Fetching:', { rentalsUrl, propertiesUrl });
+      
+      // جلب جميع البيانات الأساسية مع معالجة الأخطاء باستخدام Promise.allSettled
+      let propertiesRes: Response | null = null;
+      let rentalsRes: Response | null = null;
+      let usersRes: Response | null = null;
+      let customersRes: Response | null = null;
+      let tenantsRes: Response | null = null;
+      
+      try {
+        // إنشاء helper function لـ fetch مع error handling
+        const safeFetch = async (url: string, label: string): Promise<Response | null> => {
+          try {
+            const response = await fetch(url);
+            return response;
+          } catch (err: any) {
+            console.error(`❌ Error fetching ${label}:`, err?.message || err);
+            return null; // إرجاع null بدلاً من رمي الخطأ
+          }
+        };
 
+        const results = await Promise.allSettled([
+          safeFetch(propertiesUrl, 'properties'),
+          safeFetch(rentalsUrl, 'rentals'),
+          safeFetch("/api/users", 'users'),
+          safeFetch("/api/customers", 'customers'),
+          safeFetch("/api/admin/tenants", 'tenants')
+        ]);
+        
+        // معالجة النتائج - safeFetch يرجع Response | null، لذا نتأكد من التحقق
+        if (results[0] && results[0].status === 'fulfilled' && results[0].value !== null) {
+          propertiesRes = results[0].value;
+        } else if (results[0] && results[0].status === 'rejected') {
+          console.error('❌ Error fetching properties:', results[0].reason);
+        }
+        
+        if (results[1] && results[1].status === 'fulfilled' && results[1].value !== null) {
+          rentalsRes = results[1].value;
+        } else if (results[1] && results[1].status === 'rejected') {
+          console.error('❌ Error fetching rentals:', results[1].reason);
+        }
+        
+        if (results[2] && results[2].status === 'fulfilled' && results[2].value !== null) {
+          usersRes = results[2].value;
+        } else if (results[2] && results[2].status === 'rejected') {
+          console.error('❌ Error fetching users:', results[2].reason);
+        }
+        
+        if (results[3] && results[3].status === 'fulfilled' && results[3].value !== null) {
+          customersRes = results[3].value;
+        } else if (results[3] && results[3].status === 'rejected') {
+          console.error('❌ Error fetching customers:', results[3].reason);
+        }
+        
+        if (results[4] && results[4].status === 'fulfilled' && results[4].value !== null) {
+          tenantsRes = results[4].value;
+        } else if (results[4] && results[4].status === 'rejected') {
+          console.error('❌ Error fetching tenants:', results[4].reason);
+        }
+      } catch (error) {
+        console.error('❌ Error in Promise.allSettled:', error);
+        setLoading(false);
+        return;
+      }
+
+      if (propertiesRes && propertiesRes.ok) {
+        const propertiesData = await propertiesRes.json();
+        // FIX: sanitize API items to eliminate {ar,en} children
+        const items = Array.isArray(propertiesData?.items) ? sanitizeDeep<any[]>(propertiesData.items, "ar") : [];
+        setProperties(items);
+        console.log('✅ Properties loaded:', items.length);
+      }
+
+      if (rentalsRes && rentalsRes.ok) {
+        const rentalsData = await rentalsRes.json();
+        console.log('📦 Raw rentals data:', rentalsData);
+        // FIX: sanitize rentals too
+        const items = Array.isArray(rentalsData?.items) ? sanitizeDeep<any[]>(rentalsData.items, "ar") : [];
+        setRentals(items);
+        console.log('✅ Owner rentals loaded:', items.length, 'rentals');
+        if (items.length > 0) {
+          console.log('📋 First rental:', items[0]);
+        }
+        
+        // حساب عدد المستأجرين من العقود فقط (المصدر الحقيقي)
+        const uniqueTenants = new Set(
+          items
+            .map((r: any) => r.tenantId || r.tenantName)
+            .filter(Boolean)
+        );
+        setTenantsCount(uniqueTenants.size);
+        console.log('✅ Tenants count from rentals:', uniqueTenants.size, 'unique tenants');
+      } else if (rentalsRes) {
+        console.error('❌ Failed to load rentals:', rentalsRes.status, rentalsRes.statusText);
+        try {
+          const errorText = await rentalsRes.text();
+          console.error('❌ Error response:', errorText);
+        } catch (e) {
+          console.error('❌ Could not read error response');
+        }
+      } else {
+        console.warn('⚠️ rentalsRes is null - skipping error handling');
+        setRentals([]);
+      }
+      
+      // جلب بيانات المستخدمين (للعرض فقط، ليس للحساب)
+      if (usersRes && usersRes.ok) {
+        const usersData = await usersRes.json();
+        console.log('✅ Users loaded for display');
+      }
+
+      // جلب بيانات العملاء
+      if (customersRes && customersRes.ok) {
+        const customersData = await customersRes.json();
+        console.log('✅ Customers loaded:', customersData.customers?.length || 0);
+      }
+
+      // جلب بيانات الإدارة (services, documents, expenses) تلقائياً
+      if (userId) {
+        // جلب الخدمات
+        try {
+          const servicesRes = await fetch(`/api/property-services?ownerId=${encodeURIComponent(userId)}`);
+          if (servicesRes.ok) {
+            const servicesData = await servicesRes.json();
+            setServices(Array.isArray(servicesData.services) ? servicesData.services : []);
+            console.log('✅ Services loaded:', servicesData.services?.length || 0);
+          }
+        } catch (e) {
+          console.error('Error loading services:', e);
+        }
+
+        // جلب المستندات
+        try {
+          const documentsRes = await fetch(`/api/property-documents?ownerId=${encodeURIComponent(userId)}`);
+          if (documentsRes.ok) {
+            const documentsData = await documentsRes.json();
+            setDocuments(Array.isArray(documentsData.documents) ? documentsData.documents : []);
+            console.log('✅ Documents loaded:', documentsData.documents?.length || 0);
+          }
+        } catch (e) {
+          console.error('Error loading documents:', e);
+        }
+
+        // جلب المصاريف
+        try {
+          const expensesRes = await fetch(`/api/property-expenses?ownerId=${encodeURIComponent(userId)}`);
+          if (expensesRes.ok) {
+            const expensesData = await expensesRes.json();
+            setExpenses(Array.isArray(expensesData.expenses) ? expensesData.expenses : []);
+            console.log('✅ Expenses loaded:', expensesData.expenses?.length || 0);
+          }
+        } catch (e) {
+          console.error('Error loading expenses:', e);
+        }
+
+        // جلب المتأخرات
+        try {
+          const overdueServicesRes = await fetch(`/api/property-services?ownerId=${encodeURIComponent(userId)}&overdue=true`);
+          if (overdueServicesRes.ok) {
+            const overdueServicesData = await overdueServicesRes.json();
+            setOverdueServices(Array.isArray(overdueServicesData.services) ? overdueServicesData.services : []);
+            console.log('✅ Overdue services loaded:', overdueServicesData.services?.length || 0);
+          }
+          
+          const expiringDocumentsRes = await fetch(`/api/property-documents?ownerId=${encodeURIComponent(userId)}&expiring=true`);
+          if (expiringDocumentsRes.ok) {
+            const expiringDocumentsData = await expiringDocumentsRes.json();
+            setExpiringDocuments(Array.isArray(expiringDocumentsData.documents) ? expiringDocumentsData.documents : []);
+            console.log('✅ Expiring documents loaded:', expiringDocumentsData.documents?.length || 0);
+          }
+        } catch (e) {
+          console.error('Error loading overdue items:', e);
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error fetching owner data:', error);
+      lastFetchedUserIdRef.current = null; // السماح بإعادة المحاولة عند الخطأ
+    } finally {
+      setLoading(false);
+    }
+  }, [session?.user?.id]); // يعتمد على session.user.id
   
   // تصفية الحجوزات الخاصة بالمالك
   const ownerBookings = useMemo(() => {
@@ -75,10 +309,45 @@ const OwnerDashboard: NextPage = () => {
   }, [allBookings, properties, session]);
 
   useEffect(() => {
+    const userId = getUserId();
+    
+    // إعادة تعيين flag عند تغيير userId
+    if (userId !== lastFetchedUserIdRef.current) {
+      lastFetchedUserIdRef.current = null;
+    }
+    
+    let isMounted = true;
+    let timer: NodeJS.Timeout | null = null;
+    
+    const loadData = () => {
+      if (!isMounted) return;
+      
+      if (session?.user?.id || userId) {
     fetchOwnerData();
-  }, []);
+      } else {
+        // انتظر قليلاً ثم حاول مرة واحدة فقط
+        timer = setTimeout(() => {
+          if (isMounted) {
+            const uid = getUserId();
+            if (uid) {
+              fetchOwnerData();
+            }
+          }
+        }, 1000);
+      }
+    };
+    
+    loadData();
+    
+    return () => {
+      isMounted = false;
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [session?.user?.id, fetchOwnerData]); // إضافة fetchOwnerData
 
-  // تحميل بيانات الإدارة الداخلية عند فتح تبويباتها
+  // تحديث بيانات الإدارة عند فتح تبويباتها (للتحديث فقط - البيانات الأساسية تم جلبها في fetchOwnerData)
   useEffect(() => {
     if (!session?.user?.id) return;
     const ownerId = session.user.id as string;
@@ -128,6 +397,7 @@ const OwnerDashboard: NextPage = () => {
       } catch {}
     };
 
+    // تحديث البيانات عند فتح التبويب (للتحديث الفوري)
     if (activeTab === 'services') loadServices();
     if (activeTab === 'documents') loadDocuments();
     if (activeTab === 'expenses') loadExpenses();
@@ -137,81 +407,6 @@ const OwnerDashboard: NextPage = () => {
       loadServices(); loadDocuments(); loadExpenses();
     }
   }, [activeTab, session]);
-
-  // دالة للحصول على userId من مصادر متعددة
-  const getUserId = (): string | null => {
-    // من session
-    if (session?.user?.id) return session.user.id;
-    
-    // من localStorage
-    if (typeof window !== "undefined") {
-      const uid = localStorage.getItem("ao_uid") || localStorage.getItem("uid");
-      if (uid) return uid;
-      
-      // من cookies
-      const cookies = document.cookie.split(';');
-      const uidCookie = cookies.find(c => c.trim().startsWith('uid='));
-      if (uidCookie) {
-        return decodeURIComponent(uidCookie.split('=')[1]);
-      }
-    }
-    
-    return null;
-  };
-
-  const fetchOwnerData = async () => {
-    try {
-      setLoading(true);
-      const userId = getUserId();
-      console.log('🔍 Owner userId:', userId);
-      
-      // إضافة userId إلى query parameters
-      const rentalsUrl = userId 
-        ? `/api/rentals?mine=true&userId=${encodeURIComponent(userId)}`
-        : "/api/rentals?mine=true";
-      const propertiesUrl = userId
-        ? `/api/properties?mine=true&userId=${encodeURIComponent(userId)}`
-        : "/api/properties?mine=true";
-      
-      console.log('📡 Fetching:', { rentalsUrl, propertiesUrl });
-      
-      const [propertiesRes, rentalsRes, usersRes] = await Promise.all([
-        fetch(propertiesUrl),
-        fetch(rentalsUrl),
-        fetch("/api/users")
-      ]);
-
-      if (propertiesRes.ok) {
-        const propertiesData = await propertiesRes.json();
-        // FIX: sanitize API items to eliminate {ar,en} children
-        const items = Array.isArray(propertiesData?.items) ? sanitizeDeep<any[]>(propertiesData.items, "ar") : [];
-        setProperties(items);
-      }
-
-      if (rentalsRes.ok) {
-        const rentalsData = await rentalsRes.json();
-        // FIX: sanitize rentals too
-        const items = Array.isArray(rentalsData?.items) ? sanitizeDeep<any[]>(rentalsData.items, "ar") : [];
-        setRentals(items);
-        console.log('✅ Owner rentals loaded:', items.length, 'rentals');
-      } else {
-        console.error('❌ Failed to load rentals:', rentalsRes.status);
-      }
-      
-      if (usersRes.ok) {
-        const usersData = await usersRes.json();
-        // API يُرجع { users: [...], pagination: {}, stats: {} }
-        const allUsers = Array.isArray(usersData.users) ? usersData.users : (Array.isArray(usersData) ? usersData : []);
-        const tenantsOnly = allUsers.filter(u => u.role === 'tenant');
-        setTenantsCount(tenantsOnly.length);
-        console.log('✅ Dashboard loaded tenants count:', tenantsOnly.length);
-      }
-    } catch (error) {
-      console.error('Error fetching owner data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const stats = {
     totalProperties: properties.length,
@@ -386,7 +581,7 @@ const OwnerDashboard: NextPage = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {rentals.map((rental) => {
+                      {rentals && Array.isArray(rentals) && rentals.length > 0 ? rentals.map((rental) => {
                         const property = properties.find(p => p.id === rental.propertyId);
                         // تحديد الحالة الفعلية (من state أو signatureWorkflow)
                         const actualState = (rental as any).signatureWorkflow || rental.state;
@@ -402,15 +597,22 @@ const OwnerDashboard: NextPage = () => {
                                   "bg-gray-400"
                                 }`}></div>
                                 <div className="text-sm font-medium text-gray-900">
-                                  #{rental.id || 'N/A'}
+                                  #{rental.id?.split('-')[1]?.substring(0, 8) || rental.id || 'N/A'}
                                 </div>
                               </div>
                             </td>
                             <td className="px-6 py-4">
                               <div className="text-sm text-gray-900">
                                 <div className="font-medium">
-                                  {property?.buildingNumber ? `مبنى ${property.buildingNumber}` : 'غير محدد'}
+                                  {property ? (
+                                    typeof property.title === 'string' ? property.title :
+                                    typeof property.title === 'object' ? (property.title.ar || property.title.en || '') :
+                                    property.titleAr || property.buildingNumber || rental.propertyId || 'غير محدد'
+                                  ) : (rental.propertyId || 'غير محدد')}
                                 </div>
+                                {property?.buildingNumber && (
+                                  <div className="text-xs text-gray-500">مبنى: {property.buildingNumber}</div>
+                                )}
                                 {rental.unitId && <div className="text-xs text-gray-500">وحدة: {rental.unitId}</div>}
                               </div>
                             </td>
@@ -420,10 +622,10 @@ const OwnerDashboard: NextPage = () => {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {rental.startDate ? new Date(rental.startDate).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'غير محدد'}
+                              {rental.startDate ? new Date(rental.startDate).toLocaleDateString('ar-EG') : 'غير محدد'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {rental.endDate ? new Date(rental.endDate).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'غير محدد'}
+                              {rental.endDate ? new Date(rental.endDate).toLocaleDateString('ar-EG') : 'غير محدد'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                               {rental.monthlyRent || rental.amount || 0} {rental.currency || 'OMR'}
@@ -450,7 +652,20 @@ const OwnerDashboard: NextPage = () => {
                             </td>
                           </tr>
                         );
-                      })}
+                      }) : (
+                        <tr>
+                          <td colSpan={8} className="px-6 py-10 text-center text-gray-500">
+                            <div className="flex flex-col items-center">
+                              <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                              </svg>
+                              <h3 className="text-sm font-medium text-gray-900 mb-1">لا توجد عقود إيجار</h3>
+                              <p className="text-xs text-gray-500">لم يتم العثور على أي عقود إيجار</p>
+                              <p className="text-xs text-gray-400 mt-2">عدد العقود: {rentals?.length || 0}</p>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -545,7 +760,7 @@ const OwnerDashboard: NextPage = () => {
             )}
 
             {activeTab === "tenants" && (
-              <TenantsTab />
+              <TenantsTab rentals={rentals} properties={properties} />
             )}
 
             {activeTab === "contracts" && (
@@ -564,7 +779,7 @@ const OwnerDashboard: NextPage = () => {
                       </p>
                     </div>
                     <InstantLink
-                      href="/contracts/new"
+                      href="/rentals/new"
                       className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
                     >
                       <FaPlus className="ml-2" />
@@ -575,7 +790,98 @@ const OwnerDashboard: NextPage = () => {
                 
                 <div className="border-t border-gray-200">
                   <div className="px-4 py-5 sm:p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* عرض قائمة العقود */}
+                    {rentals.length > 0 ? (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">العقار</th>
+                              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المستأجر</th>
+                              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ البدء</th>
+                              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الانتهاء</th>
+                              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+                              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {rentals.map((rental: any) => {
+                              const property = properties.find(p => p.id === rental.propertyId);
+                              const state = rental.signatureWorkflow || rental.state || 'pending';
+                              return (
+                                <tr key={rental.id} className="hover:bg-gray-50">
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="text-sm font-medium text-gray-900">
+                                      {getTitleFromProperty(property || {} as Property)}
+                                    </div>
+                                    {property?.buildingNumber && (
+                                      <div className="text-xs text-gray-500">
+                                        مبنى: {property.buildingNumber}
+                                      </div>
+                                    )}
+                                    {rental.unitId && (
+                                      <div className="text-xs text-gray-500">
+                                        وحدة: {rental.unitId}
+                                      </div>
+                                    )}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="text-sm text-gray-900">{rental.tenantName || rental.tenantId || '-'}</div>
+                                    {rental.tenantEmail && (
+                                      <div className="text-xs text-gray-500">{rental.tenantEmail}</div>
+                                    )}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {rental.startDate ? new Date(rental.startDate).toLocaleDateString('ar-EG') : '-'}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {rental.endDate ? new Date(rental.endDate).toLocaleDateString('ar-EG') : '-'}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                      state === 'active' ? 'bg-green-100 text-green-800' :
+                                      state === 'signed' ? 'bg-blue-100 text-blue-800' :
+                                      state === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                      state === 'expired' ? 'bg-red-100 text-red-800' :
+                                      'bg-gray-100 text-gray-800'
+                                    }`}>
+                                      {getStateLabel(state)}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <InstantLink
+                                      href={`/rentals/${rental.id}`}
+                                      className="text-blue-600 hover:text-blue-900"
+                                    >
+                                      عرض التفاصيل
+                                    </InstantLink>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <h3 className="mt-2 text-sm font-medium text-gray-900">لا توجد عقود</h3>
+                        <p className="mt-1 text-sm text-gray-500">ابدأ بإنشاء عقد إيجار جديد.</p>
+                        <div className="mt-6">
+                          <InstantLink
+                            href="/rentals/new"
+                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                          >
+                            <FaPlus className="ml-2" />
+                            إنشاء عقد جديد
+                          </InstantLink>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       <div className="border border-gray-200 rounded-lg p-6 text-center">
                         <svg className="mx-auto h-12 w-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -583,10 +889,10 @@ const OwnerDashboard: NextPage = () => {
                         <h4 className="mt-2 text-lg font-medium text-gray-900">عقود الإيجار</h4>
                         <p className="mt-1 text-sm text-gray-500">إنشاء وإدارة عقود إيجار الوحدات</p>
                         <InstantLink
-                          href="/contracts/rental"
+                          href="/rentals/new"
                           className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
                         >
-                          إدارة العقود
+                          إنشاء عقد جديد
                         </InstantLink>
                       </div>
                       
@@ -988,26 +1294,70 @@ function getStateLabel(state: string): string {
 }
 
 // Component لعرض المستأجرين
-function TenantsTab() {
+function TenantsTab({ rentals = [], properties = [] }: { rentals?: any[], properties?: any[] }) {
   const [tenants, setTenants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchTenants();
-  }, []);
+  }, [rentals, properties]);
 
   const fetchTenants = async () => {
     try {
       setLoading(true);
+      
+      // أولاً: جلب المستأجرين من العقود (المصدر الحقيقي)
+      const uniqueTenantIds = Array.from(
+        new Set(rentals.map(r => r.tenantId || r.tenantName).filter(Boolean))
+      );
+      
+      if (uniqueTenantIds.length === 0) {
+        setTenants([]);
+        setLoading(false);
+        return;
+      }
+      
+      // ثانياً: جلب بيانات المستخدمين لإضافة المعلومات الكاملة
       const response = await fetch('/api/users');
+      let allUsers: any[] = [];
       if (response.ok) {
         const data = await response.json();
-        // API يُرجع { users: [...], pagination: {}, stats: {} }
-        const allUsers = Array.isArray(data.users) ? data.users : (Array.isArray(data) ? data : []);
-        const tenantsOnly = allUsers.filter(user => user.role === 'tenant');
-        setTenants(tenantsOnly);
-        console.log('✅ TenantsTab loaded:', tenantsOnly.length, 'tenants');
+        allUsers = Array.isArray(data.users) ? data.users : (Array.isArray(data) ? data : []);
       }
+      
+      // ثالثاً: دمج بيانات المستأجرين من العقود مع بيانات المستخدمين
+      const tenantsWithDetails = uniqueTenantIds.map(tenantId => {
+        // البحث عن المستخدم
+        const user = allUsers.find((u: any) => 
+          u.id === tenantId || 
+          u.email === tenantId ||
+          (u.role === 'tenant' && (u.name?.includes(tenantId) || tenantId?.includes(u.name)))
+        );
+        
+        // البحث عن العقود النشطة لهذا المستأجر
+        const tenantRentals = rentals.filter(r => (r.tenantId || r.tenantName) === tenantId);
+        const activeRental = tenantRentals.find(r => {
+          const state = (r as any).signatureWorkflow || r.state;
+          return state === 'active';
+        }) || tenantRentals[0];
+        
+        // دمج البيانات
+        return {
+          id: tenantId,
+          name: user?.name || activeRental?.tenantName || tenantId,
+          email: user?.email || activeRental?.tenantEmail || '',
+          phone: user?.phone || activeRental?.tenantPhone || '',
+          role: 'tenant',
+          status: user?.status || 'active',
+          createdAt: user?.createdAt || activeRental?.createdAt || new Date().toISOString(),
+          tenantDetails: user?.tenantDetails,
+          activeRental: activeRental,
+          rentalsCount: tenantRentals.length
+        };
+      });
+      
+      setTenants(tenantsWithDetails);
+      console.log('✅ TenantsTab loaded:', tenantsWithDetails.length, 'tenants from rentals');
     } catch (error) {
       console.error('Error fetching tenants:', error);
     } finally {
