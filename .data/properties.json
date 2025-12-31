@@ -311,7 +311,71 @@
       "status": "available",
       "published": true,
       "createdAt": "2025-01-22T10:00:11Z",
-      "updatedAt": "2025-01-22T10:00:11Z"
+      "updatedAt": "2025-01-22T10:00:11Z",
+      "additionalData": {
+        "ownerData": {
+          "fullName": "سعود سالم الجابري",
+          "nationalId": "12568981",
+          "nationalIdExpiry": "2026-01-07",
+          "phone": "90156565",
+          "email": "a0h@sfg.om",
+          "nationalIdFile": "عقد.pdf"
+        },
+        "staffData": {
+          "maintenanceOfficerName": "خلفان",
+          "maintenanceOfficerPhone": "990"
+        },
+        "propertyData": {
+          "plotNumber": "5080",
+          "area": "المعبيلة ",
+          "blockNumber": "80",
+          "surveyNumber": "20156652100",
+          "buildingNumber": "80",
+          "landUseType": "residential"
+        },
+        "serviceAccounts": [
+          {
+            "id": "service-1767202847451",
+            "type": "electricity",
+            "accountNumber": "54324",
+            "active": true,
+            "meterImage": "133890788085267303.jpg",
+            "paymentType": "prepaid"
+          },
+          {
+            "id": "service-1767202864189",
+            "type": "water",
+            "accountNumber": "3241543",
+            "active": true,
+            "meterImage": "133904712409075481.jpg",
+            "paymentType": "postpaid"
+          }
+        ],
+        "documents": [
+          {
+            "id": "doc-1767202794694-0",
+            "type": "ownership_deed",
+            "name": "عقد_compressed.pdf",
+            "fileUrl": "عقد_compressed.pdf",
+            "fileName": "عقد_compressed.pdf",
+            "fileSize": "102.90 KB",
+            "uploadedAt": "2025-12-31T17:39:54.695Z"
+          },
+          {
+            "id": "doc-1767202809113-0",
+            "type": "survey_drawing",
+            "name": "PRIVATE CAR DRIVER.pdf",
+            "fileUrl": "PRIVATE CAR DRIVER.pdf",
+            "fileName": "PRIVATE CAR DRIVER.pdf",
+            "fileSize": "1734.19 KB",
+            "uploadedAt": "2025-12-31T17:40:09.114Z",
+            "expiryDate": "",
+            "notes": ""
+          }
+        ],
+        "bankAccounts": [],
+        "updatedAt": "2025-12-31T17:41:07.253Z"
+      }
     }
   ],
   "lastId": 5

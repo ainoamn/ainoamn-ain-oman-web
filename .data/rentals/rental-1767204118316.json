@@ -1,0 +1,107 @@
+{
+  "id": "rental-1767204118316",
+  "propertyId": "P-20251022100011",
+  "tenantId": "TENANT-004",
+  "tenantName": "سلمان مصبح سعيد ",
+  "tenantPhone": "98090908",
+  "tenantEmail": "ah43@sfg.om",
+  "unitId": "unit-3",
+  "startDate": "2026-02-01",
+  "endDate": "2027-02-28",
+  "duration": 13,
+  "monthlyRent": 150,
+  "deposit": 150,
+  "amount": 150,
+  "currency": "OMR",
+  "terms": [],
+  "customTerms": "",
+  "status": "draft",
+  "state": "reserved",
+  "docs": [],
+  "history": [
+    {
+      "at": 1767204119031,
+      "by": "demo-user",
+      "event": "reserve",
+      "to": "reserved"
+    }
+  ],
+  "createdAt": 1767204118316,
+  "updatedAt": 1767207019756,
+  "contractTemplate": {
+    "templateId": "renewal-request",
+    "templateName": {
+      "ar": "طلب تجديد عقد",
+      "en": "Contract Renewal Request"
+    },
+    "filledAt": "2025-12-31T17:55:16.655Z",
+    "content": {
+      "sections": [
+        {
+          "title": {
+            "ar": "بيانات الطلب",
+            "en": "Request Information"
+          },
+          "clauses": [
+            {
+              "ar": "المستأجر: سلمان مصبح سعيد ",
+              "en": "Tenant: سلمان مصبح سعيد "
+            },
+            {
+              "ar": "رقم العقد: [رقم العقد]",
+              "en": "Contract Number: [Contract Number]"
+            },
+            {
+              "ar": "تاريخ الطلب: ٣١ ديسمبر ٢٠٢٥",
+              "en": "Request Date: ٣١ ديسمبر ٢٠٢٥"
+            }
+          ]
+        },
+        {
+          "title": {
+            "ar": "تفاصيل التجديد",
+            "en": "Renewal Details"
+          },
+          "clauses": [
+            {
+              "ar": "أطلب تجديد العقد لمدة 13 شهر",
+              "en": "I request to renew the contract for 13 months"
+            },
+            {
+              "ar": "بداية الفترة الجديدة: ٣١ ديسمبر ٢٠٢٥",
+              "en": "Start of New Period: ٣١ ديسمبر ٢٠٢٥"
+            },
+            {
+              "ar": "الراتب الشهري المطلوب: 150.000 ريال عماني ريال عماني",
+              "en": "Requested Monthly Rent: 150.000 ريال عماني Omani Rial"
+            },
+            {
+              "ar": "تعليقات إضافية: [التعليقات]",
+              "en": "Additional Comments: [Comments]"
+            }
+          ]
+        },
+        {
+          "title": {
+            "ar": "التوقيع",
+            "en": "Signature"
+          },
+          "clauses": [
+            {
+              "ar": "توقيع المستأجر: _______________",
+              "en": "Tenant Signature: _______________"
+            },
+            {
+              "ar": "التاريخ: ٣١ ديسمبر ٢٠٢٥",
+              "en": "Date: ٣١ ديسمبر ٢٠٢٥"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "signatureWorkflow": "sent_for_signatures",
+  "signatures": [],
+  "sentForSignaturesAt": 1767207019755,
+  "sentForSignaturesBy": "admin"
+}

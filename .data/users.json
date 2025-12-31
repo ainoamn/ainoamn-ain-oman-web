@@ -575,5 +575,67 @@
     },
     "createdAt": "2025-11-05T08:52:32.204Z",
     "lastActive": "2025-11-05T08:52:32.204Z"
+  },
+  {
+    "id": "TENANT-004",
+    "name": "سلمان مصبح سعيد ",
+    "email": "ah43@sfg.om",
+    "username": "T-سل035000",
+    "password": "#FZ9YWr9",
+    "phone": "98090908",
+    "role": "tenant",
+    "status": "pending_approval",
+    "accountStatus": "pending_contract",
+    "isVerified": false,
+    "permissions": [],
+    "credentials": {
+      "username": "T-سل035000",
+      "password": "#FZ9YWr9",
+      "sentViaEmail": false,
+      "sentViaSMS": false,
+      "approvedBy": null,
+      "approvedAt": null,
+      "contractApproved": false,
+      "ownerApproved": false,
+      "tenantApproved": false,
+      "adminApproved": false
+    },
+    "profile": {
+      "avatar": "https://ui-avatars.com/api/?name=%D8%B3%D9%84%D9%85%D8%A7%D9%86%20%D9%85%D8%B5%D8%A8%D8%AD%20%D8%B3%D8%B9%D9%8A%D8%AF%20&background=14b8a6&color=fff&size=200",
+      "company": "",
+      "location": "سي",
+      "lastLogin": "2025-12-31T17:42:49.268Z",
+      "loginCount": 0
+    },
+    "tenantDetails": {
+      "type": "individual_omani",
+      "email": "ah43@sfg.om",
+      "phone1": "98090908",
+      "phone2": "",
+      "employer": "غ",
+      "address": "سي",
+      "fullName": "سلمان مصبح سعيد ",
+      "tribe": "البلوشي",
+      "nationalId": "035000",
+      "nationalIdExpiry": "2026-01-31",
+      "nationalIdFile": "/uploads/tenants/yp0ni69d532rckockgwh6ad2o.jpg"
+    },
+    "subscription": {
+      "plan": "basic",
+      "planName": "الخطة المجانية",
+      "status": "active",
+      "expiresAt": "2099-12-31T23:59:59.999Z",
+      "remainingDays": 99999
+    },
+    "stats": {
+      "properties": 0,
+      "units": 0,
+      "bookings": 0,
+      "revenue": 0,
+      "tasks": 0,
+      "legalCases": 0
+    },
+    "createdAt": "2025-12-31T17:42:49.268Z",
+    "lastActive": "2025-12-31T17:42:49.268Z"
   }
 ]

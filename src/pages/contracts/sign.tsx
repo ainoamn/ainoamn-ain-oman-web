@@ -64,8 +64,18 @@ const ElectronicSignPage: NextPage = () => {
       if (response.ok) {
         const data = await response.json();
         const contracts = data.items || [];
-        setAllContracts(contracts);
-        console.log(`📋 تم جلب ${contracts.length} عقد`);
+        
+        // إزالة التكرارات بناءً على id
+        const uniqueContracts = contracts.reduce((acc: any[], contract: any) => {
+          const exists = acc.find(c => c.id === contract.id);
+          if (!exists) {
+            acc.push(contract);
+          }
+          return acc;
+        }, []);
+        
+        setAllContracts(uniqueContracts);
+        console.log(`📋 تم جلب ${uniqueContracts.length} عقد (تمت إزالة ${contracts.length - uniqueContracts.length} تكرار)`);
       }
     } catch (error) {
       console.error('Error loading contracts:', error);

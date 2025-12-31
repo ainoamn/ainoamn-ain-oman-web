@@ -321,7 +321,20 @@ export default function UnifiedPropertyManagement() {
       if (rentalsRes.ok) {
         const rentalsData = await rentalsRes.json();
         const allRentals = rentalsData.items || [];
-        setRentals(allRentals);
+        
+        // إزالة التكرارات بناءً على id
+        const uniqueRentals = allRentals.reduce((acc: any[], rental: any) => {
+          const exists = acc.find(r => r.id === rental.id);
+          if (!exists) {
+            acc.push(rental);
+          }
+          return acc;
+        }, []);
+        
+        setRentals(uniqueRentals);
+        if (allRentals.length !== uniqueRentals.length) {
+          console.log(`⚠️ تمت إزالة ${allRentals.length - uniqueRentals.length} عقد مكرر`);
+        }
         
         // حساب عدد المستأجرين من العقود فقط (المصدر الحقيقي)
         // نستخدم Set لإزالة التكرار
@@ -1460,6 +1473,131 @@ export default function UnifiedPropertyManagement() {
                 </div>
               </div>
             )}
+
+            {/* قسم إشعارات العقود التي تحتاج للتوقيع */}
+            {(() => {
+              // فلترة العقود التي تحتاج للتوقيع وإزالة التكرارات
+              const pendingContracts = rentals
+                .filter((r: any) => {
+                  const state = r.signatureWorkflow || r.state;
+                  return state && state !== 'active' && state !== 'cancelled' && state !== 'expired' && 
+                         ['sent_for_signatures', 'pending_tenant_signature', 'pending_owner_signature', 'pending_admin_approval', 'draft', 'reserved'].includes(state);
+                })
+                .reduce((acc: any[], contract: any) => {
+                  // إزالة التكرارات بناءً على id
+                  const exists = acc.find(c => c.id === contract.id);
+                  if (!exists) {
+                    acc.push(contract);
+                  }
+                  return acc;
+                }, []);
+
+              if (pendingContracts.length === 0) return null;
+
+              return (
+                <div className="mt-4 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl p-5 shadow-lg">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-yellow-500 rounded-xl flex items-center justify-center">
+                        <FaFileContract className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-gray-900">عقود تحتاج للتوقيع</h2>
+                        <p className="text-sm text-gray-600">
+                          {pendingContracts.length} {pendingContracts.length === 1 ? 'عقد' : 'عقود'} في انتظار التوقيع
+                        </p>
+                      </div>
+                    </div>
+                    <InstantLink
+                      href="/contracts/sign"
+                      className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium transition-colors text-sm flex items-center gap-2"
+                    >
+                      <FaFileContract className="w-4 h-4" />
+                      عرض الكل
+                    </InstantLink>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {pendingContracts.slice(0, 3).map((contract: any) => {
+                      const signatures = contract.signatures || [];
+                      const hasTenantSign = signatures.some((s: any) => s.type === 'tenant');
+                      const hasOwnerSign = signatures.some((s: any) => s.type === 'owner');
+                      const hasAdminSign = signatures.some((s: any) => s.type === 'admin');
+                      const state = contract.signatureWorkflow || contract.state;
+                      
+                      return (
+                        <InstantLink
+                          key={contract.id}
+                          href={`/contracts/sign?contractId=${contract.id}`}
+                          className="block bg-white border border-yellow-200 hover:border-yellow-400 rounded-xl p-4 transition-all shadow-sm hover:shadow-md"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1">
+                              <h3 className="font-bold text-gray-900 text-sm mb-1">
+                                العقد #{contract.id?.split('-')[1]?.substring(0, 8) || contract.id?.slice(-8)}
+                              </h3>
+                              <p className="text-xs text-gray-600">
+                                {contract.tenantName || 'مستأجر غير محدد'}
+                              </p>
+                            </div>
+                            <span className="text-sm font-bold text-gray-900">
+                              {contract.monthlyRent || 0} {contract.currency || 'OMR'}
+                            </span>
+                          </div>
+                          
+                          <div className="mt-3 space-y-1">
+                            <div className="flex items-center gap-2 text-xs">
+                              <span className={`w-5 h-5 rounded-full flex items-center justify-center ${hasTenantSign ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
+                                {hasTenantSign ? '✓' : '○'}
+                              </span>
+                              <span className={hasTenantSign ? 'text-green-700 font-medium' : 'text-gray-500'}>
+                                المستأجر
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs">
+                              <span className={`w-5 h-5 rounded-full flex items-center justify-center ${hasOwnerSign ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
+                                {hasOwnerSign ? '✓' : '○'}
+                              </span>
+                              <span className={hasOwnerSign ? 'text-green-700 font-medium' : 'text-gray-500'}>
+                                المالك
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs">
+                              <span className={`w-5 h-5 rounded-full flex items-center justify-center ${hasAdminSign ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
+                                {hasAdminSign ? '✓' : '○'}
+                              </span>
+                              <span className={hasAdminSign ? 'text-green-700 font-medium' : 'text-gray-500'}>
+                                الإدارة
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-2 pt-2 border-t border-gray-200">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                              state === 'pending_tenant_signature' ? 'bg-yellow-100 text-yellow-800' :
+                              state === 'pending_owner_signature' ? 'bg-orange-100 text-orange-800' :
+                              state === 'pending_admin_approval' ? 'bg-purple-100 text-purple-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {getStateLabel(state)}
+                            </span>
+                          </div>
+                        </InstantLink>
+                      );
+                    })}
+                  </div>
+                  {pendingContracts.length > 3 && (
+                    <div className="mt-3 text-center">
+                      <InstantLink
+                        href="/contracts/sign"
+                        className="text-sm text-yellow-700 hover:text-yellow-800 font-medium"
+                      >
+                        + {pendingContracts.length - 3} عقود أخرى
+                      </InstantLink>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Tabs */}
             <div className="border-b border-gray-200 mt-6">

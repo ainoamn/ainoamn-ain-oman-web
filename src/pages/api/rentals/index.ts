@@ -41,19 +41,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log(`📋 جلب جميع العقود:`, items.length, 'عقد');
       }
       
+      // إزالة التكرارات بناءً على id (احترازي)
+      const uniqueItems = items.reduce((acc: any[], rental: any) => {
+        const exists = acc.find(r => r.id === rental.id);
+        if (!exists) {
+          acc.push(rental);
+        }
+        return acc;
+      }, []);
+      
+      if (items.length !== uniqueItems.length) {
+        console.log(`⚠️ تمت إزالة ${items.length - uniqueItems.length} عقد مكرر في API`);
+      }
+      
       // Log أول عقد كمثال
-      if (items.length > 0) {
+      if (uniqueItems.length > 0) {
         console.log('📦 مثال على بيانات العقد:', {
-          id: items[0].id,
-          propertyId: items[0].propertyId,
-          tenantName: items[0].tenantName,
-          startDate: items[0].startDate,
-          endDate: items[0].endDate,
-          monthlyRent: items[0].monthlyRent
+          id: uniqueItems[0].id,
+          propertyId: uniqueItems[0].propertyId,
+          tenantName: uniqueItems[0].tenantName,
+          startDate: uniqueItems[0].startDate,
+          endDate: uniqueItems[0].endDate,
+          monthlyRent: uniqueItems[0].monthlyRent
         });
       }
       
-      return res.json({ items });
+      return res.json({ items: uniqueItems });
     } catch (error) {
       console.error('❌ خطأ في جلب العقود:', error);
       return res.status(500).json({ error: 'Internal server error', items: [] });

@@ -8,8 +8,32 @@ const fpath = (id: string) => (ensure(), path.join(ROOT, `${id}.json`));
 
 function readAll(): Rental[] {
   ensure();
-  return fs.readdirSync(ROOT).filter(f => f.endsWith(".json"))
-    .map(f => JSON.parse(fs.readFileSync(path.join(ROOT, f), "utf8")) as Rental);
+  const allFiles = fs.readdirSync(ROOT).filter(f => f.endsWith(".json"));
+  const allRentals = allFiles.map(f => {
+    try {
+      return JSON.parse(fs.readFileSync(path.join(ROOT, f), "utf8")) as Rental;
+    } catch (error) {
+      console.error(`❌ خطأ في قراءة ملف العقد ${f}:`, error);
+      return null;
+    }
+  }).filter((r): r is Rental => r !== null);
+  
+  // إزالة التكرارات بناءً على id (احترازي)
+  const uniqueRentals = allRentals.reduce((acc: Rental[], rental: Rental) => {
+    const exists = acc.find(r => r.id === rental.id);
+    if (!exists) {
+      acc.push(rental);
+    } else {
+      console.warn(`⚠️ عقد مكرر تم تجاهله: ${rental.id}`);
+    }
+    return acc;
+  }, []);
+  
+  if (allRentals.length !== uniqueRentals.length) {
+    console.log(`⚠️ تمت إزالة ${allRentals.length - uniqueRentals.length} عقد مكرر في readAll()`);
+  }
+  
+  return uniqueRentals;
 }
 
 // دالة لجلب ownerId من العقار

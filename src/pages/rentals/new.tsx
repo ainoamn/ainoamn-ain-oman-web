@@ -935,13 +935,18 @@ export default function NewRentalContract() {
         const allRentals = Array.isArray(rentalsData?.items) ? rentalsData.items : [];
         
         // البحث عن عقد نشط أو محجوز أو مؤجر لهذا العقار
-        const existing = allRentals.find((rental: any) => 
-          rental.propertyId === property.id && 
-          rental.state && 
-          ['active', 'reserved', 'paid', 'docs_submitted', 'docs_verified', 'handover_completed'].includes(rental.state) &&
-          rental.state !== 'cancelled' &&
-          rental.state !== 'expired'
-        );
+        // ملاحظة: عند اختيار العقار فقط، نتحقق من العقود التي لا تحتوي على unitId (عقارات مفردة)
+        // أما عند اختيار وحدة معينة، سيتم التحقق في selectUnit
+        const existing = allRentals.find((rental: any) => {
+          const matchesProperty = rental.propertyId === property.id;
+          const activeState = rental.state && 
+            ['active', 'reserved', 'paid', 'docs_submitted', 'docs_verified', 'handover_completed'].includes(rental.state) &&
+            rental.state !== 'cancelled' &&
+            rental.state !== 'expired';
+          // للعقارات المفردة (لا تحتوي على وحدات)، نتحقق من العقود بدون unitId
+          const isSingleProperty = property.buildingType === 'single';
+          return matchesProperty && activeState && (isSingleProperty ? !rental.unitId : true);
+        });
         
         if (existing) {
           console.log('⚠️ تم العثور على عقد سابق:', existing);
@@ -1038,7 +1043,50 @@ export default function NewRentalContract() {
     }
   };
   
-  const selectUnit = (unit: Unit) => {
+  const selectUnit = async (unit: Unit) => {
+    setError(null);
+    setExistingContract(null);
+    
+    // التحقق من وجود عقد سابق للوحدة
+    if (!selectedProperty) return;
+    
+    try {
+      console.log('🔍 التحقق من وجود عقد سابق للوحدة:', unit.id);
+      const rentalsResponse = await fetch('/api/rentals');
+      
+      if (rentalsResponse.ok) {
+        const rentalsData = await rentalsResponse.json();
+        const allRentals = Array.isArray(rentalsData?.items) ? rentalsData.items : [];
+        
+        // البحث عن عقد نشط أو محجوز أو مؤجر لهذه الوحدة
+        const existing = allRentals.find((rental: any) => {
+          // التحقق من مطابقة الوحدة
+          const matchesUnit = rental.unitId === unit.id;
+          // التحقق من مطابقة العقار
+          const matchesProperty = rental.propertyId === selectedProperty.id;
+          // التحقق من الحالة
+          const activeState = rental.state && 
+            ['active', 'reserved', 'paid', 'docs_submitted', 'docs_verified', 'handover_completed'].includes(rental.state) &&
+            rental.state !== 'cancelled' &&
+            rental.state !== 'expired';
+          
+          return (matchesUnit || (matchesProperty && !rental.unitId)) && activeState;
+        });
+        
+        if (existing) {
+          console.log('⚠️ تم العثور على عقد سابق للوحدة:', existing);
+          setExistingContract(existing);
+          setShowExistingContractModal(true);
+          return; // إيقاف عملية الاختيار حتى يتم إلغاء العقد أو إغلاق النافذة
+        } else {
+          console.log('✅ لا يوجد عقد سابق نشط للوحدة');
+        }
+      }
+    } catch (err) {
+      console.error('❌ خطأ في التحقق من العقود السابقة للوحدة:', err);
+      // نواصل العملية حتى لو فشل التحقق
+    }
+    
     setSelectedUnit(unit);
     setFormData(prev => ({ 
       ...prev, 
@@ -1599,6 +1647,38 @@ export default function NewRentalContract() {
     setSuccess(null);
     
     try {
+      // التحقق من وجود عقد سابق قبل الحفظ (تحقق إضافي)
+      if (formData.propertyId && formData.unitId) {
+        try {
+          const checkResponse = await fetch('/api/rentals');
+          if (checkResponse.ok) {
+            const checkData = await checkResponse.json();
+            const allRentals = Array.isArray(checkData?.items) ? checkData.items : [];
+            
+            // البحث عن عقد نشط لنفس العقار والوحدة
+            const existing = allRentals.find((rental: any) => {
+              const matchesProperty = rental.propertyId === formData.propertyId;
+              const matchesUnit = rental.unitId === formData.unitId;
+              const activeState = rental.state && 
+                ['active', 'reserved', 'paid', 'docs_submitted', 'docs_verified', 'handover_completed'].includes(rental.state) &&
+                rental.state !== 'cancelled' &&
+                rental.state !== 'expired';
+              
+              return matchesProperty && matchesUnit && activeState;
+            });
+            
+            if (existing) {
+              setError(`⚠️ يوجد عقد نشط لهذه الوحدة بالفعل (${existing.id}). يجب إلغاء العقد السابق أولاً.`);
+              setLoading(false);
+              return;
+            }
+          }
+        } catch (checkError) {
+          console.error('خطأ في التحقق من العقود السابقة:', checkError);
+          // نواصل العملية حتى لو فشل التحقق
+        }
+      }
+      
       // توليد القالب المملوء قبل الحفظ
       if (!filledTemplate) {
         await generateFilledTemplate();
@@ -5477,7 +5557,7 @@ export default function NewRentalContract() {
                       </div>
                       <div>
                         <h4 className="text-2xl font-bold mb-1">
-                          {typeof filledTemplate.name === 'object' ? filledTemplate.name.ar : filledTemplate.name}
+                          طلب تسجيل عقد جديد
                         </h4>
                         <p className="text-green-100">تم إنشاء وثيقة العقد تلقائياً ✓</p>
                       </div>
