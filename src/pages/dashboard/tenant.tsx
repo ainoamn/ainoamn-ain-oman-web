@@ -1,5 +1,6 @@
 // src/pages/dashboard/tenant.tsx
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import InstantLink from '@/components/InstantLink';
 import { motion } from "framer-motion";
 import { FaFileContract, FaCalendarAlt, FaMoneyBillWave, FaClock } from "react-icons/fa";
@@ -8,7 +9,18 @@ import { FaFileContract, FaCalendarAlt, FaMoneyBillWave, FaClock } from "react-i
 function getUserId(): string | null {
   if (typeof window === "undefined") return null;
   
-  // من localStorage
+  // من ain_auth (نظام تسجيل الدخول)
+  try {
+    const authStr = localStorage.getItem("ain_auth");
+    if (authStr) {
+      const auth = JSON.parse(authStr);
+      if (auth.id) return auth.id;
+    }
+  } catch (e) {
+    // تجاهل الأخطاء
+  }
+  
+  // من localStorage (طريقة قديمة)
   const uid = localStorage.getItem("ao_uid") || localStorage.getItem("uid");
   if (uid) return uid;
   
@@ -22,23 +34,65 @@ function getUserId(): string | null {
   return null;
 }
 
+// دالة لتحويل القيم متعددة اللغات إلى نص
+function toText(value: any, lang: 'ar' | 'en' = 'ar'): string {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number') return value.toString();
+  if (typeof value === 'object' && (value.ar || value.en)) {
+    return value[lang] || value.ar || value.en || '';
+  }
+  return String(value);
+}
+
 export default function Page() {
+  const router = useRouter();
   const [rentals, setRentals] = useState<any[]>([]);
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("contracts");
+  const [activeTab, setActiveTab] = useState<string>("contracts");
+
+  // قراءة التبويب من query parameters
+  useEffect(() => {
+    if (router.query.tab && typeof router.query.tab === 'string') {
+      setActiveTab(router.query.tab);
+    }
+  }, [router.query.tab]);
   const [userId, setUserId] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("مستأجر");
+  const [isCorporate, setIsCorporate] = useState(false);
 
   useEffect(() => {
     // الحصول على userId
     const uid = getUserId();
     setUserId(uid);
     
-    // الحصول على اسم المستخدم
+    // الحصول على اسم المستخدم والتحقق من نوع المستأجر (فردي أم شركة)
     if (typeof window !== "undefined") {
-      const name = localStorage.getItem("ao_name") || localStorage.getItem("uname") || "مستأجر";
+      let name = "مستأجر";
+      let corporate = false;
+      try {
+        const authStr = localStorage.getItem("ain_auth");
+        if (authStr) {
+          const auth = JSON.parse(authStr);
+          if (auth.name) {
+            name = auth.name;
+          }
+          // التحقق من نوع المستأجر (corporate_tenant أو tenant مع tenantDetails.type === 'corporate')
+          if (auth.role === 'corporate_tenant' || auth.tenantDetails?.type === 'corporate') {
+            corporate = true;
+          }
+        }
+      } catch (e) {
+        // تجاهل الأخطاء
+      }
+      
+      // Fallback للطرق القديمة
+      if (name === "مستأجر") {
+        name = localStorage.getItem("ao_name") || localStorage.getItem("uname") || "مستأجر";
+      }
       setUserName(name);
+      setIsCorporate(corporate);
     }
     
     fetchTenantData(uid);
@@ -58,9 +112,19 @@ export default function Page() {
 
       if (rentalsRes.ok) {
         const rentalsData = await rentalsRes.json();
-        const items = Array.isArray(rentalsData?.items) ? rentalsData.items : [];
-        setRentals(items);
-        console.log('✅ Tenant rentals loaded:', items.length);
+        const allItems = Array.isArray(rentalsData?.items) ? rentalsData.items : [];
+        
+        // تصفية العقود لتظهر فقط عقود المستأجر الحالي (tenantId)
+        // في لوحة تحكم المستأجر، نريد فقط العقود التي tenantId === userId
+        const filteredItems = uid 
+          ? allItems.filter((rental: any) => rental.tenantId === uid)
+          : [];
+        
+        setRentals(filteredItems);
+        console.log('✅ Tenant rentals loaded:', filteredItems.length, 'من', allItems.length, 'إجمالي');
+        if (filteredItems.length !== allItems.length) {
+          console.log('📋 تم تصفية العقود: فقط عقود المستأجر', uid);
+        }
       } else {
         console.error('❌ Failed to load rentals:', rentalsRes.status);
       }
@@ -123,8 +187,13 @@ export default function Page() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">لوحة تحكم المستأجر</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {isCorporate ? 'لوحة تحكم مستأجر الشركة' : 'لوحة تحكم المستأجر'}
+              </h1>
               <p className="mt-1 text-sm text-gray-500">مرحباً {userName}</p>
+              {isCorporate && (
+                <p className="text-sm text-blue-600 mt-1">🏢 حساب شركة - إدارة وحدات متعددة</p>
+              )}
             </div>
             <InstantLink href="/dashboard" className="text-teal-700 hover:underline">رجوع</InstantLink>
           </div>
@@ -134,7 +203,10 @@ export default function Page() {
         <div className="mb-6 border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
             <button
-              onClick={() => setActiveTab("contracts")}
+              onClick={() => {
+                setActiveTab("contracts");
+                router.push('/dashboard/tenant?tab=contracts', undefined, { shallow: true });
+              }}
               className={`${
                 activeTab === "contracts"
                   ? "border-teal-500 text-teal-600"
@@ -143,6 +215,20 @@ export default function Page() {
             >
               <FaFileContract className="inline ml-2" />
               عقود الإيجار ({rentals.length})
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab("payments");
+                router.push('/dashboard/tenant?tab=payments', undefined, { shallow: true });
+              }}
+              className={`${
+                activeTab === "payments"
+                  ? "border-teal-500 text-teal-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              <FaMoneyBillWave className="inline ml-2" />
+              المدفوعات
             </button>
           </nav>
         </div>
@@ -189,10 +275,10 @@ export default function Page() {
                           </td>
                           <td className="px-6 py-4">
                             <div className="text-sm text-gray-900">
-                              {property?.buildingNumber ? `مبنى ${property.buildingNumber}` : property?.title || 'غير محدد'}
+                              {toText(property?.buildingNumber) ? `مبنى ${toText(property.buildingNumber)}` : toText(property?.title) || 'غير محدد'}
                             </div>
                             {rental.unitId && (
-                              <div className="text-xs text-gray-500">وحدة: {rental.unitId}</div>
+                              <div className="text-xs text-gray-500">وحدة: {toText(rental.unitId)}</div>
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

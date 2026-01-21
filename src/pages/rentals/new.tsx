@@ -1723,7 +1723,7 @@ export default function NewRentalContract() {
       if (response.ok) {
         setSuccess('تم إنشاء عقد الإيجار بنجاح!');
         setTimeout(() => {
-          router.push('/dashboard/owner?tab=rentals');
+          router.push('/dashboard/property-owner?tab=rentals');
         }, 2000);
       } else {
         const errorData = await response.json();
@@ -5756,7 +5756,7 @@ export default function NewRentalContract() {
                         
                         if (response.ok) {
                           setSuccess('✅ تم أرشفة العقد بنجاح!');
-                          setTimeout(() => router.push('/dashboard/owner'), 2000);
+                          setTimeout(() => router.push('/dashboard/property-owner'), 2000);
                         } else {
                           setError('فشل أرشفة العقد');
                         }
@@ -5874,7 +5874,7 @@ export default function NewRentalContract() {
               {/* Back Button */}
               <div className="mb-6">
                 <InstantLink
-                  href="/dashboard/owner"
+                  href="/dashboard/property-owner"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all"
                 >
                   <FaArrowLeft />

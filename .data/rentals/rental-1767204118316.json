@@ -16,7 +16,7 @@
   "terms": [],
   "customTerms": "",
   "status": "draft",
-  "state": "reserved",
+  "state": "active",
   "docs": [],
   "history": [
     {
@@ -27,7 +27,7 @@
     }
   ],
   "createdAt": 1767204118316,
-  "updatedAt": 1767207019756,
+  "updatedAt": 1767245023863,
   "contractTemplate": {
     "templateId": "renewal-request",
     "templateName": {
@@ -100,8 +100,31 @@
       ]
     }
   },
-  "signatureWorkflow": "sent_for_signatures",
-  "signatures": [],
+  "signatureWorkflow": "active",
+  "signatures": [
+    {
+      "type": "tenant",
+      "name": "سليمان",
+      "signedAt": 1767244996370,
+      "ipAddress": "::1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+    },
+    {
+      "type": "owner",
+      "name": "المالك",
+      "signedAt": 1767245010460,
+      "ipAddress": "::1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+    },
+    {
+      "type": "admin",
+      "name": "عبد الحميد",
+      "signedAt": 1767245023825,
+      "ipAddress": "::1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+    }
+  ],
   "sentForSignaturesAt": 1767207019755,
-  "sentForSignaturesBy": "admin"
+  "sentForSignaturesBy": "admin",
+  "activatedAt": 1767245023825
 }

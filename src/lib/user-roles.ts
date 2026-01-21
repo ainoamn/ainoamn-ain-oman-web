@@ -177,7 +177,7 @@ export const USER_ROLES: Record<UserRole, UserRoleConfig> = {
       ar: 'شركة تستأجر عدة وحدات مع إدارة موظفيها', 
       en: 'Company renting multiple units with employee management' 
     },
-    dashboardPath: '/dashboard/corporate-tenant',
+    dashboardPath: '/dashboard/tenant',
     profilePath: '/profile',
     maxProperties: 0,
     maxUnits: 100,
@@ -242,7 +242,7 @@ export const USER_ROLES: Record<UserRole, UserRoleConfig> = {
       ar: 'مالك عقار واحد إلى 3 عقارات', 
       en: 'Owner of 1 to 3 properties' 
     },
-    dashboardPath: '/dashboard/landlord',
+    dashboardPath: '/dashboard/property-owner',
     profilePath: '/profile',
     maxProperties: 3,
     maxUnits: 20,

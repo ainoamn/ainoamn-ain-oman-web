@@ -52,14 +52,14 @@ export default async function handler(
     const ownerCount = users.filter((u: any) => u.role === 'owner').length;
     const newOwnerId = `OWNER-${String(ownerCount + 1).padStart(3, '0')}`;
     
-    // توليد اسم مستخدم بصيغة: O-XX12345678
-    // O- + أول حرفين من الاسم (كابيتال) + الرقم المدني
+    // توليد اسم مستخدم بصيغة: O-12345678
+    // O- + الرقم المدني فقط (بدون أحرف من الاسم)
     const generateUsername = (name: string, nationalId: string): string => {
-      const names = name.trim().split(' ');
-      const firstName = names[0] || 'OW';
-      const firstTwoLetters = firstName.substring(0, 2).toUpperCase();
+      // تنظيف الرقم المدني من أي فواصل
       const cleanNationalId = nationalId.replace(/[^0-9]/g, '');
-      return `O-${firstTwoLetters}${cleanNationalId}`;
+      
+      // O- + الرقم المدني فقط
+      return `O-${cleanNationalId}`;
     };
     
     // توليد رقم سري قوي

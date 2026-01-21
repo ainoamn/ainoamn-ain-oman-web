@@ -259,19 +259,28 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login' }: Aut
                   {activeTab === 'login' && (
                     <form onSubmit={handleLogin} className="space-y-5">
                       
-                      {/* Email */}
+                      {/* Info Box */}
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                        <p className="text-sm text-blue-800">
+                          💡 يمكنك استخدام اسم المستخدم المولد (مثل: <strong>T-12345678</strong>) أو البريد الإلكتروني
+                        </p>
+                      </div>
+                      
+                      {/* Username/Email */}
                       <div>
                         <label className="block text-sm font-bold text-gray-700 mb-2">
-                          البريد الإلكتروني
+                          اسم المستخدم / البريد الإلكتروني
                         </label>
                         <div className="relative">
-                          <EnvelopeIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                          <UserIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                           <input
-                            type="email"
+                            type="text"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="example@ainoman.om"
+                            placeholder="T-12345678 أو example@ainoman.om"
                             required
+                            autoComplete="off"
+                            inputMode="text"
                             className="w-full pr-12 pl-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
                           />
                         </div>

@@ -29,6 +29,16 @@ interface User {
   phone: string;
   role: UserRole;
   status: 'active' | 'inactive' | 'suspended' | 'pending';
+  username?: string;
+  credentials?: {
+    username?: string;
+    password?: string;
+    sentViaEmail?: boolean;
+    sentViaSMS?: boolean;
+    sentViaWhatsApp?: boolean;
+    approvedBy?: string;
+    approvedAt?: string;
+  };
   subscription?: {
     planName: string;
     status: 'active' | 'expired' | 'cancelled';
@@ -990,14 +1000,88 @@ export default function AdminUsersPage() {
                                 </div>
                               </div>
 
+                              {/* بيانات الدخول */}
+                              {(user.username || user.credentials?.username) && (
+                                <div>
+                                  <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                                    <FiKey className="text-blue-500" />
+                                    بيانات الدخول
+                                  </h4>
+                                  <div className="space-y-2 text-sm">
+                                    <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                                      <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-gray-600 font-medium">اسم المستخدم:</span>
+                                          <span className="font-mono font-bold text-blue-700">
+                                            {user.credentials?.username || user.username}
+                                          </span>
+                                        </div>
+                                        {user.credentials?.password && (
+                                          <div className="flex items-center justify-between">
+                                            <span className="text-gray-600 font-medium">كلمة المرور:</span>
+                                            <div className="flex items-center gap-2">
+                                              <span className="font-mono font-bold text-green-700" id={`password-${user.id}`}>
+                                                {user.credentials.password}
+                                              </span>
+                                              <button
+                                                onClick={() => {
+                                                  const passwordEl = document.getElementById(`password-${user.id}`);
+                                                  if (passwordEl) {
+                                                    passwordEl.style.filter = passwordEl.style.filter === 'blur(5px)' ? 'none' : 'blur(5px)';
+                                                  }
+                                                }}
+                                                className="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                                title="إظهار/إخفاء"
+                                              >
+                                                👁️
+                                              </button>
+                                              <button
+                                                onClick={() => {
+                                                  const password = user.credentials?.password;
+                                                  if (password) {
+                                                    navigator.clipboard.writeText(password);
+                                                    alert('تم نسخ كلمة المرور!');
+                                                  }
+                                                }}
+                                                className="text-xs px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                                                title="نسخ"
+                                              >
+                                                📋
+                                              </button>
+                                            </div>
+                                          </div>
+                                        )}
+                                        {user.credentials?.sentViaEmail && (
+                                          <div className="text-xs text-green-600 mt-2">
+                                            ✓ تم الإرسال عبر البريد الإلكتروني
+                                          </div>
+                                        )}
+                                        {user.credentials?.sentViaWhatsApp && (
+                                          <div className="text-xs text-green-600 mt-1">
+                                            ✓ تم الإرسال عبر واتساب
+                                          </div>
+                                        )}
+                                        {user.credentials?.approvedBy && (
+                                          <div className="text-xs text-gray-500 mt-1">
+                                            معتمد بواسطة: {user.credentials.approvedBy}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
                               {/* معلومات النظام */}
                               <div>
                                 <h4 className="font-medium text-gray-900 mb-3">معلومات النظام</h4>
                                 <div className="space-y-2 text-sm">
-                                  <div className="flex items-center gap-2">
-                                    <FiGlobe className="text-gray-400" />
-                                    <span>IP: {user.profile?.ipAddress}</span>
-                                  </div>
+                                  {user.profile?.ipAddress && (
+                                    <div className="flex items-center gap-2">
+                                      <FiGlobe className="text-gray-400" />
+                                      <span>IP: {user.profile.ipAddress}</span>
+                                    </div>
+                                  )}
                                   <div className="flex items-center gap-2">
                                     <FiCalendar className="text-gray-400" />
                                     <span>تاريخ التسجيل: {formatDate(user.createdAt)}</span>

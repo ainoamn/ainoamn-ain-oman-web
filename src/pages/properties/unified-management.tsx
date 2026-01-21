@@ -217,9 +217,7 @@ export default function UnifiedPropertyManagement() {
 
   // جلب البيانات
   useEffect(() => {
-    if (session?.user?.id) {
     fetchData();
-    }
   }, [session?.user?.id]);
 
   // تحديث بيانات الإدارة عند فتح تبويباتها (للتحديث فقط)
@@ -282,13 +280,41 @@ export default function UnifiedPropertyManagement() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const userId = session?.user?.id;
+      // الحصول على userId و userRole من مصادر متعددة
+      let userId = session?.user?.id;
+      let userRole: string | null = null;
+      if (typeof window !== 'undefined') {
+        try {
+          const authStr = localStorage.getItem("ain_auth");
+          if (authStr) {
+            const auth = JSON.parse(authStr);
+            userId = userId || auth.id;
+            userRole = auth.role;
+          }
+        } catch (e) {
+          // تجاهل الأخطاء
+        }
+      }
       
-      // جلب جميع البيانات الأساسية
+      const isTenant = userRole === 'tenant';
+      
+      // جلب جميع البيانات الأساسية - فقط عقارات المستخدم
+      const propertiesUrl = userId 
+        ? `/api/properties?mine=true&userId=${encodeURIComponent(userId)}`
+        : '/api/properties?mine=true';
+      
+      // للمستأجر: جلب العقود الخاصة به فقط
+      // للمالك: جلب جميع عقود عقاراته
+      const rentalsUrl = userId && isTenant
+        ? `/api/rentals?mine=true&userId=${encodeURIComponent(userId)}`
+        : userId
+        ? `/api/rentals?mine=true&userId=${encodeURIComponent(userId)}`
+        : '/api/rentals?mine=true';
+      
       const [propertiesRes, customersRes, rentalsRes, tenantsRes, usersRes] = await Promise.all([
-        fetch('/api/properties'),
+        fetch(propertiesUrl),
         fetch('/api/customers'),
-        fetch('/api/rentals'),
+        fetch(rentalsUrl),
         fetch('/api/admin/tenants'),
         fetch('/api/users')
       ]);
@@ -313,14 +339,23 @@ export default function UnifiedPropertyManagement() {
         setUnits(allUnits);
       }
 
-      if (customersRes.ok) {
+      // العملاء: للمستأجر = 0 (لأنه ليس مالك)
+      if (isTenant) {
+        setCustomers([]);
+      } else if (customersRes.ok) {
         const customersData = await customersRes.json();
+        // تصفية العملاء حسب المالك (إذا كان API يدعم ذلك)
         setCustomers(customersData.customers || []);
       }
 
       if (rentalsRes.ok) {
         const rentalsData = await rentalsRes.json();
-        const allRentals = rentalsData.items || [];
+        let allRentals = rentalsData.items || [];
+        
+        // للمستأجر: تصفية العقود لتظهر فقط عقوده (tenantId === userId)
+        if (isTenant && userId) {
+          allRentals = allRentals.filter((rental: any) => rental.tenantId === userId);
+        }
         
         // إزالة التكرارات بناءً على id
         const uniqueRentals = allRentals.reduce((acc: any[], rental: any) => {
@@ -336,15 +371,19 @@ export default function UnifiedPropertyManagement() {
           console.log(`⚠️ تمت إزالة ${allRentals.length - uniqueRentals.length} عقد مكرر`);
         }
         
-        // حساب عدد المستأجرين من العقود فقط (المصدر الحقيقي)
-        // نستخدم Set لإزالة التكرار
-        const uniqueTenants = new Set(
-          allRentals
-            .map((r: any) => r.tenantId || r.tenantName)
-            .filter(Boolean)
-        );
-        setTenantsCount(uniqueTenants.size);
-        console.log('✅ Tenants count from rentals:', uniqueTenants.size, 'unique tenants');
+        // حساب عدد المستأجرين: للمستأجر = 0 (لأنه ليس مالك)
+        if (isTenant) {
+          setTenantsCount(0);
+        } else {
+          // للمالك: حساب عدد المستأجرين من العقود
+          const uniqueTenants = new Set(
+            uniqueRentals
+              .map((r: any) => r.tenantId || r.tenantName)
+              .filter(Boolean)
+          );
+          setTenantsCount(uniqueTenants.size);
+          console.log('✅ Tenants count from rentals:', uniqueTenants.size, 'unique tenants');
+        }
       }
 
       // جلب بيانات المستخدمين (للعرض الكامل للمستأجرين)

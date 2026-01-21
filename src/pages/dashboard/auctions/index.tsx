@@ -1,20 +1,16 @@
 // src/pages/dashboard/auctions/index.tsx
-import { useState, useEffect } from 'react';
-import InstantImage from '@/components/InstantImage';
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import InstantLink from '@/components/InstantLink';
-import InstantLink, { InstantButton } from '@/components/InstantLink';
-import DashboardLayout from '@/components/layout/DashboardLayout';
-import { useAuth } from '@/context/AuthContext';
 import { auctionService } from '@/services/auctionService';
 import { paymentService } from '@/services/paymentService';
 
 export default function AuctionDashboard() {
-  const { user, isAuthenticated, hasRole } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('active');
-  const [auctions, setAuctions] = useState([]);
+  const [auctions, setAuctions] = useState<any[]>([]);
   const [stats, setStats] = useState({
     total: 0,
     active: 0,
@@ -24,11 +20,19 @@ export default function AuctionDashboard() {
     revenue: 0
   });
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    if (!isAuthenticated || !hasRole(['seller', 'admin'])) {
-      router.push('/login');
-      return;
+    if (typeof window !== 'undefined') {
+      try {
+        const authStr = localStorage.getItem('ain_auth');
+        if (authStr) {
+          const auth = JSON.parse(authStr);
+          setUser(auth);
+        }
+      } catch (e) {
+        console.error('Error loading user:', e);
+      }
     }
     
     loadAuctions();
@@ -38,9 +42,10 @@ export default function AuctionDashboard() {
   const loadAuctions = async () => {
     try {
       const data = await auctionService.getUserAuctions(activeTab);
-      setAuctions(data);
+      setAuctions(Array.isArray(data) ? data : []);
     } catch (error) {
-
+      console.error('Error loading auctions:', error);
+      setAuctions([]);
     } finally {
       setLoading(false);
     }
@@ -49,162 +54,180 @@ export default function AuctionDashboard() {
   const loadStats = async () => {
     try {
       const data = await auctionService.getDashboardStats();
-      setStats(data);
+      if (data) {
+        setStats(data);
+      }
     } catch (error) {
-
+      console.error('Error loading stats:', error);
     }
   };
 
   const createAuction = async () => {
-    // ÇáÊÍŞŞ ãä ÇáÇÔÊÑÇß ÇáäÔØ
-    if (!user.subscription.active) {
-      alert('íÌÈ Ãä íßæä áÏíß ÇÔÊÑÇß äÔØ áÅäÔÇÁ ãÒÇÏ');
+    if (user && user.subscription && !user.subscription.active) {
+      alert('ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† Ù„Ø¯ÙŠÙƒ Ø§Ø´ØªØ±Ø§Ùƒ Ù†Ø´Ø· Ù„Ø¥Ù†Ø´Ø§Ø¡ Ù…Ø²Ø§Ø¯');
       await router.push('/subscriptions');
       return;
     }
 
-    // ÇáÊÍŞŞ ãä ÇáÑÕíÏ áÏİÚ ÑÓæã ÇáÅÏÑÇÌ
-    const listingFee = 100; // ÑÓæã ÇáÅÏÑÇÌ
-    if (user.balance < listingFee) {
-      alert('ÑÕíÏß ÛíÑ ßÇİò áÏİÚ ÑÓæã ÇáÅÏÑÇÌ');
+    const listingFee = 100;
+    if (user && user.balance && user.balance < listingFee) {
+      alert('Ø±ØµÙŠØ¯Ùƒ ØºÙŠØ± ÙƒØ§ÙÙ Ù„Ø¯ÙØ¹ Ø±Ø³ÙˆÙ… Ø§Ù„Ø¥Ø¯Ø±Ø§Ø¬');
       await router.push('/dashboard/wallet');
       return;
     }
 
-    // ÎÕã ÑÓæã ÇáÅÏÑÇÌ æÅäÔÇÁ ÇáãÒÇÏ
     try {
-      await paymentService.deductListingFee(listingFee);
+      if (user && user.balance) {
+        await paymentService.deductListingFee(listingFee);
+      }
       await router.push('/dashboard/auctions/create');
     } catch (error) {
-      alert('İÔá İí ÎÕã ÇáÑÓæã: ' + (error as any).message);
+      alert('ÙØ´Ù„ ÙÙŠ Ø§Ù„Ø®ØµÙ…: ' + (error as any).message);
     }
   };
 
   if (loading) {
-    return <div>ÌÇÑí ÇáÊÍãíá...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
+      </div>
+    );
   }
 
   return (
-    <DashboardLayout>
+    <div className="min-h-screen bg-gray-50">
       <Head>
-        <title>áæÍÉ ÊÍßã ÇáãÒÇÏÇÊ | Ain Oman</title>
+        <title>Ù„ÙˆØ­Ø© ØªØ­ÙƒÙ… Ø§Ù„Ù…Ø²Ø§Ø¯Ø§Øª | Ain Oman</title>
       </Head>
-
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">ÅÏÇÑÉ ÇáãÒÇÏÇÊ</h1>
-          <button 
-            onClick={createAuction}
-            className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700"
-          >
-            ÅäÔÇÁ ãÒÇÏ ÌÏíÏ
-          </button>
-        </div>
-
-        {/* ÅÍÕÇÆíÇÊ ÓÑíÚÉ */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="text-blue-600 font-bold text-2xl">{stats.total}</div>
-            <div className="text-blue-800">ÅÌãÇáí ÇáãÒÇÏÇÊ</div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold">Ù„ÙˆØ­Ø© Ø§Ù„Ù…Ø²Ø§Ø¯Ø§Øª</h1>
+            <button 
+              onClick={createAuction}
+              className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700"
+            >
+              Ø¥Ù†Ø´Ø§Ø¡ Ù…Ø²Ø§Ø¯ Ø¬Ø¯ÙŠØ¯
+            </button>
           </div>
-          <div className="bg-green-50 p-4 rounded-lg">
-            <div className="text-green-600 font-bold text-2xl">{stats.active}</div>
-            <div className="text-green-800">ãÒÇÏÇÊ äÔØÉ</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="text-blue-600 font-bold text-2xl">{stats.total}</div>
+              <div className="text-blue-800">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø²Ø§Ø¯Ø§Øª</div>
+            </div>
+            <div className="bg-green-50 p-4 rounded-lg">
+              <div className="text-green-600 font-bold text-2xl">{stats.active}</div>
+              <div className="text-green-800">Ù…Ø²Ø§Ø¯Ø§Øª Ù†Ø´Ø·Ø©</div>
+            </div>
+            <div className="bg-yellow-50 p-4 rounded-lg">
+              <div className="text-yellow-600 font-bold text-2xl">{stats.scheduled}</div>
+              <div className="text-yellow-800">Ù…Ø¬Ø¯ÙˆÙ„Ø©</div>
+            </div>
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <div className="text-purple-600 font-bold text-2xl">{stats.revenue} Ø±.Ø¹</div>
+              <div className="text-purple-800">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¥ÙŠØ±Ø§Ø¯Ø§Øª</div>
+            </div>
           </div>
-          <div className="bg-yellow-50 p-4 rounded-lg">
-            <div className="text-yellow-600 font-bold text-2xl">{stats.scheduled}</div>
-            <div className="text-yellow-800">ãÌÏæáÉ</div>
-          </div>
-          <div className="bg-purple-50 p-4 rounded-lg">
-            <div className="text-purple-600 font-bold text-2xl">{stats.revenue} Ñ.Ú</div>
-            <div className="text-purple-800">ÅÌãÇáí ÇáÅíÑÇÏÇÊ</div>
-          </div>
-        </div>
-
-        {/* tabs */}
-        <div className="border-b border-gray-200 mb-6">
-          <nav className="-mb-px flex space-x-8">
-            {['active', 'scheduled', 'completed', 'pending', 'draft'].map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab
-                    ? 'border-teal-500 text-teal-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {getTabName(tab)}
-              </button>
-            ))}
-          </nav>
-        </div>
-
-        {/* ŞÇÆãÉ ÇáãÒÇÏÇÊ */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ÇáÚŞÇÑ
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ÇáÍÇáÉ
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ÇáÓÚÑ ÇáÍÇáí
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ÚÏÏ ÇáãÒÇíÏÇÊ
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ÇáæŞÊ ÇáãÊÈŞí
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ÇáÅÌÑÇÁÇÊ
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {auctions.map(auction => (
-                <AuctionRow 
-                  key={auction.id} 
-                  auction={auction} 
-                  onUpdate={loadAuctions}
-                />
+          <div className="border-b border-gray-200 mb-6">
+            <nav className="-mb-px flex space-x-8">
+              {['active', 'scheduled', 'completed', 'pending', 'draft'].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === tab
+                      ? 'border-teal-500 text-teal-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  {getTabName(tab)}
+                </button>
               ))}
-            </tbody>
-          </table>
+            </nav>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ø§Ù„Ø¹Ù†ÙˆØ§Ù†</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ø§Ù„Ø­Ø§Ù„Ø©</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ø£Ø¹Ù„Ù‰ Ù…Ø²Ø§ÙŠØ¯Ø©</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ø¹Ø¯Ø¯ Ø§Ù„Ù…Ø²Ø§ÙŠØ¯Ø§Øª</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">ÙˆÙ‚Øª Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {auctions.length > 0 ? auctions.map(auction => (
+                  <AuctionRow key={auction.id} auction={auction} onUpdate={loadAuctions} />
+                )) : (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-10 text-center text-gray-500">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ø²Ø§Ø¯Ø§Øª</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
 
-function AuctionRow({ auction, onUpdate }) {
+function AuctionRow({ auction, onUpdate }: { auction: any; onUpdate: () => void }) {
   const router = useRouter();
   
-  const handleAction = async (action, auctionId) => {
+  const hasRole = (role: string): boolean => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const authStr = localStorage.getItem('ain_auth');
+      if (authStr) {
+        const auth = JSON.parse(authStr);
+        return auth.role === role || auth.role === 'admin';
+      }
+    } catch (e) {
+      return false;
+    }
+    return false;
+  };
+  
+  const handleAction = async (action: string, auctionId: string) => {
     switch (action) {
       case 'edit':
         router.push(`/dashboard/auctions/edit/${auctionId}`);
         break;
       case 'approve':
-        await auctionService.approveAuction(auctionId);
-        onUpdate();
+        try {
+          await auctionService.approveAuction(auctionId);
+          onUpdate();
+        } catch (error) {
+          console.error('Error approving auction:', error);
+        }
         break;
       case 'reject':
-        await auctionService.rejectAuction(auctionId);
-        onUpdate();
+        try {
+          await auctionService.rejectAuction(auctionId);
+          onUpdate();
+        } catch (error) {
+          console.error('Error rejecting auction:', error);
+        }
         break;
       case 'promote':
-        await auctionService.promoteAuction(auctionId);
-        onUpdate();
+        try {
+          await auctionService.promoteAuction(auctionId);
+          onUpdate();
+        } catch (error) {
+          console.error('Error promoting auction:', error);
+        }
         break;
       case 'delete':
-        if (confirm('åá ÃäÊ ãÊÃßÏ ãä ÍĞİ åĞÇ ÇáãÒÇÏ¿')) {
-          await auctionService.deleteAuction(auctionId);
-          onUpdate();
+        if (confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ù‡Ø°Ø§ Ø§Ù„Ù…Ø²Ø§Ø¯ØŸ')) {
+          try {
+            await auctionService.deleteAuction(auctionId);
+            onUpdate();
+          } catch (error) {
+            console.error('Error deleting auction:', error);
+          }
         }
         break;
     }
@@ -215,11 +238,22 @@ function AuctionRow({ auction, onUpdate }) {
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center">
           <div className="flex-shrink-0 h-10 w-10">
-            <InstantImage className="h-10 w-10 rounded-md object-cover" src={auction.images[0]} alt={auction.title}  loading="lazy" width={400} height={300}/>
+            {auction.images?.[0] ? (
+              <Image 
+                className="h-10 w-10 rounded-md object-cover" 
+                src={auction.images[0]} 
+                alt={auction.title || 'Ù…Ø²Ø§Ø¯'} 
+                width={40} 
+                height={40}
+                unoptimized
+              />
+            ) : (
+              <div className="h-10 w-10 rounded-md bg-gray-200" />
+            )}
           </div>
           <div className="mr-4">
-            <div className="text-sm font-medium text-gray-900">{auction.title}</div>
-            <div className="text-sm text-gray-500">{auction.location.address}</div>
+            <div className="text-sm font-medium text-gray-900">{auction.title || 'Ø¨Ø¯ÙˆÙ† Ø¹Ù†ÙˆØ§Ù†'}</div>
+            <div className="text-sm text-gray-500">{auction.location?.address || ''}</div>
           </div>
         </div>
       </td>
@@ -232,42 +266,83 @@ function AuctionRow({ auction, onUpdate }) {
         {formatPrice(auction.currentBid)}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        {auction.bids.length}
+        {auction.bids?.length || 0}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
         {auction.status === 'active' ? getTimeRemaining(auction.endTime) : '-'}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
         <div className="flex space-x-2">
-          <InstantLink href={`/auctions/${auction.id}`} className="text-blue-600 hover:text-blue-900">
-            ÚÑÖ
-          </InstantLink>
+          <InstantLink href={`/auctions/${auction.id}`} className="text-blue-600 hover:text-blue-900">Ø¹Ø±Ø¶</InstantLink>
           {['draft', 'rejected'].includes(auction.status) && (
-            <button onClick={() => handleAction('edit', auction.id)} className="text-yellow-600 hover:text-yellow-900">
-              ÊÚÏíá
-            </button>
+            <button onClick={() => handleAction('edit', auction.id)} className="text-yellow-600 hover:text-yellow-900">ØªØ¹Ø¯ÙŠÙ„</button>
           )}
           {auction.status === 'pending' && hasRole('admin') && (
             <>
-              <button onClick={() => handleAction('approve', auction.id)} className="text-green-600 hover:text-green-900">
-                ÇáãæÇİŞÉ
-              </button>
-              <button onClick={() => handleAction('reject', auction.id)} className="text-red-600 hover:text-red-900">
-                ÑİÖ
-              </button>
+              <button onClick={() => handleAction('approve', auction.id)} className="text-green-600 hover:text-green-900">Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©</button>
+              <button onClick={() => handleAction('reject', auction.id)} className="text-red-600 hover:text-red-900">Ø±ÙØ¶</button>
             </>
           )}
           {auction.status === 'active' && (
-            <button onClick={() => handleAction('promote', auction.id)} className="text-purple-600 hover:text-purple-900">
-              ÊÑæíÌ
-            </button>
+            <button onClick={() => handleAction('promote', auction.id)} className="text-purple-600 hover:text-purple-900">ØªØ±Ù‚ÙŠØ©</button>
           )}
-          <button onClick={() => handleAction('delete', auction.id)} className="text-red-600 hover:text-red-900">
-            ÍĞİ
-          </button>
+          <button onClick={() => handleAction('delete', auction.id)} className="text-red-600 hover:text-red-900">Ø­Ø°Ù</button>
         </div>
       </td>
     </tr>
   );
 }
 
+function getTabName(tab: string): string {
+  const names: Record<string, string> = {
+    active: 'Ù†Ø´Ø·Ø©',
+    scheduled: 'Ù…Ø¬Ø¯ÙˆÙ„Ø©',
+    completed: 'Ù…ÙƒØªÙ…Ù„Ø©',
+    pending: 'Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©',
+    draft: 'Ù…Ø³ÙˆØ¯Ø§Øª'
+  };
+  return names[tab] || tab;
+}
+
+function getStatusText(status: string): string {
+  const statuses: Record<string, string> = {
+    active: 'Ù†Ø´Ø·',
+    scheduled: 'Ù…Ø¬Ø¯ÙˆÙ„',
+    completed: 'Ù…ÙƒØªÙ…Ù„',
+    pending: 'Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©',
+    draft: 'Ù…Ø³ÙˆØ¯Ø©',
+    rejected: 'Ù…Ø±ÙÙˆØ¶'
+  };
+  return statuses[status] || status;
+}
+
+function getStatusColor(status: string): string {
+  const colors: Record<string, string> = {
+    active: 'bg-green-100 text-green-800',
+    scheduled: 'bg-blue-100 text-blue-800',
+    completed: 'bg-gray-100 text-gray-800',
+    pending: 'bg-yellow-100 text-yellow-800',
+    draft: 'bg-gray-100 text-gray-800',
+    rejected: 'bg-red-100 text-red-800'
+  };
+  return colors[status] || 'bg-gray-100 text-gray-800';
+}
+
+function formatPrice(amount: number): string {
+  if (!amount) return '0 Ø±.Ø¹';
+  return `${amount.toLocaleString()} Ø±.Ø¹`;
+}
+
+function getTimeRemaining(endTime: string): string {
+  if (!endTime) return '-';
+  const end = new Date(endTime);
+  const now = new Date();
+  const diff = end.getTime() - now.getTime();
+  if (diff < 0) return 'Ù…Ù†ØªÙ‡ÙŠ';
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  if (days > 0) return `${days} ÙŠÙˆÙ…`;
+  if (hours > 0) return `${hours} Ø³Ø§Ø¹Ø©`;
+  return `${minutes} Ø¯Ù‚ÙŠÙ‚Ø©`;
+}

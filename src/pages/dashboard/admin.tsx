@@ -976,7 +976,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => router.push('/dashboard/landlord')}
+              onClick={() => router.push('/dashboard/property-owner')}
               className="p-3 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors text-center"
             >
               <p className="text-lg mb-1">🔑</p>
@@ -984,7 +984,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => router.push('/dashboard/corporate-tenant')}
+              onClick={() => router.push('/dashboard/tenant')}
               className="p-3 bg-pink-50 border border-pink-200 rounded-lg hover:bg-pink-100 transition-colors text-center"
             >
               <p className="text-lg mb-1">🏛️</p>

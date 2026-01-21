@@ -231,8 +231,16 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         const endIndex = startIndex + limitNum;
         const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
 
-        // إزالة كلمات المرور
-        const usersWithoutPasswords = paginatedUsers.map(({ password, ...user }) => user);
+        // إزالة كلمة المرور المباشرة ولكن الإبقاء على username و credentials
+        const usersWithoutPasswords = paginatedUsers.map((user) => {
+          const { password, ...userWithoutPassword } = user;
+          // الاحتفاظ بـ username و credentials (التي تحتوي على password داخلها)
+          return {
+            ...userWithoutPassword,
+            // username موجود في المستخدم إذا كان موجوداً
+            // credentials موجودة إذا كانت موجودة
+          };
+        });
 
         // الإحصائيات
         const stats = calculateUserStats();

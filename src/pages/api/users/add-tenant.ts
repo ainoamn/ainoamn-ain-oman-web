@@ -109,18 +109,14 @@ export default async function handler(
     const tenantCount = users.filter((u: any) => u.role === 'tenant').length;
     const newTenantId = `TENANT-${String(tenantCount + 1).padStart(3, '0')}`;
     
-    // توليد اسم مستخدم بصيغة: T-XX12345678
-    // T- + أول حرفين من الاسم (كبتل) + الرقم المدني
+    // توليد اسم مستخدم بصيغة: T-12345678
+    // T- + الرقم المدني فقط (بدون أحرف من الاسم)
     const generateUsername = (name: string, nationalId: string): string => {
-      // استخراج أول حرفين من الاسم
-      const names = name.trim().split(' ');
-      const firstName = names[0] || 'TN';
-      const firstTwoLetters = firstName.substring(0, 2).toUpperCase();
-      
       // تنظيف الرقم المدني من أي فواصل
       const cleanNationalId = nationalId.replace(/[^0-9]/g, '');
       
-      return `T-${firstTwoLetters}${cleanNationalId}`;
+      // T- + الرقم المدني فقط
+      return `T-${cleanNationalId}`;
     };
     
     const generatePassword = (): string => {

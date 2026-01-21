@@ -87,6 +87,22 @@ const RentalContractDetailPage: NextPage = () => {
     return colors[state] || 'bg-gray-100 text-gray-800 border-gray-200';
   };
 
+  // دالة مساعدة لتنسيق الأرقام بأمان
+  const safeToFixed = (value: number | undefined | null, decimals: number = 3): string => {
+    if (value === undefined || value === null || isNaN(value)) {
+      return '0.000';
+    }
+    return Number(value).toFixed(decimals);
+  };
+
+  // دالة مساعدة للحصول على قيمة آمنة
+  const safeNumber = (value: number | undefined | null, defaultValue: number = 0): number => {
+    if (value === undefined || value === null || isNaN(value)) {
+      return defaultValue;
+    }
+    return Number(value);
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -360,20 +376,20 @@ const RentalContractDetailPage: NextPage = () => {
                       <p><span className="font-medium text-gray-700">السعر للمتر:</span> <span className="text-gray-900">{rental.pricePerMeter} {rental.currency}</span></p>
                     </>
                   )}
-                  <p><span className="font-medium text-gray-700">الإيجار الشهري:</span> <span className="text-gray-900 font-bold">{rental.monthlyRent.toFixed(3)} {rental.currency}</span></p>
-                  <p><span className="font-medium text-gray-700">مبلغ الضمان:</span> <span className="text-gray-900">{rental.deposit.toFixed(3)} {rental.currency}</span></p>
+                  <p><span className="font-medium text-gray-700">الإيجار الشهري:</span> <span className="text-gray-900 font-bold">{safeToFixed(rental.monthlyRent)} {rental.currency || 'OMR'}</span></p>
+                  <p><span className="font-medium text-gray-700">مبلغ الضمان:</span> <span className="text-gray-900">{safeToFixed(rental.deposit)} {rental.currency || 'OMR'}</span></p>
                   {rental.gracePeriodDays > 0 && (
-                    <p><span className="font-medium text-gray-700">فترة السماح:</span> <span className="text-gray-900">{rental.gracePeriodDays} يوم ({rental.gracePeriodAmount.toFixed(3)} {rental.currency})</span></p>
+                    <p><span className="font-medium text-gray-700">فترة السماح:</span> <span className="text-gray-900">{rental.gracePeriodDays} يوم ({safeToFixed(rental.gracePeriodAmount)} {rental.currency || 'OMR'})</span></p>
                   )}
                 </div>
                 <div className="space-y-2 text-sm">
                   {rental.includesVAT && (
-                    <p><span className="font-medium text-gray-700">ضريبة القيمة المضافة:</span> <span className="text-gray-900">{rental.vatRate * 100}% ({rental.totalVATAmount.toFixed(3)} {rental.currency})</span></p>
+                    <p><span className="font-medium text-gray-700">ضريبة القيمة المضافة:</span> <span className="text-gray-900">{safeNumber(rental.vatRate) * 100}% ({safeToFixed(rental.totalVATAmount)} {rental.currency || 'OMR'})</span></p>
                   )}
                   {rental.hasOtherTaxes && (
-                    <p><span className="font-medium text-gray-700">{rental.otherTaxName}:</span> <span className="text-gray-900">{rental.otherTaxRate * 100}% ({rental.totalOtherTaxAmount.toFixed(3)} {rental.currency})</span></p>
+                    <p><span className="font-medium text-gray-700">{rental.otherTaxName}:</span> <span className="text-gray-900">{safeNumber(rental.otherTaxRate) * 100}% ({safeToFixed(rental.totalOtherTaxAmount)} {rental.currency || 'OMR'})</span></p>
                   )}
-                  <p className="font-bold text-green-900"><span className="font-medium text-gray-700">إجمالي العقد:</span> {(rental.monthlyRent * rental.duration).toFixed(3)} {rental.currency}</p>
+                  <p className="font-bold text-green-900"><span className="font-medium text-gray-700">إجمالي العقد:</span> {safeToFixed(safeNumber(rental.monthlyRent) * safeNumber(rental.duration))} {rental.currency || 'OMR'}</p>
                   </div>
                   </div>
             </motion.div>
@@ -418,7 +434,7 @@ const RentalContractDetailPage: NextPage = () => {
                   </p>
                   {rental.depositPaymentMethod === 'cash_and_check' && (
                     <>
-                      <p><span className="font-medium text-gray-700">المبلغ النقدي:</span> {rental.depositCashAmount.toFixed(3)} {rental.currency}</p>
+                      <p><span className="font-medium text-gray-700">المبلغ النقدي:</span> {safeToFixed(rental.depositCashAmount)} {rental.currency || 'OMR'}</p>
                       <p><span className="font-medium text-gray-700">عدد الشيكات:</span> {rental.depositChecks?.length || 0}</p>
                     </>
                   )}
@@ -455,9 +471,9 @@ const RentalContractDetailPage: NextPage = () => {
                   </div>
                 <div className="mt-4 bg-white rounded-lg p-3">
                   <p className="text-sm font-bold text-green-700">
-                    إجمالي شيكات الإيجار: {rental.rentChecks.reduce((sum: number, c: any) => sum + c.amount, 0).toFixed(3)} {rental.currency}
+                    إجمالي شيكات الإيجار: {safeToFixed(rental.rentChecks.reduce((sum: number, c: any) => sum + safeNumber(c.amount), 0))} {rental.currency || 'OMR'}
                   </p>
-                  <p className="text-xs text-gray-600">عدد الشيكات: {rental.rentChecks.length} / {rental.duration}</p>
+                  <p className="text-xs text-gray-600">عدد الشيكات: {rental.rentChecks.length} / {safeNumber(rental.duration)}</p>
                 </div>
               </motion.div>
             )}
@@ -491,11 +507,11 @@ const RentalContractDetailPage: NextPage = () => {
                 </div>
                 <div className="mt-4 bg-white rounded-lg p-3">
                   <p className="text-sm font-bold text-purple-700">
-                    إجمالي شيكات الضمان: {rental.depositChecks.reduce((sum: number, c: any) => sum + c.amount, 0).toFixed(3)} {rental.currency}
+                    إجمالي شيكات الضمان: {safeToFixed(rental.depositChecks.reduce((sum: number, c: any) => sum + safeNumber(c.amount), 0))} {rental.currency || 'OMR'}
                   </p>
                   {rental.depositPaymentMethod === 'cash_and_check' && (
                     <p className="text-sm mt-1 text-gray-700">
-                      إجمالي الضمان: {(rental.depositCashAmount + rental.depositChecks.reduce((sum: number, c: any) => sum + c.amount, 0)).toFixed(3)} {rental.currency} (نقدي: {rental.depositCashAmount} + شيكات: {rental.depositChecks.reduce((sum: number, c: any) => sum + c.amount, 0).toFixed(3)})
+                      إجمالي الضمان: {safeToFixed(safeNumber(rental.depositCashAmount) + rental.depositChecks.reduce((sum: number, c: any) => sum + safeNumber(c.amount), 0))} {rental.currency || 'OMR'} (نقدي: {safeNumber(rental.depositCashAmount)} + شيكات: {safeToFixed(rental.depositChecks.reduce((sum: number, c: any) => sum + safeNumber(c.amount), 0))})
                     </p>
                   )}
                 </div>
@@ -519,7 +535,7 @@ const RentalContractDetailPage: NextPage = () => {
                   <p><span className="font-medium text-gray-700">رقم العقد المعتمد:</span> <span className="text-gray-900">{rental.municipalityContractNumber}</span></p>
                 )}
                 <p><span className="font-medium text-gray-700">رسوم التسجيل:</span> <span className="text-gray-900">{rental.municipalityRegistrationFee} {rental.currency}</span></p>
-                <p><span className="font-medium text-gray-700">رسوم البلدية (3%):</span> <span className="text-gray-900">{rental.municipalityFees.toFixed(3)} {rental.currency}</span></p>
+                <p><span className="font-medium text-gray-700">رسوم البلدية (3%):</span> <span className="text-gray-900">{safeToFixed(rental.municipalityFees)} {rental.currency || 'OMR'}</span></p>
                   </div>
             </motion.div>
 
@@ -539,14 +555,14 @@ const RentalContractDetailPage: NextPage = () => {
                   <p className="font-semibold text-gray-900 mb-1">⚡ الكهرباء:</p>
                   <p><span className="font-medium text-gray-700">القراءة:</span> {rental.electricityMeterReading}</p>
                   {rental.electricityBillAmount > 0 && (
-                    <p><span className="font-medium text-gray-700">مبلغ الفاتورة:</span> {rental.electricityBillAmount.toFixed(3)} {rental.currency}</p>
+                    <p><span className="font-medium text-gray-700">مبلغ الفاتورة:</span> {safeToFixed(rental.electricityBillAmount)} {rental.currency || 'OMR'}</p>
                   )}
                   </div>
                   <div>
                   <p className="font-semibold text-gray-900 mb-1">💧 الماء:</p>
                   <p><span className="font-medium text-gray-700">القراءة:</span> {rental.waterMeterReading}</p>
                   {rental.waterBillAmount > 0 && (
-                    <p><span className="font-medium text-gray-700">مبلغ الفاتورة:</span> {rental.waterBillAmount.toFixed(3)} {rental.currency}</p>
+                    <p><span className="font-medium text-gray-700">مبلغ الفاتورة:</span> {safeToFixed(rental.waterBillAmount)} {rental.currency || 'OMR'}</p>
                   )}
                   </div>
                   </div>
@@ -569,9 +585,9 @@ const RentalContractDetailPage: NextPage = () => {
                   {rental.internetFees > 0 && (
                     <>
                       <p><span className="font-medium text-gray-700">نوع الاشتراك:</span> <span className="text-gray-900">{rental.internetPaymentType === 'annually' ? 'سنوي' : 'شهري'}</span></p>
-                      <p><span className="font-medium text-gray-700">المبلغ:</span> <span className="text-gray-900">{rental.internetFees.toFixed(3)} {rental.currency}</span></p>
+                      <p><span className="font-medium text-gray-700">المبلغ:</span> <span className="text-gray-900">{safeToFixed(rental.internetFees)} {rental.currency || 'OMR'}</span></p>
                       {rental.internetPaymentType === 'annually' && (
-                        <p className="text-xs text-cyan-700">إجمالي رسوم الإنترنت: {rental.internetFees.toFixed(3)} {rental.currency} (دفعة واحدة)</p>
+                        <p className="text-xs text-cyan-700">إجمالي رسوم الإنترنت: {safeToFixed(rental.internetFees)} {rental.currency || 'OMR'} (دفعة واحدة)</p>
                       )}
                     </>
                   )}
@@ -590,7 +606,7 @@ const RentalContractDetailPage: NextPage = () => {
                 <h5 className="font-bold text-pink-900 mb-3">رسوم أخرى</h5>
                 <div className="space-y-2 text-sm">
                   <p><span className="font-medium text-gray-700">الوصف:</span> <span className="text-gray-900">{rental.otherFeesDescription}</span></p>
-                  <p><span className="font-medium text-gray-700">المبلغ:</span> <span className="text-gray-900">{rental.otherFeesAmount.toFixed(3)} {rental.currency}</span></p>
+                  <p><span className="font-medium text-gray-700">المبلغ:</span> <span className="text-gray-900">{safeToFixed(rental.otherFeesAmount)} {rental.currency || 'OMR'}</span></p>
             </div>
               </motion.div>
             )}
@@ -615,16 +631,16 @@ const RentalContractDetailPage: NextPage = () => {
                       <div key={index} className="bg-white rounded-lg p-3 border border-indigo-200">
                         <p className="font-semibold text-gray-900 text-sm">الشهر {index + 1}</p>
                         <p className="text-xs text-gray-600">{monthDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</p>
-                        <p className="text-sm font-bold text-indigo-700 mt-1">{amount.toFixed(3)} {rental.currency}</p>
+                        <p className="text-sm font-bold text-indigo-700 mt-1">{safeToFixed(amount)} {rental.currency || 'OMR'}</p>
                   </div>
                     );
                   })}
                 </div>
                 <div className="mt-4 bg-white rounded-lg p-3">
                   <p className="text-sm font-bold text-indigo-700">
-                    إجمالي الإيجارات: {rental.customMonthlyRents.reduce((sum: number, amount: number) => sum + amount, 0).toFixed(3)} {rental.currency}
+                    إجمالي الإيجارات: {safeToFixed(rental.customMonthlyRents.reduce((sum: number, amount: number) => sum + safeNumber(amount), 0))} {rental.currency || 'OMR'}
                   </p>
-                  <p className="text-xs text-gray-600">متوسط الإيجار الشهري: {(rental.customMonthlyRents.reduce((sum: number, amount: number) => sum + amount, 0) / rental.customMonthlyRents.length).toFixed(3)} {rental.currency}</p>
+                  <p className="text-xs text-gray-600">متوسط الإيجار الشهري: {rental.customMonthlyRents.length > 0 ? safeToFixed(rental.customMonthlyRents.reduce((sum: number, amount: number) => sum + safeNumber(amount), 0) / rental.customMonthlyRents.length) : '0.000'} {rental.currency || 'OMR'}</p>
                 </div>
               </motion.div>
             )}
@@ -656,7 +672,7 @@ const RentalContractDetailPage: NextPage = () => {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-700">الإيجار الأساسي الكامل:</span>
-                    <span className="font-medium">{(rental.monthlyRent * rental.duration).toFixed(3)} {rental.currency}</span>
+                    <span className="font-medium">{safeToFixed(safeNumber(rental.monthlyRent) * safeNumber(rental.duration))} {rental.currency || 'OMR'}</span>
                   </div>
                   
                   {(rental.gracePeriodDays > 0 || rental.useCustomMonthlyRents) && (
@@ -667,77 +683,77 @@ const RentalContractDetailPage: NextPage = () => {
                       {rental.useCustomMonthlyRents && rental.customMonthlyRents && (
                         <div className="flex justify-between text-xs">
                           <span className="text-gray-600">• تخفيض الإيجار المخصص:</span>
-                          <span className="text-orange-600">-{((rental.monthlyRent * rental.duration) - rental.customMonthlyRents.reduce((sum: number, amount: number) => sum + amount, 0)).toFixed(3)} {rental.currency}</span>
+                          <span className="text-orange-600">-{safeToFixed((safeNumber(rental.monthlyRent) * safeNumber(rental.duration)) - rental.customMonthlyRents.reduce((sum: number, amount: number) => sum + safeNumber(amount), 0))} {rental.currency || 'OMR'}</span>
                         </div>
                       )}
                       {rental.gracePeriodDays > 0 && (
                         <div className="flex justify-between text-xs">
                           <span className="text-gray-600">• تخفيض فترة السماح ({rental.gracePeriodDays} يوم):</span>
-                          <span className="text-orange-600">-{rental.gracePeriodAmount.toFixed(3)} {rental.currency}</span>
+                          <span className="text-orange-600">-{safeToFixed(rental.gracePeriodAmount)} {rental.currency || 'OMR'}</span>
                         </div>
                       )}
                       <div className="flex justify-between text-xs font-semibold border-t pt-2">
                         <span className="text-gray-700">إجمالي التخفيضات:</span>
-                        <span className="text-orange-600">-{(
-                          (rental.useCustomMonthlyRents ? ((rental.monthlyRent * rental.duration) - rental.customMonthlyRents.reduce((sum: number, amount: number) => sum + amount, 0)) : 0) + 
-                          (rental.gracePeriodDays > 0 ? rental.gracePeriodAmount : 0)
-                        ).toFixed(3)} {rental.currency}</span>
+                        <span className="text-orange-600">-{safeToFixed(
+                          (rental.useCustomMonthlyRents ? ((safeNumber(rental.monthlyRent) * safeNumber(rental.duration)) - rental.customMonthlyRents.reduce((sum: number, amount: number) => sum + safeNumber(amount), 0)) : 0) + 
+                          (rental.gracePeriodDays > 0 ? safeNumber(rental.gracePeriodAmount) : 0)
+                        )} {rental.currency || 'OMR'}</span>
                       </div>
                     </>
                   )}
                   
                   <div className="flex justify-between font-semibold border-t pt-2">
                     <span className="text-gray-900">الإيجار الفعلي المطلوب:</span>
-                    <span className="text-green-700">{(
+                    <span className="text-green-700">{safeToFixed(
                       rental.useCustomMonthlyRents && rental.customMonthlyRents
-                        ? rental.customMonthlyRents.reduce((sum: number, amount: number) => sum + amount, 0)
-                        : (rental.monthlyRent * rental.duration)
-                    ).toFixed(3)} {rental.currency}</span>
+                        ? rental.customMonthlyRents.reduce((sum: number, amount: number) => sum + safeNumber(amount), 0)
+                        : (safeNumber(rental.monthlyRent) * safeNumber(rental.duration))
+                    )} {rental.currency || 'OMR'}</span>
                   </div>
                   
                   {rental.includesVAT && (
                     <div className="flex justify-between text-xs">
-                      <span className="text-gray-700">ضريبة القيمة المضافة ({rental.vatRate * 100}%):</span>
-                      <span className="text-gray-900">+{rental.totalVATAmount.toFixed(3)} {rental.currency}</span>
+                      <span className="text-gray-700">ضريبة القيمة المضافة ({safeNumber(rental.vatRate) * 100}%):</span>
+                      <span className="text-gray-900">+{safeToFixed(rental.totalVATAmount)} {rental.currency || 'OMR'}</span>
                     </div>
                   )}
                   {rental.hasOtherTaxes && (
                     <div className="flex justify-between text-xs">
-                      <span className="text-gray-700">{rental.otherTaxName} ({rental.otherTaxRate * 100}%):</span>
-                      <span className="text-gray-900">+{rental.totalOtherTaxAmount.toFixed(3)} {rental.currency}</span>
+                      <span className="text-gray-700">{rental.otherTaxName} ({safeNumber(rental.otherTaxRate) * 100}%):</span>
+                      <span className="text-gray-900">+{safeToFixed(rental.totalOtherTaxAmount)} {rental.currency || 'OMR'}</span>
                     </div>
                   )}
                   {rental.deposit > 0 && (
                     <div className="flex justify-between text-xs">
                       <span className="text-gray-700">مبلغ الضمان:</span>
-                      <span className="text-gray-900">{rental.deposit.toFixed(3)} {rental.currency}</span>
+                      <span className="text-gray-900">{safeToFixed(rental.deposit)} {rental.currency || 'OMR'}</span>
                     </div>
                   )}
                   {rental.internetIncluded && rental.internetFees > 0 && (
                     <div className="flex justify-between text-xs">
                       <span className="text-gray-700">رسوم الإنترنت ({rental.internetPaymentType === 'annually' ? 'سنوي' : 'شهري'}):</span>
-                      <span className="text-gray-900">{rental.internetFees.toFixed(3)} {rental.currency}</span>
+                      <span className="text-gray-900">{safeToFixed(rental.internetFees)} {rental.currency || 'OMR'}</span>
                     </div>
                   )}
                   {rental.hasOtherFees && (
                     <div className="flex justify-between text-xs">
                       <span className="text-gray-700">{rental.otherFeesDescription}:</span>
-                      <span className="text-gray-900">{rental.otherFeesAmount.toFixed(3)} {rental.currency}</span>
+                      <span className="text-gray-900">{safeToFixed(rental.otherFeesAmount)} {rental.currency || 'OMR'}</span>
                     </div>
                   )}
                   
                   <div className="flex justify-between font-bold text-lg border-t-2 pt-3 mt-3 text-green-900">
                     <span>إجمالي مستحقات المستأجر:</span>
-                    <span>{(
+                    <span>{safeToFixed(
                       (rental.useCustomMonthlyRents && rental.customMonthlyRents
-                        ? rental.customMonthlyRents.reduce((sum: number, amount: number) => sum + amount, 0)
-                        : (rental.monthlyRent * rental.duration)) +
-                      (rental.includesVAT ? rental.totalVATAmount : 0) +
-                      (rental.hasOtherTaxes ? rental.totalOtherTaxAmount : 0) +
-                      (rental.deposit || 0) +
-                      (rental.internetIncluded ? rental.internetFees : 0) +
-                      (rental.hasOtherFees ? rental.otherFeesAmount : 0)
-                    ).toFixed(3)} {rental.currency}</span>
+                        ? rental.customMonthlyRents.reduce((sum: number, amount: number) => sum + safeNumber(amount), 0)
+                        : (safeNumber(rental.monthlyRent) * safeNumber(rental.duration))) +
+                      (rental.includesVAT ? safeNumber(rental.totalVATAmount) : 0) +
+                      (rental.hasOtherTaxes ? safeNumber(rental.totalOtherTaxAmount) : 0) +
+                      safeNumber(rental.deposit) +
+                      (rental.internetIncluded ? safeNumber(rental.internetFees) : 0) +
+                      (rental.hasOtherFees ? safeNumber(rental.otherFeesAmount) : 0)
+                    )} {rental.currency || 'OMR'}</span>
                   </div>
                 </div>
               </div>
@@ -747,32 +763,32 @@ const RentalContractDetailPage: NextPage = () => {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-700">رسوم البلدية (3%):</span>
-                    <span className="font-medium">{rental.municipalityFees.toFixed(3)} {rental.currency}</span>
+                    <span className="font-medium">{safeToFixed(rental.municipalityFees)} {rental.currency || 'OMR'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-700">رسوم التسجيل:</span>
-                    <span className="font-medium">{rental.municipalityRegistrationFee} {rental.currency}</span>
+                    <span className="font-medium">{safeNumber(rental.municipalityRegistrationFee)} {rental.currency || 'OMR'}</span>
                   </div>
                   {rental.electricityBillAmount > 0 && (
                     <div className="flex justify-between">
                       <span className="text-gray-700">فاتورة الكهرباء الحالية:</span>
-                      <span className="font-medium">{rental.electricityBillAmount.toFixed(3)} {rental.currency}</span>
+                      <span className="font-medium">{safeToFixed(rental.electricityBillAmount)} {rental.currency || 'OMR'}</span>
                     </div>
                   )}
                   {rental.waterBillAmount > 0 && (
                     <div className="flex justify-between">
                       <span className="text-gray-700">فاتورة الماء الحالية:</span>
-                      <span className="font-medium">{rental.waterBillAmount.toFixed(3)} {rental.currency}</span>
+                      <span className="font-medium">{safeToFixed(rental.waterBillAmount)} {rental.currency || 'OMR'}</span>
                     </div>
                   )}
                   <div className="flex justify-between font-bold border-t pt-2">
                     <span className="text-orange-900">إجمالي مستحقات المالك:</span>
-                    <span className="text-orange-900">{(
-                      rental.municipalityFees +
-                      rental.municipalityRegistrationFee +
-                      (rental.electricityBillAmount || 0) +
-                      (rental.waterBillAmount || 0)
-                    ).toFixed(3)} {rental.currency}</span>
+                    <span className="text-orange-900">{safeToFixed(
+                      safeNumber(rental.municipalityFees) +
+                      safeNumber(rental.municipalityRegistrationFee) +
+                      safeNumber(rental.electricityBillAmount) +
+                      safeNumber(rental.waterBillAmount)
+                    )} {rental.currency || 'OMR'}</span>
                   </div>
                   <p className="text-xs text-gray-600 bg-white p-2 rounded mt-2">
                     ℹ️ هذه الرسوم والفواتير يدفعها المالك ولا تُحسب على المستأجر

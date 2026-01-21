@@ -1,9 +1,9 @@
 // src/pages/dashboard/advanced.tsx - لوحة التحكم المتقدمة
 import React, { useState, useEffect } from 'react';
 import { 
-  FiShield, FiBuilding, FiUser, FiTrendingUp, FiActivity,
-  FiBarChart3, FiUsers, FiCalendar, FiDollarSign, FiSettings,
-  FiBell, FiSearch, FiFilter, FiGlobe, FiBrain, FiZap
+  FiShield, FiHome, FiUser, FiTrendingUp, FiActivity,
+  FiBarChart2, FiUsers, FiCalendar, FiDollarSign, FiSettings,
+  FiBell, FiSearch, FiFilter, FiGlobe, FiZap
 } from 'react-icons/fi';
 import { UserRole, ROLE_PERMISSIONS } from '@/lib/userRoles';
 import { SubscriptionPlan, SUBSCRIPTION_PLANS } from '@/lib/subscriptionSystem';
@@ -13,14 +13,23 @@ import { multilingualSystem, SUPPORTED_LANGUAGES } from '@/lib/multilingual';
 
 export default function AdvancedDashboard() {
   const [userRole, setUserRole] = useState<UserRole>('property_owner');
-  const [subscriptionPlan, setSubscriptionPlan] = useState<SubscriptionPlan>(SUBSCRIPTION_PLANS[2]);
+  const [subscriptionPlan, setSubscriptionPlan] = useState<SubscriptionPlan>(
+    SUBSCRIPTION_PLANS[2] || SUBSCRIPTION_PLANS[0]
+  );
   const [aiInsights, setAiInsights] = useState<AIInsight[]>([]);
   const [currentLanguage, setCurrentLanguage] = useState('ar');
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    loadDashboardData();
+    setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      loadDashboardData();
+    }
+  }, [mounted]);
 
   const loadDashboardData = async () => {
     setLoading(true);
@@ -31,16 +40,44 @@ export default function AdvancedDashboard() {
         subscriptionPlan, 
         {}
       );
-      setAiInsights(insights);
+      setAiInsights(Array.isArray(insights) ? insights : []);
     } catch (error) {
-
+      console.error('Error loading dashboard data:', error);
+      setAiInsights([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const roleInfo = ROLE_PERMISSIONS[userRole];
-  const planInfo = subscriptionPlan;
+  const roleInfo = ROLE_PERMISSIONS[userRole] || ROLE_PERMISSIONS['property_owner'];
+  const planInfo = subscriptionPlan || SUBSCRIPTION_PLANS[0];
+  
+  // Helper function to get color class from plan color
+  const getPlanColorClass = (color: string | undefined) => {
+    if (!color) return 'blue';
+    if (color.startsWith('bg-')) {
+      // Extract color name from 'bg-blue-500' -> 'blue'
+      const match = color.match(/bg-(\w+)-/);
+      return match ? match[1] : 'blue';
+    }
+    return color;
+  };
+  
+  const planColor = getPlanColorClass(planInfo?.color);
+  
+  // Safety check for roleInfo
+  if (!roleInfo) {
+    return <div>خطأ في تحميل البيانات</div>;
+  }
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-gray-600">جاري التحميل...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -58,7 +95,9 @@ export default function AdvancedDashboard() {
                 value={currentLanguage}
                 onChange={(e) => {
                   setCurrentLanguage(e.target.value);
-                  multilingualSystem.setLanguage(e.target.value as any);
+                  if (mounted && typeof window !== 'undefined') {
+                    multilingualSystem.setLanguage(e.target.value as any);
+                  }
                 }}
                 className="border rounded-lg px-3 py-2"
               >
@@ -83,48 +122,74 @@ export default function AdvancedDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center mb-4">
-              <div className={`w-12 h-12 rounded-full bg-${roleInfo.color}-100 flex items-center justify-center`}>
-                <span className="text-2xl">{roleInfo.icon}</span>
+              <div className={`w-12 h-12 rounded-full ${
+                roleInfo?.color === 'red' ? 'bg-red-100' : 
+                roleInfo?.color === 'blue' ? 'bg-blue-100' :
+                roleInfo?.color === 'green' ? 'bg-green-100' :
+                roleInfo?.color === 'purple' ? 'bg-purple-100' :
+                roleInfo?.color === 'yellow' ? 'bg-yellow-100' : 'bg-gray-100'
+              } flex items-center justify-center`}>
+                <span className="text-2xl">{roleInfo?.icon || '👤'}</span>
               </div>
               <div className="mr-4">
-                <h3 className="text-lg font-semibold text-gray-900">{roleInfo.description}</h3>
-                <p className="text-sm text-gray-600">{roleInfo.features.length} مميزة متاحة</p>
+                <h3 className="text-lg font-semibold text-gray-900">{roleInfo?.description || 'دور المستخدم'}</h3>
+                <p className="text-sm text-gray-600">{(roleInfo?.features?.length || 0)} مميزة متاحة</p>
               </div>
             </div>
             <div className="space-y-2">
-              {roleInfo.features.slice(0, 3).map((feature, index) => (
-                <div key={index} className="flex items-center text-sm text-gray-600">
-                  <div className={`w-2 h-2 rounded-full bg-${roleInfo.color}-500 ml-2`}></div>
-                  {feature}
-                </div>
-              ))}
+              {(roleInfo?.features || []).slice(0, 3).map((feature, index) => {
+                const colorClass = roleInfo?.color === 'red' ? 'bg-red-500' : 
+                                  roleInfo?.color === 'blue' ? 'bg-blue-500' :
+                                  roleInfo?.color === 'green' ? 'bg-green-500' :
+                                  roleInfo?.color === 'purple' ? 'bg-purple-500' :
+                                  roleInfo?.color === 'yellow' ? 'bg-yellow-500' : 'bg-gray-500';
+                return (
+                  <div key={index} className="flex items-center text-sm text-gray-600">
+                    <div className={`w-2 h-2 rounded-full ${colorClass} ml-2`}></div>
+                    {feature}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center mb-4">
-              <div className={`w-12 h-12 rounded-full bg-${planInfo.color}-100 flex items-center justify-center`}>
-                <span className="text-2xl">{planInfo.icon}</span>
+              <div className={`w-12 h-12 rounded-full ${
+                planColor === 'blue' ? 'bg-blue-100' :
+                planColor === 'green' ? 'bg-green-100' :
+                planColor === 'purple' ? 'bg-purple-100' :
+                planColor === 'red' ? 'bg-red-100' :
+                planColor === 'yellow' ? 'bg-yellow-100' : 'bg-gray-100'
+              } flex items-center justify-center`}>
+                <span className="text-2xl">💎</span>
               </div>
               <div className="mr-4">
-                <h3 className="text-lg font-semibold text-gray-900">{planInfo.name}</h3>
-                <p className="text-sm text-gray-600">{planInfo.price.monthly} ر.ع/شهر</p>
+                <h3 className="text-lg font-semibold text-gray-900">{planInfo?.nameAr || planInfo?.name || 'خطة الاشتراك'}</h3>
+                <p className="text-sm text-gray-600">{planInfo?.price || 0} {planInfo?.currency || 'ر.ع'}/شهر</p>
               </div>
             </div>
             <div className="space-y-2">
-              {planInfo.features.slice(0, 3).map((feature, index) => (
-                <div key={index} className="flex items-center text-sm text-gray-600">
-                  <div className={`w-2 h-2 rounded-full bg-${planInfo.color}-500 ml-2`}></div>
-                  {feature}
-                </div>
-              ))}
+              {((planInfo?.featuresAr || planInfo?.features) || []).slice(0, 3).map((feature, index) => {
+                const dotColorClass = planColor === 'blue' ? 'bg-blue-500' :
+                                     planColor === 'green' ? 'bg-green-500' :
+                                     planColor === 'purple' ? 'bg-purple-500' :
+                                     planColor === 'red' ? 'bg-red-500' :
+                                     planColor === 'yellow' ? 'bg-yellow-500' : 'bg-gray-500';
+                return (
+                  <div key={index} className="flex items-center text-sm text-gray-600">
+                    <div className={`w-2 h-2 rounded-full ${dotColorClass} ml-2`}></div>
+                    {feature}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center mb-4">
               <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                <FiBrain size={24} className="text-purple-600" />
+                <FiZap size={24} className="text-purple-600" />
               </div>
               <div className="mr-4">
                 <h3 className="text-lg font-semibold text-gray-900">الذكاء الاصطناعي</h3>
@@ -191,7 +256,7 @@ export default function AdvancedDashboard() {
           <h2 className="text-xl font-semibold text-gray-900 mb-6">إجراءات سريعة</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             <button className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-center">
-              <FiBuilding size={24} className="text-blue-600 mx-auto mb-2" />
+              <FiHome size={24} className="text-blue-600 mx-auto mb-2" />
               <span className="text-sm font-medium text-blue-800">العقارات</span>
             </button>
             <button className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-center">
@@ -211,7 +276,7 @@ export default function AdvancedDashboard() {
               <span className="text-sm font-medium text-red-800">العملاء</span>
             </button>
             <button className="p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors text-center">
-              <FiBarChart3 size={24} className="text-indigo-600 mx-auto mb-2" />
+              <FiBarChart2 size={24} className="text-indigo-600 mx-auto mb-2" />
               <span className="text-sm font-medium text-indigo-800">التقارير</span>
             </button>
           </div>

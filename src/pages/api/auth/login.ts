@@ -43,14 +43,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // البحث عن المستخدم
-    const user = users.find((u: any) => u.email === email);
+    // البحث عن المستخدم بالإيميل أو اسم المستخدم
+    const user = users.find((u: any) => 
+      u.email === email || u.username === email || u.credentials?.username === email
+    );
 
     if (!user) {
-      return res.status(401).json({ error: 'البريد الإلكتروني غير صحيح' });
+      return res.status(401).json({ error: 'البريد الإلكتروني أو اسم المستخدم غير صحيح' });
     }
 
-    if (user.password !== password) {
+    // التحقق من كلمة المرور - التحقق من password الرئيسي أو credentials.password
+    const userPassword = user.credentials?.password || user.password;
+    if (userPassword !== password) {
       return res.status(401).json({ error: 'كلمة المرور غير صحيحة' });
     }
 

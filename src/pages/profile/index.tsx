@@ -207,9 +207,9 @@ export default function ProfilePage() {
       { id: 'my_properties', label: 'إدارة عقاراتي', icon: FiHome, link: '/properties/unified-management', permission: 'view_properties', color: 'blue', desc: 'لوحة تحكم متقدمة' },
       { id: 'add_property', label: 'إضافة عقار', icon: FiPackage, link: '/properties/new', permission: 'add_property', color: 'green', desc: 'أضف عقار جديد' },
       { id: 'rental_contracts', label: 'إدارة العقود', icon: FiFileText, link: '/rentals/new', permission: 'view_properties', color: 'purple', desc: 'إنشاء عقود إيجار' },
-      { id: 'unit_rentals', label: 'تأجير الوحدات', icon: FiHome, link: '/dashboard/owner?tab=unit-rentals', permission: 'view_properties', color: 'indigo', desc: 'إدارة تأجير الوحدات' },
+      { id: 'unit_rentals', label: 'تأجير الوحدات', icon: FiHome, link: '/dashboard/property-owner?tab=unit-rentals', permission: 'view_properties', color: 'indigo', desc: 'إدارة تأجير الوحدات' },
       { id: 'tenant_management', label: 'إدارة المستأجرين', icon: FiUsers, link: '/tenants/management', permission: 'view_properties', color: 'teal', desc: 'معلومات المستأجرين' },
-      { id: 'contract_management', label: 'إدارة العقود', icon: FiFileText, link: '/dashboard/owner?tab=contracts', permission: 'view_properties', color: 'orange', desc: 'العقود والمستندات' },
+      { id: 'contract_management', label: 'إدارة العقود', icon: FiFileText, link: '/dashboard/property-owner?tab=contracts', permission: 'view_properties', color: 'orange', desc: 'العقود والمستندات' },
       { id: 'roles_permissions', label: 'إدارة الصلاحيات', icon: FiShield, link: '/admin/roles-permissions', permission: 'manage_users', color: 'red', desc: 'التحكم بصلاحيات الأدوار' },
       { id: 'financial', label: 'النظام المالي', icon: FiDollarSign, link: '/admin/financial', permission: 'view_financial', color: 'emerald', desc: 'المالية والحسابات' },
       { id: 'invoices', label: 'الفواتير', icon: FiFileText, link: '/admin/invoices', permission: 'create_invoice', color: 'indigo', desc: 'إدارة الفواتير' },
@@ -226,7 +226,7 @@ export default function ProfilePage() {
 
     // إضافة أزرار أساسية للجميع (بدون شروط)
     const basicActions = [
-      { id: 'dashboard', label: 'لوحة التحكم', icon: FiGrid, link: user.role === 'admin' ? '/admin/dashboard' : `/dashboard/${user.role === 'property_owner' ? 'owner' : user.role}`, color: 'blue', desc: 'لوحتك الرئيسية' },
+      { id: 'dashboard', label: 'لوحة التحكم', icon: FiGrid, link: user.role === 'admin' ? '/admin/dashboard' : `/dashboard/${user.role === 'property_owner' ? 'property-owner' : user.role}`, color: 'blue', desc: 'لوحتك الرئيسية' },
       { id: 'browse', label: 'تصفح العقارات', icon: FiHome, link: '/properties', color: 'green', desc: 'جميع العقارات المتاحة' },
     ];
 
@@ -319,7 +319,7 @@ export default function ProfilePage() {
               <div className="flex gap-3">
                 {/* زر لوحة التحكم الرئيسي */}
                 <InstantLink
-                  href={user.role === 'admin' ? '/admin/dashboard' : `/dashboard/${user.role === 'property_owner' ? 'owner' : user.role}`}
+                  href={user.role === 'admin' ? '/admin/dashboard' : `/dashboard/${user.role === 'property_owner' ? 'property-owner' : user.role}`}
                   className="px-8 py-3 bg-green-500 hover:bg-green-600 rounded-xl transition font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   <FiGrid className="w-5 h-5 inline ml-2" />
@@ -543,7 +543,7 @@ export default function ProfilePage() {
                 </InstantLink>
 
                 <InstantLink
-                  href="/dashboard/owner?tab=unit-rentals"
+                  href="/dashboard/property-owner?tab=unit-rentals"
                   className="group bg-white/10 backdrop-blur rounded-xl p-4 hover:bg-white/20 transition-all transform hover:scale-105"
                 >
                   <div className="flex items-center gap-3 mb-2">
@@ -557,7 +557,7 @@ export default function ProfilePage() {
                 </InstantLink>
 
                 <InstantLink
-                  href="/dashboard/owner?tab=tenants"
+                  href="/dashboard/property-owner?tab=tenants"
                   className="group bg-white/10 backdrop-blur rounded-xl p-4 hover:bg-white/20 transition-all transform hover:scale-105"
                 >
                   <div className="flex items-center gap-3 mb-2">
@@ -571,7 +571,7 @@ export default function ProfilePage() {
                 </InstantLink>
 
                 <InstantLink
-                  href="/dashboard/owner?tab=contracts"
+                  href="/dashboard/property-owner?tab=contracts"
                   className="group bg-white/10 backdrop-blur rounded-xl p-4 hover:bg-white/20 transition-all transform hover:scale-105"
                 >
                   <div className="flex items-center gap-3 mb-2">

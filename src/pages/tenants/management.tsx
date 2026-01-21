@@ -1,6 +1,7 @@
 // src/pages/tenants/management.tsx - صفحة إدارة المستأجرين الشاملة
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -67,6 +68,7 @@ interface Tenant {
 }
 
 export default function TenantsManagement() {
+  const router = useRouter();
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [filteredTenants, setFilteredTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,6 +85,7 @@ export default function TenantsManagement() {
 
   useEffect(() => {
     setHasMounted(true);
+    
     // استرجاع viewMode من localStorage بعد التحميل
     const savedViewMode = localStorage.getItem('tenants-view-mode') as 'grid' | 'list';
     if (savedViewMode) {
@@ -108,17 +111,85 @@ export default function TenantsManagement() {
   const fetchTenants = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/users');
-      if (response.ok) {
-        const data = await response.json();
-        const allUsers = Array.isArray(data.users) ? data.users : (Array.isArray(data) ? data : []);
-        const tenantsOnly = allUsers.filter(user => user.role === 'tenant');
-        setTenants(tenantsOnly);
-        setFilteredTenants(tenantsOnly);
-        
-        // فحص الوثائق المنتهية
-        checkExpiringDocuments(tenantsOnly);
+      
+      // الحصول على معلومات المستخدم الحالي
+      let userId: string | null = null;
+      let userRole: string | null = null;
+      
+      if (typeof window !== 'undefined') {
+        try {
+          const authStr = localStorage.getItem("ain_auth");
+          if (authStr) {
+            const auth = JSON.parse(authStr);
+            userId = auth.id;
+            userRole = auth.role;
+          }
+        } catch (e) {
+          // تجاهل الأخطاء
+        }
       }
+      
+      // إذا كان المستخدم مستأجراً، لا يظهر له أي مستأجرين
+      if (userRole === 'tenant') {
+        setTenants([]);
+        setFilteredTenants([]);
+        setLoading(false);
+        return;
+      }
+      
+      // للملاك: جلب المستأجرين الذين استأجروا عقاراتهم فقط
+      let tenantsOnly: any[] = [];
+      
+      if (userId && userRole !== 'tenant') {
+        // جلب العقود المرتبطة بعقارات المستخدم
+        const rentalsRes = await fetch('/api/rentals');
+        if (rentalsRes.ok) {
+          const rentalsData = await rentalsRes.json();
+          const rentals = Array.isArray(rentalsData.items) ? rentalsData.items : [];
+          
+          // جلب عقارات المستخدم
+          const propertiesRes = await fetch(`/api/properties?mine=true&userId=${encodeURIComponent(userId)}`);
+          if (propertiesRes.ok) {
+            const propertiesData = await propertiesRes.json();
+            const userProperties = Array.isArray(propertiesData.items) ? propertiesData.items : [];
+            const userPropertyIds = new Set(userProperties.map((p: any) => p.id));
+            
+            // استخراج معرفات المستأجرين من العقود المرتبطة بعقارات المستخدم
+            const tenantIds = new Set<string>();
+            rentals.forEach((rental: any) => {
+              if (rental.propertyId && userPropertyIds.has(rental.propertyId)) {
+                if (rental.tenantId) {
+                  tenantIds.add(rental.tenantId);
+                }
+              }
+            });
+            
+            // جلب بيانات المستخدمين (المستأجرين فقط)
+            const usersRes = await fetch('/api/users');
+            if (usersRes.ok) {
+              const usersData = await usersRes.json();
+              const allUsers = Array.isArray(usersData.users) ? usersData.users : (Array.isArray(usersData) ? usersData : []);
+              tenantsOnly = allUsers.filter((user: any) => 
+                user.role === 'tenant' && tenantIds.has(user.id)
+              );
+            }
+          }
+        }
+      } else {
+        // إذا لم يكن هناك userId، جلب جميع المستأجرين (للمديرين)
+        const response = await fetch('/api/users');
+        if (response.ok) {
+          const data = await response.json();
+          const allUsers = Array.isArray(data.users) ? data.users : (Array.isArray(data) ? data : []);
+          tenantsOnly = allUsers.filter(user => user.role === 'tenant');
+        }
+      }
+      
+      setTenants(tenantsOnly);
+      setFilteredTenants(tenantsOnly);
+      
+      // فحص الوثائق المنتهية
+      checkExpiringDocuments(tenantsOnly);
     } catch (error) {
       console.error('Error fetching tenants:', error);
     } finally {

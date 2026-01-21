@@ -206,7 +206,7 @@ export default function BookingSuccessPage() {
           {/* Navigation Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
             <InstantLink
-              href="/dashboard/owner"
+              href="/dashboard/property-owner"
               className="flex-1 flex items-center justify-center gap-3 bg-green-600 text-white py-4 rounded-xl hover:bg-green-700 transition-colors font-bold text-lg"
             >
               <FaHome />

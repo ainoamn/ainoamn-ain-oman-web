@@ -177,15 +177,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         
         console.log('Filtering properties for user:', userId);
         
-        // فلترة العقارات حسب المالك
+        // فلترة العقارات حسب المالك - فقط العقارات التي يملكها المستخدم
         const userProperties = cleanedItems.filter(property => {
           // البحث في حقول مختلفة للمالك
           return property.ownerId === userId || 
                  property.owner === userId ||
                  property.userId === userId ||
-                 property.createdBy === userId ||
-                 // إذا لم يكن هناك مالك محدد، نعرض جميع العقارات للاختبار
-                 (!property.ownerId && !property.owner && !property.userId && !property.createdBy);
+                 property.createdBy === userId;
         });
         
         console.log(`Found ${userProperties.length} properties for user ${userId}`);

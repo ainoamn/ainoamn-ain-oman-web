@@ -83,4 +83,113 @@ export const auctionService = {
     }
     return response.json();
   },
+
+  // الحصول على مزادات المستخدم
+  async getUserAuctions(status?: string): Promise<Auction[]> {
+    try {
+      const url = status 
+        ? `/api/auctions?status=${status}`
+        : '/api/auctions';
+      const response = await fetch(url);
+      if (!response.ok) {
+        return [];
+      }
+      const data = await response.json();
+      return Array.isArray(data.items) ? data.items : (Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Error fetching user auctions:', error);
+      return [];
+    }
+  },
+
+  // الحصول على إحصائيات لوحة التحكم
+  async getDashboardStats(): Promise<{
+    total: number;
+    active: number;
+    scheduled: number;
+    completed: number;
+    pending: number;
+    revenue: number;
+  }> {
+    try {
+      const response = await fetch('/api/auctions');
+      if (!response.ok) {
+        return { total: 0, active: 0, scheduled: 0, completed: 0, pending: 0, revenue: 0 };
+      }
+      const data = await response.json();
+      const auctions = Array.isArray(data.items) ? data.items : (Array.isArray(data) ? data : []);
+      
+      return {
+        total: auctions.length,
+        active: auctions.filter((a: Auction) => a.status === 'active').length,
+        scheduled: auctions.filter((a: Auction) => a.status === 'scheduled').length,
+        completed: auctions.filter((a: Auction) => a.status === 'completed').length,
+        pending: auctions.filter((a: Auction) => a.status === 'pending').length,
+        revenue: auctions.reduce((sum: number, a: Auction) => sum + (a.currentBid || 0), 0)
+      };
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+      return { total: 0, active: 0, scheduled: 0, completed: 0, pending: 0, revenue: 0 };
+    }
+  },
+
+  // الموافقة على مزاد
+  async approveAuction(auctionId: string): Promise<void> {
+    try {
+      const response = await fetch(`/api/auctions/${auctionId}/approve`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to approve auction');
+      }
+    } catch (error) {
+      console.error('Error approving auction:', error);
+      throw error;
+    }
+  },
+
+  // رفض مزاد
+  async rejectAuction(auctionId: string): Promise<void> {
+    try {
+      const response = await fetch(`/api/auctions/${auctionId}/reject`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to reject auction');
+      }
+    } catch (error) {
+      console.error('Error rejecting auction:', error);
+      throw error;
+    }
+  },
+
+  // ترقية مزاد
+  async promoteAuction(auctionId: string): Promise<void> {
+    try {
+      const response = await fetch(`/api/auctions/${auctionId}/promote`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to promote auction');
+      }
+    } catch (error) {
+      console.error('Error promoting auction:', error);
+      throw error;
+    }
+  },
+
+  // حذف مزاد
+  async deleteAuction(auctionId: string): Promise<void> {
+    try {
+      const response = await fetch(`/api/auctions/${auctionId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete auction');
+      }
+    } catch (error) {
+      console.error('Error deleting auction:', error);
+      throw error;
+    }
+  },
 };
