@@ -629,6 +629,25 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Subscriptions / Plans CTA - ربط مباشر بصفحة الاشتراكات */}
+      <section className="py-16 bg-gradient-to-r from-teal-600 via-emerald-600 to-green-700 text-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">باقات الاشتراك</h2>
+            <p className="text-xl text-white/90 mb-8">
+              اختر الباقة المناسبة لك: من الأساسية إلى المؤسسية. عقارات، وحدات، حجوزات، ودعم متكامل.
+            </p>
+            <InstantLink
+              href="/subscriptions"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-teal-700 font-bold rounded-xl hover:bg-teal-50 shadow-xl hover:shadow-2xl transition-all text-lg"
+            >
+              عرض الباقات والاشتراكات
+              <span className="text-2xl" aria-hidden>←</span>
+            </InstantLink>
+          </div>
+        </div>
+      </section>
+
       {/* Services Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">

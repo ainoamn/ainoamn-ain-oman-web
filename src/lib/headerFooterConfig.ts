@@ -32,8 +32,10 @@ export const defaultConfig: HeaderFooterConfig = {
     { label: "الرئيسية", href: "/" },
     { label: "العقارات", href: "/properties" },
     { label: "المزادات", href: "/auctions" },
+    { label: "الباقات", href: "/subscriptions" },
     { label: "المطورون", href: "/development/projects" },
     { label: "المزيد", href: "#", children: [
+      { label: "الباقات والاشتراكات", href: "/subscriptions" },
       { label: "من نحن", href: "/about" },
       { label: "تواصل معنا", href: "/contact" },
       { label: "السياسات", href: "/policies" },

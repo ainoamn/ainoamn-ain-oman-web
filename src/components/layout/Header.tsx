@@ -173,6 +173,14 @@ export default function Header() {
       ]
     },
     {
+      id: 'subscriptions',
+      label: 'الباقات',
+      href: '/subscriptions',
+      icon: CurrencyDollarIcon,
+      iconSolid: CurrencyDollarIcon,
+      description: 'باقات الاشتراك والخطط'
+    },
+    {
       id: 'development',
       label: 'التطوير العقاري',
       href: '/development',

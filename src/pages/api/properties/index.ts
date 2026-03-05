@@ -129,8 +129,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === "GET") {
     try {
-      const items = getAll();
-      
+      let items = getAll();
+      // إذا كانت النتائج فارغة، قراءة مباشرة من .data/db.json (لتفادي اختلاف مسار process.cwd)
+      if (!items || items.length === 0) {
+        const candidates = [
+          path.resolve(process.cwd(), ".data", "db.json"),
+          path.resolve(__dirname, "..", "..", "..", "..", ".data", "db.json"), // من src/pages/api/properties
+        ];
+        for (const dbPath of candidates) {
+          try {
+            if (fs.existsSync(dbPath)) {
+              const raw = fs.readFileSync(dbPath, "utf8");
+              const db = JSON.parse(raw || "{}");
+              const list = Array.isArray(db?.properties) ? db.properties : [];
+              if (list.length > 0) {
+                items = list;
+                break;
+              }
+            }
+          } catch (e) {
+            console.warn("Fallback read db.json failed for", dbPath, e);
+          }
+        }
+      }
+
       // تنظيف البيانات القديمة التي تأتي كـ arrays وإصلاح مسارات الصور
       const cleanedItems = items.map(item => {
         const cleaned: any = {};
@@ -163,7 +185,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (cleaned.coverImage && !cleaned.coverImage.startsWith('/uploads/') && !cleaned.coverImage.startsWith('http') && !cleaned.coverImage.startsWith('data:')) {
           cleaned.coverImage = `/uploads/properties/${cleaned.id}/${cleaned.coverImage}`;
         }
-        
+        // تطبيع الحقول الرقمية (قد تأتي كنص من db)
+        if (typeof cleaned.priceOMR === "string") cleaned.priceOMR = Number(cleaned.priceOMR) || 0;
+        if (typeof cleaned.rentalPrice === "string") cleaned.rentalPrice = Number(cleaned.rentalPrice) || 0;
+        if (typeof cleaned.area === "string") cleaned.area = Number(cleaned.area) || 0;
+        if (typeof cleaned.beds === "string") cleaned.beds = Number(cleaned.beds) || 0;
+        if (typeof cleaned.baths === "string") cleaned.baths = Number(cleaned.baths) || 0;
         return cleaned;
       });
       

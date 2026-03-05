@@ -29,11 +29,10 @@ export default function SubscriptionsPage() {
   const [plansFeatures, setPlansFeatures] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     loadData();
 
-    // الاستماع للتغييرات من صفحة الإدارة
     const handleStorageChange = () => {
-      console.log('🔄 اكتشاف تغيير في البيانات، إعادة التحميل...');
       loadData();
     };
 
@@ -47,12 +46,13 @@ export default function SubscriptionsPage() {
   }, []);
 
   const loadData = async () => {
+    if (typeof window === 'undefined') return;
     try {
       let loadedPlans: SubscriptionPlan[] = [];
       let loadedFeatures: Record<string, string[]> = {};
 
       // 1. تحميل الباقات من localStorage
-      const customPlansStr = localStorage.getItem('custom_plans');
+      const customPlansStr = window.localStorage.getItem('custom_plans');
       if (customPlansStr) {
         try {
           const customPlans = JSON.parse(customPlansStr);
@@ -66,7 +66,7 @@ export default function SubscriptionsPage() {
       }
 
       // 2. تحميل الصلاحيات من localStorage
-      const customFeaturesStr = localStorage.getItem('custom_plan_features');
+      const customFeaturesStr = window.localStorage.getItem('custom_plan_features');
       if (customFeaturesStr) {
         try {
           const customFeatures = JSON.parse(customFeaturesStr);
@@ -102,7 +102,7 @@ export default function SubscriptionsPage() {
       console.log('📦 إجمالي الباقات:', plansWithFeatures.length, '| الصلاحيات:', Object.keys(loadedFeatures).length);
 
       // 5. تحميل بيانات المستخدم
-      const authData = localStorage.getItem('ain_auth');
+      const authData = window.localStorage.getItem('ain_auth');
       if (authData) {
         const userData = JSON.parse(authData);
         setCurrentUser(userData);
@@ -130,8 +130,9 @@ export default function SubscriptionsPage() {
   };
 
   const handlePayment = async () => {
+    if (typeof window === 'undefined') return;
     try {
-      const authData = localStorage.getItem('ain_auth');
+      const authData = window.localStorage.getItem('ain_auth');
       if (!authData) {
         alert('يرجى تسجيل الدخول');
         router.push('/login');
@@ -140,14 +141,13 @@ export default function SubscriptionsPage() {
 
       const userData = JSON.parse(authData);
       const subscription = subscriptionManager.createSubscription(
-        userData.id, 
-        selectedPlanId, 
+        userData.id,
+        selectedPlanId,
         'credit_card'
       );
-      
-      // تحديث بيانات المستخدم
+
       userData.subscription = subscription;
-      localStorage.setItem('ain_auth', JSON.stringify(userData));
+      window.localStorage.setItem('ain_auth', JSON.stringify(userData));
       
       setUserSubscription(subscription);
       setShowPaymentModal(false);
@@ -399,10 +399,10 @@ export default function SubscriptionsPage() {
                   <th className="text-right px-6 py-4 text-sm font-bold text-gray-700">الميزة</th>
                   {plans.map((plan) => (
                     <th key={plan.id} className="text-center px-6 py-4">
-                      <div className={`inline-block px-4 py-2 ${plan.color} text-white rounded-lg font-bold`}>
+                      <div className={`inline-block px-4 py-2 ${plan.color || 'bg-gray-500'} text-white rounded-lg font-bold`}>
                         {plan.nameAr}
                       </div>
-                      </th>
+                    </th>
                     ))}
                   </tr>
                 </thead>
