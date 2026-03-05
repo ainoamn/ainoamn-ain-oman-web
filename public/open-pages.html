@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>فتح صفحات الموقع</title>
+  <style>
+    body { font-family: system-ui; padding: 2rem; max-width: 600px; margin: 0 auto; }
+    input { width: 100%; padding: 0.5rem; margin: 0.5rem 0; }
+    button { padding: 0.75rem 1.5rem; background: #0d9488; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    button:hover { background: #0f766e; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.25rem 0; }
+    a { color: #0d9488; }
+  </style>
+</head>
+<body>
+  <h1>فتح صفحات الموقع على الإنترنت</h1>
+  <p>ضع رابط الموقع (مثال: https://ain-oman-web.vercel.app) ثم اضغط "فتح كل الصفحات".</p>
+  <input type="text" id="baseUrl" placeholder="https://your-site.vercel.app" value="https://ain-oman-web.vercel.app" />
+  <button type="button" id="openAll">فتح كل الصفحات</button>
+  <ul id="links"></ul>
+  <script>
+    var paths = ["/", "/properties", "/subscriptions", "/auctions", "/development/projects", "/profile", "/dashboard", "/login", "/admin", "/admin/subscriptions", "/admin/users", "/admin/properties", "/admin/bookings", "/admin/contracts", "/pricing"];
+    function render() {
+      var base = document.getElementById("baseUrl").value.trim().replace(/\/$/, "");
+      var ul = document.getElementById("links");
+      ul.innerHTML = paths.map(function(p) {
+        var url = base + p;
+        return "<li><a href=\"" + url + "\" target=\"_blank\">" + (p || "/") + "</a></li>";
+      }).join("");
+    }
+    document.getElementById("baseUrl").onchange = render;
+    document.getElementById("openAll").onclick = function() {
+      var base = document.getElementById("baseUrl").value.trim().replace(/\/$/, "");
+      paths.forEach(function(p, i) {
+        setTimeout(function() { window.open(base + p, "_blank"); }, i * 400);
+      });
+    };
+    render();
+  </script>
+</body>
+</html>
