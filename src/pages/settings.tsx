@@ -1,972 +1,972 @@
-import React, { useState, useEffect } from 'react';
-import InstantImage from '@/components/InstantImage';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import InstantLink from '@/components/InstantLink';
-import { useI18n } from '@/lib/i18n';
-import { 
-  FaUser, FaBell, FaLock, FaPalette, FaGlobe, FaCog,
-  FaEnvelope, FaPhone, FaMapMarkerAlt, FaCamera, FaSave,
-  FaKey, FaShieldAlt, FaEye, FaEyeOff, FaMoon, FaSun,
-  FaDesktop, FaCheckCircle, FaExclamationTriangle, FaTrash,
-  FaSignOutAlt, FaEdit, FaUpload, FaClock, FaLanguage
-} from 'react-icons/fa';
-
-interface UserSettings {
-  id: string;
-  userId: string;
-  profile: {
-    name: string;
-    email: string;
-    phone: string;
-    avatar?: string;
-    bio?: string;
-    location?: string;
-  };
-  notifications: {
-    email: boolean;
-    sms: boolean;
-    push: boolean;
-    marketing: boolean;
-    bookings: boolean;
-    payments: boolean;
-  };
-  privacy: {
-    profileVisibility: 'public' | 'private';
-    showEmail: boolean;
-    showPhone: boolean;
-    allowMessages: boolean;
-  };
-  appearance: {
-    theme: 'light' | 'dark' | 'auto';
-    language: string;
-    fontSize: 'small' | 'medium' | 'large';
-  };
-  security: {
-    twoFactorAuth: boolean;
-    loginAlerts: boolean;
-  };
-}
-
-type TabType = 'profile' | 'notifications' | 'privacy' | 'appearance' | 'security' | 'account';
-
-export default function SettingsPage() {
-  const router = useRouter();
-  const { dir } = useI18n();
-  
-  const [activeTab, setActiveTab] = useState<TabType>('profile');
-  const [settings, setSettings] = useState<UserSettings | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [user, setUser] = useState<any>(null);
-
-  // äãÇĞÌ
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showAvatarUpload, setShowAvatarUpload] = useState(false);
-
-  // ÍŞæá ßáãÉ ÇáãÑæÑ
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-
-  useEffect(() => {
-    loadUserData();
-    loadSettings();
-  }, []);
-
-  const loadUserData = () => {
-    try {
-      const authData = localStorage.getItem('ain_auth');
-      if (authData) {
-        setUser(JSON.parse(authData));
-      } else {
-        router.replace('/login?return=/settings');
-      }
-    } catch (error) {
-
-      router.replace('/login?return=/settings');
-    }
-  };
-
-  const loadSettings = async () => {
-    try {
-      setLoading(true);
-      const authData = localStorage.getItem('ain_auth');
-      if (!authData) {
-        router.replace('/login?return=/settings');
-        return;
-      }
-
-      const userData = JSON.parse(authData);
-      const userId = userData.id;
-
-      const res = await fetch(`/api/settings/user?userId=${userId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setSettings(data.settings);
-      } else {
-        // ÅäÔÇÁ ÅÚÏÇÏÇÊ ÇİÊÑÇÖíÉ
-        const defaultSettings: UserSettings = {
-          id: `SETTINGS-${Date.now()}`,
-          userId,
-          profile: {
-            name: userData.name || '',
-            email: userData.email || '',
-            phone: userData.phone || '',
-            avatar: userData.picture || userData.avatar,
-            bio: '',
-            location: 'ãÓŞØ¡ ÓáØäÉ ÚõãÇä'
-          },
-          notifications: {
-            email: true,
-            sms: true,
-            push: true,
-            marketing: false,
-            bookings: true,
-            payments: true
-          },
-          privacy: {
-            profileVisibility: 'public',
-            showEmail: false,
-            showPhone: false,
-            allowMessages: true
-          },
-          appearance: {
-            theme: 'auto',
-            language: 'ar',
-            fontSize: 'medium'
-          },
-          security: {
-            twoFactorAuth: false,
-            loginAlerts: true
-          }
-        };
-        setSettings(defaultSettings);
-      }
-    } catch (error) {
-
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSaveSettings = async () => {
-    if (!settings) return;
-    
-    setSaving(true);
-    try {
-      const res = await fetch('/api/settings/user', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: settings.id, ...settings })
-      });
-
-      if (res.ok) {
-        alert('? Êã ÍİÙ ÇáÅÚÏÇÏÇÊ ÈäÌÇÍ!');
-        
-        // ÊÍÏíË ÈíÇäÇÊ ÇáãÓÊÎÏã İí localStorage
-        const authData = localStorage.getItem('ain_auth');
-        if (authData) {
-          const userData = JSON.parse(authData);
-          userData.name = settings.profile.name;
-          userData.email = settings.profile.email;
-          userData.phone = settings.profile.phone;
-          localStorage.setItem('ain_auth', JSON.stringify(userData));
-          window.dispatchEvent(new CustomEvent('ain_auth:change'));
-        }
-      } else {
-        const error = await res.json();
-        alert('ÎØÃ: ' + (error.error || 'İÔá ÍİÙ ÇáÅÚÏÇÏÇÊ'));
-      }
-    } catch (error) {
-
-      alert('ÍÏË ÎØÃ ÃËäÇÁ ÍİÙ ÇáÅÚÏÇÏÇÊ');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleChangePassword = async () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      return alert('ÇáÑÌÇÁ ãáÁ ÌãíÚ ÇáÍŞæá');
-    }
-    
-    if (newPassword !== confirmPassword) {
-      return alert('ßáãÉ ÇáãÑæÑ ÇáÌÏíÏÉ æÊÃßíÏåÇ ÛíÑ ãÊØÇÈŞÊíä');
-    }
-    
-    if (newPassword.length < 8) {
-      return alert('ßáãÉ ÇáãÑæÑ íÌÈ Ãä Êßæä 8 ÃÍÑİ Úáì ÇáÃŞá');
-    }
-
-    try {
-      const res = await fetch('/api/auth/change-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          userId: user.id,
-          currentPassword, 
-          newPassword 
-        })
-      });
-
-      if (res.ok) {
-        alert('? Êã ÊÛííÑ ßáãÉ ÇáãÑæÑ ÈäÌÇÍ!');
-        setShowPasswordModal(false);
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-      } else {
-        const error = await res.json();
-        alert('ÎØÃ: ' + (error.error || 'İÔá ÊÛííÑ ßáãÉ ÇáãÑæÑ'));
-      }
-    } catch (error) {
-
-      alert('ÍÏË ÎØÃ ÃËäÇÁ ÊÛííÑ ßáãÉ ÇáãÑæÑ');
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    if (!confirm('åá ÃäÊ ãÊÃßÏ ãä ÍĞİ ÍÓÇÈß¿ åĞÇ ÇáÅÌÑÇÁ áÇ íãßä ÇáÊÑÇÌÚ Úäå!')) {
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/auth/delete-account`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id })
-      });
-
-      if (res.ok) {
-        alert('Êã ÍĞİ ÍÓÇÈß ÈäÌÇÍ');
-        localStorage.removeItem('ain_auth');
-        localStorage.removeItem('auth_token');
-        router.replace('/');
-      } else {
-        const error = await res.json();
-        alert('ÎØÃ: ' + (error.error || 'İÔá ÍĞİ ÇáÍÓÇÈ'));
-      }
-    } catch (error) {
-
-      alert('ÍÏË ÎØÃ ÃËäÇÁ ÍĞİ ÇáÍÓÇÈ');
-    }
-  };
-
-  if (loading) {
-    return (
-      <>
-        <Head><title>ÌÇÑí ÇáÊÍãíá... | Ain Oman</title></Head>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">ÌÇÑí ÊÍãíá ÇáÅÚÏÇÏÇÊ...</p>
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  if (!settings || !user) {
-    return (
-      <>
-        <Head><title>ÎØÃ | Ain Oman</title></Head>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <FaExclamationTriangle className="text-6xl text-red-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">ÎØÃ İí ÊÍãíá ÇáÅÚÏÇÏÇÊ</h1>
-            <InstantLink href="/login?return=/settings" className="text-green-600 hover:text-green-700 font-medium">
-              ÊÓÌíá ÇáÏÎæá
-            </InstantLink>
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  const tabs = [
-    { id: 'profile', label: 'Çáãáİ ÇáÔÎÕí', icon: FaUser },
-    { id: 'notifications', label: 'ÇáÅÔÚÇÑÇÊ', icon: FaBell },
-    { id: 'privacy', label: 'ÇáÎÕæÕíÉ', icon: FaShieldAlt },
-    { id: 'appearance', label: 'ÇáãÙåÑ', icon: FaPalette },
-    { id: 'security', label: 'ÇáÃãÇä', icon: FaLock },
-    { id: 'account', label: 'ÇáÍÓÇÈ', icon: FaCog }
-  ];
-
-  return (
-    <>
-      <Head>
-        <title>ÇáÅÚÏÇÏÇÊ | Ain Oman</title>
-      </Head>
-
-      <div dir={dir} className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-green-50 py-8 px-4">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">ÇáÅÚÏÇÏÇÊ</h1>
-                <p className="text-gray-600">ÅÏÇÑÉ ÍÓÇÈß æÊİÖíáÇÊß</p>
-              </div>
-              <button
-                onClick={handleSaveSettings}
-                disabled={saving}
-                className="bg-gradient-to-r from-green-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-blue-700 disabled:opacity-50 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
-              >
-                <FaSave />
-                {saving ? 'ÌÇÑí ÇáÍİÙ...' : 'ÍİÙ ÇáÊÛííÑÇÊ'}
-              </button>
-            </div>
-          </div>
-
-          <div className="grid lg:grid-cols-4 gap-6">
-            {/* Sidebar Tabs */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-lg p-4 sticky top-24">
-                <nav className="space-y-2">
-                  {tabs.map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id as TabType)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                        activeTab === tab.id
-                          ? 'bg-gradient-to-r from-green-600 to-blue-600 text-white shadow-md'
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`}
-                    >
-                      <tab.icon className="text-xl" />
-                      <span className="font-medium">{tab.label}</span>
-                    </button>
-                  ))}
-                </nav>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="lg:col-span-3">
-              <div className="bg-white rounded-2xl shadow-lg p-8">
-                
-                {/* Profile Tab */}
-                {activeTab === 'profile' && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-4 mb-6">
-                      <FaUser className="text-3xl text-green-600" />
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Çáãáİ ÇáÔÎÕí</h2>
-                        <p className="text-gray-600">ÅÏÇÑÉ ãÚáæãÇÊß ÇáÔÎÕíÉ</p>
-                      </div>
-                    </div>
-
-                    {/* Avatar */}
-                    <div className="flex items-center gap-6 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
-                      <div className="relative">
-                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-600 to-blue-600 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
-                          {settings.profile.avatar ? (
-                            <InstantImage src={settings.profile.avatar} alt="Avatar" className="w-full h-full object-cover"  loading="lazy" width={400} height={300}/>
-                          ) : (
-                            settings.profile.name.charAt(0).toUpperCase()
-                          )}
-                        </div>
-                        <button className="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-all shadow-lg">
-                          <FaCamera className="text-sm" />
-                        </button>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 mb-1">{settings.profile.name}</h3>
-                        <p className="text-sm text-gray-600 mb-2">{settings.profile.email}</p>
-                        <button
-                          onClick={() => setShowAvatarUpload(true)}
-                          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                        >
-                          ÊÛííÑ ÇáÕæÑÉ
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Profile Fields */}
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          <FaUser className="inline-block ml-2" />
-                          ÇáÇÓã ÇáßÇãá
-                        </label>
-                        <input
-                          type="text"
-                          value={settings.profile.name}
-                          onChange={(e) => setSettings({
-                            ...settings,
-                            profile: { ...settings.profile, name: e.target.value }
-                          })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          <FaEnvelope className="inline-block ml-2" />
-                          ÇáÈÑíÏ ÇáÅáßÊÑæäí
-                        </label>
-                        <input
-                          type="email"
-                          value={settings.profile.email}
-                          onChange={(e) => setSettings({
-                            ...settings,
-                            profile: { ...settings.profile, email: e.target.value }
-                          })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                          dir="ltr"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          <FaPhone className="inline-block ml-2" />
-                          ÑŞã ÇáåÇÊİ
-                        </label>
-                        <input
-                          type="tel"
-                          value={settings.profile.phone}
-                          onChange={(e) => setSettings({
-                            ...settings,
-                            profile: { ...settings.profile, phone: e.target.value }
-                          })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                          dir="ltr"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          <FaMapMarkerAlt className="inline-block ml-2" />
-                          ÇáãæŞÚ
-                        </label>
-                        <input
-                          type="text"
-                          value={settings.profile.location || ''}
-                          onChange={(e) => setSettings({
-                            ...settings,
-                            profile: { ...settings.profile, location: e.target.value }
-                          })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        äÈĞÉ Úäß
-                      </label>
-                      <textarea
-                        value={settings.profile.bio || ''}
-                        onChange={(e) => setSettings({
-                          ...settings,
-                          profile: { ...settings.profile, bio: e.target.value }
-                        })}
-                        rows={4}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none"
-                        placeholder="ÃÎÈÑäÇ Úä äİÓß..."
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Notifications Tab */}
-                {activeTab === 'notifications' && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-4 mb-6">
-                      <FaBell className="text-3xl text-blue-600" />
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900">ÇáÅÔÚÇÑÇÊ</h2>
-                        <p className="text-gray-600">ÊÍßã İí ÇáÅÔÚÇÑÇÊ ÇáÊí ÊÊáŞÇåÇ</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      {[
-                        { key: 'email', label: 'ÅÔÚÇÑÇÊ ÇáÈÑíÏ ÇáÅáßÊÑæäí', desc: 'ÊáŞí ÅÔÚÇÑÇÊ ÚÈÑ ÇáÈÑíÏ', icon: FaEnvelope },
-                        { key: 'sms', label: 'ÅÔÚÇÑÇÊ ÇáÑÓÇÆá ÇáäÕíÉ', desc: 'ÊáŞí ÅÔÚÇÑÇÊ ÚÈÑ SMS', icon: FaPhone },
-                        { key: 'push', label: 'ÇáÅÔÚÇÑÇÊ ÇáİæÑíÉ', desc: 'ÅÔÚÇÑÇÊ ÇáãÊÕİÍ', icon: FaBell },
-                        { key: 'bookings', label: 'ÅÔÚÇÑÇÊ ÇáÍÌæÒÇÊ', desc: 'ÊÍÏíËÇÊ Íæá ÍÌæÒÇÊß', icon: FaCheckCircle },
-                        { key: 'payments', label: 'ÅÔÚÇÑÇÊ ÇáãÏİæÚÇÊ', desc: 'ÊäÈíåÇÊ ÇáÏİÚ æÇáİæÇÊíÑ', icon: FaCheckCircle },
-                        { key: 'marketing', label: 'ÅÔÚÇÑÇÊ ÊÓæíŞíÉ', desc: 'ÚÑæÖ æÃÎÈÇÑ', icon: FaBell }
-                      ].map((item) => (
-                        <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
-                          <div className="flex items-center gap-3">
-                            <item.icon className="text-xl text-gray-600" />
-                            <div>
-                              <p className="font-medium text-gray-900">{item.label}</p>
-                              <p className="text-sm text-gray-600">{item.desc}</p>
-                            </div>
-                          </div>
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={settings.notifications[item.key as keyof typeof settings.notifications]}
-                              onChange={(e) => setSettings({
-                                ...settings,
-                                notifications: {
-                                  ...settings.notifications,
-                                  [item.key]: e.target.checked
-                                }
-                              })}
-                              className="sr-only peer"
-                            />
-                            <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-600"></div>
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Privacy Tab */}
-                {activeTab === 'privacy' && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-4 mb-6">
-                      <FaShieldAlt className="text-3xl text-purple-600" />
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900">ÇáÎÕæÕíÉ</h2>
-                        <p className="text-gray-600">ÊÍßã İí ãä íÑì ãÚáæãÇÊß</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-3">
-                          ÙåæÑ Çáãáİ ÇáÔÎÕí
-                        </label>
-                        <div className="space-y-2">
-                          {[
-                            { value: 'public', label: 'ÚÇã', desc: 'íãßä ááÌãíÚ ÑÄíÉ ãáİß' },
-                            { value: 'private', label: 'ÎÇÕ', desc: 'ÃäÊ İŞØ ãä íãßäå ÑÄíÉ ãáİß' }
-                          ].map((option) => (
-                            <label key={option.value} className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 cursor-pointer transition-all">
-                              <input
-                                type="radio"
-                                name="profileVisibility"
-                                value={option.value}
-                                checked={settings.privacy.profileVisibility === option.value}
-                                onChange={(e) => setSettings({
-                                  ...settings,
-                                  privacy: {
-                                    ...settings.privacy,
-                                    profileVisibility: e.target.value as 'public' | 'private'
-                                  }
-                                })}
-                                className="w-5 h-5 text-green-600 focus:ring-green-500"
-                              />
-                              <div>
-                                <p className="font-medium text-gray-900">{option.label}</p>
-                                <p className="text-sm text-gray-600">{option.desc}</p>
-                              </div>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        {[
-                          { key: 'showEmail', label: 'ÅÙåÇÑ ÇáÈÑíÏ ÇáÅáßÊÑæäí', icon: FaEnvelope },
-                          { key: 'showPhone', label: 'ÅÙåÇÑ ÑŞã ÇáåÇÊİ', icon: FaPhone },
-                          { key: 'allowMessages', label: 'ÇáÓãÇÍ ÈÇáÑÓÇÆá', icon: FaBell }
-                        ].map((item) => (
-                          <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                            <div className="flex items-center gap-3">
-                              <item.icon className="text-xl text-gray-600" />
-                              <span className="font-medium text-gray-900">{item.label}</span>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={settings.privacy[item.key as keyof typeof settings.privacy] as boolean}
-                                onChange={(e) => setSettings({
-                                  ...settings,
-                                  privacy: {
-                                    ...settings.privacy,
-                                    [item.key]: e.target.checked
-                                  }
-                                })}
-                                className="sr-only peer"
-                              />
-                              <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-purple-600"></div>
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Appearance Tab */}
-                {activeTab === 'appearance' && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-4 mb-6">
-                      <FaPalette className="text-3xl text-pink-600" />
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900">ÇáãÙåÑ</h2>
-                        <p className="text-gray-600">ÎÕÕ Ôßá ÇáãæŞÚ ÍÓÈ ĞæŞß</p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
-                        <FaPalette className="inline-block ml-2" />
-                        ÇáãÙåÑ
-                      </label>
-                      <div className="grid grid-cols-3 gap-4">
-                        {[
-                          { value: 'light', label: 'İÇÊÍ', icon: FaSun },
-                          { value: 'dark', label: 'ÏÇßä', icon: FaMoon },
-                          { value: 'auto', label: 'ÊáŞÇÆí', icon: FaDesktop }
-                        ].map((theme) => (
-                          <button
-                            key={theme.value}
-                            onClick={() => setSettings({
-                              ...settings,
-                              appearance: { ...settings.appearance, theme: theme.value as any }
-                            })}
-                            className={`p-4 rounded-xl border-2 transition-all ${
-                              settings.appearance.theme === theme.value
-                                ? 'border-green-600 bg-green-50'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <theme.icon className={`text-3xl mx-auto mb-2 ${
-                              settings.appearance.theme === theme.value ? 'text-green-600' : 'text-gray-600'
-                            }`} />
-                            <p className="font-medium text-gray-900">{theme.label}</p>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
-                        <FaLanguage className="inline-block ml-2" />
-                        ÇááÛÉ
-                      </label>
-                      <select
-                        value={settings.appearance.language}
-                        onChange={(e) => setSettings({
-                          ...settings,
-                          appearance: { ...settings.appearance, language: e.target.value }
-                        })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                      >
-                        <option value="ar">ÇáÚÑÈíÉ</option>
-                        <option value="en">English</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
-                        ÍÌã ÇáÎØ
-                      </label>
-                      <div className="grid grid-cols-3 gap-4">
-                        {[
-                          { value: 'small', label: 'ÕÛíÑ' },
-                          { value: 'medium', label: 'ãÊæÓØ' },
-                          { value: 'large', label: 'ßÈíÑ' }
-                        ].map((size) => (
-                          <button
-                            key={size.value}
-                            onClick={() => setSettings({
-                              ...settings,
-                              appearance: { ...settings.appearance, fontSize: size.value as any }
-                            })}
-                            className={`p-3 rounded-xl border-2 transition-all ${
-                              settings.appearance.fontSize === size.value
-                                ? 'border-green-600 bg-green-50 text-green-700'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <p className="font-medium">{size.label}</p>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Security Tab */}
-                {activeTab === 'security' && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-4 mb-6">
-                      <FaLock className="text-3xl text-red-600" />
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900">ÇáÃãÇä</h2>
-                        <p className="text-gray-600">ÍãÇíÉ ÍÓÇÈß æÈíÇäÇÊß</p>
-                      </div>
-                    </div>
-
-                    {/* Change Password */}
-                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border-2 border-blue-200">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
-                            <FaKey className="text-blue-600" />
-                            ßáãÉ ÇáãÑæÑ
-                          </h3>
-                          <p className="text-sm text-gray-600">ÂÎÑ ÊÛííÑ: ãäĞ 30 íæã</p>
-                        </div>
-                        <button
-                          onClick={() => setShowPasswordModal(true)}
-                          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all"
-                        >
-                          ÊÛííÑ ßáãÉ ÇáãÑæÑ
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Security Options */}
-                    <div className="space-y-4">
-                      {[
-                        { 
-                          key: 'twoFactorAuth', 
-                          label: 'ÇáãÕÇÏŞÉ ÇáËäÇÆíÉ (2FA)', 
-                          desc: 'ØÈŞÉ ÃãÇä ÅÖÇİíÉ áÍÓÇÈß',
-                          icon: FaShieldAlt
-                        },
-                        { 
-                          key: 'loginAlerts', 
-                          label: 'ÊäÈíåÇÊ ÊÓÌíá ÇáÏÎæá', 
-                          desc: 'ÅÔÚÇÑ ÚäÏ ÊÓÌíá ÏÎæá ÌÏíÏ',
-                          icon: FaBell
-                        }
-                      ].map((item) => (
-                        <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                          <div className="flex items-center gap-3">
-                            <item.icon className="text-xl text-red-600" />
-                            <div>
-                              <p className="font-medium text-gray-900">{item.label}</p>
-                              <p className="text-sm text-gray-600">{item.desc}</p>
-                            </div>
-                          </div>
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={settings.security[item.key as keyof typeof settings.security] as boolean}
-                              onChange={(e) => setSettings({
-                                ...settings,
-                                security: {
-                                  ...settings.security,
-                                  [item.key]: e.target.checked
-                                }
-                              })}
-                              className="sr-only peer"
-                            />
-                            <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-red-600"></div>
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Account Tab */}
-                {activeTab === 'account' && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-4 mb-6">
-                      <FaCog className="text-3xl text-gray-600" />
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900">ÇáÍÓÇÈ</h2>
-                        <p className="text-gray-600">ÅÏÇÑÉ ÍÓÇÈß æÈíÇäÇÊß</p>
-                      </div>
-                    </div>
-
-                    {/* Account Info */}
-                    <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border-2 border-green-200">
-                      <h3 className="font-semibold text-gray-900 mb-4">ãÚáæãÇÊ ÇáÍÓÇÈ</h3>
-                      <div className="space-y-3 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">ãÚÑİ ÇáãÓÊÎÏã:</span>
-                          <span className="font-mono text-gray-900">{user.id}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">äæÚ ÇáÍÓÇÈ:</span>
-                          <span className="font-medium text-gray-900">{user.role || 'user'}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">ÍÇáÉ ÇáÊæËíŞ:</span>
-                          <span className={`font-medium ${user.isVerified ? 'text-green-600' : 'text-yellow-600'}`}>
-                            {user.isVerified ? '? ãæËŞ' : '?? ÛíÑ ãæËŞ'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Export Data */}
-                    <div className="bg-blue-50 p-6 rounded-xl border-2 border-blue-200">
-                      <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                        <FaUpload className="text-blue-600" />
-                        ÊÕÏíÑ ÇáÈíÇäÇÊ
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-4">
-                        ÇÍÕá Úáì äÓÎÉ ãä ÌãíÚ ÈíÇäÇÊß
-                      </p>
-                      <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
-                        ÊÕÏíÑ ÇáÈíÇäÇÊ
-                      </button>
-                    </div>
-
-                    {/* Danger Zone */}
-                    <div className="bg-red-50 p-6 rounded-xl border-2 border-red-200">
-                      <h3 className="font-semibold text-red-900 mb-2 flex items-center gap-2">
-                        <FaExclamationTriangle className="text-red-600" />
-                        ãäØŞÉ ÇáÎØÑ
-                      </h3>
-                      <p className="text-sm text-red-700 mb-4">
-                        ÇáÅÌÑÇÁÇÊ ÇáÊÇáíÉ áÇ íãßä ÇáÊÑÇÌÚ ÚäåÇ
-                      </p>
-                      <div className="space-y-3">
-                        <button
-                          onClick={() => {
-                            localStorage.removeItem('ain_auth');
-                            localStorage.removeItem('auth_token');
-                            router.push('/login');
-                          }}
-                          className="w-full bg-white border-2 border-red-300 text-red-700 px-4 py-2 rounded-lg hover:bg-red-50 transition-all flex items-center justify-center gap-2"
-                        >
-                          <FaSignOutAlt />
-                          ÊÓÌíá ÇáÎÑæÌ ãä ÌãíÚ ÇáÃÌåÒÉ
-                        </button>
-                        <button
-                          onClick={() => setShowDeleteModal(true)}
-                          className="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2"
-                        >
-                          <FaTrash />
-                          ÍĞİ ÇáÍÓÇÈ äåÇÆíÇğ
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Change Password Modal */}
-          {showPasswordModal && (
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-              <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">ÊÛííÑ ßáãÉ ÇáãÑæÑ</h3>
-                
-                <div className="space-y-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ßáãÉ ÇáãÑæÑ ÇáÍÇáíÉ
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showCurrentPassword ? 'text' : 'password'}
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 pr-12"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                      >
-                        {showCurrentPassword ? <FaEyeOff /> : <FaEye />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ßáãÉ ÇáãÑæÑ ÇáÌÏíÏÉ
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showNewPassword ? 'text' : 'password'}
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 pr-12"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                      >
-                        {showNewPassword ? <FaEyeOff /> : <FaEye />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ÊÃßíÏ ßáãÉ ÇáãÑæÑ
-                    </label>
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleChangePassword}
-                    className="flex-1 bg-gradient-to-r from-green-600 to-blue-600 text-white py-3 rounded-xl font-semibold hover:from-green-700 hover:to-blue-700 transition-all"
-                  >
-                    ÍİÙ
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowPasswordModal(false);
-                      setCurrentPassword('');
-                      setNewPassword('');
-                      setConfirmPassword('');
-                    }}
-                    className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-all"
-                  >
-                    ÅáÛÇÁ
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Delete Account Modal */}
-          {showDeleteModal && (
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-              <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8">
-                <div className="text-center mb-6">
-                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FaExclamationTriangle className="text-3xl text-red-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">ÍĞİ ÇáÍÓÇÈ</h3>
-                  <p className="text-gray-600">
-                    åá ÃäÊ ãÊÃßÏ ãä ÍĞİ ÍÓÇÈß¿ ÓíÊã ÍĞİ ÌãíÚ ÈíÇäÇÊß æáÇ íãßä ÇÓÊÚÇÏÊåÇ.
-                  </p>
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleDeleteAccount}
-                    className="flex-1 bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition-all"
-                  >
-                    äÚã¡ ÇÍĞİ ÍÓÇÈí
-                  </button>
-                  <button
-                    onClick={() => setShowDeleteModal(false)}
-                    className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-all"
-                  >
-                    ÅáÛÇÁ
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </>
-  );
-}
-
+import React, { useState, useEffect } from 'react';
+import InstantImage from '@/components/InstantImage';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import InstantLink from '@/components/InstantLink';
+import { useI18n } from '@/lib/i18n';
+import { 
+  FaUser, FaBell, FaLock, FaPalette, FaGlobe, FaCog,
+  FaEnvelope, FaPhone, FaMapMarkerAlt, FaCamera, FaSave,
+  FaKey, FaShieldAlt, FaEye, FaEyeOff, FaMoon, FaSun,
+  FaDesktop, FaCheckCircle, FaExclamationTriangle, FaTrash,
+  FaSignOutAlt, FaEdit, FaUpload, FaClock, FaLanguage
+} from 'react-icons/fa';
+
+interface UserSettings {
+  id: string;
+  userId: string;
+  profile: {
+    name: string;
+    email: string;
+    phone: string;
+    avatar?: string;
+    bio?: string;
+    location?: string;
+  };
+  notifications: {
+    email: boolean;
+    sms: boolean;
+    push: boolean;
+    marketing: boolean;
+    bookings: boolean;
+    payments: boolean;
+  };
+  privacy: {
+    profileVisibility: 'public' | 'private';
+    showEmail: boolean;
+    showPhone: boolean;
+    allowMessages: boolean;
+  };
+  appearance: {
+    theme: 'light' | 'dark' | 'auto';
+    language: string;
+    fontSize: 'small' | 'medium' | 'large';
+  };
+  security: {
+    twoFactorAuth: boolean;
+    loginAlerts: boolean;
+  };
+}
+
+type TabType = 'profile' | 'notifications' | 'privacy' | 'appearance' | 'security' | 'account';
+
+export default function SettingsPage() {
+  const router = useRouter();
+  const { dir } = useI18n();
+  
+  const [activeTab, setActiveTab] = useState<TabType>('profile');
+  const [settings, setSettings] = useState<UserSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  // Ù†Ù…Ø§Ø°Ø¬
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showAvatarUpload, setShowAvatarUpload] = useState(false);
+
+  // Ø­Ù‚ÙˆÙ„ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+
+  useEffect(() => {
+    loadUserData();
+    loadSettings();
+  }, []);
+
+  const loadUserData = () => {
+    try {
+      const authData = localStorage.getItem('ain_auth');
+      if (authData) {
+        setUser(JSON.parse(authData));
+      } else {
+        router.replace('/login?return=/settings');
+      }
+    } catch (error) {
+
+      router.replace('/login?return=/settings');
+    }
+  };
+
+  const loadSettings = async () => {
+    try {
+      setLoading(true);
+      const authData = localStorage.getItem('ain_auth');
+      if (!authData) {
+        router.replace('/login?return=/settings');
+        return;
+      }
+
+      const userData = JSON.parse(authData);
+      const userId = userData.id;
+
+      const res = await fetch(`/api/settings/user?userId=${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSettings(data.settings);
+      } else {
+        // Ø¥Ù†Ø´Ø§Ø¡ Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§ÙØªØ±Ø§Ø¶ÙŠØ©
+        const defaultSettings: UserSettings = {
+          id: `SETTINGS-${Date.now()}`,
+          userId,
+          profile: {
+            name: userData.name || '',
+            email: userData.email || '',
+            phone: userData.phone || '',
+            avatar: userData.picture || userData.avatar,
+            bio: '',
+            location: 'Ù…Ø³Ù‚Ø·ØŒ Ø³Ù„Ø·Ù†Ø© Ø¹ÙÙ…Ø§Ù†'
+          },
+          notifications: {
+            email: true,
+            sms: true,
+            push: true,
+            marketing: false,
+            bookings: true,
+            payments: true
+          },
+          privacy: {
+            profileVisibility: 'public',
+            showEmail: false,
+            showPhone: false,
+            allowMessages: true
+          },
+          appearance: {
+            theme: 'auto',
+            language: 'ar',
+            fontSize: 'medium'
+          },
+          security: {
+            twoFactorAuth: false,
+            loginAlerts: true
+          }
+        };
+        setSettings(defaultSettings);
+      }
+    } catch (error) {
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    if (!settings) return;
+    
+    setSaving(true);
+    try {
+      const res = await fetch('/api/settings/user', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: settings.id, ...settings })
+      });
+
+      if (res.ok) {
+        alert('? ØªÙ… Ø­ÙØ¸ Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø¨Ù†Ø¬Ø§Ø­!');
+        
+        // ØªØ­Ø¯ÙŠØ« Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… ÙÙŠ localStorage
+        const authData = localStorage.getItem('ain_auth');
+        if (authData) {
+          const userData = JSON.parse(authData);
+          userData.name = settings.profile.name;
+          userData.email = settings.profile.email;
+          userData.phone = settings.profile.phone;
+          localStorage.setItem('ain_auth', JSON.stringify(userData));
+          window.dispatchEvent(new CustomEvent('ain_auth:change'));
+        }
+      } else {
+        const error = await res.json();
+        alert('Ø®Ø·Ø£: ' + (error.error || 'ÙØ´Ù„ Ø­ÙØ¸ Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª'));
+      }
+    } catch (error) {
+
+      alert('Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø­ÙØ¸ Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return alert('Ø§Ù„Ø±Ø¬Ø§Ø¡ Ù…Ù„Ø¡ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ„');
+    }
+    
+    if (newPassword !== confirmPassword) {
+      return alert('ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø© ÙˆØªØ£ÙƒÙŠØ¯Ù‡Ø§ ØºÙŠØ± Ù…ØªØ·Ø§Ø¨Ù‚ØªÙŠÙ†');
+    }
+    
+    if (newPassword.length < 8) {
+      return alert('ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† 8 Ø£Ø­Ø±Ù Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„');
+    }
+
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          userId: user.id,
+          currentPassword, 
+          newPassword 
+        })
+      });
+
+      if (res.ok) {
+        alert('? ØªÙ… ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø¨Ù†Ø¬Ø§Ø­!');
+        setShowPasswordModal(false);
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        const error = await res.json();
+        alert('Ø®Ø·Ø£: ' + (error.error || 'ÙØ´Ù„ ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±'));
+      }
+    } catch (error) {
+
+      alert('Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±');
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ø­Ø³Ø§Ø¨ÙƒØŸ Ù‡Ø°Ø§ Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡ Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„ØªØ±Ø§Ø¬Ø¹ Ø¹Ù†Ù‡!')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/auth/delete-account`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id })
+      });
+
+      if (res.ok) {
+        alert('ØªÙ… Ø­Ø°Ù Ø­Ø³Ø§Ø¨Ùƒ Ø¨Ù†Ø¬Ø§Ø­');
+        localStorage.removeItem('ain_auth');
+        localStorage.removeItem('auth_token');
+        router.replace('/');
+      } else {
+        const error = await res.json();
+        alert('Ø®Ø·Ø£: ' + (error.error || 'ÙØ´Ù„ Ø­Ø°Ù Ø§Ù„Ø­Ø³Ø§Ø¨'));
+      }
+    } catch (error) {
+
+      alert('Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø­Ø°Ù Ø§Ù„Ø­Ø³Ø§Ø¨');
+    }
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Head><title>Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ­Ù…ÙŠÙ„... | Ain Oman</title></Head>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Ø¬Ø§Ø±ÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (!settings || !user) {
+    return (
+      <>
+        <Head><title>Ø®Ø·Ø£ | Ain Oman</title></Head>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <FaExclamationTriangle className="text-6xl text-red-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª</h1>
+            <InstantLink href="/login?return=/settings" className="text-green-600 hover:text-green-700 font-medium">
+              ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„
+            </InstantLink>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  const tabs = [
+    { id: 'profile', label: 'Ø§Ù„Ù…Ù„Ù Ø§Ù„Ø´Ø®ØµÙŠ', icon: FaUser },
+    { id: 'notifications', label: 'Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª', icon: FaBell },
+    { id: 'privacy', label: 'Ø§Ù„Ø®ØµÙˆØµÙŠØ©', icon: FaShieldAlt },
+    { id: 'appearance', label: 'Ø§Ù„Ù…Ø¸Ù‡Ø±', icon: FaPalette },
+    { id: 'security', label: 'Ø§Ù„Ø£Ù…Ø§Ù†', icon: FaLock },
+    { id: 'account', label: 'Ø§Ù„Ø­Ø³Ø§Ø¨', icon: FaCog }
+  ];
+
+  return (
+    <>
+      <Head>
+        <title>Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª | Ain Oman</title>
+      </Head>
+
+      <div dir={dir} className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-green-50 py-8 px-4">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className="text-4xl font-bold text-gray-900 mb-2">Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª</h1>
+                <p className="text-gray-600">Ø¥Ø¯Ø§Ø±Ø© Ø­Ø³Ø§Ø¨Ùƒ ÙˆØªÙØ¶ÙŠÙ„Ø§ØªÙƒ</p>
+              </div>
+              <button
+                onClick={handleSaveSettings}
+                disabled={saving}
+                className="bg-gradient-to-r from-green-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-blue-700 disabled:opacity-50 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
+              >
+                <FaSave />
+                {saving ? 'Ø¬Ø§Ø±ÙŠ Ø§Ù„Ø­ÙØ¸...' : 'Ø­ÙØ¸ Ø§Ù„ØªØºÙŠÙŠØ±Ø§Øª'}
+              </button>
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-4 gap-6">
+            {/* Sidebar Tabs */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-2xl shadow-lg p-4 sticky top-24">
+                <nav className="space-y-2">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id as TabType)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                        activeTab === tab.id
+                          ? 'bg-gradient-to-r from-green-600 to-blue-600 text-white shadow-md'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <tab.icon className="text-xl" />
+                      <span className="font-medium">{tab.label}</span>
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="lg:col-span-3">
+              <div className="bg-white rounded-2xl shadow-lg p-8">
+                
+                {/* Profile Tab */}
+                {activeTab === 'profile' && (
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4 mb-6">
+                      <FaUser className="text-3xl text-green-600" />
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900">Ø§Ù„Ù…Ù„Ù Ø§Ù„Ø´Ø®ØµÙŠ</h2>
+                        <p className="text-gray-600">Ø¥Ø¯Ø§Ø±Ø© Ù…Ø¹Ù„ÙˆÙ…Ø§ØªÙƒ Ø§Ù„Ø´Ø®ØµÙŠØ©</p>
+                      </div>
+                    </div>
+
+                    {/* Avatar */}
+                    <div className="flex items-center gap-6 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
+                      <div className="relative">
+                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-600 to-blue-600 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
+                          {settings.profile.avatar ? (
+                            <InstantImage src={settings.profile.avatar} alt="Avatar" className="w-full h-full object-cover"  loading="lazy" width={400} height={300}/>
+                          ) : (
+                            settings.profile.name.charAt(0).toUpperCase()
+                          )}
+                        </div>
+                        <button className="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-all shadow-lg">
+                          <FaCamera className="text-sm" />
+                        </button>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-1">{settings.profile.name}</h3>
+                        <p className="text-sm text-gray-600 mb-2">{settings.profile.email}</p>
+                        <button
+                          onClick={() => setShowAvatarUpload(true)}
+                          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                          ØªØºÙŠÙŠØ± Ø§Ù„ØµÙˆØ±Ø©
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Profile Fields */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <FaUser className="inline-block ml-2" />
+                          Ø§Ù„Ø§Ø³Ù… Ø§Ù„ÙƒØ§Ù…Ù„
+                        </label>
+                        <input
+                          type="text"
+                          value={settings.profile.name}
+                          onChange={(e) => setSettings({
+                            ...settings,
+                            profile: { ...settings.profile, name: e.target.value }
+                          })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <FaEnvelope className="inline-block ml-2" />
+                          Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ
+                        </label>
+                        <input
+                          type="email"
+                          value={settings.profile.email}
+                          onChange={(e) => setSettings({
+                            ...settings,
+                            profile: { ...settings.profile, email: e.target.value }
+                          })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                          dir="ltr"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <FaPhone className="inline-block ml-2" />
+                          Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ
+                        </label>
+                        <input
+                          type="tel"
+                          value={settings.profile.phone}
+                          onChange={(e) => setSettings({
+                            ...settings,
+                            profile: { ...settings.profile, phone: e.target.value }
+                          })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                          dir="ltr"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <FaMapMarkerAlt className="inline-block ml-2" />
+                          Ø§Ù„Ù…ÙˆÙ‚Ø¹
+                        </label>
+                        <input
+                          type="text"
+                          value={settings.profile.location || ''}
+                          onChange={(e) => setSettings({
+                            ...settings,
+                            profile: { ...settings.profile, location: e.target.value }
+                          })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Ù†Ø¨Ø°Ø© Ø¹Ù†Ùƒ
+                      </label>
+                      <textarea
+                        value={settings.profile.bio || ''}
+                        onChange={(e) => setSettings({
+                          ...settings,
+                          profile: { ...settings.profile, bio: e.target.value }
+                        })}
+                        rows={4}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none"
+                        placeholder="Ø£Ø®Ø¨Ø±Ù†Ø§ Ø¹Ù† Ù†ÙØ³Ùƒ..."
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Notifications Tab */}
+                {activeTab === 'notifications' && (
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4 mb-6">
+                      <FaBell className="text-3xl text-blue-600" />
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900">Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª</h2>
+                        <p className="text-gray-600">ØªØ­ÙƒÙ… ÙÙŠ Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø§Ù„ØªÙŠ ØªØªÙ„Ù‚Ø§Ù‡Ø§</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      {[
+                        { key: 'email', label: 'Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ', desc: 'ØªÙ„Ù‚ÙŠ Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø¹Ø¨Ø± Ø§Ù„Ø¨Ø±ÙŠØ¯', icon: FaEnvelope },
+                        { key: 'sms', label: 'Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø§Ù„Ø±Ø³Ø§Ø¦Ù„ Ø§Ù„Ù†ØµÙŠØ©', desc: 'ØªÙ„Ù‚ÙŠ Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø¹Ø¨Ø± SMS', icon: FaPhone },
+                        { key: 'push', label: 'Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø§Ù„ÙÙˆØ±ÙŠØ©', desc: 'Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø§Ù„Ù…ØªØµÙØ­', icon: FaBell },
+                        { key: 'bookings', label: 'Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø§Ù„Ø­Ø¬ÙˆØ²Ø§Øª', desc: 'ØªØ­Ø¯ÙŠØ«Ø§Øª Ø­ÙˆÙ„ Ø­Ø¬ÙˆØ²Ø§ØªÙƒ', icon: FaCheckCircle },
+                        { key: 'payments', label: 'Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª', desc: 'ØªÙ†Ø¨ÙŠÙ‡Ø§Øª Ø§Ù„Ø¯ÙØ¹ ÙˆØ§Ù„ÙÙˆØ§ØªÙŠØ±', icon: FaCheckCircle },
+                        { key: 'marketing', label: 'Ø¥Ø´Ø¹Ø§Ø±Ø§Øª ØªØ³ÙˆÙŠÙ‚ÙŠØ©', desc: 'Ø¹Ø±ÙˆØ¶ ÙˆØ£Ø®Ø¨Ø§Ø±', icon: FaBell }
+                      ].map((item) => (
+                        <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                          <div className="flex items-center gap-3">
+                            <item.icon className="text-xl text-gray-600" />
+                            <div>
+                              <p className="font-medium text-gray-900">{item.label}</p>
+                              <p className="text-sm text-gray-600">{item.desc}</p>
+                            </div>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={settings.notifications[item.key as keyof typeof settings.notifications]}
+                              onChange={(e) => setSettings({
+                                ...settings,
+                                notifications: {
+                                  ...settings.notifications,
+                                  [item.key]: e.target.checked
+                                }
+                              })}
+                              className="sr-only peer"
+                            />
+                            <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-600"></div>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Privacy Tab */}
+                {activeTab === 'privacy' && (
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4 mb-6">
+                      <FaShieldAlt className="text-3xl text-purple-600" />
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900">Ø§Ù„Ø®ØµÙˆØµÙŠØ©</h2>
+                        <p className="text-gray-600">ØªØ­ÙƒÙ… ÙÙŠ Ù…Ù† ÙŠØ±Ù‰ Ù…Ø¹Ù„ÙˆÙ…Ø§ØªÙƒ</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                          Ø¸Ù‡ÙˆØ± Ø§Ù„Ù…Ù„Ù Ø§Ù„Ø´Ø®ØµÙŠ
+                        </label>
+                        <div className="space-y-2">
+                          {[
+                            { value: 'public', label: 'Ø¹Ø§Ù…', desc: 'ÙŠÙ…ÙƒÙ† Ù„Ù„Ø¬Ù…ÙŠØ¹ Ø±Ø¤ÙŠØ© Ù…Ù„ÙÙƒ' },
+                            { value: 'private', label: 'Ø®Ø§Øµ', desc: 'Ø£Ù†Øª ÙÙ‚Ø· Ù…Ù† ÙŠÙ…ÙƒÙ†Ù‡ Ø±Ø¤ÙŠØ© Ù…Ù„ÙÙƒ' }
+                          ].map((option) => (
+                            <label key={option.value} className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 cursor-pointer transition-all">
+                              <input
+                                type="radio"
+                                name="profileVisibility"
+                                value={option.value}
+                                checked={settings.privacy.profileVisibility === option.value}
+                                onChange={(e) => setSettings({
+                                  ...settings,
+                                  privacy: {
+                                    ...settings.privacy,
+                                    profileVisibility: e.target.value as 'public' | 'private'
+                                  }
+                                })}
+                                className="w-5 h-5 text-green-600 focus:ring-green-500"
+                              />
+                              <div>
+                                <p className="font-medium text-gray-900">{option.label}</p>
+                                <p className="text-sm text-gray-600">{option.desc}</p>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        {[
+                          { key: 'showEmail', label: 'Ø¥Ø¸Ù‡Ø§Ø± Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ', icon: FaEnvelope },
+                          { key: 'showPhone', label: 'Ø¥Ø¸Ù‡Ø§Ø± Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ', icon: FaPhone },
+                          { key: 'allowMessages', label: 'Ø§Ù„Ø³Ù…Ø§Ø­ Ø¨Ø§Ù„Ø±Ø³Ø§Ø¦Ù„', icon: FaBell }
+                        ].map((item) => (
+                          <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                            <div className="flex items-center gap-3">
+                              <item.icon className="text-xl text-gray-600" />
+                              <span className="font-medium text-gray-900">{item.label}</span>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={settings.privacy[item.key as keyof typeof settings.privacy] as boolean}
+                                onChange={(e) => setSettings({
+                                  ...settings,
+                                  privacy: {
+                                    ...settings.privacy,
+                                    [item.key]: e.target.checked
+                                  }
+                                })}
+                                className="sr-only peer"
+                              />
+                              <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Appearance Tab */}
+                {activeTab === 'appearance' && (
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4 mb-6">
+                      <FaPalette className="text-3xl text-pink-600" />
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900">Ø§Ù„Ù…Ø¸Ù‡Ø±</h2>
+                        <p className="text-gray-600">Ø®ØµØµ Ø´ÙƒÙ„ Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø­Ø³Ø¨ Ø°ÙˆÙ‚Ùƒ</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                        <FaPalette className="inline-block ml-2" />
+                        Ø§Ù„Ù…Ø¸Ù‡Ø±
+                      </label>
+                      <div className="grid grid-cols-3 gap-4">
+                        {[
+                          { value: 'light', label: 'ÙØ§ØªØ­', icon: FaSun },
+                          { value: 'dark', label: 'Ø¯Ø§ÙƒÙ†', icon: FaMoon },
+                          { value: 'auto', label: 'ØªÙ„Ù‚Ø§Ø¦ÙŠ', icon: FaDesktop }
+                        ].map((theme) => (
+                          <button
+                            key={theme.value}
+                            onClick={() => setSettings({
+                              ...settings,
+                              appearance: { ...settings.appearance, theme: theme.value as any }
+                            })}
+                            className={`p-4 rounded-xl border-2 transition-all ${
+                              settings.appearance.theme === theme.value
+                                ? 'border-green-600 bg-green-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            <theme.icon className={`text-3xl mx-auto mb-2 ${
+                              settings.appearance.theme === theme.value ? 'text-green-600' : 'text-gray-600'
+                            }`} />
+                            <p className="font-medium text-gray-900">{theme.label}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                        <FaLanguage className="inline-block ml-2" />
+                        Ø§Ù„Ù„ØºØ©
+                      </label>
+                      <select
+                        value={settings.appearance.language}
+                        onChange={(e) => setSettings({
+                          ...settings,
+                          appearance: { ...settings.appearance, language: e.target.value }
+                        })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                      >
+                        <option value="ar">Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©</option>
+                        <option value="en">English</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                        Ø­Ø¬Ù… Ø§Ù„Ø®Ø·
+                      </label>
+                      <div className="grid grid-cols-3 gap-4">
+                        {[
+                          { value: 'small', label: 'ØµØºÙŠØ±' },
+                          { value: 'medium', label: 'Ù…ØªÙˆØ³Ø·' },
+                          { value: 'large', label: 'ÙƒØ¨ÙŠØ±' }
+                        ].map((size) => (
+                          <button
+                            key={size.value}
+                            onClick={() => setSettings({
+                              ...settings,
+                              appearance: { ...settings.appearance, fontSize: size.value as any }
+                            })}
+                            className={`p-3 rounded-xl border-2 transition-all ${
+                              settings.appearance.fontSize === size.value
+                                ? 'border-green-600 bg-green-50 text-green-700'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            <p className="font-medium">{size.label}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Security Tab */}
+                {activeTab === 'security' && (
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4 mb-6">
+                      <FaLock className="text-3xl text-red-600" />
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900">Ø§Ù„Ø£Ù…Ø§Ù†</h2>
+                        <p className="text-gray-600">Ø­Ù…Ø§ÙŠØ© Ø­Ø³Ø§Ø¨Ùƒ ÙˆØ¨ÙŠØ§Ù†Ø§ØªÙƒ</p>
+                      </div>
+                    </div>
+
+                    {/* Change Password */}
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border-2 border-blue-200">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
+                            <FaKey className="text-blue-600" />
+                            ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±
+                          </h3>
+                          <p className="text-sm text-gray-600">Ø¢Ø®Ø± ØªØºÙŠÙŠØ±: Ù…Ù†Ø° 30 ÙŠÙˆÙ…</p>
+                        </div>
+                        <button
+                          onClick={() => setShowPasswordModal(true)}
+                          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all"
+                        >
+                          ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Security Options */}
+                    <div className="space-y-4">
+                      {[
+                        { 
+                          key: 'twoFactorAuth', 
+                          label: 'Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø© Ø§Ù„Ø«Ù†Ø§Ø¦ÙŠØ© (2FA)', 
+                          desc: 'Ø·Ø¨Ù‚Ø© Ø£Ù…Ø§Ù† Ø¥Ø¶Ø§ÙÙŠØ© Ù„Ø­Ø³Ø§Ø¨Ùƒ',
+                          icon: FaShieldAlt
+                        },
+                        { 
+                          key: 'loginAlerts', 
+                          label: 'ØªÙ†Ø¨ÙŠÙ‡Ø§Øª ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„', 
+                          desc: 'Ø¥Ø´Ø¹Ø§Ø± Ø¹Ù†Ø¯ ØªØ³Ø¬ÙŠÙ„ Ø¯Ø®ÙˆÙ„ Ø¬Ø¯ÙŠØ¯',
+                          icon: FaBell
+                        }
+                      ].map((item) => (
+                        <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                          <div className="flex items-center gap-3">
+                            <item.icon className="text-xl text-red-600" />
+                            <div>
+                              <p className="font-medium text-gray-900">{item.label}</p>
+                              <p className="text-sm text-gray-600">{item.desc}</p>
+                            </div>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={settings.security[item.key as keyof typeof settings.security] as boolean}
+                              onChange={(e) => setSettings({
+                                ...settings,
+                                security: {
+                                  ...settings.security,
+                                  [item.key]: e.target.checked
+                                }
+                              })}
+                              className="sr-only peer"
+                            />
+                            <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-red-600"></div>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Account Tab */}
+                {activeTab === 'account' && (
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4 mb-6">
+                      <FaCog className="text-3xl text-gray-600" />
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900">Ø§Ù„Ø­Ø³Ø§Ø¨</h2>
+                        <p className="text-gray-600">Ø¥Ø¯Ø§Ø±Ø© Ø­Ø³Ø§Ø¨Ùƒ ÙˆØ¨ÙŠØ§Ù†Ø§ØªÙƒ</p>
+                      </div>
+                    </div>
+
+                    {/* Account Info */}
+                    <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border-2 border-green-200">
+                      <h3 className="font-semibold text-gray-900 mb-4">Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø­Ø³Ø§Ø¨</h3>
+                      <div className="space-y-3 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Ù…Ø¹Ø±Ù Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…:</span>
+                          <span className="font-mono text-gray-900">{user.id}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Ù†ÙˆØ¹ Ø§Ù„Ø­Ø³Ø§Ø¨:</span>
+                          <span className="font-medium text-gray-900">{user.role || 'user'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Ø­Ø§Ù„Ø© Ø§Ù„ØªÙˆØ«ÙŠÙ‚:</span>
+                          <span className={`font-medium ${user.isVerified ? 'text-green-600' : 'text-yellow-600'}`}>
+                            {user.isVerified ? '? Ù…ÙˆØ«Ù‚' : '?? ØºÙŠØ± Ù…ÙˆØ«Ù‚'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Export Data */}
+                    <div className="bg-blue-50 p-6 rounded-xl border-2 border-blue-200">
+                      <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                        <FaUpload className="text-blue-600" />
+                        ØªØµØ¯ÙŠØ± Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Ø§Ø­ØµÙ„ Ø¹Ù„Ù‰ Ù†Ø³Ø®Ø© Ù…Ù† Ø¬Ù…ÙŠØ¹ Ø¨ÙŠØ§Ù†Ø§ØªÙƒ
+                      </p>
+                      <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
+                        ØªØµØ¯ÙŠØ± Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
+                      </button>
+                    </div>
+
+                    {/* Danger Zone */}
+                    <div className="bg-red-50 p-6 rounded-xl border-2 border-red-200">
+                      <h3 className="font-semibold text-red-900 mb-2 flex items-center gap-2">
+                        <FaExclamationTriangle className="text-red-600" />
+                        Ù…Ù†Ø·Ù‚Ø© Ø§Ù„Ø®Ø·Ø±
+                      </h3>
+                      <p className="text-sm text-red-700 mb-4">
+                        Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª Ø§Ù„ØªØ§Ù„ÙŠØ© Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„ØªØ±Ø§Ø¬Ø¹ Ø¹Ù†Ù‡Ø§
+                      </p>
+                      <div className="space-y-3">
+                        <button
+                          onClick={() => {
+                            localStorage.removeItem('ain_auth');
+                            localStorage.removeItem('auth_token');
+                            router.push('/login');
+                          }}
+                          className="w-full bg-white border-2 border-red-300 text-red-700 px-4 py-2 rounded-lg hover:bg-red-50 transition-all flex items-center justify-center gap-2"
+                        >
+                          <FaSignOutAlt />
+                          ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬ Ù…Ù† Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø©
+                        </button>
+                        <button
+                          onClick={() => setShowDeleteModal(true)}
+                          className="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2"
+                        >
+                          <FaTrash />
+                          Ø­Ø°Ù Ø§Ù„Ø­Ø³Ø§Ø¨ Ù†Ù‡Ø§Ø¦ÙŠØ§Ù‹
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Change Password Modal */}
+          {showPasswordModal && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±</h3>
+                
+                <div className="space-y-4 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ø­Ø§Ù„ÙŠØ©
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showCurrentPassword ? 'text' : 'password'}
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 pr-12"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showCurrentPassword ? <FaEyeOff /> : <FaEye />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø©
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showNewPassword ? 'text' : 'password'}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 pr-12"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showNewPassword ? <FaEyeOff /> : <FaEye />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ØªØ£ÙƒÙŠØ¯ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±
+                    </label>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleChangePassword}
+                    className="flex-1 bg-gradient-to-r from-green-600 to-blue-600 text-white py-3 rounded-xl font-semibold hover:from-green-700 hover:to-blue-700 transition-all"
+                  >
+                    Ø­ÙØ¸
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowPasswordModal(false);
+                      setCurrentPassword('');
+                      setNewPassword('');
+                      setConfirmPassword('');
+                    }}
+                    className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-all"
+                  >
+                    Ø¥Ù„ØºØ§Ø¡
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Delete Account Modal */}
+          {showDeleteModal && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FaExclamationTriangle className="text-3xl text-red-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Ø­Ø°Ù Ø§Ù„Ø­Ø³Ø§Ø¨</h3>
+                  <p className="text-gray-600">
+                    Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ø­Ø³Ø§Ø¨ÙƒØŸ Ø³ÙŠØªÙ… Ø­Ø°Ù Ø¬Ù…ÙŠØ¹ Ø¨ÙŠØ§Ù†Ø§ØªÙƒ ÙˆÙ„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ø³ØªØ¹Ø§Ø¯ØªÙ‡Ø§.
+                  </p>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleDeleteAccount}
+                    className="flex-1 bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition-all"
+                  >
+                    Ù†Ø¹Ù…ØŒ Ø§Ø­Ø°Ù Ø­Ø³Ø§Ø¨ÙŠ
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteModal(false)}
+                    className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-all"
+                  >
+                    Ø¥Ù„ØºØ§Ø¡
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
