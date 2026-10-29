@@ -51,6 +51,7 @@ try { FloatingButtons = require("@/components/floating/FloatingButtons").default
 
 // Auth
 import { AuthProvider } from "@/context/AuthContext";
+import { BhdAccountIsolation } from "@/components/bhd/BhdAccountIsolation";
 
 // Performance Provider للتنقل الفوري ⚡
 let PerformanceProvider: any = ({ children }: any) => <>{children}</>;
@@ -123,6 +124,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <I18nProvider>
           <CustomizationProvider>
             <AuthProvider>
+              <BhdAccountIsolation />
               <Head>
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="theme-color" content="#0f766e" />

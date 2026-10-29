@@ -3,6 +3,17 @@ import { BHD_APPS_FALLBACK, type BhdApp, type BhdAppMode } from "@/lib/bhd/apps"
 
 export const IDENTITY_CATALOG_URL = `${DEFAULT_IDENTITY_ISSUER}/api/bhd/catalog`;
 
+let cache: BhdApp[] | null = null;
+
+export function getCachedCatalogApps(): BhdApp[] {
+  return cache && cache.length ? cache : BHD_APPS_FALLBACK;
+}
+
+export function setCachedCatalogApps(apps: BhdApp[]) {
+  if (!apps.length) return;
+  cache = apps;
+}
+
 function asMode(value: unknown): BhdAppMode {
   return value === "identity" || value === "browse" || value === "sso" ? value : "sso";
 }
@@ -51,8 +62,10 @@ export async function fetchIdentityCatalog(): Promise<BhdApp[]> {
     if (!response.ok) throw new Error(String(response.status));
     const body = (await response.json()) as { apps?: unknown };
     const apps = normalizeCatalogApps(body.apps);
-    return apps.length ? apps : BHD_APPS_FALLBACK;
+    const out = apps.length ? apps : BHD_APPS_FALLBACK;
+    if (apps.length) setCachedCatalogApps(apps);
+    return out;
   } catch {
-    return BHD_APPS_FALLBACK;
+    return getCachedCatalogApps();
   }
 }
