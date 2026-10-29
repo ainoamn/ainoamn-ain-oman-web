@@ -86,6 +86,23 @@ const nextConfig = {
           },
         ],
       },
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://id.bhd-om.com https://maps.googleapis.com",
+              "connect-src 'self' https://id.bhd-om.com https://*.bhd-om.com https://maps.googleapis.com wss:",
+              "img-src 'self' data: blob: https: http:",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "font-src 'self' https://fonts.gstatic.com data:",
+              "frame-src 'self' https://id.bhd-om.com",
+            ].join('; '),
+          },
+        ],
+      },
     ];
   },
   

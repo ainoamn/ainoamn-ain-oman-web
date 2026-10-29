@@ -1,5 +1,6 @@
 import type { AppProps } from "next/app";
 import Head from "next/head";
+import Script from "next/script";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import "@/styles/globals.css";
@@ -151,6 +152,11 @@ export default function App({ Component, pageProps }: AppProps) {
               </Head>
 
               <LangSync />
+
+              <Script
+                src="https://id.bhd-om.com/bhd-identity.js"
+                strategy="afterInteractive"
+              />
 
               <GoogleMapsProvider>
                 <CurrencyProvider>
