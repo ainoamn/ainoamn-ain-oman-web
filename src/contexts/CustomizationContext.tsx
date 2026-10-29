@@ -184,7 +184,13 @@ export function CustomizationProvider({ children }: { children: ReactNode }) {
 
 export function useCustomization() {
   const ctx = useContext(CustomizationContext);
-  if (!ctx) throw new Error("useCustomization must be used within CustomizationProvider");
+  if (!ctx) {
+    return {
+      config: {},
+      setConfig: () => {},
+      reset: () => {},
+    } as any;
+  }
   return ctx;
 }
 

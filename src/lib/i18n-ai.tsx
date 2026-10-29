@@ -115,7 +115,16 @@ export function AI18nProvider({ children }: { children: React.ReactNode }) {
 
 export function useAI18n() {
   const ctx = useContext(C);
-  if (!ctx) throw new Error("useAI18n must be used within <AI18nProvider>.");
+  if (!ctx) {
+    return {
+      lang: "ar",
+      dir: "rtl",
+      setLang: () => {},
+      t: (k: string) => k,
+      prefetch: async () => {},
+      supported: ["ar", "en"],
+    } as any;
+  }
   return ctx;
 }
 

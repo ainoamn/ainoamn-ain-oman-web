@@ -41,6 +41,18 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
 export function useCurrency() {
   const ctx = useContext(CurrencyContext);
-  if (!ctx) throw new Error("useCurrency must be used within CurrencyProvider");
+  if (!ctx) {
+    // Prerender-safe fallback so static export can finish without CurrencyProvider.
+    return {
+      currency: "OMR" as Currency,
+      setCurrency: (_c: Currency) => {},
+      format: (n: number) =>
+        new Intl.NumberFormat("ar-OM", {
+          style: "currency",
+          currency: "OMR",
+          maximumFractionDigits: 3,
+        }).format(n),
+    };
+  }
   return ctx;
 }

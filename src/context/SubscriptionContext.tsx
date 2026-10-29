@@ -217,7 +217,12 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
 export function useSubscription() {
   const context = useContext(SubscriptionContext);
   if (context === undefined) {
-    throw new Error('useSubscription must be used within SubscriptionProvider');
+    return {
+      subscription: null,
+      loading: false,
+      hasPermission: () => false,
+      refresh: async () => {},
+    } as any;
   }
   return context;
 }

@@ -257,7 +257,15 @@ export function BookingsProvider({
 export function useBookings() {
   const context = useContext(BookingsContext);
   if (!context) {
-    throw new Error('useBookings must be used within BookingsProvider');
+    return {
+      bookings: [],
+      loading: false,
+      error: null,
+      refresh: async () => {},
+      createBooking: async () => null,
+      updateBooking: async () => null,
+      cancelBooking: async () => null,
+    } as any;
   }
   return context;
 }

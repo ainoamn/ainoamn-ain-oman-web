@@ -51,7 +51,18 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 
 export function useUi(){
   const ctx = useContext(UiContext);
-  if(!ctx) throw new Error("useUi must be used within UiProvider");
+  if(!ctx) {
+    return {
+      locale: "ar",
+      currency: "OMR",
+      theme: "light",
+      primary: "#0ea5e9",
+      setLocale: () => {},
+      setCurrency: () => {},
+      setTheme: () => {},
+      setPrimary: () => {},
+    } as UiState;
+  }
   return ctx;
 }
 

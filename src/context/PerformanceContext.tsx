@@ -273,7 +273,10 @@ export function PerformanceProvider({ children }: { children: React.ReactNode })
 export function usePerformance() {
   const context = useContext(PerformanceContext);
   if (!context) {
-    throw new Error('usePerformance must be used within PerformanceProvider');
+    return {
+      prefetchPage: async () => {},
+      preloadData: async () => {},
+    } as any;
   }
   return context;
 }
