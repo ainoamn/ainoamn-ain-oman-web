@@ -1,4 +1,5 @@
-﻿// src/pages/rentals/edit/[id].tsx - صفحة تعديل العقد الإيجاري - عرض تفاعلي مع أزرار التعديل
+// ﻿// src/pages/rentals/edit/[id].tsx - صفحة تعديل العقد الإيجاري - عرض تفاعلي مع أزرار التعديل
+
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";

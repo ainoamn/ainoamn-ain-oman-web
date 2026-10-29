@@ -1,4 +1,5 @@
-﻿// src/pages/dashboard/property-owner.tsx - لوحة تحكم إدارة العقار والملاك (موحدة)
+// ﻿// src/pages/dashboard/property-owner.tsx - لوحة تحكم إدارة العقار والملاك (موحدة)
+
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { NextPage } from "next";
 import Head from "next/head";

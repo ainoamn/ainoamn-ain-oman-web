@@ -1,5 +1,6 @@
-// src/components/forms/Toggle.tsx //
-type Props = { checked: boolean; onChange: (v: boolean) => void; label?: string };
+// // src/components/forms/Toggle.tsx //
+// type Props = { checked: boolean; onChange: (v: boolean) => void; label?: string };
+
 export default function Toggle({ checked, onChange, label }: Props) {
   return (
     <label className="inline-flex items-center gap-2 cursor-pointer select-none">

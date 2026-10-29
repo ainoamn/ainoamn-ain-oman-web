@@ -1,4 +1,5 @@
-﻿// src/pages/rentals/new.tsx - صفحة إنشاء عقد إيجار جديد مع نظام بحث محسن
+// ﻿// src/pages/rentals/new.tsx - صفحة إنشاء عقد إيجار جديد مع نظام بحث محسن
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
