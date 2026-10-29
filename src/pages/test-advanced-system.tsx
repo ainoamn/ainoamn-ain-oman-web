@@ -2,8 +2,8 @@
 // src/pages/test-advanced-system.tsx - صفحة اختبار النظام المتقدم
 import React, { useState, useEffect } from 'react';
 import { 
-  FiShield, FiBuilding, FiUser, FiTrendingUp, FiActivity,
-  FiBarChart3, FiUsers, FiCalendar, FiDollarSign, FiSettings,
+  FiShield, FiHome, FiUser, FiTrendingUp, FiActivity,
+  FiBarChart2, FiUsers, FiCalendar, FiDollarSign, FiSettings,
   FiBell, FiSearch, FiFilter, FiGlobe, FiBrain, FiZap,
   FiCheckCircle, FiAlertTriangle, FiInfo, FiPlay, FiCheck, FiX, FiClock, FiTarget, FiStar
 } from 'react-icons/fi';

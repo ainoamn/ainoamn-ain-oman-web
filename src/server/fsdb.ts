@@ -43,4 +43,10 @@ export function dataPath(file?: string): string {
   return file ? path.join(dataDir, withExt(file)) : dataDir;
 }
 
-export default { readJson, writeJson, dataPath };
+/** Simple id helper used by several API routes. */
+export function genId(prefix = "ID"): string {
+  const rand = Math.random().toString(36).slice(2, 10);
+  return `${prefix}-${Date.now().toString(36)}-${rand}`;
+}
+
+export default { readJson, writeJson, dataPath, genId };

@@ -47,7 +47,8 @@ const nextConfig = {
   // Prefetch تلقائي لجميع الروابط
   experimental: {
     // optimizeCss: true, // تعطيل مؤقتاً (يحتاج critters)
-    optimizePackageImports: ['@heroicons/react', 'lucide-react', 'react-icons'],
+    // Do not optimize react-icons here — barrel names like FiSparkles/FaEyeOff break the prod build.
+    optimizePackageImports: ['@heroicons/react', 'lucide-react'],
   },
   
   i18n: {

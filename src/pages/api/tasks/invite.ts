@@ -2,7 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdminApi } from "@/server/auth";
 import { getTask, updateTask, type TaskAccessRole } from "@/server/tasks";
-import { sendEmail, sendWhatsapp } from "@/server/notify";
+import { sendEmail, sendWhatsApp as sendWhatsapp } from "@/server/notify";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!requireAdminApi(req, res)) return;

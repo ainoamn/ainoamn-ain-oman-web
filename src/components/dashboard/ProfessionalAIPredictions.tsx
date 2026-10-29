@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiZap, FiTrendingUp, FiAlertCircle, FiCheckCircle,
-  FiArrowRight, FiX, FiSparkles
+  FiArrowRight, FiX, FiStar
 } from 'react-icons/fi';
 import { aiPredictionEngine, Prediction, UserBehavior } from '@/lib/aiPredictions';
 
@@ -44,7 +44,7 @@ const typeConfig = {
     textColor: 'text-blue-700'
   },
   trend: {
-    icon: FiSparkles,
+    icon: FiStar,
     gradient: 'from-purple-500 to-pink-500',
     bg: 'bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50',
     border: 'border-purple-200/50',
