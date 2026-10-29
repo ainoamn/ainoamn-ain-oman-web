@@ -767,7 +767,15 @@ export function I18nProvider({ children, initialLang }: { children: React.ReactN
 
 export function useI18n() {
   const ctx = useContext(I18nContext);
-  if (!ctx) throw new Error("useI18n must be used within I18nProvider.");
+  if (!ctx) {
+    // Prerender-safe fallback so `next build` can static-generate pages.
+    return {
+      lang: "ar" as Lang,
+      dir: "rtl" as const,
+      setLang: (_l: Lang) => {},
+      t: (key: string, fallback?: string) => fallback || key,
+    } as any;
+  }
   return ctx;
 }
 
