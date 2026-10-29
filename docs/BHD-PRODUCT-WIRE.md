@@ -45,3 +45,7 @@ BHD_OAUTH_CLIENT_SECRET=      # إن طلبت الهوية سراً للعميل
 - `BHD-CURSOR-PRODUCT-WIRE.md` — أمر الوكيل  
 - `BHD-IDENTITY-RUNTIME.md` — runtime + سكربت  
 - `BHD-PRODUCTS-WIRE-STATUS.md` — حالة كل المواقع  
+
+## تحديث §95 (29 أكتوبر 2026)
+
+إصلاح جذر العزل على الهوية: `POST /api/auth/switch` يكتب `bhd_id` دائماً. هذا المنتج يعتمد `rebind` محلياً بعد التبديل. التفاصيل: `BHD-ACCOUNT-ISOLATION.md`.
