@@ -4,6 +4,7 @@ import {
   isAccountRebindPending,
   isIdentityOrigin,
   scrubCacheBustFromUrl,
+  tabMayClaimProductCookie,
 } from "@/lib/identity/client";
 import { loadBhdIdentity } from "@/lib/identity/bhd-browser";
 import {
@@ -94,6 +95,8 @@ export function BhdPrivacyGate({
         }
 
         const token = boundWindowToken() || (typeof body.token === "string" ? body.token : "");
+        if (!tabMayClaimProductCookie()) return;
+
         await applyAccountIsolation(token, { force: true, sub: targetAu || identityId, silent: true });
       } catch {
         clearAccountRebindLock();
