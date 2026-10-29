@@ -405,7 +405,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     switch (method) {
-      case 'GET':
+      case 'GET': {
         // قراءة التقارير
         let reports = readReports();
         
@@ -515,8 +515,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           }
         });
         break;
+      }
 
-      case 'POST':
+      case 'POST': {
         // إنشاء تقرير جديد
         const {
           title,
@@ -569,8 +570,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           report: newReport
         });
         break;
+      }
 
-      case 'PUT':
+      case 'PUT': {
         // تحديث تقرير
         const { id, ...updateData } = req.body;
 
@@ -600,8 +602,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           report: updatedReport
         });
         break;
+      }
 
-      case 'DELETE':
+      case 'DELETE': {
         // حذف تقرير
         const { id: deleteId } = req.query;
 
@@ -623,6 +626,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           message: 'Report removed successfully'
         });
         break;
+      }
 
       default:
         res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);

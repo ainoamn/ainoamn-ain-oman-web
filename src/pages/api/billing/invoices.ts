@@ -260,7 +260,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     switch (method) {
-      case 'GET':
+      case 'GET': {
         // قراءة الفواتير
         let invoices = readInvoices();
         
@@ -294,8 +294,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           total: enrichedInvoices.length
         });
         break;
+      }
 
-      case 'POST':
+      case 'POST': {
         // إنشاء فاتورة جديدة
         const { 
           customerId, 
@@ -348,8 +349,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           invoice: newInvoice
         });
         break;
+      }
 
-      case 'PUT':
+      case 'PUT': {
         // تحديث فاتورة
         const { id, ...updateData } = req.body;
 
@@ -386,8 +388,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           invoice: updatedInvoice
         });
         break;
+      }
 
-      case 'DELETE':
+      case 'DELETE': {
         // حذف فاتورة
         const { id: deleteId } = req.query;
 
@@ -409,6 +412,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           message: 'Invoice deleted successfully'
         });
         break;
+      }
 
       default:
         res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
